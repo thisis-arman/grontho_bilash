@@ -1,0 +1,229 @@
+[
+  {
+    "levelId": "ssc",
+    "levelName": "Secondary School Certificate (SSC)",
+    "streams": [
+      {
+        "streamId": "science",
+        "streamName": "Science"
+      },
+      {
+        "streamId": "arts",
+        "streamName": "Arts (Humanities)"
+      },
+      {
+        "streamId": "commerce",
+        "streamName": "Commerce"
+      }
+    ]
+  },
+  {
+    "levelId": "hsc",
+    "levelName": "Higher Secondary Certificate (HSC)",
+    "streams": [
+      {
+        "streamId": "science",
+        "streamName": "Science"
+      },
+      {
+        "streamId": "arts",
+        "streamName": "Arts (Humanities)"
+      },
+      {
+        "streamId": "commerce",
+        "streamName": "Commerce"
+      }
+    ]
+  },
+  {
+    "levelId": "diploma",
+    "levelName": "Diploma",
+    "programs": [
+      {
+        "programId": "engineering",
+        "programName": "Diploma in Engineering",
+        "departments": [
+          {
+            "deptId": "electrical_engineering",
+            "deptName": "Electrical Engineering"
+          },
+          {
+            "deptId": "mechanical_engineering",
+            "deptName": "Mechanical Engineering"
+          },
+          {
+            "deptId": "civil_engineering",
+            "deptName": "Civil Engineering"
+          },
+          {
+            "deptId": "computer_engineering",
+            "deptName": "Computer Engineering"
+          }
+        ]
+      },
+      {
+        "programId": "nursing",
+        "programName": "Diploma in Nursing",
+        "departments": []
+      },
+      {
+        "programId": "agriculture",
+        "programName": "Diploma in Agriculture",
+        "departments": []
+      }
+    ]
+  },
+  {
+    "levelId": "bachelor",
+    "levelName": "Bachelor's",
+    "programs": [
+      {
+        "programId": "bba",
+        "programName": "Bachelor of Business Administration (BBA)",
+        "departments": [
+          {
+            "deptId": "accounting",
+            "deptName": "Accounting"
+          },
+          {
+            "deptId": "finance",
+            "deptName": "Finance"
+          },
+          {
+            "deptId": "management",
+            "deptName": "Management"
+          },
+          {
+            "deptId": "marketing",
+            "deptName": "Marketing"
+          }
+        ]
+      },
+      {
+        "programId": "bsc",
+        "programName": "Bachelor of Science (BSc)",
+        "departments": [
+          {
+            "deptId": "physics",
+            "deptName": "Physics"
+          },
+          {
+            "deptId": "chemistry",
+            "deptName": "Chemistry"
+          },
+          {
+            "deptId": "mathematics",
+            "deptName": "Mathematics"
+          },
+          {
+            "deptId": "computer_science",
+            "deptName": "Computer Science"
+          }
+        ]
+      },
+      {
+        "programId": "ba",
+        "programName": "Bachelor of Arts (BA)",
+        "departments": [
+          {
+            "deptId": "english",
+            "deptName": "English"
+          },
+          {
+            "deptId": "bangla",
+            "deptName": "Bangla"
+          },
+          {
+            "deptId": "history",
+            "deptName": "History"
+          },
+          {
+            "deptId": "political_science",
+            "deptName": "Political Science"
+          }
+        ]
+      },
+      {
+        "programId": "bss",
+        "programName": "Bachelor of Social Science (BSS)",
+        "departments": [
+          {
+            "deptId": "economics",
+            "deptName": "Economics"
+          },
+          {
+            "deptId": "political_science",
+            "deptName": "Political Science"
+          },
+          {
+            "deptId": "sociology",
+            "deptName": "Sociology"
+          },
+          {
+            "deptId": "public_administration",
+            "deptName": "Public Administration"
+          }
+        ]
+      },
+      {
+        "programId": "bcom",
+        "programName": "Bachelor of Commerce (BCom)",
+        "departments": []
+      },
+      {
+        "programId": "mbbs",
+        "programName": "Bachelor of Medicine and Surgery (MBBS)",
+        "departments": []
+      },
+      {
+        "programId": "llb",
+        "programName": "Bachelor of Law (LLB)",
+        "departments": []
+      }
+    ]
+  },
+  {
+    "levelId": "masters",
+    "levelName": "Master's",
+    "programs": [
+      {
+        "programId": "mba",
+        "programName": "Master of Business Administration (MBA)",
+        "departments": [
+          {
+            "deptId": "accounting",
+            "deptName": "Accounting"
+          },
+          {
+            "deptId": "finance",
+            "deptName": "Finance"
+          },
+          {
+            "deptId": "marketing",
+            "deptName": "Marketing"
+          }
+        ]
+      },
+      {
+        "programId": "msc",
+        "programName": "Master of Science (MSc)",
+        "departments": []
+      },
+      {
+        "programId": "ma",
+        "programName": "Master of Arts (MA)",
+        "departments": []
+      },
+      {
+        "programId": "mss",
+        "programName": "Master of Social Science (MSS)",
+        "departments": []
+      },
+      {
+        "programId": "mcom",
+        "programName": "Master of Commerce (MCom)",
+        "departments": []
+      }
+    ]
+  }
+]
