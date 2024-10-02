@@ -16,13 +16,13 @@ export type TUser = {
   nid: number;
   profileImage: string;
   socialLinks: {
-    instagram?: string; 
-    facebook?: string; 
+    instagram?: string;
+    facebook?: string;
   };
   isBan: boolean;
   isVerified: boolean;
   createdAt: Date;
-  lastLogin?: Date; 
-  favoriteBooks?: string[]; 
-  sellerRating?: number; 
+  lastLogin?: Date;
+  favoriteBooks?: string[];
+  sellerRating?: number;
 };
