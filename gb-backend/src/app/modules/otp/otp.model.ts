@@ -1,6 +1,5 @@
 import { model, Schema } from "mongoose";
 import { Otp } from "./otp.interface";
-import { number } from "zod";
 
 const otpSchema = new Schema<Otp>({
   email: { type: String, required: true, unique: true },
