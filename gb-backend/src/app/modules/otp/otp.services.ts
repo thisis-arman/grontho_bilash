@@ -1,5 +1,6 @@
 import { OtpModel } from "./otp.model";
 import crypto from "crypto"; // For generating random OTP
+import { sendOtpViaEmail } from "./otp.utils";
 // import { sendOtpViaEmail } from "./otp.utils"; // A utility function for sending the OTP via email
 
 // Function to generate a random OTP
@@ -8,7 +9,7 @@ export const generateOtp = (): number => {
 };
 
 // OTP creation logic
- const createAndSendOtp = async (email: string): Promise<void> => {
+const createAndSendOtp = async (email: string): Promise<void> => {
   // Generate a new OTP
   const otp = generateOtp();
 
@@ -16,6 +17,7 @@ export const generateOtp = (): number => {
   const expiresAt = new Date();
   expiresAt.setMinutes(expiresAt.getMinutes() + 5); // OTP valid for 5 minutes
 
+  console.log(email, otp, expiresAt);
   // Save the OTP to the database
   await OtpModel.create({
     email,
@@ -24,16 +26,13 @@ export const generateOtp = (): number => {
     verified: false,
   });
 
-    // Send the OTP via email (or SMS if you prefer)
-    // TODO: ADD FUNCTIONALITY 
-//   await sendOtpViaEmail(email, otp); // Implement this function to use a mailer service
+  // Send the OTP via email (or SMS if you prefer)
+  // TODO: ADD FUNCTIONALITY
+    await sendOtpViaEmail(email, otp); // Implement this function to use a mailer service
 };
 
 // OTP verification logic (unchanged)
- const verifyOtp = async (
-  email: string,
-  otp: number
-): Promise<boolean> => {
+const verifyOtp = async (email: string, otp: number): Promise<boolean> => {
   const otpEntry = await OtpModel.findOne({ email });
 
   if (!otpEntry || otpEntry.otp !== otp || otpEntry.expiresAt < new Date()) {
@@ -47,8 +46,7 @@ export const generateOtp = (): number => {
   return true; // OTP is valid
 };
 
-
 export const otpServices = {
-    createAndSendOtp,
-    verifyOtp,
-}
+  createAndSendOtp,
+  verifyOtp,
+};

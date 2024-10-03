@@ -3,7 +3,7 @@ import { otpControllers } from "./otp.controllers";
 
 const router = Router();
 
-router.post("/otp/create", otpControllers.createOtp); // Route for creating OTP
-router.get("/otp/verify", otpControllers.createOtp); // Route for verifying OTP
+router.post("/sent-otp", otpControllers.createOtp);
+router.post("/verify-otp", otpControllers.verifyOtp);
 
-export default router;
+export const otpRoutes = router;

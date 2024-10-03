@@ -5,9 +5,9 @@ import { otpServices } from "./otp.services";
 // Controller for creating OTP
 const createOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
-
-  // Call the service to create OTP and send it to the user
+  console.log({ email });
   const result = await otpServices.createAndSendOtp(email);
+  console.log({ result });
 
   res.json({
     success: true,
