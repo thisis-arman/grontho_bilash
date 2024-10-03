@@ -1,7 +1,7 @@
-import express from "express";
+import express, { Router } from "express";
 import { userRoutes } from "../user/user.route";
 
-const router = express.Router();
+const router =Router();
 
 const moduleRouter = [
   {
