@@ -54,9 +54,7 @@ export const userSchema = new Schema<TUser, UserModel>(
 
 userSchema.pre("save", async function (next) {
   const user = this;
-
   user.password = await bcrypt.hash(user.password, Number(config.salt_rounds));
-
   next();
 });
 

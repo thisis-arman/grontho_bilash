@@ -5,10 +5,9 @@ export const UserStatusEnum = z.enum(["active", "blocked"]);
 
 export const userZodSchema = z.object({
 
-  email: z
+  name: z
     .string()
-    .email({ message: "Please enter a valid email address" })
-    .nonempty({ message: "Email is required" }),
+    .nonempty({ message: "name is required" }),
   contactNo: z
     .string()
     .regex(/^\d{10,15}$/, { message: "Please enter a valid contact number" })
@@ -17,3 +16,8 @@ export const userZodSchema = z.object({
 
 
 });
+
+
+export const userValidationSchema = {
+  userZodSchema
+}

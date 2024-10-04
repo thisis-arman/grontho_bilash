@@ -6,11 +6,11 @@ const router =Router();
 
 const moduleRouter = [
   {
-    path: "user",
+    path: "/auth",
     route: userRoutes,
   },
   {
-    path: "/auth",
+    path: "/otp",
     route: otpRoutes,
   },
 ];
