@@ -15,5 +15,5 @@ export const userZodSchema = z.object({
     .nonempty({ message: "Contact number is required" }),
   password: z.string().nonempty({ message: "Password is required" }),
 
-// Use enum for user status
+
 });

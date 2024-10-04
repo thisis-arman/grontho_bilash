@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.services";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
 
-const createUser = (req: Request, res: Response) => {
+const createUser = catchAsync(async (req, res) => {
   const result = userServices.createUserIntoDB(req.body);
 
-  res.json({
+  sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "User created successfully",
     data: result,
   });
-};
-
+});
 
 export const userControllers = {
   createUser,
