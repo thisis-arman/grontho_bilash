@@ -1,5 +1,5 @@
 export interface TUser {
-  id: string;
+  name: string;
   email: string;
   contactNo: string;
   password: string;
