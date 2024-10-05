@@ -12,7 +12,7 @@ const ObjectIdSchema = z.string().refine(
 );
 
 // Zod schema for the order object
-export const createOrderSchema = z.object({
+ const createOrderSchema = z.object({
   orderId: z
     .string()
     .min(1, { message: "Order ID is required and cannot be empty" })
@@ -68,4 +68,6 @@ export const createOrderSchema = z.object({
   }),
 });
 
-export default createOrderSchema;
+export const orderValidations = {
+    createOrderSchema
+};
