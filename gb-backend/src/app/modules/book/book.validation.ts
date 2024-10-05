@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// Zod schema for creating a book with custom messages
-export const createBookSchema = z.object({
+
+ const createBookSchema = z.object({
   bookTitle: z
     .string({ message: "Book title is required" })
     .min(1, { message: "Book title cannot be empty" }),
@@ -42,17 +42,27 @@ export const createBookSchema = z.object({
   shippingCost: z
     .number({ message: "Shipping cost must be a number" })
     .positive({ message: "Shipping cost must be a positive number" })
-    .optional()
-    .refine(
-      (val, ctx) => {
-        const deliveryOption = ctx?.parent?.deliveryOption;
-        return (
-          deliveryOption !== "shipping" ||
-          (deliveryOption === "shipping" && val != null)
-        );
-      },
-      {
-        message: "Shipping cost is required when delivery option is 'shipping'",
-      }
-    ),
+    .optional(),
 });
+
+const updateBookSchema = createBookSchema
+  .pick({
+    // Required in updates
+    bookTitle: true,
+    price: true,
+  })
+  .partial()
+  .merge(
+    createBookSchema.pick({
+      // Always optional in updates
+      condition: true,
+      isPublished: true,
+      images: true,
+      // Add other fields that should be optional
+    })
+  );
+
+export const zodValidationSchema = {
+  createBookSchema,
+  updateBookSchema,
+};

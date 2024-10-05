@@ -59,12 +59,12 @@ const bookSchema = new Schema(
     },
     deliveryOption: {
       type: String,
-      enum: ["pickup", "shipping"], // Only 'pickup' or 'shipping' are valid values
+      enum: ["pickup", "shipping"], 
       required: true,
     },
     shippingCost: {
-      type: Number, // Optional shipping cost, only required if deliveryOption is 'shipping'
-      default: 0, // Default to zero if not provided
+      type: Number, 
+      default: 0,
     },
   },
   {
