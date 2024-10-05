@@ -12,8 +12,15 @@ export interface TUser {
   isDeleted: boolean;
 }
 
-
 export interface UserModel extends Model<TUser> {
-
   isUserExistsByEmail(email: string): Promise<TUser>;
+  isPasswordMatched(
+    plainPassword: string,
+    hashedPassword: string
+  ): Promise<boolean>;
+
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangedTimestamp: Date,
+    jwtIssuedTimestamp: number
+  ): boolean;
 }
