@@ -1,12 +1,13 @@
 import { OrderModel } from "./order.model";
-import { createOrderSchema, TCreateOrderSchema } from "./order.validation";
+import { createOrderSchema } from "./order.validation";
 import { Types } from "mongoose";
- // Custom application error handler
+// Custom application error handler
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
+import { TOrder } from "./order.interface";
 
 // Service to create an order
- const createOrder = async (orderData: TCreateOrderSchema) => {
+const createOrder = async (orderData: TOrder) => {
   // Validate the incoming order data using Zod
   const validatedOrder = createOrderSchema.parse(orderData);
 
@@ -16,7 +17,7 @@ import AppError from "../../errors/AppError";
 };
 
 // Service to get an order by ID
- const getOrderById = async (orderId: string) => {
+const getOrderById = async (orderId: string) => {
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
@@ -33,10 +34,14 @@ import AppError from "../../errors/AppError";
   return order;
 };
 
+const getOrdersFromDB = async () => {
+  const orders = await OrderModel.find();
+  return orders;
+};
 // Service to update an order by ID
- const updateOrderById = async (
+const updateOrderById = async (
   orderId: string,
-  updateData: Partial<TCreateOrderSchema>
+  updateData: Partial<TOrder>
 ) => {
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
@@ -62,7 +67,7 @@ import AppError from "../../errors/AppError";
 };
 
 // Service to delete an order by ID
- const deleteOrderById = async (orderId: string) => {
+const deleteOrderById = async (orderId: string) => {
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
@@ -76,10 +81,10 @@ import AppError from "../../errors/AppError";
   return deletedOrder;
 };
 
-
 export const orderServices = {
   createOrder,
   getOrderById,
   updateOrderById,
   deleteOrderById,
+  getOrdersFromDB,
 };
