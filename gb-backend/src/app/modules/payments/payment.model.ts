@@ -7,6 +7,10 @@ const paymentSchema = new Schema<TPayment>({
     required: true,
     unique: true,
   },
+  transactionId: {
+    type: String,
+    required: true,
+  },
   orderId: {
     type: Schema.Types.ObjectId,
     ref: "Order",

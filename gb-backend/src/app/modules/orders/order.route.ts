@@ -6,6 +6,7 @@ import { orderValidations } from "./order.validation";
 
 const router = express.Router();
 
+router.get("/", orderController.getOrders);
 // Route to create a new order
 router.post(
   "/create-order",
@@ -26,6 +27,5 @@ router.get("/:orderId", orderController.getOrder);
 router.delete("/:orderId", orderController.deleteOrder);
 
 // Route to get all orders
-router.get("/orders", orderController.getOrders);
 
 export const orderRoutes = router;

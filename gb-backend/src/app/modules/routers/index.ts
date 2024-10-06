@@ -4,6 +4,7 @@ import { otpRoutes } from "../otp/otp.route";
 import { authRoutes } from "../auth/auth.routes";
 import { bookRoutes } from "../book/book.route";
 import { orderRoutes } from "../orders/order.route";
+import { paymentRoutes } from "../payments/payment.routes";
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRouter = [
   {
     path: "/books",
     route: bookRoutes,
+  },
+  {
+    path: "/payments",
+    route: paymentRoutes,
   },
 ];
 

@@ -7,6 +7,11 @@ const createPayment = async (paymentData: TPayment): Promise<TPayment> => {
   return await payment.save();
 };
 
+const getPayments = async () => {
+  const payments = await Payment.find();
+  return payments;
+};
+
 const getPaymentById = async (paymentId: string): Promise<TPayment | null> => {
   return await Payment.findOne({ paymentId });
 };
@@ -22,8 +27,8 @@ const updatePaymentStatus = async (
   );
 };
 
-const getPaymentsByUser = async (userId: string): Promise<TPayment[]> => {
-  return await Payment.find({ userId });
+const getPaymentsByUser = async (email: string): Promise<TPayment[]> => {
+  return await Payment.find({ email });
 };
 
 const refundPayment = async (paymentId: string): Promise<TPayment | null> => {
@@ -36,6 +41,7 @@ const refundPayment = async (paymentId: string): Promise<TPayment | null> => {
 
 export const paymentServices = {
   refundPayment,
+  getPayments,
   getPaymentsByUser,
   updatePaymentStatus,
   getPaymentById,

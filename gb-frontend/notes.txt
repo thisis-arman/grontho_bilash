@@ -1,0 +1,7 @@
+Colors Palette:
+#000814
+#001D3D
+#003566
+#FFC300
+#FFD60A
+#ffc300
