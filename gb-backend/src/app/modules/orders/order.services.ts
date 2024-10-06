@@ -1,15 +1,15 @@
 import { OrderModel } from "./order.model";
-import { createOrderSchema } from "./order.validation";
 import { Types } from "mongoose";
 // Custom application error handler
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TOrder } from "./order.interface";
+import { orderValidations } from "./order.validation";
 
 // Service to create an order
 const createOrder = async (orderData: TOrder) => {
   // Validate the incoming order data using Zod
-  const validatedOrder = createOrderSchema.parse(orderData);
+  const validatedOrder = orderValidations.createOrderSchema.parse(orderData);
 
   // Create the new order in the database
   const newOrder = await OrderModel.create(validatedOrder);
@@ -48,7 +48,7 @@ const updateOrderById = async (
   }
 
   // Validate the incoming data using Zod for only the fields being updated
-  const validatedData = createOrderSchema.partial().parse(updateData);
+  const validatedData = orderValidations.createOrderSchema.partial().parse(updateData);
 
   const updatedOrder = await OrderModel.findByIdAndUpdate(
     orderId,

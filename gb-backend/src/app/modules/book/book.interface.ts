@@ -1,4 +1,7 @@
+import { Types } from "mongoose";
+
 export type TBook = {
+  user:Types.ObjectId,
   bookId: string;
   bookTitle: string;
   price: number;

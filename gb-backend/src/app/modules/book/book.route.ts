@@ -5,6 +5,7 @@ import { bookController } from "./book.controllers";
 
 const router = express.Router();
 
+router.get("/", bookController.getBooks);
 router.post(
   "/create-book",
   validateRequest(zodValidationSchema.createBookSchema),
@@ -17,6 +18,5 @@ router.patch(
 );
 router.get("/:bookId", bookController.getBook);
 router.patch("/:bookId", bookController.deleteBook);
-router.get("/books", bookController.getBooks);
 
 export const bookRoutes = router;

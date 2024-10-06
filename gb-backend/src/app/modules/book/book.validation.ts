@@ -1,7 +1,16 @@
+import { Types } from "mongoose";
 import { z } from "zod";
 
 
- const createBookSchema = z.object({
+const createBookSchema = z.object({
+   user:z.string().refine(
+  (value) => {
+    return Types.ObjectId.isValid(value);
+  },
+  {
+    message: "Invalid ObjectId",
+  }
+),
   bookTitle: z
     .string({ message: "Book title is required" })
     .min(1, { message: "Book title cannot be empty" }),

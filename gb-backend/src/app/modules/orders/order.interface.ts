@@ -5,7 +5,7 @@ export interface TOrder {
   book: Types.ObjectId; // Reference to the book being ordered
   buyer: Types.ObjectId; // Reference to the buyer (user ID)
   seller: Types.ObjectId; // Reference to the seller (user ID)
-  orderDate: Date; // Date when the order was placed
+  orderDate: string; // Date when the order was placed
   totalAmount: number; 
   shippingCost?: number; 
   deliveryOption: "pickup" | "shipping"; // Pickup or shipping option

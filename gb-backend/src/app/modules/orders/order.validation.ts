@@ -27,7 +27,7 @@ const ObjectIdSchema = z.string().refine(
 
   seller: ObjectIdSchema,
 
-  orderDate: z.date().default(() => new Date()),
+  orderDate: z.string(),
 
   totalAmount: z
     .number()
@@ -61,7 +61,7 @@ const ObjectIdSchema = z.string().refine(
     }
   ),
 
-  transactionDate: z.date().optional(),
+  transactionDate: z.string().optional(),
 
   isNegotiable: z.boolean().refine((value) => typeof value === "boolean", {
     message: "Negotiability status is required and must be a boolean value",

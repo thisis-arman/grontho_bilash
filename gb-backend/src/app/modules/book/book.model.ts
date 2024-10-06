@@ -3,6 +3,12 @@ import { Schema, model } from "mongoose";
 // Define the Mongoose schema for the book
 const bookSchema = new Schema(
   {
+    user: {
+      type: Schema.ObjectId,
+      ref: "User",
+      required: true
+      
+    },
     bookId: {
       type: String,
       required: true,

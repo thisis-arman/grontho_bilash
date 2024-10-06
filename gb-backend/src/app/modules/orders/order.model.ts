@@ -23,8 +23,7 @@ const orderSchema = new Schema<TOrder>({
     required: true,
   },
   orderDate: {
-    type: Date,
-    default: Date.now,
+    type: String,
   },
   totalAmount: {
     type: Number,
@@ -52,7 +51,7 @@ const orderSchema = new Schema<TOrder>({
     default: "pending",
   },
   transactionDate: {
-    type: Date,
+    type: String,
   },
   isNegotiable: {
     type: Boolean,
