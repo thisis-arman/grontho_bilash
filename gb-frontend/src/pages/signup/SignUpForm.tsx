@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import countryData from "../../assets/db/country_dial_info.json";
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { Field, Label, Switch } from '@headlessui/react'
+import { Link } from 'react-router-dom';
 
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -12,12 +13,13 @@ const SignUpForm = ({ isValid }: { isValid?: boolean }) => {
 
     const [isPasswordHidden, setPasswordHidden] = useState(true)
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        e.preventDefault();
         const countryCode = e.target.value;
         const country = countryData.find((c) => c.code === countryCode);
         setSelectedCountry(country || countryData[0]);
     };
     return (
-        <div className={`isolate bg-gray-700 px-6 py-6  lg:px-8 ${isValid && "hidden"}`}>
+        <div className={`isolate bg-white px-6 py-6  lg:px-8 ${isValid && "block"}`}>
             <div
                 aria-hidden="true"
                 className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]"
@@ -139,36 +141,60 @@ const SignUpForm = ({ isValid }: { isValid?: boolean }) => {
                             />
                         </div>
                     </div>
-                    <div>
-                        <label className="text-black">
-                            Password
-                        </label>
-                        <div className="relative max-w-xs mt-2">
-                            <button className="text-gray-400 absolute right-3 inset-y-0 my-auto active:text-gray-600"
-                                onClick={() => setPasswordHidden(!isPasswordHidden)}
-                            >
-                                {
-                                    isPasswordHidden ? (
-                                        <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                                        </svg>
+                    {/* TODO: EYE ICON SHOULD BE WORKABLE */}
+                    {/* <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2"> */}
+                        <div>
+                            <label className="text-black">
+                                Password
+                            </label>
+                            <div className="relative  mt-2">
+                                <button className="text-gray-400 absolute right-3 inset-y-0 my-auto active:text-gray-600"
+                                    onClick={() => setPasswordHidden(!isPasswordHidden)}
+                                >
+                                    {
+                                        isPasswordHidden ? (
+                                            "Show"
+                                        ) : (
+                                            "Hide"
+                                        )
+                                    }
+                                </button>
+                                <input
+                                    type={isPasswordHidden ? "password" : "text"}
+                                    placeholder="Enter your password"
+                                    className="w-full pr-12 pl-3 py-2 text-gray-500 outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                />
+                            </div>
 
-                                    )
-                                }
-                            </button>
-                            <input
-                                type={isPasswordHidden ? "password" : "text"}
-                                placeholder="Enter your password"
-                                className="w-full pr-12 pl-3 py-2 text-gray-500 outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                            />
                         </div>
-                    </div >
-                    <div className="sm:col-span-2">
+                        <div>
+
+                            <label className="text-black">
+                                Confirm Password
+                            </label>
+                            <div className="relative  mt-2">
+                                <button className="text-gray-400 absolute right-3 inset-y-0 my-auto active:text-gray-600"
+                                    onClick={() => setPasswordHidden(!isPasswordHidden)}
+                                >
+                                    {
+                                        isPasswordHidden ? (
+                                            "Show"
+                                        ) : (
+                                            "Hide"
+                                        )
+                                    }
+                                </button>
+                                <input
+                                    type={isPasswordHidden ? "password" : "text"}
+                                    placeholder="Enter your password"
+                                    className="w-full pr-12 pl-3 py-2 text-gray-500 outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                />
+                            </div>
+                        </div>
+
+                    {/* </div> */}
+
+                    {/* <div className="sm:col-span-2">
                         <label htmlFor="message" className="block text-sm font-semibold leading-6 text-gray-900">
                             Message
                         </label>
@@ -181,7 +207,7 @@ const SignUpForm = ({ isValid }: { isValid?: boolean }) => {
                                 defaultValue={''}
                             />
                         </div>
-                    </div>
+                    </div> */}
                     <Field className="flex gap-x-4 sm:col-span-2">
                         <div className="flex h-6 items-center">
                             <Switch
@@ -210,10 +236,11 @@ const SignUpForm = ({ isValid }: { isValid?: boolean }) => {
                         type="submit"
                         className="block w-full rounded-md bg-yellow-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600"
                     >
-                        Let's talk
+                        Sign Up
                     </button>
                 </div>
             </form>
+            <p className="text-center py-2">Already have an account? <Link to='/login' className="font-medium text-yellow-600 hover:text-yellow-500">Login</Link></p>
         </div>
     );
 };
