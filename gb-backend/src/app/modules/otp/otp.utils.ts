@@ -13,8 +13,6 @@ export const sendEmail = async (email: string, otp: number) => {
     },
   });
 
-  console.log("sendMail to:", email);
-
   // Send OTP via email
   const mailOptions = {
     from: config.email,

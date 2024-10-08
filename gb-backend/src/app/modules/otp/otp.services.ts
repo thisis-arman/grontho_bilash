@@ -1,25 +1,49 @@
+import { Otp } from "./otp.interface";
 import { OtpModel } from "./otp.model";
 import crypto from "crypto"; // For generating random OTP
 import { sendEmail } from "./otp.utils";
-// import { sendOtpViaEmail } from "./otp.utils"; // A utility function for sending the OTP via email
 
 // Function to generate a random OTP
 export const generateOtp = (): number => {
   return crypto.randomInt(100000, 999999); // A 6-digit OTP
 };
 
-// OTP creation logic
+// OTP creation and sending logic with request limits
 const createAndSendOtp = async (email: string) => {
+  const maxOtpRequests = 3; // Maximum OTP requests per hour
+  const otpValidityDuration = 5; // OTP validity in minutes
+
+  // Calculate the timestamp for one hour ago to find recent OTPs
+  const oneHourAgo = new Date();
+  oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+  // Find recent OTPs for this email within the last hour
+  const recentOtps = await OtpModel.find({
+    email,
+    createdAt: { $gte: oneHourAgo },
+  });
+
+  // Check if the request limit is reached
+  if (recentOtps.length >= maxOtpRequests) {
+    throw new Error(
+      "You have reached the maximum OTP request limit. Please try again later."
+    );
+  }
+
+  // Invalidate previous OTPs by marking them as verified (or you can delete them)
+  await OtpModel.updateMany({ email, verified: false }, { verified: true });
+
   // Generate a new OTP
   const otp = generateOtp();
 
-  // Create an expiry time (e.g., 5 minutes from now)
+  // Set expiry time for the new OTP (e.g., 5 minutes from now)
   const expiresAt = new Date();
-  expiresAt.setMinutes(expiresAt.getMinutes() + 5); // OTP valid for 5 minutes
+  expiresAt.setMinutes(expiresAt.getMinutes() + otpValidityDuration);
 
-  console.log(email, otp, expiresAt);
-  // Save the OTP to the database
-  sendEmail(email, otp); // Implement this function to use a mailer service
+  // Send OTP via email
+  await sendEmail(email, otp);
+
+  // Save the new OTP to the database
   const otpCreated = await OtpModel.create({
     email,
     otp,
@@ -27,14 +51,15 @@ const createAndSendOtp = async (email: string) => {
     verified: false,
   });
 
-  // Send the OTP via email (or SMS if you prefer)
-  // TODO: ADD FUNCTIONALITY
   return otpCreated;
 };
 
-// OTP verification logic (unchanged)
+// OTP verification logic with latest OTP validation
 const verifyOtp = async (email: string, otp: number): Promise<boolean> => {
-  const otpEntry = await OtpModel.findOne({ email });
+  // Find the most recent OTP entry for the email
+  const otpEntry = await OtpModel.findOne({ email, verified: false }).sort({
+    createdAt: -1,
+  });
 
   if (!otpEntry || otpEntry.otp !== otp || otpEntry.expiresAt < new Date()) {
     return false; // Invalid OTP

@@ -1,6 +1,7 @@
 // otp.controllers.ts
 import { Request, Response } from "express";
 import { otpServices } from "./otp.services";
+import sendResponse from "../../utils/sendResponse";
 
 // Controller for creating OTP
 const createOtp = async (req: Request, res: Response) => {
@@ -9,9 +10,10 @@ const createOtp = async (req: Request, res: Response) => {
   const result = await otpServices.createAndSendOtp(email);
   console.log({ result });
 
-  res.json({
+  sendResponse(res, {
+    statusCode: 200,
     success: true,
-    message: "OTP sent successfully",
+    message: "OTP sent Successful ",
     data: result,
   });
 };
@@ -23,11 +25,21 @@ const verifyOtp = async (req: Request, res: Response) => {
   // Call the service to verify the OTP
   const result = await otpServices.verifyOtp(email, otp);
 
-  res.json({
-    success: true,
-    message: "OTP verified successfully",
-    data: result,
-  });
+  
+  if (!result) {
+    sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "invalid OTP ",
+      data: result,
+    });
+  }
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "OTP Verified Successfully ",
+      data: result,
+    });
 };
 
 export const otpControllers = {
