@@ -57,7 +57,7 @@ const SignUp = () => {
 
     return (
         <>
-            <div className="max-w-lg mx-auto px-4 sm:px-0 pt-10">
+            <div className="max-w-lg mx-auto p-4 sm:px-0 pt-10">
                 <ul aria-label="Steps" className="flex items-center">
                     {steps.stpesCount.map((item, idx) => (
                         <li aria-current={steps.currentStep == idx + 1 ? "step" : false} className="flex-1 last:flex-none flex items-center">
@@ -81,9 +81,9 @@ const SignUp = () => {
               
                 {/*step: 1 - OTP Verification */}
 
-                <div >
+                <div className="p-4 max-w-sm mx-auto">
                     {/* Email */}
-                    {!isOtpSent ? <div className={`relative max-w-sm mx-auto `} id="">
+                    {!isOtpSent ? <div className={`relative max-w-sm mx-auto flex flex-col justify-center `} id="">
                         <div>
                             <svg className="w-6 h-6 text-gray-400 absolute left-3 mt-2 inset-y-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -94,38 +94,42 @@ const SignUp = () => {
                                 className="w-full pl-12 pr-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-yellow-500 shadow-sm rounded-lg"
                             />
                         </div>
-                        <button onClick={() => handleSentOtp()} className="px-7 mt-10 py-2.5 text-white bg-yellow-500 rounded-lg shadow-md focus:shadow-none duration-100 ring-offset-2 ring-yellow-500 focus:ring-2">Send OTP</button>
+                        <button onClick={() => handleSentOtp()} className="px-7 mt-10 py-2.5 max-w-xs  mx-auto  text-white bg-yellow-500 rounded-lg shadow-md focus:shadow-none duration-100 ring-offset-2 ring-yellow-500 focus:ring-2">Send OTP</button>
                     </div> :
 
-                        <div className={`max-w-sm mx-auto  `}>
-                            <label className="text-gray-600">
-                                Verification code
-                            </label>
-                            <div ref={fieldsRef} className="mt-2 flex items-center gap-x-2">
-                                <input type="text" data-index="0" placeholder="0" value={state.code1} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
-                                    onChange={(e) => handleChange(e, "code1")}
-                                    onKeyUp={inputFocus}
-                                />
-                                <input type="text" data-index="1" placeholder="0" value={state.code2} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
-                                    onChange={(e) => handleChange(e, "code2")}
-                                    onKeyUp={inputFocus}
-                                />
-                                <input type="text" data-index="2" placeholder="0" value={state.code3} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
-                                    onChange={(e) => handleChange(e, "5")}
-                                    onKeyUp={inputFocus}
-                                />
-                                <input type="text" data-index="3" placeholder="0" value={state.code4} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
-                                    onChange={(e) => handleChange(e, "code4")}
-                                    onKeyUp={inputFocus}
-                                />
-                                <input type="text" data-index="3" placeholder="0" value={state.code4} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
-                                    onChange={(e) => handleChange(e, "code4")}
-                                    onKeyUp={inputFocus}
-                                />
+                        <div className="max-w-sm mx-auto">
+                            <div className={`max-w-sm mx-auto  `}>
+                                <label className="text-gray-600">
+                                    Verification code
+                                </label>
+                                <div ref={fieldsRef} className="mt-2 flex items-center gap-x-2">
+                                    <input type="text" data-index="0" placeholder="0" value={state.code1} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
+                                        onChange={(e) => handleChange(e, "code1")}
+                                        onKeyUp={inputFocus}
+                                    />
+                                    <input type="text" data-index="1" placeholder="0" value={state.code2} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
+                                        onChange={(e) => handleChange(e, "code2")}
+                                        onKeyUp={inputFocus}
+                                    />
+                                    <input type="text" data-index="2" placeholder="0" value={state.code3} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
+                                        onChange={(e) => handleChange(e, "5")}
+                                        onKeyUp={inputFocus}
+                                    />
+                                    <input type="text" data-index="3" placeholder="0" value={state.code4} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
+                                        onChange={(e) => handleChange(e, "code4")}
+                                        onKeyUp={inputFocus}
+                                    />
+                                    <input type="text" data-index="3" placeholder="0" value={state.code4} className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
+                                        onChange={(e) => handleChange(e, "code4")}
+                                        onKeyUp={inputFocus}
+                                    />
 
+                                </div>
+                                <button onClick={() => handleVerifyOtp()} className="px-7 mt-10 max-w-xs mx-auto py-2.5 text-white bg-yellow-500 rounded-lg shadow-md focus:shadow-none duration-100 ring-offset-2 ring-yellow-500 focus:ring-2">Verify OTP</button>
                             </div>
-                            <button onClick={() => handleVerifyOtp()} className="px-7 mt-10 py-2.5 text-white bg-yellow-500 rounded-lg shadow-md focus:shadow-none duration-100 ring-offset-2 ring-yellow-500 focus:ring-2">Verify OTP</button>
-                        </div>}
+                       </div>
+                    
+                    }
                 </div>
                 {/* Form */}
 
