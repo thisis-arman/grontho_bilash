@@ -10,7 +10,7 @@ export const generateOtp = (): number => {
 
 // OTP creation and sending logic with request limits
 const createAndSendOtp = async (email: string) => {
-  const maxOtpRequests = 3; // Maximum OTP requests per hour
+  const maxOtpRequests = 10; // Maximum OTP requests per hour
   const otpValidityDuration = 5; // OTP validity in minutes
 
   // Calculate the timestamp for one hour ago to find recent OTPs
@@ -55,21 +55,21 @@ const createAndSendOtp = async (email: string) => {
 };
 
 // OTP verification logic with latest OTP validation
-const verifyOtp = async (email: string, otp: number): Promise<boolean> => {
+const verifyOtp = async (email: string, otp: number): Promise<Otp | null> => {
   // Find the most recent OTP entry for the email
   const otpEntry = await OtpModel.findOne({ email, verified: false }).sort({
     createdAt: -1,
   });
 
   if (!otpEntry || otpEntry.otp !== otp || otpEntry.expiresAt < new Date()) {
-    return false; // Invalid OTP
+    return null; // Invalid OTP
   }
 
   // Mark OTP as verified
   otpEntry.verified = true;
   await otpEntry.save();
 
-  return true; // OTP is valid
+  return otpEntry; // Return full OTP document
 };
 
 export const otpServices = {

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SignUpForm = ({ isValid }: { isValid?: boolean }) => {
+const SignUpForm = ({ isVerified: isValid }: { isVerified?: boolean }) => {
     const [agreed, setAgreed] = useState(false)
     const [selectedCountry, setSelectedCountry] = useState(countryData[0]); // Default to the first country
 

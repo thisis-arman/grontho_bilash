@@ -4,20 +4,24 @@ export const otpApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createOtp: builder.mutation({
       query: (email) => {
+        console.log(email,"from otp api");
         return {
-          url: "/otps/sent-otp",
+          url: "/otp/sent-otp",
           method: "POST",
           body: email,
         };
       },
     }),
-    verifyOtp: builder.query({
-      query: () => {
+    verifyOtp: builder.mutation({
+      query: (data) => {
         return {
-          url: "/otps/verify-otp",
-          method: "GET",
+          url: "/otp/verify-otp",
+          method: "POST",
+          body:data
         };
       },
     }),
   }),
 });
+
+export const { useCreateOtpMutation,useVerifyOtpMutation } = otpApi;

@@ -9,10 +9,17 @@ const createUserIntoDB = async (userInfo: TUser) => {
     throw new Error(`User ${userInfo.email} already exists`);
   }
 
-  const user =await User.create(userInfo);
+  const user = await User.create(userInfo);
   return user;
+};
+
+const getUsersFromDB = async () => {
+  const users = await User.find();
+
+  return users;
 };
 
 export const userServices = {
   createUserIntoDB,
+  getUsersFromDB,
 };
