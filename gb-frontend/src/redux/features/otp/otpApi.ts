@@ -2,7 +2,7 @@ import { baseApi } from "../../api/baseApi";
 
 export const otpApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createOtps: builder.mutation({
+    createOtp: builder.mutation({
       query: (email) => {
         return {
           url: "/otps/sent-otp",
