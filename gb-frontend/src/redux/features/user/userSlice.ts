@@ -7,25 +7,40 @@ type TUser = {
   password: string;
 };
 
-const initialState: TUser = {
-  name: "",
-  email: "",
-  contactNo: "",
-  password: "",
+type TInitialState = {
+  users: TUser[];
+};
+
+const initialState: TInitialState = {
+  users: [],
 };
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-           createUser: (state, action: PayloadAction<TUser>) => {
-      // This reducer handles creating a user
-      // 'action.payload' contains the new user data
-      state.name = action.payload.name;
-      state.email = action.payload.email;
-      state.contactNo = action.payload.contactNo;
-      state.password = action.payload.password;
-    
+    createUser: (state, action: PayloadAction<TUser>) => {
+      state.users.push(action.payload);
+    },
+    // Retrieve all users
+    getUser: (state) => {
+      return state;
+    },
+
+    // Retrieve user by email
+    getUserByEmail: (state, action: PayloadAction<string>) => {
+      const email = action.payload;
+      return state.users.find((user) => user.email === email) || null;
+    },
+
+    // Remove user by email
+    removeUser: (state, action: PayloadAction<string>) => {
+      const email = action.payload;
+      state.users = state.users.filter((user) => user.email !== email);
     },
   },
 });
+
+export const { createUser, getUser, getUserByEmail, removeUser } =
+  userSlice.actions;
+export default userSlice.reducer;
