@@ -3,7 +3,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined, UserOutlined, Vid
 import { Button, Layout, Menu } from 'antd';
 import { Outlet } from 'react-router-dom';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -17,9 +17,12 @@ const Dashboard = () => {
   );
 
   return (
-    <Layout>
+    <Layout className='min-h-screen'>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
+        <div className="demo-logo-vertical h-12 mx-auto p-4 flex justify-center items-center " >
+          {/* <h1 className='text-white font-bold text-2xl'>GB</h1> */}
+          <img src="/src/assets/logo//grontho-bilash-transparent.png" className='h-12 w-12' alt="" />
+        </div>
         <Menu
           theme="dark"
           mode="inline"
@@ -45,7 +48,7 @@ const Dashboard = () => {
             margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-         
+
           }}
         >
           <Outlet />

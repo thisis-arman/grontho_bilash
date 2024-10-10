@@ -4,7 +4,7 @@ import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import SignUp from "../pages/signup/SignUp";
 import Dashboard from "../components/layouts/Dashboard";
-import AddProduct from "../pages/dashboard/products/AddProduct";
+import AddProduct from "../pages/dashboard/userDashboard/AddProduct";
 
 const router = createBrowserRouter([
     {
@@ -18,7 +18,7 @@ const router = createBrowserRouter([
         ]
     },
     {
-        path: '/dashboard',
+        path: '/admin',
         element: <Dashboard />,
         children: [
             {
