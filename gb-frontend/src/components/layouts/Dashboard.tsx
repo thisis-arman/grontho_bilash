@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import { Button, Layout, Menu } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
+import { Button, Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../ui/Sidebar';
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content } = Layout;
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
