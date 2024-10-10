@@ -6,7 +6,8 @@ import sendResponse from "../../utils/sendResponse";
 const createUser = catchAsync(async (req, res) => {
   console.log(req.body);
   const result = await userServices.createUserIntoDB(req.body);
-  if (result?.data) {
+  console.log(result);
+  if (result) {
     sendResponse(res, {
       success: true,
       statusCode: 200,

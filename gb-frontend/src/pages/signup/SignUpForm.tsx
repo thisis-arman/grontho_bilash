@@ -51,7 +51,7 @@ const SignUpForm = () => {
                 email: email
             }).unwrap();
             if (response.success) { 
-                navigate('/home')
+                navigate('/')
             }
          
         } catch (error) {
