@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
 
     const [state, setState] = useState(false)
-
+    const role = 'user';
     // Replace javascript:void(0) paths with your paths
     const navigation = [
         { title: "Blogs", path: "/blogs" },
         { title: "Books", path: "/books" },
-        { title: "Dashboard", path: "/dashboard" }
+        { title: "Dashboard", path: `${role}/dashboard` }
     ]
 
     useEffect(() => {

@@ -1,19 +1,24 @@
 
 
 export const routeGenerator = (items) => {
+    console.log(items);
     const routes = items.reduce((acc, item) => {
-        acc.push({
-            path: item.path,
-            element: item.element,
-        })
-
-        item.children.forEach(child => {
+        if (item.path && item.element) {
             acc.push({
-                path: child.path,
-                element: child.element,
-            })
+                path: item.path,
+                element: item.element,
+            });
+        }
 
-        });
+        if (item.children) {
+            item.children.forEach((child) => {
+                acc.push({
+                    path: child.path!,
+                    element: child.element,
+                });
+            });
+        }
+return acc;
 
     }, [])
 
