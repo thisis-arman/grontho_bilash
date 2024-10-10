@@ -7,9 +7,9 @@ const Navbar = () => {
 
     // Replace javascript:void(0) paths with your paths
     const navigation = [
-        
         { title: "Blogs", path: "/blogs" },
-        { title: "Books", path: "/books" }
+        { title: "Books", path: "/books" },
+        { title: "Dashboard", path: "/dashboard" }
     ]
 
     useEffect(() => {
