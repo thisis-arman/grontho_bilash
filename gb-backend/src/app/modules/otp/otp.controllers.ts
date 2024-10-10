@@ -21,12 +21,13 @@ const createOtp = async (req: Request, res: Response) => {
 // Controller for verifying OTP
 const verifyOtp = async (req: Request, res: Response) => {
   const { email, otp } = req.body;
+  console.log({email,otp});
 
   // Call the service to verify the OTP
   const result = await otpServices.verifyOtp(email, otp);
 
-  
-  if (!result) {
+  console.log(result ,'controllers');
+  if (result?.success==false) {
     sendResponse(res, {
       statusCode: 401,
       success: false,

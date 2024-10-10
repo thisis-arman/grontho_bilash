@@ -1,7 +1,7 @@
 'use client'
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import SignUpForm from "./SignUpForm";
-import { useCreateOtpMutation, useVerifyOtpMutation, } from "../../redux/features/otp/otpApi";
+import { useCreateOtpMutation, useVerifyOtpMutation } from "../../redux/features/otp/otpApi";
 
 const SignUp = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
@@ -11,24 +11,24 @@ const SignUp = () => {
     const [verifyOtp] = useVerifyOtpMutation();
 
     const [steps, setStep] = useState({
-        stpesCount: [1, 2, 3],
+        stepsCount: [1, 2, 3],
         currentStep: 1
     });
 
-    const fieldsRef = useRef(null);
+    const fieldsRef = useRef<HTMLDivElement>(null);
     const [state, setState] = useState({ code1: "", code2: "", code3: "", code4: "", code5: "", code6: "" });
 
     // Function to handle input focus behavior
-    const inputFocus = (e) => {
+    const inputFocus = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const elements = fieldsRef.current!.children;
-        const dataIndex = +e.target.getAttribute("data-index");
+        const dataIndex = +e.currentTarget.getAttribute("data-index")!;
 
         if (e.key === "Delete" || e.key === "Backspace") {
             const prev = dataIndex - 1;
-            if (prev > -1) elements[prev].focus();
+            if (prev > -1) (elements[prev] as HTMLElement).focus();
         } else {
             const next = dataIndex + 1;
-            if (next < elements.length && e.target.value && e.key.length === 1) elements[next].focus();
+            if (next < elements.length && e.currentTarget.value && e.key.length === 1) (elements[next] as HTMLElement).focus();
         }
     };
 
@@ -39,16 +39,17 @@ const SignUp = () => {
     };
 
     // Handle sending OTP
-    const handleSentOtp = async (e) => {
+    const handleSendOtp = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const email = e.currentTarget.email.value;
+        const email = (e.currentTarget as HTMLFormElement).email.value;
 
         try {
             const response = await createOtp({ email });
             if (response.data?.success) {
                 setOtpInfo(response.data);
+                localStorage.setItem('otpInfo', JSON.stringify({ email }));
                 setIsOtpSent(true);
-                setStep({ currentStep: 2, stpesCount: [1, 2, 3] });
+                setStep({ currentStep: 2, stepsCount: [1, 2, 3] });
             }
         } catch (error) {
             console.error("Error during OTP creation:", error);
@@ -56,16 +57,19 @@ const SignUp = () => {
     };
 
     // Handle verifying OTP
-    const handleVerifyOtp = async (e) => {
+    const handleVerifyOtp = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const otp = `${state.code1}${state.code2}${state.code3}${state.code4}${state.code5}${state.code6}`;
-        console.log("Entered OTP:", otp);
+        const savedData = localStorage.getItem('otpInfo');
+        const email = savedData ? JSON.parse(savedData).email : null;
 
         try {
-            const response = await verifyOtp({ email: otpInfo.email, otp: Number(otp) });
-            if (response?.data?.verified) {
+            const response = await verifyOtp({ email, otp: Number(otp) });
+            console.log({response});
+            if (response.data && response.data?.data?.verified) {
+                console.log(response);
                 setIsVerified(true);
-                setStep({ currentStep: 3, stpesCount: [1, 2, 3] });
+                setStep({ currentStep: 3, stepsCount: [1, 2, 3] });
             } else {
                 console.log("Invalid OTP or OTP verification failed.");
             }
@@ -78,7 +82,7 @@ const SignUp = () => {
         <>
             <div className="max-w-lg mx-auto p-4 sm:px-0 pt-10">
                 <ul aria-label="Steps" className="flex items-center">
-                    {steps.stpesCount.map((item, idx) => (
+                    {steps.stepsCount.map((item, idx) => (
                         <li key={idx} aria-current={steps.currentStep === idx + 1 ? "step" : undefined} className="flex-1 last:flex-none flex items-center">
                             <div className={`w-8 h-8 rounded-full border-2 flex-none flex items-center justify-center ${steps.currentStep > idx + 1 ? "bg-yellow-600 border-yellow-600" : steps.currentStep === idx + 1 ? "border-yellow-600" : ""}`}>
                                 <span className={`w-2.5 h-2.5 rounded-full bg-yellow-600 ${steps.currentStep !== idx + 1 ? "hidden" : ""}`}></span>
@@ -88,7 +92,7 @@ const SignUp = () => {
                                     </svg>
                                 )}
                             </div>
-                            <hr className={`w-full border ${idx + 1 === steps.stpesCount.length ? "hidden" : steps.currentStep > idx + 1 ? "border-yellow-600" : ""}`} />
+                            <hr className={`w-full border ${idx + 1 === steps.stepsCount.length ? "hidden" : steps.currentStep > idx + 1 ? "border-yellow-600" : ""}`} />
                         </li>
                     ))}
                 </ul>
@@ -98,7 +102,7 @@ const SignUp = () => {
                 <div className="p-4 max-w-sm mx-auto">
                     {!isOtpSent ? (
                         <div className="relative max-w-sm mx-auto flex flex-col justify-center">
-                            <form onSubmit={handleSentOtp}>
+                            <form onSubmit={handleSendOtp}>
                                 <div>
                                     <svg className="w-6 h-6 text-gray-400 absolute left-3 mt-2 inset-y-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -123,7 +127,7 @@ const SignUp = () => {
                                         type="text"
                                         data-index={index}
                                         placeholder="0"
-                                        value={state[`code${index + 1}`]}
+                                        value={state[`code${index + 1}` as keyof typeof state]}
                                         className="w-12 h-12 rounded-lg border focus:border-yellow-600 outline-none text-center text-2xl"
                                         onChange={(e) => handleChange(e, `code${index + 1}`)}
                                         onKeyUp={inputFocus}

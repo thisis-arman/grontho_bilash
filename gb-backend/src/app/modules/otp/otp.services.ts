@@ -57,9 +57,11 @@ const createAndSendOtp = async (email: string) => {
 // OTP verification logic with latest OTP validation
 const verifyOtp = async (email: string, otp: number): Promise<Otp | null> => {
   // Find the most recent OTP entry for the email
+  console.log({email,otp},"services");
   const otpEntry = await OtpModel.findOne({ email, verified: false }).sort({
     createdAt: -1,
   });
+  console.log({otpEntry});
 
   if (!otpEntry || otpEntry.otp !== otp || otpEntry.expiresAt < new Date()) {
     return null; // Invalid OTP
