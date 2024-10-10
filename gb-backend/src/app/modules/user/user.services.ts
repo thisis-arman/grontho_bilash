@@ -10,6 +10,7 @@ const createUserIntoDB = async (userInfo: TUser) => {
   }
 
   const user = await User.create(userInfo);
+  console.log({user});
   return user;
 };
 

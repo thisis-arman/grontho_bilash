@@ -5,7 +5,7 @@ import { useCreateOtpMutation, useVerifyOtpMutation } from "../../redux/features
 
 const SignUp = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
-    const [isVerified, setIsVerified] = useState(false);
+    const [isVerified, setIsVerified] = useState(true);
     const [otpInfo, setOtpInfo] = useState({});
     const [createOtp] = useCreateOtpMutation();
     const [verifyOtp] = useVerifyOtpMutation();

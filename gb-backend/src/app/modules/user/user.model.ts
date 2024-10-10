@@ -18,7 +18,10 @@ export const userSchema = new Schema<TUser, UserModel>(
     contactNo: {
       type: String,
       required: true,
-      match: [/^\d{10,15}$/, "Please enter a valid contact number"],
+      match: [
+        /^\+\d{1,4}\d{10,15}$/,
+        "Please enter a valid contact number with country code",
+      ],
     },
     password: {
       type: String,

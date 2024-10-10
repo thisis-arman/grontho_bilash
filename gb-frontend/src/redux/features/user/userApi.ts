@@ -10,5 +10,16 @@ export const userApi = baseApi.injectEndpoints({
         };
       },
     }),
+    createUser: builder.mutation({
+      query: (userInfo) => {
+        return {
+          url: "/users/register",
+          method: "POST",
+          body: userInfo,
+        };
+      },
+    }),
   }),
 });
+
+export const { useCreateUserMutation,useGetUsersQuery} = userApi;
