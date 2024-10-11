@@ -1,13 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { PhotoIcon } from '@heroicons/react/24/solid'
 
 const AddProduct = () => {
-    const condition = ["Fresh", "Used"]
-    const deliveryOptions = ["Picked up", "Shipping", "As you want "]
+    const [divisions, setDivisions] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [upazilas, setUpazilas] = useState([]);
+    const [postcodes, setPostcodes] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const CurrentYear = new Date().getFullYear();
-    const previousYears = Array.from({ length: 30 }, (_, i) => CurrentYear - i);
+    const condition = ["Fresh", "Used"];
+    const deliveryOptions = ["Picked up", "Shipping", "As you want"];
+
+    const currentYear = new Date().getFullYear();
+    const previousYears = Array.from({ length: 30 }, (_, i) => currentYear - i);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                // Use Promise.all to fetch multiple JSON files simultaneously
+                const [divisionRes, districtRes, upazilaRes, postcodeRes] = await Promise.all([
+                    fetch("/src/assets/db/bangladesh-geojson-master/bd-divisions.json"),
+                    fetch("/src/assets/db/bangladesh-geojson-master/bd-districts.json"),
+                    fetch("/src/assets/db/bangladesh-geojson-master/bd-upazilas.json"),
+                    fetch("/src/assets/db/bangladesh-geojson-master/bd-postcodes.json")
+                ]);
+
+                // Check all responses and throw an error if any of them fails
+                if (![divisionRes, districtRes, upazilaRes, postcodeRes].every(res => res.ok)) {
+                    throw new Error("One or more requests failed");
+                }
+
+                // Parse JSON data for each response
+                const [divisionData, districtData, upazilaData, postcodeData] = await Promise.all([
+                    divisionRes.json(),
+                    districtRes.json(),
+                    upazilaRes.json(),
+                    postcodeRes.json()
+                ]);
+
+                // Set data to state
+                setDivisions(divisionData);
+                setDistricts(districtData);
+                setUpazilas(upazilaData);
+                setPostcodes(postcodeData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []); // Run once on component mount
+    console.log(divisions);
 
     const handleAddProduct = async (e) => {
         e.preventDefault();
@@ -99,7 +146,7 @@ const AddProduct = () => {
                                 </label>
                                 <div className="relative mt-2 rounded-md shadow-sm">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-sm">$</span>
+                                        <span className="text-gray-500 sm:text-md">৳</span>
                                     </div>
                                     <input
                                         id="price"
@@ -108,20 +155,7 @@ const AddProduct = () => {
                                         placeholder="0.00"
                                         className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
-                                    {/* <div className="absolute inset-y-0 right-0 flex items-center">
-                                        <label htmlFor="currency" className="sr-only">
-                                            Currency
-                                        </label>
-                                        <select
-                                            id="currency"
-                                            name="currency"
-                                            className="h-full rounded-md border-0 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
-                                        >
-                                            <option>USD</option>
-                                            <option>CAD</option>
-                                            <option>EUR</option>
-                                        </select>
-                                    </div> */}
+
                                 </div>
                             </div>
 
@@ -211,7 +245,7 @@ const AddProduct = () => {
                         <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-3">
+                            {/* <div className="sm:col-span-3">
                                 <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
                                     First name
                                 </label>
@@ -239,9 +273,9 @@ const AddProduct = () => {
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
-                            </div>
+                            </div> */}
 
-                            <div className="sm:col-span-4">
+                            {/* <div className="sm:col-span-4">
                                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                                     Email address
                                 </label>
@@ -254,8 +288,8 @@ const AddProduct = () => {
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
-                            </div>
-
+                            </div> */}
+                            {/* 
                             <div className="sm:col-span-3">
                                 <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
                                     Country
@@ -272,7 +306,7 @@ const AddProduct = () => {
                                         <option>Mexico</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="col-span-full">
                                 <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
@@ -289,6 +323,25 @@ const AddProduct = () => {
                                 </div>
                             </div>
 
+                            <div className="sm:col-span-2 sm:col-start-1">
+                                <label htmlFor="division" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Division
+                                </label>
+                                <div className="mt-2">
+                                    <select
+                                        id="division"
+                                        name="division"
+                                        autoComplete="division"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        {divisions?.divisions?.map((item) => (
+                                            <option key={item.id} value={item?.name}>
+                                                {item?.name}-{item?.bn_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                             <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
                                     City
