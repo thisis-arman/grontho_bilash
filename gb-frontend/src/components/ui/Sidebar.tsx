@@ -25,7 +25,7 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
             break;
     }
     return (
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider trigger={null} collapsible collapsed={collapsed} className="h-screen sticky top-0">
             <div className="demo-logo-vertical h-12 mx-auto p-4 flex justify-center items-center " >
                 {/* <h1 className='text-white font-bold text-2xl'>GB</h1> */}
                 <img src="/src/assets/logo//grontho-bilash-transparent.png" className='h-12 w-12' alt="" />

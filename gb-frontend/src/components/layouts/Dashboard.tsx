@@ -12,13 +12,13 @@ const Dashboard = () => {
 
 
   return (
-    <Layout className='min-h-screen'>
-      <Sidebar collapsed={ collapsed} />
+    <Layout >
+      <Sidebar collapsed={ collapsed}  />
       <Layout>
         <Header style={{ padding: 0 }}>
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={collapsed ? <MenuUnfoldOutlined className='text-white border p-2 rounded shadow' /> : <MenuFoldOutlined className='text-white border p-2 rounded shadow' />}
             onClick={() => setCollapsed(!collapsed)}
             style={{
               fontSize: '16px',
@@ -27,7 +27,7 @@ const Dashboard = () => {
             }}
           />
         </Header>
-        <Content
+        <Content className='min-h-screen'
           style={{
             margin: '24px 16px',
             padding: 24,
