@@ -5,21 +5,20 @@ import { PhotoIcon } from '@heroicons/react/24/solid'
 const AddProduct = () => {
     const [divisions, setDivisions] = useState([]);
     const [districts, setDistricts] = useState([]);
+    const [filteredDistricts, setFilteredDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
+    const [filteredUpazilas, setFilteredUpazilas] = useState([]);
     const [postcodes, setPostcodes] = useState([]);
+    const [filteredPostcodes, setFilteredPostcodes] = useState([]);
+    const [selectedDivision, setSelectedDivision] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState(null);
+    const [selectedUpazila, setSelectedUpazila] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    const condition = ["Fresh", "Used"];
-    const deliveryOptions = ["Picked up", "Shipping", "As you want"];
-
-    const currentYear = new Date().getFullYear();
-    const previousYears = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Use Promise.all to fetch multiple JSON files simultaneously
                 const [divisionRes, districtRes, upazilaRes, postcodeRes] = await Promise.all([
                     fetch("/src/assets/db/bangladesh-geojson-master/bd-divisions.json"),
                     fetch("/src/assets/db/bangladesh-geojson-master/bd-districts.json"),
@@ -27,12 +26,10 @@ const AddProduct = () => {
                     fetch("/src/assets/db/bangladesh-geojson-master/bd-postcodes.json")
                 ]);
 
-                // Check all responses and throw an error if any of them fails
                 if (![divisionRes, districtRes, upazilaRes, postcodeRes].every(res => res.ok)) {
                     throw new Error("One or more requests failed");
                 }
 
-                // Parse JSON data for each response
                 const [divisionData, districtData, upazilaData, postcodeData] = await Promise.all([
                     divisionRes.json(),
                     districtRes.json(),
@@ -40,11 +37,10 @@ const AddProduct = () => {
                     postcodeRes.json()
                 ]);
 
-                // Set data to state
-                setDivisions(divisionData);
-                setDistricts(districtData);
-                setUpazilas(upazilaData);
-                setPostcodes(postcodeData);
+                setDivisions(divisionData.divisions);
+                setDistricts(districtData.districts);
+                setUpazilas(upazilaData.upazilas);
+                setPostcodes(postcodeData.postcodes);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -53,8 +49,39 @@ const AddProduct = () => {
         };
 
         fetchData();
-    }, []); // Run once on component mount
-    console.log(divisions);
+    }, []);
+
+    // Update filtered districts when a division is selected
+    useEffect(() => {
+        if (selectedDivision) {
+            setFilteredDistricts(districts.filter(d => d.division_id === selectedDivision.id));
+            setSelectedDistrict(null); // Reset district and further selections
+            setSelectedUpazila(null);
+            setFilteredUpazilas([]);
+            setFilteredPostcodes([]);
+        }
+    }, [selectedDivision, districts]);
+
+    // Update filtered upazilas when a district is selected
+    useEffect(() => {
+        if (selectedDistrict) {
+            setFilteredUpazilas(upazilas.filter(u => u.district_id === selectedDistrict.id));
+            setSelectedUpazila(null); // Reset upazila and postcodes
+            setFilteredPostcodes([]);
+        }
+    }, [selectedDistrict, upazilas]);
+
+    // Update filtered postcodes when an upazila is selected
+    useEffect(() => {
+        if (selectedUpazila) {
+            setFilteredPostcodes(postcodes.filter(p => p.upazila === selectedUpazila.name));
+        }
+    }, [selectedUpazila, postcodes]);
+
+    const condition = ["Fresh", "Used"]
+    const deliveryOptions = ["Picked up", "Shipping", "As you want "]
+    const CurrentYear = new Date().getFullYear();
+    const previousYears = Array.from({ length: 30 }, (_, i) => CurrentYear - i);
 
     const handleAddProduct = async (e) => {
         e.preventDefault();
@@ -245,69 +272,6 @@ const AddProduct = () => {
                         <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            {/* <div className="sm:col-span-3">
-                                <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                                    First name
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="first-name"
-                                        name="first-name"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Last name
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="last-name"
-                                        name="last-name"
-                                        type="text"
-                                        autoComplete="family-name"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div> */}
-
-                            {/* <div className="sm:col-span-4">
-                                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Email address
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div> */}
-                            {/* 
-                            <div className="sm:col-span-3">
-                                <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Country
-                                </label>
-                                <div className="mt-2">
-                                    <select
-                                        id="country"
-                                        name="country"
-                                        autoComplete="country-name"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option>United States</option>
-                                        <option>Canada</option>
-                                        <option>Mexico</option>
-                                    </select>
-                                </div>
-                            </div> */}
-
                             <div className="col-span-full">
                                 <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
                                     Street address
@@ -323,52 +287,73 @@ const AddProduct = () => {
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-2 sm:col-start-1">
+                           <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="division" className="block text-sm font-medium leading-6 text-gray-900">
                                     Division
                                 </label>
                                 <div className="mt-2">
                                     <select
                                         id="division"
-                                        name="division"
-                                        autoComplete="division"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        value={selectedDivision?.id || ""}
+                                        onChange={(e) => {
+                                            const division = divisions.find(d => d.id === e.target.value);
+                                            setSelectedDivision(division);
+                                        }}
                                     >
-                                        {divisions?.divisions?.map((item) => (
-                                            <option key={item.id} value={item?.name}>
-                                                {item?.name}-{item?.bn_name}
-                                            </option>
+                                        <option value="" disabled>Select Division</option>
+                                        {divisions.map((division) => (
+                                            <option key={division.id} value={division.id}>{division.name}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
+
                             <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                                    City
+                                    District
                                 </label>
                                 <div className="mt-2">
-                                    <input
-                                        id="city"
-                                        name="city"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
+                                    <select
+                                        id="district"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        value={selectedDistrict?.id || ""}
+                                        onChange={(e) => {
+                                            const district = filteredDistricts.find(d => d.id === e.target.value);
+                                            setSelectedDistrict(district);
+                                        }}
+                                        disabled={!selectedDivision}
+                                    >
+                                        <option value="" disabled>Select District</option>
+                                        {filteredDistricts.map((district) => (
+                                            <option key={district.id} value={district.id}>{district.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
                             <div className="sm:col-span-2">
                                 <label htmlFor="region" className="block text-sm font-medium leading-6 text-gray-900">
-                                    State / Province
+                                    Upazila
                                 </label>
                                 <div className="mt-2">
-                                    <input
-                                        id="region"
-                                        name="region"
-                                        type="text"
-                                        autoComplete="address-level1"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
+                                 
+                                    <select
+                                        id="upazila"
+                                        
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        value={selectedUpazila?.id || ""}
+                                        onChange={(e) => {
+                                            const upazila = filteredUpazilas.find(u => u.id === e.target.value);
+                                            setSelectedUpazila(upazila);
+                                        }}
+                                        disabled={!selectedDistrict}
+                                    >
+                                        <option value="" disabled>Select Upazila</option>
+                                        {filteredUpazilas.map((upazila) => (
+                                            <option key={upazila.id} value={upazila.id}>{upazila.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
@@ -377,15 +362,34 @@ const AddProduct = () => {
                                     ZIP / Postal code
                                 </label>
                                 <div className="mt-2">
-                                    <input
-                                        id="postal-code"
-                                        name="postal-code"
-                                        type="text"
-                                        autoComplete="postal-code"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
+                                    {/* <select
+                                        id="postcode"
+                                        name="postcode"
+                                        autoComplete="postcode"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        {postcodes?.postcodes?.map((item) => (
+                                            <option key={item.id} value={item?.postCode}>
+                                                {item?.postCode} - {item?.postOffice}
+                                            </option>
+                                        ))}
+                                    </select> */}
+                                    <select
+                                        id="postcode"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        value={selectedUpazila?.id || ""}
+                                        disabled={!selectedUpazila}
+                                    >
+                                        <option value="" disabled>Select Postcode</option>
+                                        {filteredPostcodes.map((postcode) => (
+                                            <option key={postcode.postCode} value={postcode.postCode}>
+                                                {postcode.postCode} - {postcode.postOffice}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
+                      
                         </div>
                     </div>
 
