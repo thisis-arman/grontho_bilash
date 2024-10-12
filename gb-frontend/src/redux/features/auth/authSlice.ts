@@ -1,40 +1,33 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-type TAuth = {
+export type TUser = {
   email: string;
-  password: string;
+  role: string;
+  iat: number;
+  exp: number;
 };
 
-type TInitialState = {
-  users: TAuth[];
+type TAuthState = {
+  user: null | TUser;
+  token: null | string;
 };
 
-const initialState: TInitialState = {
-  users: [
-    { email: "test@example.com", password: "12345" }, // Example user
-  ],
+const initialState: TAuthState = {
+  user: null,
+  token: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginUser: (state, action: PayloadAction<TAuth>) => {
-      const { email, password } = action.payload;
-
-      // Check if user exists in users array
-      const userExists = state.users.some(
-        (u) => u.email === email && u.password === password
-      );
-
-      if (!userExists) {
-        console.log("Login failed: Invalid email or password");
-      } else {
-        console.log("Login successful");
-      }
+    setUser: (state, action) => {
+      const { user, token } = action.payload;
+      state.user = user;
+      state.token = token;
     },
   },
 });
 
-export const { loginUser } = authSlice.actions;
+export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,9 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../redux/features/auth/authApi";
+import { verifyToken } from "../../utils/verifyToken";
+import { useAppDispatch } from "../../redux/hooks";
+import { setUser, TUser } from "../../redux/features/auth/authSlice";
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
-    const navigate =useNavigate()
+    const dispatch = useAppDispatch()
+
+    const navigate = useNavigate()
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -12,8 +17,10 @@ const Login = () => {
 
         try {
             const response = await login({ email, password }).unwrap();
+            const user = verifyToken(response.data.accessToken) as TUser;
+            dispatch(setUser({ user: user, token: response.data.accessToken }));
             if (response.success) {
-            navigate('/')
+                navigate('/')
             }
             console.log("Login successful:", response);
         } catch (error) {
