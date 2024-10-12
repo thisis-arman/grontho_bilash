@@ -30,6 +30,7 @@ const bookSchema = new Schema(
       type: String,
       enum: ["fresh", "used"], // Only 'fresh' or 'used' values are allowed
       required: true,
+      default:"used"
     },
     level: {
       type: String,

@@ -43,6 +43,11 @@ const loginUser = async (payload: TLoginUser) => {
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
 
   // const refreshToken = createToken(
   //   jwtPayload,
@@ -52,8 +57,8 @@ const loginUser = async (payload: TLoginUser) => {
 
   return {
     accessToken,
-    // refreshToken,
-    needsPasswordChange: user?.needsUpdateProfile,
+    refreshToken,
+    needsUpdateProfile: user?.needsUpdateProfile,
   };
 };
 
