@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
 
@@ -14,6 +15,9 @@ const AddProduct = () => {
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedUpazila, setSelectedUpazila] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
+    const [imageURL, setImageURL] = useState(null);
+    console.log({ selectedDeliveryOption });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -83,8 +87,46 @@ const AddProduct = () => {
     const CurrentYear = new Date().getFullYear();
     const previousYears = Array.from({ length: 30 }, (_, i) => CurrentYear - i);
 
+
+
+    const handleFileUpload = async (event) => {
+        event.preventDefault();
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Create a form data object
+        const formData = new FormData();
+        formData.append("image", file); // Change "file" to "image"
+
+        try {
+            const response = await axios.post("http://localhost:5000/api/v1/books/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            console.log("response", response);
+            setImageURL(response.data.url); // Assuming response contains URL
+        } catch (error) {
+            console.error("Error uploading the image:", error);
+        }
+        console.log({formData});
+    };
+
+    console.log({ imageURL });
     const handleAddProduct = async (e) => {
         e.preventDefault();
+        let target = e.target
+        const bookTitle = target.title.value
+        const description = target.description.value
+        const publicationYear = target.publicationYear.value
+        const price = target.price.value
+        const images = [imageURL]
+        const condition = selectedDeliveryOption
+        const isContactNoHidden = target.isContactNoHidden.value
+        const isNegotiable = target.isNegotiable.value
+
+        console.log(bookTitle, price, condition, isNegotiable, isContactNoHidden, publicationYear, description,images);
+
     }
     return (
         <div className='p-10'>
@@ -199,54 +241,25 @@ const AddProduct = () => {
                                                 className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
                                             >
                                                 <span>Upload a file</span>
-                                                <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                                <input
+                                                    id="file-upload"
+                                                    name="file-upload"
+                                                    type="file"
+                                                    onChange={handleFileUpload}
+                                                    className="sr-only"
+                                                />
                                             </label>
                                             <p className="pl-1">or drag and drop</p>
                                         </div>
                                         <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                    </div>
-                                    <div className="text-center border p-4">
-                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                            <label
-                                                htmlFor="file-upload"
-                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
+                                        <div className="grid grid-cols-3 gap-4 mt-4">
+                                        
+                                                <img  src={imageURL} className="h-24 w-auto" />
+                                     
                                         </div>
-                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
                                     </div>
-                                    <div className="text-center border p-4">
-                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                            <label
-                                                htmlFor="file-upload"
-                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                    </div>
-                                    <div className="text-center border p-4">
-                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                            <label
-                                                htmlFor="file-upload"
-                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -287,7 +300,7 @@ const AddProduct = () => {
                                 </div>
                             </div>
 
-                           <div className="sm:col-span-2 sm:col-start-1">
+                            <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="division" className="block text-sm font-medium leading-6 text-gray-900">
                                     Division
                                 </label>
@@ -337,10 +350,10 @@ const AddProduct = () => {
                                     Upazila
                                 </label>
                                 <div className="mt-2">
-                                 
+
                                     <select
                                         id="upazila"
-                                        
+
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedUpazila?.id || ""}
                                         onChange={(e) => {
@@ -362,18 +375,6 @@ const AddProduct = () => {
                                     ZIP / Postal code
                                 </label>
                                 <div className="mt-2">
-                                    {/* <select
-                                        id="postcode"
-                                        name="postcode"
-                                        autoComplete="postcode"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        {postcodes?.postcodes?.map((item) => (
-                                            <option key={item.id} value={item?.postCode}>
-                                                {item?.postCode} - {item?.postOffice}
-                                            </option>
-                                        ))}
-                                    </select> */}
                                     <select
                                         id="postcode"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -389,23 +390,29 @@ const AddProduct = () => {
                                     </select>
                                 </div>
                             </div>
-                      
+
                         </div>
                     </div>
 
                     <div>
                         <h2 className="text-gray-800 font-medium">Delivery Option</h2>
                         <ul className="mt-3  flex items-center gap-10">
-                            {
-                                deliveryOptions.map((item, idx) => (
-                                    <li key={idx} className="flex items-center gap-x-2.5">
-                                        <input type="radio" name="condition" id={idx} className="form-radio border-gray-400 text-yellow-600 focus:ring-yellow-600 duration-150" />
-                                        <label htmlFor={idx} className="text-sm text-gray-700 font-medium">
-                                            {item}
-                                        </label>
-                                    </li>
-                                ))
-                            }
+                            {deliveryOptions.map((item, idx) => (
+                                <li key={idx} className="flex items-center gap-x-2.5">
+                                    <input
+                                        type="radio"
+                                        name="deliveryOption"
+                                        id={`option-${idx}`}
+                                        value={item} // Set value to distinguish options
+                                        checked={selectedDeliveryOption === item} // Check if the option is selected
+                                        onChange={(e) => setSelectedDeliveryOption(e.target.value)} // Update state when selected
+                                        className="form-radio border-gray-400 text-yellow-600 focus:ring-yellow-600 duration-150"
+                                    />
+                                    <label htmlFor={`option-${idx}`} className="text-sm text-gray-700 font-medium">
+                                        {item}
+                                    </label>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
@@ -460,12 +467,12 @@ const AddProduct = () => {
                                                 className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-600"
                                             />
                                         </div>
-                                        <div className="text-sm leading-6">
+                                        {/* <div className="text-sm leading-6">
                                             <label htmlFor="offers" className="font-medium text-gray-900">
                                                 Offers
                                             </label>
                                             <p className="text-gray-500">Get notified when a candidate accepts or rejects an offer.</p>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </fieldset>
