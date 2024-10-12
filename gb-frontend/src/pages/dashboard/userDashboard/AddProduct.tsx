@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
+import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
 
 const AddProduct = () => {
     const [divisions, setDivisions] = useState([]);
@@ -18,6 +19,9 @@ const AddProduct = () => {
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
     const [imageURL, setImageURL] = useState(null);
     console.log({ selectedDeliveryOption });
+
+    // RTK
+    const [createBook] = useCreateBookMutation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -112,20 +116,32 @@ const AddProduct = () => {
         console.log({formData});
     };
 
-    console.log({ imageURL });
+
+
+  
     const handleAddProduct = async (e) => {
         e.preventDefault();
         let target = e.target
+        const user = '67077c39206fc4ecb86b5830'
         const bookTitle = target.title.value
         const description = target.description.value
         const publicationYear = target.publicationYear.value
-        const price = target.price.value
+        const price = parseFloat(target.price.value)
         const images = [imageURL]
         const condition = selectedDeliveryOption
         const isContactNoHidden = target.isContactNoHidden.value
         const isNegotiable = target.isNegotiable.value
+        const location = `${target?.Village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
-        console.log(bookTitle, price, condition, isNegotiable, isContactNoHidden, publicationYear, description,images);
+        console.log({user, bookTitle, price, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images });
+        try {
+            const response = await createBook({ bookTitle, price, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images })
+
+            console.log(response);
+            
+        } catch (error) {
+            console.log(error);
+        }
 
     }
     return (
@@ -173,22 +189,7 @@ const AddProduct = () => {
                                 </div>
                                 <p className="mt-3 text-sm leading-6 text-gray-600">Write description about your product.</p>
                             </div>
-                            {/* 
-                            <div className="col-span-full">
-                                <label htmlFor="photo" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Photo
-                                </label>
-                                <div className="mt-2 flex items-center gap-x-3">
-                                    <UserCircleIcon aria-hidden="true" className="h-12 w-12 text-gray-300" />
-                                    <button
-                                        type="button"
-                                        className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                                    >
-                                        Change
-                                    </button>
-                                </div>
-                            </div> */}
-
+                
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="publicationYear" className="block text-sm font-medium leading-6 text-gray-900">
@@ -227,6 +228,24 @@ const AddProduct = () => {
 
                                 </div>
                             </div>
+                            {/* Condition */}
+                            <div>
+                                <h2 className="text-gray-800 font-medium">Condition</h2>
+                                <ul className="mt-3  flex items-center gap-10">
+                                    <select
+                                        id="condition"
+                                        name="condition"
+                                        autoComplete="condition"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        {condition.map((item, i) => (
+                                            <option key={i} value={item}>
+                                                {item}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </ul>
+                            </div>
 
                             <div className="col-span-full">
                                 <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
@@ -264,37 +283,22 @@ const AddProduct = () => {
                             </div>
                         </div>
                     </div>
-                    {/* Condition */}
-                    <div>
-                        <h2 className="text-gray-800 font-medium">Condition</h2>
-                        <ul className="mt-3  flex items-center gap-10">
-                            {
-                                condition.map((item, idx) => (
-                                    <li key={idx} className="flex items-center gap-x-2.5">
-                                        <input type="radio" name="condition" id={idx} className="form-radio border-gray-400 text-yellow-600 focus:ring-yellow-600 duration-150" />
-                                        <label htmlFor={idx} className="text-sm text-gray-700 font-medium">
-                                            {item}
-                                        </label>
-                                    </li>
-                                ))
-                            }
-                        </ul>
-                    </div>
+                   
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
                         <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="col-span-full">
-                                <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Street address
+                                <label htmlFor="Village" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Village
                                 </label>
                                 <div className="mt-2">
                                     <input
-                                        id="street-address"
-                                        name="street-address"
+                                        id="village"
+                                        name="village"
                                         type="text"
-                                        autoComplete="street-address"
+                                        autoComplete="village"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -307,6 +311,7 @@ const AddProduct = () => {
                                 <div className="mt-2">
                                     <select
                                         id="division"
+                                        required
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedDivision?.id || ""}
                                         onChange={(e) => {
@@ -329,6 +334,7 @@ const AddProduct = () => {
                                 <div className="mt-2">
                                     <select
                                         id="district"
+                                        required
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedDistrict?.id || ""}
                                         onChange={(e) => {
@@ -353,7 +359,7 @@ const AddProduct = () => {
 
                                     <select
                                         id="upazila"
-
+                                        required
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedUpazila?.id || ""}
                                         onChange={(e) => {
@@ -400,6 +406,7 @@ const AddProduct = () => {
                             {deliveryOptions.map((item, idx) => (
                                 <li key={idx} className="flex items-center gap-x-2.5">
                                     <input
+                                        required
                                         type="radio"
                                         name="deliveryOption"
                                         id={`option-${idx}`}
