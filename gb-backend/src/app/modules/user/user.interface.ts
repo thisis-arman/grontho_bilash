@@ -24,3 +24,11 @@ export interface UserModel extends Model<TUser> {
     jwtIssuedTimestamp: number
   ): boolean;
 }
+
+export const USER_ROLE = {
+  superAdmin: "superAdmin",
+  user: "user",
+  admin: "admin",
+} as const;
+
+export type TUserRoles = keyof typeof USER_ROLE;
