@@ -3,6 +3,7 @@ import { useLoginMutation } from "../../redux/features/auth/authApi";
 import { verifyToken } from "../../utils/verifyToken";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser, TUser } from "../../redux/features/auth/authSlice";
+import { toast } from "sonner";
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
@@ -11,6 +12,7 @@ const Login = () => {
     const navigate = useNavigate()
 
     const handleLogin = async (e) => {
+        const toastId = toast.loading("logging in...");
         e.preventDefault();
         const email = e.target.email.value;
         const password = e.target.password.value;
@@ -19,11 +21,13 @@ const Login = () => {
             const response = await login({ email, password }).unwrap();
             const user = verifyToken(response.data.accessToken) as TUser;
             dispatch(setUser({ user: user, token: response.data.accessToken }));
+            toast.success("Login successful", { id: toastId, duration: 2000 })
             if (response.success) {
                 navigate('/')
             }
             console.log("Login successful:", response);
         } catch (error) {
+            toast.error("Something went wrong", { id: toastId, duration: 2000 })
             console.error("Login failed:", error);
         }
     };
