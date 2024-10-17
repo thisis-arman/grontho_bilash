@@ -23,7 +23,7 @@ const Login = () => {
             dispatch(setUser({ user: user, token: response.data.accessToken }));
             toast.success("Login successful", { id: toastId, duration: 2000 })
             if (response.success) {
-                navigate('/')
+                navigate(`/${user.role}/dashboard`)
             }
             console.log("Login successful:", response);
         } catch (error) {
