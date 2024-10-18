@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useGetBooksQuery } from "../../../redux/features/book/bookApi";
 
 
 const MyProducts = () => {
 
+    const {data} = useGetBooksQuery(undefined);
+
+    console.log({data});
     const tableItems = [
         {
             label: "Pages",
