@@ -1,59 +1,16 @@
-import { useState } from "react";
-import { useGetBooksQuery } from "../../../redux/features/book/bookApi";
+import { useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import { TBook } from "../../../redux/features/book/bookSlice";
+import { useAppSelector } from "../../../redux/hooks";
+import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
 
 
 const MyProducts = () => {
-
-    const { data, isLoading } = useGetBooksQuery(undefined);
-
-
+    // const { data, isLoading } = useGetBooksQuery(undefined);
+    const { email, role } = useAppSelector(selectCurrentUser) as TUser;
+    const { data, isLoading } = useGetBooksByEmailQuery(email);
     console.log({ data });
-    const tableItems = [
-        {
-            avatar: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ",
-            name: "Liam James",
-            email: "liamjames@example.com",
-            phone_nimber: "+1 (555) 000-000",
-            position: "Software engineer",
-            salary: "$100K"
-        },
-        {
-            avatar: "https://randomuser.me/api/portraits/men/86.jpg",
-            name: "Olivia Emma",
-            email: "oliviaemma@example.com",
-            phone_nimber: "+1 (555) 000-000",
-            position: "Product designer",
-            salary: "$90K"
-        },
-        {
-            avatar: "https://randomuser.me/api/portraits/women/79.jpg",
-            name: "William Benjamin",
-            email: "william.benjamin@example.com",
-            phone_nimber: "+1 (555) 000-000",
-            position: "Front-end developer",
-            salary: "$80K"
-        },
-        {
-            avatar: "https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg",
-            name: "Henry Theodore",
-            email: "henrytheodore@example.com",
-            phone_nimber: "+1 (555) 000-000",
-            position: "Laravel engineer",
-            salary: "$120K"
-        },
-        {
-            avatar: "https://images.unsplash.com/photo-1439911767590-c724b615299d?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ",
-            name: "Amelia Elijah",
-            email: "amelia.elijah@example.com",
-            phone_nimber: "+1 (555) 000-000",
-            position: "Open source manager",
-            salary: "$75K"
-        },
-    ]
-
+ 
     return (
         <>
             {
@@ -64,10 +21,10 @@ const MyProducts = () => {
                         <div className="items-start justify-between md:flex">
                             <div className="max-w-lg">
                                 <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                                   My Products
+                                    My Products
                                 </h3>
                                 <p className="text-gray-600 mt-2">
-                                  The product i have listed from this profile
+                                    The product i have listed from this profile
                                 </p>
                             </div>
                             <div className="mt-3 md:mt-0">
@@ -85,14 +42,14 @@ const MyProducts = () => {
                                         <th className="py-3 px-6">Price</th>
                                         <th className="py-3 px-6">Condition</th>
                                         <th className="py-3 px-6">Delivery Option</th>
-                                        {/* <th className="py-3 px-6">A</th> */}
+
                                         <th className="py-3 px-6 text-center">Actions</th>
 
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-600 divide-y">
                                     {
-                                        data?.data?.map((item: TBook, idx :number) => (
+                                        data?.data?.map((item: TBook, idx: number) => (
                                             <tr key={idx}>
                                                 <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
                                                     <img src={item?.images[0]} className="w-10 h-10 rounded-full" />
@@ -108,7 +65,7 @@ const MyProducts = () => {
                                                     <a href="javascript:void()" className="py-2 px-3 font-medium text-yellow-600 hover:text-yellow-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Edit
                                                     </a>
-                                                    <button href="javascript:void()" className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                                    <button  className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Delete
                                                     </button>
                                                 </td>

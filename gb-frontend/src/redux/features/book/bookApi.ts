@@ -18,6 +18,15 @@ export const bookApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // Get all books
+    getBooksByEmail: builder.query({
+      query: (email) => (
+        console.log(email ,"get books by email"),
+        {
+        url: `/books/${email}`,
+        method: "GET",
+      }),
+    }),
 
     // Get a book by ID
     getBookById: builder.query({
@@ -53,4 +62,5 @@ export const {
   useGetBookByIdQuery,
   useUpdateBookMutation,
   useDeleteBookMutation,
+  useGetBooksByEmailQuery
 } = bookApi;
