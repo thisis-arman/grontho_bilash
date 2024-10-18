@@ -1,161 +1,127 @@
 import { useState } from "react";
 import { useGetBooksQuery } from "../../../redux/features/book/bookApi";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { TBook } from "../../../redux/features/book/bookSlice";
 
 
 const MyProducts = () => {
 
-    const {data} = useGetBooksQuery(undefined);
+    const { data, isLoading } = useGetBooksQuery(undefined);
 
-    console.log({data});
+
+    console.log({ data });
     const tableItems = [
         {
-            label: "Pages",
-            title: "Top pages",
-            items: [
-                {
-                    prop: "https://www.google.com",
-                    clicks: "129",
-                    impression: "Good"
-                },
-                {
-                    prop: "https://www.youtube.com",
-                    clicks: "798",
-                    impression: "Normal"
-                },
-                {
-                    prop: "https://www.github.com",
-                    clicks: "399",
-                    impression: "Great"
-                },
-                {
-                    prop: "https://www.floatui.com",
-                    clicks: "678",
-                    impression: "Bad"
-                },
-            ]
+            avatar: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ",
+            name: "Liam James",
+            email: "liamjames@example.com",
+            phone_nimber: "+1 (555) 000-000",
+            position: "Software engineer",
+            salary: "$100K"
         },
         {
-            label: "Countries",
-            title: "Top countries",
-            items: [
-                {
-                    prop: "Mauritania",
-                    clicks: "203",
-                    impression: "Good"
-                },
-                {
-                    prop: "United state america",
-                    clicks: "408",
-                    impression: "Great"
-                },
-                {
-                    prop: "France",
-                    clicks: "99",
-                    impression: "Bad"
-                },
-                {
-                    prop: "Germany",
-                    clicks: "320",
-                    impression: "Normal"
-                },
-            ]
+            avatar: "https://randomuser.me/api/portraits/men/86.jpg",
+            name: "Olivia Emma",
+            email: "oliviaemma@example.com",
+            phone_nimber: "+1 (555) 000-000",
+            position: "Product designer",
+            salary: "$90K"
         },
         {
-            label: "Devices",
-            title: "Top devices",
-            items: [
-                {
-                    prop: "Android",
-                    clicks: "360",
-                    impression: "Normal"
-                },
-                {
-                    prop: "Linux",
-                    clicks: "190",
-                    impression: "Good"
-                },
-                {
-                    prop: "Macbook",
-                    clicks: "129",
-                    impression: "Good"
-                },
-                {
-                    prop: "Windows",
-                    clicks: "50",
-                    impression: "Bad"
-                },
-            ]
+            avatar: "https://randomuser.me/api/portraits/women/79.jpg",
+            name: "William Benjamin",
+            email: "william.benjamin@example.com",
+            phone_nimber: "+1 (555) 000-000",
+            position: "Front-end developer",
+            salary: "$80K"
+        },
+        {
+            avatar: "https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg",
+            name: "Henry Theodore",
+            email: "henrytheodore@example.com",
+            phone_nimber: "+1 (555) 000-000",
+            position: "Laravel engineer",
+            salary: "$120K"
+        },
+        {
+            avatar: "https://images.unsplash.com/photo-1439911767590-c724b615299d?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ",
+            name: "Amelia Elijah",
+            email: "amelia.elijah@example.com",
+            phone_nimber: "+1 (555) 000-000",
+            position: "Open source manager",
+            salary: "$75K"
         },
     ]
 
-    const [selectedItem, setSelectedItem] = useState(0)
-    const labelColors = {
-        "Good": {
-            color: "text-green-600 bg-green-50",
-        },
-        "Normal": {
-            color: "text-blue-600 bg-blue-50",
-        },
-        "Great": {
-            color: "text-pink-600 bg-pink-50",
-        },
-        "Bad": {
-            color: "text-red-600 bg-red-50",
-        },
-    }
     return (
-        <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-            <div className="max-w-lg">
-                <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                    Reports
-                </h3>
-                <p className="text-gray-600 mt-2">
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                </p>
-            </div>
-            <div className="text-sm mt-12 overflow-x-auto">
-                <ul rol="tablist" className="w-full border-b flex items-center gap-x-3 overflow-x-auto">
-                    {
-                        tableItems.map((item, idx) => (
-                            <li key={idx} className={`py-2 border-b-2 ${selectedItem == idx ? "border-indigo-600 text-indigo-600" : "border-white text-gray-500"}`}>
-                                <button
-                                    role="tab"
-                                    aria-selected={selectedItem == idx ? true : false}
-                                    aria-controls={`tabpanel-${idx + 1}`}
-                                    className="py-2.5 px-4 rounded-lg duration-150 hover:text-indigo-600 hover:bg-gray-50 active:bg-gray-100 font-medium"
-                                    onClick={() => setSelectedItem(idx)}
-                                >
-                                    {item.label}
-                                </button>
-                            </li>
-                        ))
-                    }
-                </ul>
-                <table className="w-full table-auto text-left">
-                    <thead className="text-gray-600 font-medium border-b">
-                        <tr>
-                            <th className="w-9/12 py-4 pr-6">{tableItems[selectedItem].title}</th>
-                            <th className="py-4 pr-6">Clicks</th>
-                            <th className="py-4 pr-6">Impression</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-600 divide-y">
-                        {
-                            tableItems[selectedItem].items.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td className="pr-6 py-4 whitespace-nowrap">{item.prop}</td>
-                                    <td className="pr-6 py-4 whitespace-nowrap text-indigo-600">{item.clicks}</td>
-                                    <td className="pr-6 py-4 whitespace-nowrap">
-                                        <span className={`py-2 px-3 rounded-full font-semibold text-xs ${labelColors[item?.impression]?.color || ""}`}>{item.impression}</span>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
+        <>
+            {
+                isLoading ?
+                    <p>Loading...</p>
+
+                    : <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+                        <div className="items-start justify-between md:flex">
+                            <div className="max-w-lg">
+                                <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
+                                   My Products
+                                </h3>
+                                <p className="text-gray-600 mt-2">
+                                  The product i have listed from this profile
+                                </p>
+                            </div>
+                            <div className="mt-3 md:mt-0">
+                                <Link to={'/user/add-product'}
+                                    className="inline-block px-4 py-2 text-white duration-150 hover:text-black font-medium bg-yellow-600 rounded-lg hover:bg-yellow-500 active:bg-yellow-700 md:text-sm">
+                                    Add Product
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
+                            <table className="w-full table-auto text-sm text-left">
+                                <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+                                    <tr>
+                                        <th className="py-3 px-6">Book Title</th>
+                                        <th className="py-3 px-6">Price</th>
+                                        <th className="py-3 px-6">Condition</th>
+                                        <th className="py-3 px-6">Delivery Option</th>
+                                        {/* <th className="py-3 px-6">A</th> */}
+                                        <th className="py-3 px-6 text-center">Actions</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody className="text-gray-600 divide-y">
+                                    {
+                                        data?.data?.map((item: TBook, idx :number) => (
+                                            <tr key={idx}>
+                                                <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
+                                                    <img src={item?.images[0]} className="w-10 h-10 rounded-full" />
+                                                    <div>
+                                                        <span className="block text-gray-700 text-sm font-medium">{item.bookTitle}</span>
+                                                        {/* <span className="block text-gray-700 text-xs">{item.email}</span> */}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap"> &#2547; {item.price}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.condition}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.deliveryOption}</td>
+                                                <td className="text-right px-6 whitespace-nowrap">
+                                                    <a href="javascript:void()" className="py-2 px-3 font-medium text-yellow-600 hover:text-yellow-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                                        Edit
+                                                    </a>
+                                                    <button href="javascript:void()" className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            }
+        </>
+    )
+}
 
 export default MyProducts;

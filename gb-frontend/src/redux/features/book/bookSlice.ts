@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Define the types for book and initial state
-type TBook = {
+export type TBook = {
   user: string;
   bookId: string;
   bookTitle: string;
