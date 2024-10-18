@@ -1,6 +1,10 @@
+import httpStatus from "http-status";
+import AppError from "../../errors/AppError";
+import { User } from "../user/user.model";
 import { TBook } from "./book.interface";
 import { BookModel } from "./book.model";
 import { Document } from "mongoose";
+import { ObjectId } from "mongodb";
 
 // Service to list a book into the database
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
@@ -17,9 +21,29 @@ const getBookFromDb = async (bookId: string): Promise<Document | null> => {
   return book;
 };
 
-
 const getBooksFromDb = async (): Promise<Document[]> => {
   const books = await BookModel.find();
+  // TODO: check if the book is deleted or isPublished false or not ?
+  // if(books)
+  return books;
+};
+const getBooksByEmailFromDB = async (email: string) => {
+  console.log(email);
+  const user = await User.isUserExistsByEmail(email);
+  console.log(user._id, "32");
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "user is not found");
+  }
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "user is Deleted");
+  }
+  // const id = user._id;
+
+  // Correct the query format here
+  const books = await BookModel.find({user:user._id});
+  console.log(books);
+
   return books;
 };
 
@@ -57,4 +81,5 @@ export const bookServices = {
   getBooksFromDb,
   deleteBookFromDb,
   updateBookIntoDb,
+  getBooksByEmailFromDB,
 };

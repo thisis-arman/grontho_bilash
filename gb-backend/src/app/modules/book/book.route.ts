@@ -1,13 +1,20 @@
-import fs  from 'fs';
+import fs from "fs";
 import { zodValidationSchema } from "./book.validation";
 import express, { Request, Response } from "express";
 import validateRequest from "../../middlewares/validateRequest";
 import { bookController } from "./book.controllers";
 import { imageUploader, upload } from "../../utils/imageUploader";
+import { Auth } from "../../middlewares/auth";
+import { USER_ROLE } from "../user/user.interface";
 
 const router = express.Router();
 
-router.get("/", bookController.getBooks);
+router.get(
+  "/",
+  Auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  bookController.getBooks
+);
+router.get("/:email", bookController.getBooksByEmail);
 router.post("/upload", upload.single("image"), async (req, res) => {
   try {
     const imageName = req.file?.originalname;

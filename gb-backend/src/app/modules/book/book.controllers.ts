@@ -14,6 +14,21 @@ const listABook = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+const getBooksByEmail = catchAsync(async (req, res) => {
+  const email = req.params.email;
+console.log(email);
+  const result = await bookServices.getBooksByEmailFromDB(email);
+ sendResponse(res, {
+   statusCode: 200,
+   message: "Book fetched successfully",
+   success: true,
+   data: result,
+ });
+
+
+})
+
 // Controller to get a single book by its ID
 const getBook = catchAsync(async (req: Request, res: Response) => {
   const bookId = req.params.id;
@@ -68,4 +83,5 @@ export const bookController = {
   getBooks,
   deleteBook,
   updateBook,
+  getBooksByEmail,
 };
