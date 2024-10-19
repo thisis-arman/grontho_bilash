@@ -1,5 +1,18 @@
 import { useGetUsersQuery } from "../../../redux/features/user/userApi";
 
+type TUser= {
+    name: string;
+    email: string;
+    contactNo: string;
+    password: string;
+    needsUpdateProfile: boolean;
+    passwordChangedAt ?: Date;
+    role: "user" | "admin";
+    status: "active" | "blocked";
+    isDeleted: boolean;
+}
+
+
 const UserManagement = () => {
 
     const { data, isLoading } = useGetUsersQuery(undefined);
@@ -34,16 +47,16 @@ const UserManagement = () => {
                         <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                             <tr>
                                 <th className="py-3 px-6">Username</th>
-                                <th className="py-3 px-6">Email</th>
-                                <th className="py-3 px-6">Position</th>
-                                <th className="py-3 px-6">Salary</th>
+                                <th className="py-3 px-6">Contact No</th>
+                                <th className="py-3 px-6">Role</th>
+                                <th className="py-3 px-6">Status</th>
                                 <th className="py-3 px-6"></th>
 
                             </tr>
                         </thead>
                         <tbody className="text-gray-600 divide-y">
                             {
-                                data?.data?.map((item, idx: number) => (
+                                data?.data?.map((item:TUser, idx: number) => (
                                     <tr key={idx}>
                                         <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
                                             {/* <img src={item?.avatar} className="w-10 h-10 rounded-full" /> */}
