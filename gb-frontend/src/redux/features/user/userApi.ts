@@ -5,7 +5,7 @@ export const userApi = baseApi.injectEndpoints({
     getUsers: builder.query({
       query: () => {
         return {
-          url: `/users?`,
+          url: `/users`,
           method: "GET",
         };
       },

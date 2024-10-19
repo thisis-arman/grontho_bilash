@@ -3,9 +3,11 @@ import Sider from "antd/es/layout/Sider";
 import { sidebarGenerator } from "../../utils/sidebarGenerator";
 import { adminPaths } from "../../routes/admin.route";
 import { userPaths } from "../../routes/user.route";
+import { useAppSelector } from "../../redux/hooks";
+import { selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
 
 const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
-    const role = 'user';
+    const {role} = useAppSelector(selectCurrentUser) as TUser;
 
     const userRole = {
         "ADMIN": 'admin',
@@ -26,10 +28,10 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
     }
     return (
         <Sider trigger={null} collapsible collapsed={collapsed} className="h-screen sticky top-0">
-            <div className="demo-logo-vertical h-12 mx-auto p-4 flex justify-center items-center " >
+            <a href="/" className="demo-logo-vertical h-12 mx-auto p-4 flex justify-center items-center " >
                 {/* <h1 className='text-white font-bold text-2xl'>GB</h1> */}
                 <img src="/src/assets/logo//grontho-bilash-transparent.png" className='h-12 w-12' alt="" />
-            </div>
+            </a>
             <Menu
                 theme="dark"
                 mode="inline"
