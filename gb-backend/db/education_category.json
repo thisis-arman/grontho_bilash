@@ -2,7 +2,7 @@
   {
     "levelId": "ssc",
     "levelName": "Secondary School Certificate (SSC)",
-    "streams": [
+    "programs": [
       {
         "streamId": "science",
         "streamName": "Science"
@@ -20,7 +20,7 @@
   {
     "levelId": "hsc",
     "levelName": "Higher Secondary Certificate (HSC)",
-    "streams": [
+    "programs": [
       {
         "streamId": "science",
         "streamName": "Science"

@@ -18,3 +18,24 @@ export type TBook = {
   deliveryOption: "pickup"|"shipping";
   shippingCost?: number; 
 };
+
+
+type TLevel = {
+  level: string; // ssc,hsc,bachelor,master
+  levelId: string;
+  faculty: string;
+};
+type TFaculty = {
+  facultyId:string;
+  faculty: string; // science,humanities,bba,bsc,bss
+  facultyShorts:string; //bba, 
+  department?: Types.ObjectId;// ,
+  level:Types.ObjectId
+}
+type TDepartment = {
+  deptId: string;
+  department: string; //accounting,chemistry,english
+  deptShorts: string;
+  level: Types.ObjectId;
+  faculty: Types.ObjectId;
+};
