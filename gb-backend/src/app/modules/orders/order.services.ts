@@ -35,7 +35,10 @@ const getOrderById = async (orderId: string) => {
 };
 
 const getOrdersFromDB = async () => {
-  const orders = await OrderModel.find();
+  const orders = await OrderModel.find()
+    .populate("seller")
+    .populate("buyer")
+    .populate("book");
   return orders;
 };
 // Service to update an order by ID
@@ -48,7 +51,9 @@ const updateOrderById = async (
   }
 
   // Validate the incoming data using Zod for only the fields being updated
-  const validatedData = orderValidations.createOrderSchema.partial().parse(updateData);
+  const validatedData = orderValidations.createOrderSchema
+    .partial()
+    .parse(updateData);
 
   const updatedOrder = await OrderModel.findByIdAndUpdate(
     orderId,

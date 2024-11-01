@@ -30,7 +30,7 @@ const getBooksFromDb = async (): Promise<Document[]> => {
 const getBooksByEmailFromDB = async (email: string) => {
   console.log(email);
   const user = await User.isUserExistsByEmail(email);
-  console.log(user._id, "32");
+ 
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "user is not found");
@@ -38,7 +38,6 @@ const getBooksByEmailFromDB = async (email: string) => {
   if (user.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "user is Deleted");
   }
-  // const id = user._id;
 
   // Correct the query format here
   const books = await BookModel.find({user:user._id});

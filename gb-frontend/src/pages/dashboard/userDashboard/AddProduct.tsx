@@ -18,6 +18,7 @@ const AddProduct = () => {
     const [loading, setLoading] = useState(true);
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
     const [imageURL, setImageURL] = useState(null);
+    const [productImages, setProductImages] = useState<string[]>([]);
     console.log({ selectedDeliveryOption });
 
     // RTK
@@ -109,7 +110,8 @@ const AddProduct = () => {
                 },
             });
             console.log("response", response);
-            setImageURL(response.data.url); // Assuming response contains URL
+            setImageURL(response.data.url);
+           productImages.push(response.data.url)
         } catch (error) {
             console.error("Error uploading the image:", error);
         }
@@ -117,6 +119,8 @@ const AddProduct = () => {
     };
 
 
+    console.log(productImages);
+    console.log(imageURL);
 
   
     const handleAddProduct = async (e) => {
@@ -144,6 +148,12 @@ const AddProduct = () => {
         }
 
     }
+
+    const handleRemoveImage = (index : number) => {
+        setProductImages(productImages.filter((_, i) => i !== index));
+    };
+
+
     return (
         <div className='p-10'>
             <form onSubmit={handleAddProduct}>
@@ -251,34 +261,49 @@ const AddProduct = () => {
                                 <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
                                     Product Images
                                 </label>
-                                <div className="mt-2 flex gap-4 justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                    <div className="text-center border p-4">
-                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                            <label
-                                                htmlFor="file-upload"
-                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input
-                                                    id="file-upload"
-                                                    name="file-upload"
-                                                    type="file"
-                                                    onChange={handleFileUpload}
-                                                    className="sr-only"
-                                                />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                        <div className="grid grid-cols-3 gap-4 mt-4">
-                                        
-                                                <img  src={imageURL} className="h-24 w-auto" />
-                                     
-                                        </div>
+                                <div className="mt-2 flex gap-4 justify-center rounded-lg border border-dashed border-gray-900/25 py-10">
+                                    <div className="grid grid-cols-3 gap-5">
+                                        {/* Show placeholders or uploaded images */}
+                                        {Array.from({ length: 6 }).map((_, index) => (
+                                            <div key={index} className="text-center border p-4 relative">
+                                                {/* Show placeholder if image is not uploaded at this index */}
+                                                {productImages[index] ? (
+                                                    <div className="relative">
+                                                        <img src={productImages[index]} alt="Uploaded" className="h-24 w-auto mx-auto" />
+                                                        {/* Cross button to remove image */}
+                                                        <button
+                                                            onClick={() => handleRemoveImage(index)}
+                                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-700"
+                                                        >
+                                                            &times;
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    // Placeholder
+                                                    <>
+                                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                                                            <label
+                                                                htmlFor={`file-upload-${index}`}
+                                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
+                                                            >
+                                                                <span>Upload a file</span>
+                                                                <input
+                                                                    id={`file-upload-${index}`}
+                                                                    name="file-upload"
+                                                                    type="file"
+                                                                    onChange={handleFileUpload}
+                                                                    className="sr-only"
+                                                                />
+                                                            </label>
+                                                            <p className="pl-1">or drag and drop</p>
+                                                        </div>
+                                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                                                    </>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
