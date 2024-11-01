@@ -35,10 +35,7 @@ export const FacultyZodSchema = z.object({
     }),
   level: z
     .instanceof(Types.ObjectId)
-    .or(z.string())
-    .refine((val) => Types.ObjectId.isValid(val), {
-      required_error: "Level ID is required and must be a valid ObjectId.",
-    }),
+    .or(z.string()),
 });
 
 // Department Zod Schema
@@ -55,14 +52,8 @@ export const DepartmentZodSchema = z.object({
   }),
   level: z
     .instanceof(Types.ObjectId)
-    .or(z.string())
-    .refine((val) => Types.ObjectId.isValid(val), {
-      required_error: "Level ID is required and must be a valid ObjectId.",
-    }),
+    .or(z.string()),
   faculty: z
     .instanceof(Types.ObjectId)
     .or(z.string())
-    .refine((val) => Types.ObjectId.isValid(val), {
-      required_error: "Faculty ID is required and must be a valid ObjectId.",
-    }),
 });
