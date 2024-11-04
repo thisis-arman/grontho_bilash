@@ -46,7 +46,8 @@ const FacultySchema = new Schema<TFaculty>({
     type: Schema.Types.ObjectId,
     ref: "Level",
     required: true,
-  },
+    },
+  
 });
 
 export const Faculty = model("Faculty", FacultySchema);

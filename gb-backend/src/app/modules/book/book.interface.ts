@@ -7,7 +7,7 @@ export type TBook = {
   price: number;
   description: string;
   condition: "fresh" | "used";
-  level: "ssc" | "hsc" | "bachelor" | "master";
+  level: Types.ObjectId;
   isPublished: boolean;
   isContactNoHidden: boolean;
   isNegotiable: boolean;

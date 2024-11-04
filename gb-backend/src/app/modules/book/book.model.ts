@@ -33,8 +33,8 @@ const bookSchema = new Schema(
       default:"used"
     },
     level: {
-      type: String,
-      enum: ["ssc", "hsc", "bachelor", "master"], // Ensure level follows these values
+      type: Schema.Types.ObjectId,
+      ref:'Level',
       required: true,
     },
     isPublished: {
