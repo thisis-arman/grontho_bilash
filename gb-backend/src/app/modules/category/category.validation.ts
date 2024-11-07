@@ -1,18 +1,15 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
-// Level Zod Schema
-export const LevelZodSchema = z.object({
-  level: z.string({
-    required_error:
-      "Level is required, e.g., 'ssc', 'hsc', 'bachelor', 'master'.",
-  }),
+// EducationCategory Zod Schema
+export const EducationCategoryZodSchema = z.object({
   levelId: z.string({
     required_error: "Level ID is required and must be unique.",
   }),
-  faculty: z.string({
-    required_error: "Faculty is required, e.g., 'science', 'humanities'.",
+  levelName: z.string({
+    required_error: "Level name is required, e.g., 'Bachelor', 'Master'.",
   }),
+  faculties: z.array(z.instanceof(Types.ObjectId).or(z.string())).optional(),
 });
 
 // Faculty Zod Schema
@@ -24,18 +21,9 @@ export const FacultyZodSchema = z.object({
     required_error: "Faculty name is required.",
   }),
   facultyShorts: z.string({
-    required_error: "Faculty shorthand is required, e.g., 'bba', 'bsc'.",
+    required_error: "Faculty shorthand is required, e.g., 'BBA', 'BSc'.",
   }),
-  department: z
-    .instanceof(Types.ObjectId)
-    .optional()
-    .or(z.string().optional())
-    .refine((val) => val === undefined || Types.ObjectId.isValid(val), {
-      message: "Department ID must be a valid ObjectId if provided.",
-    }),
-  level: z
-    .instanceof(Types.ObjectId)
-    .or(z.string()),
+  departments: z.array(z.string()),
 });
 
 // Department Zod Schema
@@ -45,15 +33,9 @@ export const DepartmentZodSchema = z.object({
   }),
   department: z.string({
     required_error:
-      "Department name is required, e.g., 'accounting', 'chemistry'.",
+      "Department name is required, e.g., 'Accounting', 'Chemistry'.",
   }),
   deptShorts: z.string({
-    required_error: "Department shorthand is required, e.g., 'acc', 'chem'.",
+    required_error: "Department shorthand is required, e.g., 'ACC', 'CHEM'.",
   }),
-  level: z
-    .instanceof(Types.ObjectId)
-    .or(z.string()),
-  faculty: z
-    .instanceof(Types.ObjectId)
-    .or(z.string())
 });

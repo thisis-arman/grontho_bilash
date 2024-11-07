@@ -5,6 +5,7 @@ import categoryService from "./category.service";
 const createLevel = catchAsync(async (req, res) => {
 
     const result = await categoryService.createLevelIntoDB(req.body);
+    console.log(result);
     sendResponse(res, {
         success: true,
         message: "Level created successfully",

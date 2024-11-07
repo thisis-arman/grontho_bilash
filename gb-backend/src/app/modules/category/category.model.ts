@@ -1,25 +1,33 @@
 import { Schema, model, Types } from "mongoose";
-import { TDepartment, TFaculty } from "./category.interface";
+import {
+  TEducationCategory,
+  TDepartment,
+  TFaculty,
+} from "./category.interface";
 
-// Level Schema
-const LevelSchema = new Schema({
-  level: {
-    type: String,
-    required: true,
-    
-  },
+// EducationCategory Schema
+const EducationCategorySchema = new Schema<TEducationCategory>({
   levelId: {
     type: String,
     required: true,
     unique: true,
   },
-  faculty: {
+  levelName: {
     type: String,
     required: true,
   },
+  faculties: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Faculty",
+    },
+  ],
 });
 
-export const Level = model("Level", LevelSchema);
+export const EducationCategory = model(
+  "EducationCategory",
+  EducationCategorySchema
+);
 
 // Faculty Schema
 const FacultySchema = new Schema<TFaculty>({
@@ -31,23 +39,17 @@ const FacultySchema = new Schema<TFaculty>({
   faculty: {
     type: String,
     required: true,
-    
   },
   facultyShorts: {
     type: String,
     required: true,
   },
-  department: {
-    type: Schema.Types.ObjectId,
-    ref: "Department",
-    required: false,
-  },
-  level: {
-    type: Schema.Types.ObjectId,
-    ref: "Level",
-    required: true,
+  departments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
     },
-  
+  ],
 });
 
 export const Faculty = model("Faculty", FacultySchema);
@@ -65,16 +67,6 @@ const DepartmentSchema = new Schema<TDepartment>({
   },
   deptShorts: {
     type: String,
-    required: true,
-  },
-  level: {
-    type: Schema.Types.ObjectId,
-    ref: "Level",
-    required: true,
-  },
-  faculty: {
-    type: Schema.Types.ObjectId,
-    ref: "Faculty",
     required: true,
   },
 });

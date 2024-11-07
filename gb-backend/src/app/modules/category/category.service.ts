@@ -1,12 +1,12 @@
-import { TDepartment, TFaculty, TLevel } from "./category.interface";
-import { Department, Level } from "./category.model";
+import { TDepartment, TEducationCategory, TFaculty,  } from "./category.interface";
+import { Department, EducationCategory, Faculty } from "./category.model";
 
-const createLevelIntoDB = async (level: TLevel) => {
-  const data = await Level.create(level);
+const createLevelIntoDB = async (level: TEducationCategory) => {
+  const data = await EducationCategory.create(level);
   return data;
 };
 const createFacultyIntoDB = async (faculty: TFaculty) => {
-  const data = await Level.create(faculty);
+  const data = await Faculty.create(faculty);
   return data;
 };
 

@@ -10,6 +10,10 @@ import { categoryRoutes } from "../category/category.route";
 const router = Router();
 
 const moduleRouter = [
+    {
+    path: '/',
+    route:categoryRoutes
+  },
   {
     path: "/users",
     route: userRoutes,
@@ -34,10 +38,7 @@ const moduleRouter = [
     path: "/payments",
     route: paymentRoutes,
   },
-  {
-    path: '/',
-    route:categoryRoutes
-  }
+
 ];
 
 moduleRouter.forEach((route) => router.use(route.path, route.route));

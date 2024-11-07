@@ -1,21 +1,23 @@
 import { Types } from "mongoose";
 
-export type TLevel = {
-  level: string; // ssc,hsc,bachelor,master
+
+
+
+export type TEducationCategory = {
   levelId: string;
-  faculty: string;
+  levelName: string;
+  faculties: TFaculty[];
 };
+
 export type TFaculty = {
   facultyId: string;
   faculty: string; // science,humanities,bba,bsc,bss
   facultyShorts: string; //bba,
-  department?: Types.ObjectId; // ,
-  level: Types.ObjectId;
+  departments: TDepartment[];
 };
+
 export type TDepartment = {
   deptId: string;
   department: string; //accounting,chemistry,english
   deptShorts: string;
-  level: Types.ObjectId;
-  faculty: Types.ObjectId;
 };
