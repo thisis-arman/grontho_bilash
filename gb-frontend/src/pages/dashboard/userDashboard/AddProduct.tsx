@@ -135,7 +135,7 @@ const AddProduct = () => {
         const condition = selectedDeliveryOption
         const isContactNoHidden = target.isContactNoHidden.value
         const isNegotiable = target.isNegotiable.value
-        const location = `${target?.Village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
+        const location = `${target?.village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
         console.log({user, bookTitle, price, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images });
         try {
@@ -199,7 +199,7 @@ const AddProduct = () => {
                                 </div>
                                 <p className="mt-3 text-sm leading-6 text-gray-600">Write description about your product.</p>
                             </div>
-                
+                ``
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="publicationYear" className="block text-sm font-medium leading-6 text-gray-900">
@@ -220,6 +220,23 @@ const AddProduct = () => {
                                     </select>
                                 </div>
                             </div>
+                            <div className="sm:col-span-3">
+                                <h2 className="text-gray-800 font-medium">Level</h2>
+                                <ul className="mt-3  flex items-center gap-10">
+                                    <select
+                                        id="condition"
+                                        name="condition"
+                                        autoComplete="condition"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        {condition.map((item, i) => (
+                                            <option key={i} value={item}>
+                                                {item}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </ul>
+                            </div>
                             <div>
                                 <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
                                     Price
@@ -238,6 +255,8 @@ const AddProduct = () => {
 
                                 </div>
                             </div>
+                            {/*  */}
+
                             {/* Condition */}
                             <div>
                                 <h2 className="text-gray-800 font-medium">Condition</h2>
@@ -265,7 +284,7 @@ const AddProduct = () => {
                                     <div className="grid grid-cols-3 gap-5">
                                         {/* Show placeholders or uploaded images */}
                                         {Array.from({ length: 6 }).map((_, index) => (
-                                            <div key={index} className="text-center border p-4 relative">
+                                            <div key={index} className="text-center border p-2  relative">
                                                 {/* Show placeholder if image is not uploaded at this index */}
                                                 {productImages[index] ? (
                                                     <div className="relative">
@@ -273,7 +292,7 @@ const AddProduct = () => {
                                                         {/* Cross button to remove image */}
                                                         <button
                                                             onClick={() => handleRemoveImage(index)}
-                                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-700"
+                                                            className="absolute -top-2 right-0 text-red-500  text-3xl"
                                                         >
                                                             &times;
                                                         </button>
@@ -310,8 +329,8 @@ const AddProduct = () => {
                     </div>
                    
                     <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
-                        <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
+                        <h2 className="text-base font-semibold leading-7 text-gray-900">Address</h2>
+                        
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="col-span-full">
@@ -324,6 +343,7 @@ const AddProduct = () => {
                                         name="village"
                                         type="text"
                                         autoComplete="village"
+                                        
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -337,6 +357,7 @@ const AddProduct = () => {
                                     <select
                                         id="division"
                                         required
+                                        name='division'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedDivision?.id || ""}
                                         onChange={(e) => {
@@ -360,6 +381,7 @@ const AddProduct = () => {
                                     <select
                                         id="district"
                                         required
+                                        name='district'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedDistrict?.id || ""}
                                         onChange={(e) => {
@@ -385,6 +407,7 @@ const AddProduct = () => {
                                     <select
                                         id="upazila"
                                         required
+                                        name='upazila'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                         value={selectedUpazila?.id || ""}
                                         onChange={(e) => {
@@ -449,14 +472,10 @@ const AddProduct = () => {
                     </div>
 
                     <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Notifications</h2>
-                        <p className="mt-1 text-sm leading-6 text-gray-600">
-                            We'll always let you know about important changes, but you pick what else you want to hear about.
-                        </p>
+                    
 
                         <div className="mt-10 space-y-10">
                             <fieldset>
-                                <legend className="text-sm font-semibold leading-6 text-gray-900">By Email</legend>
                                 <div className="mt-6 space-y-6">
                                     <div className="relative flex gap-x-3">
                                         <div className="flex h-6 items-center">
@@ -490,22 +509,7 @@ const AddProduct = () => {
                                             <p className="text-gray-500">If your price is negotiable then check the box.</p>
                                         </div>
                                     </div>
-                                    <div className="relative flex gap-x-3">
-                                        <div className="flex h-6 items-center">
-                                            <input
-                                                id="offers"
-                                                name="offers"
-                                                type="checkbox"
-                                                className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                            />
-                                        </div>
-                                        {/* <div className="text-sm leading-6">
-                                            <label htmlFor="offers" className="font-medium text-gray-900">
-                                                Offers
-                                            </label>
-                                            <p className="text-gray-500">Get notified when a candidate accepts or rejects an offer.</p>
-                                        </div> */}
-                                    </div>
+                                 
                                 </div>
                             </fieldset>
                             {/* <fieldset>
