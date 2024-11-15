@@ -3,6 +3,8 @@ import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
 import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
+import { useGetCategoriesQuery } from '../../../redux/features/category/categoryApi';
+import { toast } from 'sonner';
 
 const AddProduct = () => {
     const [divisions, setDivisions] = useState([]);
@@ -20,9 +22,8 @@ const AddProduct = () => {
     const [imageURL, setImageURL] = useState(null);
     const [productImages, setProductImages] = useState<string[]>([]);
     console.log({ selectedDeliveryOption });
-
+  
     // RTK
-    const [createBook] = useCreateBookMutation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -88,11 +89,18 @@ const AddProduct = () => {
     }, [selectedUpazila, postcodes]);
 
     const condition = ["Fresh", "Used"]
-    const deliveryOptions = ["Picked up", "Shipping", "As you want "]
+    const deliveryOptions = ["Picked up", "Shipping"]
     const CurrentYear = new Date().getFullYear();
     const previousYears = Array.from({ length: 30 }, (_, i) => CurrentYear - i);
 
+    const { data, isLoading } = useGetCategoriesQuery(undefined);
 
+    const [createBook] = useCreateBookMutation();
+    if (isLoading) {
+        return <p>Please loading...</p>
+    }
+
+    console.log(data.data);
 
     const handleFileUpload = async (event) => {
         event.preventDefault();
@@ -111,45 +119,50 @@ const AddProduct = () => {
             });
             console.log("response", response);
             setImageURL(response.data.url);
-           productImages.push(response.data.url)
+            productImages.push(response.data.url)
         } catch (error) {
             console.error("Error uploading the image:", error);
         }
-        console.log({formData});
+        console.log({ formData });
     };
 
 
     console.log(productImages);
     console.log(imageURL);
 
-  
+
     const handleAddProduct = async (e) => {
         e.preventDefault();
         let target = e.target
         const user = '67077c39206fc4ecb86b5830'
         const bookTitle = target.title.value
         const description = target.description.value
-        const publicationYear = target.publicationYear.value
+        const publicationYear = parseInt(target.publicationYear.value)
+        const level = target.level.value
         const price = parseFloat(target.price.value)
         const images = [imageURL]
-        const condition = selectedDeliveryOption
-        const isContactNoHidden = target.isContactNoHidden.value
-        const isNegotiable = target.isNegotiable.value
+        const condition = target.condition.value;
+        const deliveryOption = selectedDeliveryOption;
+        const isContactNoHidden = false;
+        
+        const isNegotiable =false;
         const location = `${target?.village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
-        console.log({user, bookTitle, price, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images });
+        console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption });
         try {
-            const response = await createBook({ bookTitle, price, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images })
+            const response = await createBook({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
 
-            console.log(response);
-            
+            if (response?.success) {
+            toast.success("Book created successfully")
+        }
+
         } catch (error) {
             console.log(error);
         }
 
     }
 
-    const handleRemoveImage = (index : number) => {
+    const handleRemoveImage = (index: number) => {
         setProductImages(productImages.filter((_, i) => i !== index));
     };
 
@@ -199,7 +212,7 @@ const AddProduct = () => {
                                 </div>
                                 <p className="mt-3 text-sm leading-6 text-gray-600">Write description about your product.</p>
                             </div>
-                ``
+                            ``
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="publicationYear" className="block text-sm font-medium leading-6 text-gray-900">
@@ -224,14 +237,14 @@ const AddProduct = () => {
                                 <h2 className="text-gray-800 font-medium">Level</h2>
                                 <ul className="mt-3  flex items-center gap-10">
                                     <select
-                                        id="condition"
-                                        name="condition"
-                                        autoComplete="condition"
+                                        id="level"
+                                        name="level"
+                                        autoComplete="level"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
-                                        {condition.map((item, i) => (
-                                            <option key={i} value={item}>
-                                                {item}
+                                        {data?.data?.map((item, i) => (
+                                            <option key={i} value={item._id}>
+                                                {item.levelName}
                                             </option>
                                         ))}
                                     </select>
@@ -327,10 +340,10 @@ const AddProduct = () => {
                             </div>
                         </div>
                     </div>
-                   
+
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base font-semibold leading-7 text-gray-900">Address</h2>
-                        
+
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="col-span-full">
@@ -343,7 +356,7 @@ const AddProduct = () => {
                                         name="village"
                                         type="text"
                                         autoComplete="village"
-                                        
+
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -472,7 +485,7 @@ const AddProduct = () => {
                     </div>
 
                     <div className="border-b border-gray-900/10 pb-12">
-                    
+
 
                         <div className="mt-10 space-y-10">
                             <fieldset>
@@ -509,7 +522,7 @@ const AddProduct = () => {
                                             <p className="text-gray-500">If your price is negotiable then check the box.</p>
                                         </div>
                                     </div>
-                                 
+
                                 </div>
                             </fieldset>
                             {/* <fieldset>
