@@ -4,16 +4,12 @@ import { Schema, model } from "mongoose";
 const bookSchema = new Schema(
   {
     user: {
-      type: Schema.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true
       
     },
-    bookId: {
-      type: String,
-      required: true,
-      unique: true, // Ensure bookId is unique
-    },
+
     bookTitle: {
       type: String,
       required: true,
@@ -28,7 +24,7 @@ const bookSchema = new Schema(
     },
     condition: {
       type: String,
-      enum: ["fresh", "used"], // Only 'fresh' or 'used' values are allowed
+      enum: ["Fresh", "Used"], // Only 'fresh' or 'used' values are allowed
       required: true,
       default:"used"
     },
@@ -66,7 +62,7 @@ const bookSchema = new Schema(
     },
     deliveryOption: {
       type: String,
-      enum: ["pickup", "shipping"], 
+      enum: ["Pickup", "Shipping"], 
       required: true,
     },
     shippingCost: {

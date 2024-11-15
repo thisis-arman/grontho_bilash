@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 export type TBook = {
   user:Types.ObjectId,
-  bookId: string;
+  // bookId: string;
   bookTitle: string;
   price: number;
   description: string;

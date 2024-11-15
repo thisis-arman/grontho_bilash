@@ -3,14 +3,7 @@ import { z } from "zod";
 
 
 const createBookSchema = z.object({
-   user:z.string().refine(
-  (value) => {
-    return Types.ObjectId.isValid(value);
-  },
-  {
-    message: "Invalid ObjectId",
-  }
-),
+   user:z.string(),
   bookTitle: z
     .string({ message: "Book title is required" })
     .min(1, { message: "Book title cannot be empty" }),
@@ -20,13 +13,12 @@ const createBookSchema = z.object({
   description: z
     .string({ message: "Description is required" })
     .min(1, { message: "Description cannot be empty" }),
-  condition: z.enum(["fresh", "used"], {
+  condition: z.enum(["Fresh", "Used"], {
     message: "Condition must be 'fresh' or 'used'",
   }),
-  level: z.enum(["ssc", "hsc", "bachelor", "master"], {
-    message: "Invalid education level",
+  level: z.string({
+    message:"level is required"
   }),
-  isPublished: z.boolean({ message: "isPublished must be a boolean value" }),
   isContactNoHidden: z.boolean({
     message: "isContactNoHidden must be a boolean value",
   }),
@@ -45,7 +37,7 @@ const createBookSchema = z.object({
   location: z
     .string({ message: "Location is required" })
     .min(1, { message: "Location cannot be empty" }),
-  deliveryOption: z.enum(["pickup", "shipping"], {
+  deliveryOption: z.enum(["Pickup", "Shipping"], {
     message: "Delivery option must be 'pickup' or 'shipping'",
   }),
   shippingCost: z
