@@ -1,12 +1,19 @@
 import { baseApi } from "../../api/baseApi";
 
-
 export const categoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCategories: builder.query({
       query: () => {
         return {
           url: `/levels`,
+          method: "GET",
+        };
+      },
+    }),
+    getSingleCategory: builder.query({
+      query: (id) => {
+        return {
+          url: `/levels/${id}`,
           method: "GET",
         };
       },
@@ -43,6 +50,7 @@ export const categoryApi = baseApi.injectEndpoints({
 
 export const {
   useGetCategoriesQuery,
+  useGetSingleCategoryQuery,
   useCreateCategoryMutation,
   useCreateDepartmentMutation,
   useCreateFacultyMutation,

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
-import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
-import { useGetCategoriesQuery } from '../../../redux/features/category/categoryApi';
+// import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
+import { useGetCategoriesQuery, } from '../../../redux/features/category/categoryApi';
 import { toast } from 'sonner';
+import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
 
 const AddProduct = () => {
     const [divisions, setDivisions] = useState([]);
@@ -22,7 +23,11 @@ const AddProduct = () => {
     const [imageURL, setImageURL] = useState(null);
     const [productImages, setProductImages] = useState<string[]>([]);
     console.log({ selectedDeliveryOption });
-  
+    // const [categoryId, setCategoryId] = useState(null);
+    // const { data, isLoading } = useGetSingleCategoryQuery(categoryId);
+
+
+    const { data, isLoading } = useGetCategoriesQuery(undefined);
     // RTK
 
     useEffect(() => {
@@ -93,14 +98,14 @@ const AddProduct = () => {
     const CurrentYear = new Date().getFullYear();
     const previousYears = Array.from({ length: 30 }, (_, i) => CurrentYear - i);
 
-    const { data, isLoading } = useGetCategoriesQuery(undefined);
 
     const [createBook] = useCreateBookMutation();
     if (isLoading) {
-        return <p>Please loading...</p>
+        return <p className='h-full flex justify-center items-center'>Please loading...</p>
     }
 
-    console.log(data.data);
+
+
 
     const handleFileUpload = async (event) => {
         event.preventDefault();
@@ -131,9 +136,19 @@ const AddProduct = () => {
     console.log(imageURL);
 
 
+    const handleLevelChange = (level: string) => {
+        console.log({ level });
+
+    }
+
+
     const handleAddProduct = async (e) => {
         e.preventDefault();
-        let target = e.target
+
+
+
+        const target = e.target
+        // setCategoryId(target.level.value)
         const user = '67077c39206fc4ecb86b5830'
         const bookTitle = target.title.value
         const description = target.description.value
@@ -144,8 +159,8 @@ const AddProduct = () => {
         const condition = target.condition.value;
         const deliveryOption = selectedDeliveryOption;
         const isContactNoHidden = false;
-        
-        const isNegotiable =false;
+
+        const isNegotiable = false;
         const location = `${target?.village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
         console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption });
@@ -153,8 +168,8 @@ const AddProduct = () => {
             const response = await createBook({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
 
             if (response?.success) {
-            toast.success("Book created successfully")
-        }
+                toast.success("Book created successfully")
+            }
 
         } catch (error) {
             console.log(error);
@@ -212,7 +227,6 @@ const AddProduct = () => {
                                 </div>
                                 <p className="mt-3 text-sm leading-6 text-gray-600">Write description about your product.</p>
                             </div>
-                            ``
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="publicationYear" className="block text-sm font-medium leading-6 text-gray-900">
@@ -236,14 +250,17 @@ const AddProduct = () => {
                             <div className="sm:col-span-3">
                                 <h2 className="text-gray-800 font-medium">Level</h2>
                                 <ul className="mt-3  flex items-center gap-10">
-                                    <select
+                                    <select onChange={(e) => handleLevelChange(e.target.value)}
                                         id="level"
                                         name="level"
                                         autoComplete="level"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
+                                        <option value="" disabled selected>
+                                            Select level
+                                        </option>
                                         {data?.data?.map((item, i) => (
-                                            <option key={i} value={item._id}>
+                                            <option key={i} value={item.levelName}>
                                                 {item.levelName}
                                             </option>
                                         ))}
