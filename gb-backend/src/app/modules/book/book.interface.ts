@@ -2,12 +2,13 @@ import { Types } from "mongoose";
 
 export type TBook = {
   user:Types.ObjectId,
-  // bookId: string;
   bookTitle: string;
   price: number;
   description: string;
   condition: "fresh" | "used";
   level: Types.ObjectId;
+  faculty: string;
+  department: string;
   isPublished: boolean;
   isContactNoHidden: boolean;
   isNegotiable: boolean;

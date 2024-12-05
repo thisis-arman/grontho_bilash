@@ -11,7 +11,7 @@ export type TEducationCategory = {
 
 export type TFaculty = {
   facultyId: string;
-  faculty: string; // science,humanities,bba,bsc,bss
+  faculty: string; //science,humanities,bba,bsc,bss
   facultyShorts: string; //bba,
   departments: TDepartment[];
 };

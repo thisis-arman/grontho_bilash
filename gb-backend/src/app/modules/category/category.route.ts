@@ -15,9 +15,19 @@ router.post(
   categoryController.createLevel
 );
 router.get("/levels", categoryController.getLevels);
-router.post("/faculty/create-faculty",validateRequest(FacultyZodSchema),categoryController.createFaculty);
+router.get("/level", categoryController.getSingleLevels);
+router.post(
+  "/faculty/create-faculty",
+  validateRequest(FacultyZodSchema),
+  categoryController.createFaculty
+);
 router.get("/faculties", categoryController.getFaculties);
-router.post("/department/create-department",validateRequest(DepartmentZodSchema),categoryController.createDepartment);
+router.get("/faculty", categoryController.getFaculty);
+router.post(
+  "/department/create-department",
+  validateRequest(DepartmentZodSchema),
+  categoryController.createDepartment
+);
 router.get("/departments", categoryController.getDepartments);
 
 export const categoryRoutes = router;

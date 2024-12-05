@@ -7,14 +7,32 @@ const createLevelIntoDB = async (level: TEducationCategory) => {
 };
 const getLevelFromDB = async () => {
   const data = await EducationCategory.find();
+  console.log(data);
   return data;
 };
+const getSingleLevelFromDB = async (_id: string) => {
+  const data = await EducationCategory.findOne({ _id })
+    .populate({
+      path: "faculties", // Populate faculties array
+      populate: {
+        path: "departments", // Further populate departments inside each faculty
+      },
+    })
+    .exec();
+
+  return data;
+};
+
 const createFacultyIntoDB = async (faculty: TFaculty) => {
   const data = await Faculty.create(faculty);
   return data;
 };
 const getFacultiesFromDB= async () => {
   const data = await Faculty.find();
+  return data;
+};
+const getFacultyFromDB= async (_id:string) => {
+  const data = await Faculty.findOne({_id});
   return data;
 };
 
@@ -30,6 +48,8 @@ const getDepartmentsFromDB = async () => {
 export default {
   createLevelIntoDB,
   getLevelFromDB,
+  getFacultyFromDB,
+  getSingleLevelFromDB,
   createFacultyIntoDB,
   getFacultiesFromDB,
   createDepartmentIntoDB,

@@ -8,7 +8,15 @@ import { ObjectId } from "mongodb";
 
 // Service to list a book into the database
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
-  const book = await BookModel.create(bookInfo);
+  const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
+  const latestBookId = latestBook?.bookId as string;
+  let bookId = "";
+  if (latestBookId) {
+    const digit = latestBookId.substring(4);
+    const increment = parseInt(digit) + 1;
+    bookId = `book${increment}`;
+  }
+  const book = await BookModel.create({ bookId, ...bookInfo });
   return book;
 };
 
@@ -30,7 +38,6 @@ const getBooksFromDb = async (): Promise<Document[]> => {
 const getBooksByEmailFromDB = async (email: string) => {
   console.log(email);
   const user = await User.isUserExistsByEmail(email);
- 
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "user is not found");
@@ -40,7 +47,7 @@ const getBooksByEmailFromDB = async (email: string) => {
   }
 
   // Correct the query format here
-  const books = await BookModel.find({user:user._id});
+  const books = await BookModel.find({ user: user._id });
   console.log(books);
 
   return books;

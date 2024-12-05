@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { string } from "zod";
 
 // Define the Mongoose schema for the book
 const bookSchema = new Schema(
@@ -6,10 +7,13 @@ const bookSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true
-      
+      required: true,
     },
-
+    bookId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     bookTitle: {
       type: String,
       required: true,
@@ -24,13 +28,13 @@ const bookSchema = new Schema(
     },
     condition: {
       type: String,
-      enum: ["Fresh", "Used"], // Only 'fresh' or 'used' values are allowed
+      enum: ["Fresh", "Used"], 
       required: true,
-      default:"used"
+      default: "used",
     },
     level: {
       type: Schema.Types.ObjectId,
-      ref:'Level',
+      ref: "EducationCategory",
       required: true,
     },
     isPublished: {
@@ -39,7 +43,7 @@ const bookSchema = new Schema(
     },
     isContactNoHidden: {
       type: Boolean,
-      default: false, // Default to showing contact number
+      default: false, 
     },
     isNegotiable: {
       type: Boolean,
@@ -62,11 +66,11 @@ const bookSchema = new Schema(
     },
     deliveryOption: {
       type: String,
-      enum: ["Pickup", "Shipping"], 
+      enum: ["Pickup", "Shipping"],
       required: true,
     },
     shippingCost: {
-      type: Number, 
+      type: Number,
       default: 0,
     },
   },
