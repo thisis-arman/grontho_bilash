@@ -7,7 +7,36 @@ import { useGetCategoriesQuery, } from '../../../redux/features/category/categor
 import { toast } from 'sonner';
 import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
 
+
+
+export type TEducationCategory = {
+    _id: string;
+    levelId: string;
+    levelName: string;
+    faculties: TFaculty[];
+};
+
+export type TFaculty = {
+    _id: string;
+    facultyId: string;
+    faculty: string; //science,humanities,bba,bsc,bss
+    facultyShorts: string; //bba,
+    departments: TDepartment[];
+};
+
+export type TDepartment = {
+    _id: string;
+    deptId: string;
+    department: string; //accounting,chemistry,english
+    deptShorts: string;
+};
+
 const AddProduct = () => {
+
+
+    const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+    const [faculties, setFaculties] = useState([]);
+    const [selectedFaculty, setSelectedFaculty] = useState<string | null>(null);
     const [divisions, setDivisions] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [filteredDistricts, setFilteredDistricts] = useState([]);
@@ -29,6 +58,49 @@ const AddProduct = () => {
 
     const { data, isLoading } = useGetCategoriesQuery(undefined);
     // RTK
+
+
+    const handleLevelChange = (level: string) => {
+        console.log({ level });
+        console.log({ selectedLevel });
+        console.log(faculties);
+        setSelectedLevel(level);
+    };
+
+    useEffect(() => {
+        if (selectedLevel) {
+            fetch(`http://localhost:5000/api/v1/level?level=${selectedLevel}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data.data.faculties);
+                    setFaculties(data?.data?.faculties);
+                })
+                .catch((error) => {
+                    console.error("Error fetching level data:", error);
+                });
+        }
+    }, [selectedLevel]);
+
+    useEffect(() => {
+        if (selectedFaculty) {
+            fetch(`http://localhost:5000/api/v1/level?level=${selectedFaculty}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                })
+                .catch((error) => {
+                    console.error("Error fetching level data:", error);
+                });
+        }
+    }, [selectedLevel]);
+
+
+    const handleFacultyChange = (facultyId: string) => {
+        console.log({ facultyId });
+        setSelectedFaculty(facultyId);
+        console.log(faculties);
+
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -111,11 +183,9 @@ const AddProduct = () => {
         event.preventDefault();
         const file = event.target.files[0];
         if (!file) return;
-
         // Create a form data object
         const formData = new FormData();
         formData.append("image", file); // Change "file" to "image"
-
         try {
             const response = await axios.post("http://localhost:5000/api/v1/books/upload", formData, {
                 headers: {
@@ -131,22 +201,8 @@ const AddProduct = () => {
         console.log({ formData });
     };
 
-
-    console.log(productImages);
-    console.log(imageURL);
-
-
-    const handleLevelChange = (level: string) => {
-        console.log({ level });
-
-    }
-
-
     const handleAddProduct = async (e) => {
         e.preventDefault();
-
-
-
         const target = e.target
         // setCategoryId(target.level.value)
         const user = '67077c39206fc4ecb86b5830'
@@ -166,15 +222,12 @@ const AddProduct = () => {
         console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption });
         try {
             const response = await createBook({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
-
             if (response?.success) {
                 toast.success("Book created successfully")
             }
-
         } catch (error) {
             console.log(error);
         }
-
     }
 
     const handleRemoveImage = (index: number) => {
@@ -259,9 +312,29 @@ const AddProduct = () => {
                                         <option value="" disabled selected>
                                             Select level
                                         </option>
-                                        {data?.data?.map((item, i) => (
-                                            <option key={i} value={item.levelName}>
+                                        {data?.data?.map((item, i: number) => (
+                                            <option key={i} value={item._id}>
                                                 {item.levelName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </ul>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <h2 className="text-gray-800 font-medium">Faculty</h2>
+                                <ul className="mt-3  flex items-center gap-10">
+                                    <select onChange={(e) => handleFacultyChange(e.target.value)}
+                                        id="faculty"
+                                        name="faculty"
+                                        autoComplete="faculty"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        <option value="" disabled selected>
+                                            Select Faculty
+                                        </option>
+                                        {faculties?.map((item: TFaculty, i: number) => (
+                                            <option key={i} value={item._id}>
+                                                {item.faculty} ({item.facultyShorts})
                                             </option>
                                         ))}
                                     </select>
