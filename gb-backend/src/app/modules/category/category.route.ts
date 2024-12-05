@@ -29,5 +29,6 @@ router.post(
   categoryController.createDepartment
 );
 router.get("/departments", categoryController.getDepartments);
+router.get("/department", categoryController.getDepartment);
 
 export const categoryRoutes = router;

@@ -24,9 +24,9 @@ const getLevels = catchAsync(async (req, res) => {
 });
 const getSingleLevels = catchAsync(async (req, res) => {
   const levelId = req.query.level;
-  console.log(levelId);
+
   const result = await categoryService.getSingleLevelFromDB(levelId as string);
-  console.log(result);
+
   sendResponse(res, {
     success: true,
     message: "Level retrieved successfully",
@@ -54,7 +54,9 @@ const getFaculties = catchAsync(async (req, res) => {
   });
 });
 const getFaculty = catchAsync(async (req, res) => {
-  const result = await categoryService.getFacultyFromDB(req.params.facultyId);
+const facultyId = req.query.facultyId;
+  const result = await categoryService.getFacultyFromDB(facultyId as string);
+  console.log(result);
   sendResponse(res, {
     success: true,
     message: "Faculty retrieved successfully",
@@ -81,9 +83,20 @@ const getDepartments = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getDepartment = catchAsync(async (req, res) => {
+  const departmentId = req.query.departmentId;
+  const result = await categoryService.getDepartmentFromDB(departmentId as string);
+  sendResponse(res, {
+    success: true,
+    message: "Department retrieved successfully",
+    statusCode: 200,
+    data: result,
+  });
+});
 
 export default {
   createLevel,
+  getDepartment,
   getLevels,
   getFaculty,
   getSingleLevels,

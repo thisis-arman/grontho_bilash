@@ -7,7 +7,7 @@ const createLevelIntoDB = async (level: TEducationCategory) => {
 };
 const getLevelFromDB = async () => {
   const data = await EducationCategory.find();
-  console.log(data);
+
   return data;
 };
 const getSingleLevelFromDB = async (_id: string) => {
@@ -31,8 +31,11 @@ const getFacultiesFromDB= async () => {
   const data = await Faculty.find();
   return data;
 };
-const getFacultyFromDB= async (_id:string) => {
-  const data = await Faculty.findOne({_id});
+const getFacultyFromDB = async (_id: string) => {
+  console.log({_id});
+  const data = await Faculty.findOne({ _id }).populate({
+    path:'departments'
+  });
   return data;
 };
 
@@ -44,9 +47,14 @@ const getDepartmentsFromDB = async () => {
   const departments = await Department.find();
   return departments;
 };
+const getDepartmentFromDB = async (_id:string) => {
+  const departments = await Department.findOne({_id});
+  return departments;
+};
 
 export default {
   createLevelIntoDB,
+  getDepartmentFromDB,
   getLevelFromDB,
   getFacultyFromDB,
   getSingleLevelFromDB,
