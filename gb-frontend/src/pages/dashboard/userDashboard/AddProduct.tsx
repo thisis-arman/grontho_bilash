@@ -36,7 +36,9 @@ const AddProduct = () => {
 
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [faculties, setFaculties] = useState([]);
+    const [departments, setDepartments] = useState([]);
     const [selectedFaculty, setSelectedFaculty] = useState<string | null>(null);
+    const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
     const [divisions, setDivisions] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [filteredDistricts, setFilteredDistricts] = useState([]);
@@ -83,22 +85,31 @@ const AddProduct = () => {
 
     useEffect(() => {
         if (selectedFaculty) {
-            fetch(`http://localhost:5000/api/v1/level?level=${selectedFaculty}`)
+            fetch(`http://localhost:5000/api/v1/faculty?facultyId=${selectedFaculty}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data);
+                    console.log(data?.data?.departments);
+                    setDepartments(data?.data?.departments)
                 })
                 .catch((error) => {
                     console.error("Error fetching level data:", error);
                 });
         }
-    }, [selectedLevel]);
+    }, [selectedFaculty]);
 
 
     const handleFacultyChange = (facultyId: string) => {
         console.log({ facultyId });
         setSelectedFaculty(facultyId);
         console.log(faculties);
+        console.log(departments);
+
+    };
+    const handleDepartmentChange = (departmentId: string) => {
+        console.log({ departmentId });
+        setSelectedDepartment(departmentId);
+        console.log(faculties);
+        console.log(departments);
 
     };
 
@@ -312,7 +323,7 @@ const AddProduct = () => {
                                         <option value="" disabled selected>
                                             Select level
                                         </option>
-                                        {data?.data?.map((item, i: number) => (
+                                        {data?.data?.map((item:TEducationCategory, i: number) => (
                                             <option key={i} value={item._id}>
                                                 {item.levelName}
                                             </option>
@@ -335,6 +346,26 @@ const AddProduct = () => {
                                         {faculties?.map((item: TFaculty, i: number) => (
                                             <option key={i} value={item._id}>
                                                 {item.faculty} ({item.facultyShorts})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </ul>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <h2 className="text-gray-800 font-medium">Faculty</h2>
+                                <ul className="mt-3  flex items-center gap-10">
+                                    <select onChange={(e) => handleDepartmentChange(e.target.value)}
+                                        id="department"
+                                        name="department"
+                                        autoComplete="department"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        <option value="" disabled selected>
+                                            Select Department
+                                        </option>
+                                        {departments?.map((item: TDepartment, i: number) => (
+                                            <option key={i} value={item._id}>
+                                                {item.department} ({item.deptShorts})
                                             </option>
                                         ))}
                                     </select>

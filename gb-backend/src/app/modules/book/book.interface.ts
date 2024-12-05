@@ -7,8 +7,8 @@ export type TBook = {
   description: string;
   condition: "fresh" | "used";
   level: Types.ObjectId;
-  faculty: string;
-  department: string;
+  faculty: Types.ObjectId;
+  department: Types.ObjectId;
   isPublished: boolean;
   isContactNoHidden: boolean;
   isNegotiable: boolean;

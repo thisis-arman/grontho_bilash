@@ -19,6 +19,12 @@ const createBookSchema = z.object({
   level: z.string({
     message:"level is required"
   }),
+  faculty: z.string({
+    message:"faculty is required"
+  }).optional(),
+  department: z.string({
+    message:"department is required"
+  }).optional(),
   isContactNoHidden: z.boolean({
     message: "isContactNoHidden must be a boolean value",
   }),

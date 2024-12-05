@@ -37,6 +37,16 @@ const bookSchema = new Schema(
       ref: "EducationCategory",
       required: true,
     },
+    faculty: {
+      type: Schema.Types.ObjectId,
+      ref: "Faculty",
+    
+    },
+    department: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+    
+    },
     isPublished: {
       type: Boolean,
       default: false, // Default to unpublished
