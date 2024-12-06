@@ -31,6 +31,11 @@ const BookDetails = () => {
         return classes.filter(Boolean).join(' ')
     }
 
+    const handleSubmit = (event) => { 
+        event.preventDefault();
+        console.log("hitted");
+    }
+
     return (
         <div>
 
@@ -121,7 +126,7 @@ const BookDetails = () => {
                                             ))}
                                         </div>
                                         <p className="sr-only">{reviews?.average} out of 5 stars</p>
-                                        <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                        <a href={reviews.href} className="ml-3 text-sm font-medium text-yellow-600 hover:text-yellow-500">
                                             {reviews?.totalCount} reviews
                                         </a>
                                     </div>
@@ -158,7 +163,7 @@ const BookDetails = () => {
                                     <div className="mt-10">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                                            <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                            <a href="#" className="text-sm font-medium text-yellow-600 hover:text-yellow-500">
                                                 Size guide
                                             </a>
                                         </div>
@@ -178,14 +183,14 @@ const BookDetails = () => {
                                                         size.inStock
                                                             ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
                                                             : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                                                        'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
+                                                        'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-yellow-500 sm:flex-1 sm:py-6',
                                                     )}
                                                 >
                                                     <span>{size.name}</span>
                                                     {size.inStock ? (
                                                         <span
                                                             aria-hidden="true"
-                                                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500"
+                                                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-yellow-500"
                                                         />
                                                     ) : (
                                                         <span
@@ -208,9 +213,9 @@ const BookDetails = () => {
                                         </fieldset>
                                     </div>
 
-                                    <button
+                                    <button onClick={(e)=>handleSubmit(e)}
                                         type="submit"
-                                        className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-yellow-600 px-8 py-3 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none"
                                     >
                                         Add to bag
                                     </button>
