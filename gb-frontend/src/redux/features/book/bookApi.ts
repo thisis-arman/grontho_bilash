@@ -1,4 +1,6 @@
+import { TBook } from "../../../pages/books/books";
 import { baseApi } from "../../api/baseApi";
+// import { TBook } from "./bookSlice";
 
 export const bookApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -21,19 +23,23 @@ export const bookApi = baseApi.injectEndpoints({
     // Get all books
     getBooksByEmail: builder.query({
       query: (email) => (
-        console.log(email ,"get books by email"),
+        console.log(email, "get books by email"),
         {
-        url: `/books/${email}`,
-        method: "GET",
-      }),
+          url: `/books/${email}`,
+          method: "GET",
+        }
+      ),
     }),
 
-    // Get a book by ID
     getBookById: builder.query({
-      query: (id) => ({
-        url: `/books/${id}`,
-        method: "GET",
-      }),
+      query: (id) => `/books/book/${id}`, // Simplified query syntax
+      transformResponse: (response: {
+        success: boolean;
+        message: string;
+        data: TBook;
+      }) => {
+        return response.data; // Extract only the relevant `data` field
+      },
     }),
 
     // Update a book by ID
@@ -62,5 +68,5 @@ export const {
   useGetBookByIdQuery,
   useUpdateBookMutation,
   useDeleteBookMutation,
-  useGetBooksByEmailQuery
+  useGetBooksByEmailQuery,
 } = bookApi;

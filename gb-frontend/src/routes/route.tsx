@@ -10,6 +10,7 @@ import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
 import Blogs from "../pages/blog/blogs";
 import Products from "../pages/books/books";
+import BookDetails from "../pages/books/BookDetails";
 
 const router = createBrowserRouter([
     {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
             {
                 path: '/books',
                 element:<Products/>
+            },
+            {
+                path: '/products/:id',
+                element:<BookDetails/>
             }
         ]
     },
