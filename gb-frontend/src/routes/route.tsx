@@ -9,6 +9,7 @@ import { userPaths } from "./user.route";
 import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
 import Blogs from "../pages/blog/blogs";
+import Products from "../pages/books/books";
 
 const router = createBrowserRouter([
     {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
             {
                 path: '/blogs',
                 element:<Blogs/>
+            },
+            {
+                path: '/books',
+                element:<Products/>
             }
         ]
     },

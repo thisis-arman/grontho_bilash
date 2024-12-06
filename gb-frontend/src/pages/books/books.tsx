@@ -1,4 +1,4 @@
-import { useGetBooksQuery } from 'src/redux/features/book/bookApi.ts';
+import { useGetBooksQuery } from '../../redux/features/book/bookApi';
 
 export type TBook = {
     _id: string,
@@ -26,7 +26,7 @@ const Products = () => {
   
 
     if (isLoading) {
-        return <div className='w-full h-full flex justify-center items-center'> loading....</div>
+        return <div className='w-full h-full flex justify-center items-center'>loading....</div>
     }
     return (
 
@@ -36,7 +36,7 @@ const Products = () => {
                 <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
 
                 <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                    {books.data.map((product:TBook) => (
+                    {books?.data?.map((product:TBook) => (
                         <div key={product._id} className="group relative">
                             <img
                                 alt={product.bookTitle}
