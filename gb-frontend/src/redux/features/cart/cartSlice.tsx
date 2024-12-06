@@ -1,8 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TBook } from "../../types/book";
 
+interface CartItem extends TBook {
+    quantity: number; // Add a quantity field
+}
+
 interface CartState {
-    items: TBook[];
+    items: CartItem[];
 }
 
 const initialState: CartState = {
@@ -14,12 +18,19 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         addToCart: (state, action: PayloadAction<TBook>) => {
-            state.items.push(action.payload);
+            const existingItem = state.items.find((item) => item._id === action.payload._id);
+            if (existingItem) {
+                // If the item exists, increase its quantity
+                existingItem.quantity += 1;
+            } else {
+                // If the item does not exist, add it with quantity 1
+                state.items.push({ ...action.payload, quantity: 1 });
+            }
         },
         removeFromCart: (state, action: PayloadAction<string>) => {
             state.items = state.items.filter((item) => item._id !== action.payload);
         },
-        updateCartItem: (state, action: PayloadAction<TBook>) => {
+        updateCartItem: (state, action: PayloadAction<CartItem>) => {
             const index = state.items.findIndex((item) => item._id === action.payload._id);
             if (index !== -1) {
                 state.items[index] = action.payload;
