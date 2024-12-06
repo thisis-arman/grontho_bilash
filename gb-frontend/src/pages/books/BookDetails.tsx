@@ -7,13 +7,17 @@ import { Radio, RadioGroup } from '@headlessui/react'
 import { TBook } from './books';
 import { useParams } from 'react-router-dom';
 import { useGetBookByIdQuery } from '../../redux/features/book/bookApi';
+import { useSaveCartToDBMutation } from '@/redux/features/cart/cartApi';
+import { useAppDispatch } from '@/redux/hooks';
 
 const BookDetails = () => {
 
     const {id} = useParams()
     console.log(id);
 
-    const { data:product, isLoading } = useGetBookByIdQuery(id);
+    const { data: product, isLoading } = useGetBookByIdQuery(id);
+    const dispatch = useAppDispatch();
+    const [saveCartToDB] = useSaveCartToDBMutation();
 
  
     if (isLoading) { 
@@ -31,10 +35,24 @@ const BookDetails = () => {
         return classes.filter(Boolean).join(' ')
     }
 
-    const handleSubmit = (event) => { 
+    const handleAddToCart = () => {
+        dispatch(addToCart(book));
+        console.log("Added to cart:", book);
+    };
+
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         console.log("hitted");
-    }
+        const cartItems = localStorage.getItem("persist:cart")
+            ? JSON.parse(localStorage.getItem("persist:cart") || "{}").items
+            : [];
+        try {
+            const response = await saveCartToDB(cartItems).unwrap();
+            console.log("Cart saved to DB:", response);
+        } catch (error) {
+            console.error("Failed to save cart to DB:", error);
+        }
+    };
 
     return (
         <div>
