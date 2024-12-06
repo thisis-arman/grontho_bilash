@@ -9,11 +9,6 @@ const bookSchema = new Schema(
       ref: "User",
       required: true,
     },
-    bookId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     bookTitle: {
       type: String,
       required: true,

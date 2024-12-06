@@ -10,12 +10,18 @@ import { ObjectId } from "mongodb";
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
   const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
   const latestBookId = latestBook?.bookId as string;
+  console.log(latestBookId);
   let bookId = "";
   if (latestBookId) {
     const digit = latestBookId.substring(4);
+    console.log('inside the if condition');
     const increment = parseInt(digit) + 1;
     bookId = `book${increment}`;
+  } else {
+    bookId='book100'
   }
+  console.log(bookInfo);
+  console.log({bookId,...bookInfo});
   const book = await BookModel.create({ bookId, ...bookInfo });
   return book;
 };
