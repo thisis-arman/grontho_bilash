@@ -7,26 +7,29 @@ import { Radio, RadioGroup } from '@headlessui/react'
 import { TBook } from './books';
 import { useParams } from 'react-router-dom';
 import { useGetBookByIdQuery } from '../../redux/features/book/bookApi';
-import { useSaveCartToDBMutation } from '@/redux/features/cart/cartApi';
-import { useAppDispatch } from '@/redux/hooks';
+import { useSaveCartToDBMutation } from '../../redux/features/cart/cartApi';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { addToCart } from '../../redux/features/cart/cartSlice';
+import bookLoading from "../../assets/book-loading.gif";
+import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
+import { toast } from 'sonner';
 
 const BookDetails = () => {
-
-    const {id} = useParams()
+    const { _id } = useAppSelector(selectCurrentUser) as TUser;
+    const { id } = useParams()
     console.log(id);
-
     const { data: product, isLoading } = useGetBookByIdQuery(id);
     const dispatch = useAppDispatch();
     const [saveCartToDB] = useSaveCartToDBMutation();
 
- 
-    if (isLoading) { 
-        return <div className='w-full h-full flex justify-center items-center'>
-            loading
+
+    if (isLoading) {
+        return <div className='w-full h-full flex max-h-screen justify-center items-center'>
+            <img className='h-screen ' src={bookLoading} alt="" />
         </div>
     }
 
-    
+
     // console.log({product});
 
 
@@ -42,16 +45,27 @@ const BookDetails = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        console.log("hitted");
-        const cartItems = localStorage.getItem("persist:cart")
-            ? JSON.parse(localStorage.getItem("persist:cart") || "{}").items
-            : [];
-        try {
-            const response = await saveCartToDB(cartItems).unwrap();
-            console.log("Cart saved to DB:", response);
-        } catch (error) {
-            console.error("Failed to save cart to DB:", error);
+        const cartInfo = {
+            bookTitle: product?.bookTitle,
+            book: product?._id,
+            buyer: _id,
+            seller: product?.user,
+            price: product?.price,
+            shippingCost: product?.shippingCost,
+            deliveryOption: product?.deliveryOption,
+            isNegotiable: product?.isNegotiable,
         }
+        try {
+
+            dispatch(addToCart(cartInfo))
+            toast.success("Added to cart", { duration: 2000 })
+        } catch (error) {
+            toast.error("failed", { duration: 2000 })
+
+
+        }
+
+
     };
 
     return (
@@ -90,7 +104,7 @@ const BookDetails = () => {
 
                     {/* Image gallery */}
                     <div className='grid md:grid-cols-2 grid-cols-1 border m-4'>
-                        
+
                         <div className="mx-auto  mt-6 grid-cols-1  lg:gap-x-8 lg:px-8">
                             <img
                                 alt={product?.bookTitle}
@@ -231,7 +245,7 @@ const BookDetails = () => {
                                         </fieldset>
                                     </div>
 
-                                    <button onClick={(e)=>handleSubmit(e)}
+                                    <button onClick={(e) => handleSubmit(e)}
                                         type="submit"
                                         className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-yellow-600 px-8 py-3 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none"
                                     >
@@ -239,25 +253,25 @@ const BookDetails = () => {
                                     </button>
                                 </form>
                             </div>
-                 </div>
-                 </div>
+                        </div>
+                    </div>
 
-                    
 
-                        <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-                            {/* Description and details */}
-                            <div>
-                                <h3 className="sr-only">Description</h3>
 
-                                <div className="space-y-6">
-                                    <p className="text-base text-gray-900">{product?.description}</p>
-                                </div>
+                    <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
+                        {/* Description and details */}
+                        <div>
+                            <h3 className="sr-only">Description</h3>
+
+                            <div className="space-y-6">
+                                <p className="text-base text-gray-900">{product?.description}</p>
                             </div>
+                        </div>
 
-                            <div className="mt-10">
-                                <h3 className="text-sm font-medium text-gray-900">Highlights</h3>
+                        <div className="mt-10">
+                            <h3 className="text-sm font-medium text-gray-900">Highlights</h3>
 
-                                {/* <div className="mt-4">
+                            {/* <div className="mt-4">
                                     <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
                                         {product.highlights.map((highlight) => (
                                             <li key={highlight} className="text-gray-400">
@@ -266,21 +280,21 @@ const BookDetails = () => {
                                         ))}
                                     </ul>
                                 </div> */}
-                            </div>
+                        </div>
 
-                            <div className="mt-10">
-                                <h2 className="text-sm font-medium text-gray-900">Details</h2>
+                        <div className="mt-10">
+                            <h2 className="text-sm font-medium text-gray-900">Details</h2>
 
-                                <div className="mt-4 space-y-6">
-                                    <p className="text-sm text-gray-600">{product?.description}</p>
-                                </div>
+                            <div className="mt-4 space-y-6">
+                                <p className="text-sm text-gray-600">{product?.description}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-         
-        
+        </div>
+
+
     );
 };
 
