@@ -8,6 +8,7 @@ import { routeGenerator } from "../utils/routeGenerator";
 import { userPaths } from "./user.route";
 import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
+import Blogs from "../pages/blog/blogs";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <Home />
+            },
+            {
+                path: '/blogs',
+                element:<Blogs/>
             }
         ]
     },
@@ -26,7 +31,7 @@ const router = createBrowserRouter([
             <Dashboard />
         </PrivateRoute>,
         children: routeGenerator(userPaths)
-    },
+    }, 
     {
         path: '/admin',
         element: <PrivateRoute>

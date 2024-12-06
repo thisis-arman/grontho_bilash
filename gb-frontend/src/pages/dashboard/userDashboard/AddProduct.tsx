@@ -220,7 +220,9 @@ const AddProduct = () => {
         const bookTitle = target.title.value
         const description = target.description.value
         const publicationYear = parseInt(target.publicationYear.value)
-        const level = target.level.value
+        const level = selectedLevel
+        const faculty = selectedFaculty
+        const department = selectedDepartment
         const price = parseFloat(target.price.value)
         const images = [imageURL]
         const condition = target.condition.value;
@@ -232,7 +234,7 @@ const AddProduct = () => {
 
         console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption });
         try {
-            const response = await createBook({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
+            const response = await createBook({ user, bookTitle, price, level, faculty, department,condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
             if (response?.success) {
                 toast.success("Book created successfully")
             }
