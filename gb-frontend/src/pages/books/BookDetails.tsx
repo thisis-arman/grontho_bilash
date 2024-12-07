@@ -55,6 +55,8 @@ const BookDetails = () => {
             shippingCost: product?.shippingCost,
             deliveryOption: product?.deliveryOption,
             isNegotiable: product?.isNegotiable,
+            productImage: product?.images[0]
+            
         }
         try {
 
