@@ -48,7 +48,7 @@ const BookDetails = () => {
         const cartInfo = {
             quantity:1,
             bookTitle: product?.bookTitle,
-            book: product?._id,
+            book: product._id,
             buyer: _id,
             seller: product?.user,
             price: product?.price,
