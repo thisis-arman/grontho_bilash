@@ -1,8 +1,9 @@
+import { TBook } from "../../../pages/books/books";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TBook } from "../../types/book";
+
 
 interface CartItem extends TBook {
-    quantity: number; // Add a quantity field
+    quantity: number;
 }
 
 interface CartState {
@@ -42,5 +43,10 @@ const cartSlice = createSlice({
     },
 });
 
+// Selector to get all items in the cart
+export const getProductsFromCart = (state: { cart: CartState }) => state.cart.items;
+
+// Individual cart actions
 export const { addToCart, removeFromCart, updateCartItem, clearCart } = cartSlice.actions;
+
 export default cartSlice.reducer;
