@@ -2,14 +2,10 @@ import Navbar from "../../shared/Navbar";
 import Category from "./Category";
 
 const Home = () => {
-
-
-
-
     return (
         <>
             <div className="bg-black bg-opacity-95 relative">
-                <Navbar />
+               
 
                 <section className="relative pt-16">
                     <div className="relative z-10 max-w-screen-xl mx-auto px-4 py-28 md:px-8">

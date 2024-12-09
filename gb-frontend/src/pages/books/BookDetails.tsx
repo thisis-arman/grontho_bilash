@@ -1,13 +1,7 @@
 'use client'
-
-
-import { useState } from 'react'
 import { StarIcon } from '@heroicons/react/20/solid'
-import { Radio, RadioGroup } from '@headlessui/react'
-import { TBook } from './books';
 import { useParams } from 'react-router-dom';
 import { useGetBookByIdQuery } from '../../redux/features/book/bookApi';
-import { useSaveCartToDBMutation } from '../../redux/features/cart/cartApi';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { addToCart } from '../../redux/features/cart/cartSlice';
 import bookLoading from "../../assets/book-loading.gif";
@@ -17,10 +11,8 @@ import { toast } from 'sonner';
 const BookDetails = () => {
     const { _id } = useAppSelector(selectCurrentUser) as TUser;
     const { id } = useParams()
-    console.log(id);
     const { data: product, isLoading } = useGetBookByIdQuery(id);
     const dispatch = useAppDispatch();
-    const [saveCartToDB] = useSaveCartToDBMutation();
 
 
     if (isLoading) {
@@ -38,17 +30,13 @@ const BookDetails = () => {
         return classes.filter(Boolean).join(' ')
     }
 
-    const handleAddToCart = () => {
-        dispatch(addToCart(book));
-        console.log("Added to cart:", book);
-    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         const cartInfo = {
             quantity:1,
             bookTitle: product?.bookTitle,
-            book: product._id,
+            book: product!._id,
             buyer: _id,
             seller: product?.user,
             price: product?.price,
