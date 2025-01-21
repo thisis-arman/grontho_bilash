@@ -6,10 +6,12 @@ import { BookModel } from "./book.model";
 import { Document } from "mongoose";
 import { ObjectId } from "mongodb";
 
+
+
 // Service to list a book into the database
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
   const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
-  const latestBookId = latestBook?.bookId as string;
+  const latestBookId = (latestBook as unknown as TBook)?.bookId as string;
   console.log(latestBookId);
   let bookId = "";
   if (latestBookId) {
@@ -27,8 +29,8 @@ const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
 };
 
 // Service to get a specific book by its ID
-const getBookFromDb = async (bookId: string): Promise<Document | null> => {
-  const book = await BookModel.findById(bookId);
+const getBookFromDb = async (_id: string): Promise<Document | null> => {
+  const book = await BookModel.findById({_id});
   if (!book) {
     throw new Error("Book not found");
   }
@@ -72,6 +74,15 @@ const deleteBookFromDb = async (bookId: string): Promise<Document | null> => {
   return book;
 };
 
+
+const getProductsByCategoriesFromDB = async () => {
+  const book = await BookModel.find();
+  return book;
+  // const books = await BookModel.aggregate([
+
+  // ])
+}
+
 // Dynamic update service for books
 const updateBookIntoDb = async (
   bookId: string,
@@ -94,4 +105,5 @@ export const bookServices = {
   deleteBookFromDb,
   updateBookIntoDb,
   getBooksByEmailFromDB,
+ getProductsByCategoriesFromDB,
 };

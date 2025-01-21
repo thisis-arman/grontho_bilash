@@ -3,6 +3,20 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { paymentServices } from "./payment.services";
 
+
+const createPaymentIntents = catchAsync(async (req: Request, res: Response) => {
+
+  const result = await paymentServices.createPaymentIntent(req.body);
+  
+  sendResponse(res, {
+    statusCode: 201,
+    message: "Payment created successfully.",
+    success: true,
+    data: result,
+  });
+  
+})
+
 // Controller to create a payment
 const createPayment = catchAsync(async (req: Request, res: Response) => {
   const result = await paymentServices.createPayment(req.body);
@@ -68,6 +82,7 @@ const updatePayment = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const paymentController = {
+  createPaymentIntents,
   createPayment,
   getPayment,
   getPayments,

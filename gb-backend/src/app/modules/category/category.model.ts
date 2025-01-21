@@ -1,9 +1,10 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, Model } from "mongoose";
 import {
   TEducationCategory,
   TDepartment,
   TFaculty,
 } from "./category.interface";
+import { number } from "zod";
 
 // EducationCategory Schema
 const EducationCategorySchema = new Schema<TEducationCategory>({
@@ -72,3 +73,48 @@ const DepartmentSchema = new Schema<TDepartment>({
 });
 
 export const Department = model("Department", DepartmentSchema);
+
+
+
+const TShirt = new Schema({
+  tishirtTitle: {
+    type: String,
+    required: true,
+  },
+  tshirtDescription: {
+    type: String,
+    required: true,
+  },
+  variations: [
+    {
+      tshirtSizes: {
+        type: String,
+        enum: ["S", "M", "L"],
+        required: true,
+      },
+      tshirtColors: {
+        type: String,
+        enum: ["White", "Red", "Black"],
+        required: true,
+      },
+
+      quantity: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      price: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+   
+      images: [
+        {
+          type: String,
+          required: true,
+        },
+      ],
+    },
+  ],
+});

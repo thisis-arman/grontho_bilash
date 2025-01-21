@@ -15,17 +15,18 @@ router.get(
   bookController.getBooks
 );
 router.get("/:email", bookController.getBooksByEmail);
-router.post("/upload", upload.single("image"), async (req, res) => {
+router.post("/upload", upload.single("image"), async (req, res): Promise<void> => {
   try {
     const imageName = req.file?.originalname;
     const path = req.file?.path;
 
     if (!imageName || !path) {
-      return res.status(400).json({ error: "Image file is required." });
+      res.status(400).json({ error: "Image file is required." });
+      return;
     }
 
     // Upload image to Cloudinary
-    const result = await imageUploader(imageName, path);
+    const result = await imageUploader(imageName, path) as { secure_url: string };
 
     // Delete the file after uploading to Cloudinary
     fs.unlink(path, (err) => {
@@ -33,24 +34,25 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     });
 
     // Send the Cloudinary URL as a response to the frontend
-    return res.status(200).json({ url: result?.secure_url });
+    res.status(200).json({ url: result?.secure_url });
   } catch (error) {
     console.error("Error uploading image:", error);
-    return res.status(500).json({ error: "Failed to upload image" });
+    res.status(500).json({ error: "Failed to upload image" });
   }
 });
+router.get('/products',bookController.getProductsByCategories)
 
 router.post(
   "/create-book",
   validateRequest(zodValidationSchema.createBookSchema),
   bookController.listABook
 );
+router.get("/book/:id", bookController.getBook);
 router.patch(
   "/:bookId",
   validateRequest(zodValidationSchema.updateBookSchema),
   bookController.updateBook
 );
-router.get("/:bookId", bookController.getBook);
 router.patch("/:bookId", bookController.deleteBook);
 
 export const bookRoutes = router;

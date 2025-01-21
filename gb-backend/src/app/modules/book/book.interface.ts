@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
 
 export type TBook = {
-  user:Types.ObjectId,
+  user: Types.ObjectId;
+  bookId?: string;
   bookTitle: string;
   price: number;
   description: string;
@@ -12,12 +13,12 @@ export type TBook = {
   isPublished: boolean;
   isContactNoHidden: boolean;
   isNegotiable: boolean;
-  images: string[]; 
-  publicationYear: number; 
-  transactionDate?: Date; 
-  location: string; 
-  deliveryOption: "pickup"|"shipping";
-  shippingCost?: number; 
+  images: string[];
+  publicationYear: number;
+  transactionDate?: Date;
+  location: string;
+  deliveryOption: "pickup" | "shipping";
+  shippingCost?: number;
 };
 
 
