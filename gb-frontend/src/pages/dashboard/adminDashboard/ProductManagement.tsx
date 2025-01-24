@@ -1,30 +1,36 @@
 import { Link } from "react-router-dom";
-import { useGetBooksQuery } from "../../../redux/features/book/bookApi";
+import { useDeleteBookMutation, useGetBooksQuery } from "../../../redux/features/book/bookApi";
 import { TBook } from "../../../redux/features/book/bookSlice";
+import Swal from 'sweetalert2'
+import { useState } from "react";
+
 
 const ProductManagement = () => {
 
+    // const [bookId, setBookId] = useState();
+
     const { data, isLoading } = useGetBooksQuery(undefined);
-
-    console.log(data);
-
-
+    const [ deleteBook ] = useDeleteBookMutation()
+    const handleDeleteProduct = (id:string) => {
+        deleteBook(id);
+    }
+    
     return (
         <>
             {
                 isLoading ?
                     <div className="flex justify-center items-center mx-auto">
                         <p>Loading...</p>
-                   </div>
+                    </div>
 
                     : <div className="max-w-screen-xl mx-auto px-4 md:px-8">
                         <div className="items-start justify-between md:flex">
                             <div className="max-w-lg">
                                 <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                                     Products
+                                    Products
                                 </h3>
                                 <p className="text-gray-600 mt-2">
-                                   All the products available in database
+                                    All the products available in database
                                 </p>
                             </div>
                             <div className="mt-3 md:mt-0">
@@ -65,7 +71,7 @@ const ProductManagement = () => {
                                                     <a href="javascript:void()" className="py-2 px-3 font-medium text-yellow-600 hover:text-yellow-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Edit
                                                     </a>
-                                                    <button className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                                    <button onClick={()=>handleDeleteProduct(item._id)} className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Delete
                                                     </button>
                                                 </td>
