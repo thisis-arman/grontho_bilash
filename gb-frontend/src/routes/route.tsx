@@ -9,9 +9,10 @@ import { userPaths } from "./user.route";
 import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
 import Blogs from "../pages/blog/blogs";
-import Products from "../pages/books/books";
+import Products from "../pages/books/new_products";
 import BookDetails from "../pages/books/BookDetails";
 import ShoppingCart from "../pages/cart/ShoppingCart";
+import Checkout from "../pages/payment/Checkout";
 
 const router = createBrowserRouter([
     {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
             {
                 path: '/cart',
                 element:<ShoppingCart/>
+            },
+            {
+                path: '/checkout',
+                element:<Checkout/>
             }
         ]
     },

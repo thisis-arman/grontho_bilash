@@ -32,5 +32,10 @@ export const adminPaths = [
     path: "admin-profile",
     element: <AdminProfile/>,
   },
+  {
+    name: "Profile",
+    path: "admin-profile",
+    element: <AdminProfile/>,
+  },
 ];
 

@@ -1,4 +1,4 @@
-import { TBook } from "../../../pages/books/books";
+import { TBook } from "../../../pages/books/products";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 

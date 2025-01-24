@@ -1,5 +1,5 @@
 import React from 'react';
-import { TBook } from './books';
+import { TBook } from './products';
 import { Link } from 'react-router-dom';
 
 const BookCard = ({products}:{products:TBook[]}) => {

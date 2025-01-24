@@ -9,10 +9,11 @@ type TUser = {
 
 type TInitialState = {
   users: TUser[];
+  selectedUser: TUser | null;
 };
-
 const initialState: TInitialState = {
   users: [],
+  selectedUser: null,
 };
 
 export const userSlice = createSlice({
@@ -26,13 +27,11 @@ export const userSlice = createSlice({
     getUser: (state) => {
       return state;
     },
-
-    // Retrieve user by email
     getUserByEmail: (state, action: PayloadAction<string>) => {
       const email = action.payload;
-      return state.users.find((user) => user.email === email) || null;
+      state.selectedUser =
+        state.users.find((user) => user.email === email) || null;
     },
-
     // Remove user by email
     removeUser: (state, action: PayloadAction<string>) => {
       const email = action.payload;

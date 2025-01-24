@@ -64,7 +64,7 @@ const Navbar = () => {
         </div>
     )
     return (
-        <header className="border-b border-gray-500 glass bg-slate-500 sticky w-full top-0 ">
+        <header className="border-b border-gray-500 glass bg-slate-500 sticky w-full top-0  z-10">
             <div className={` md:hidden ${state ? "mx-2 pb-5" : "hidden"}`}>
                 <Brand />
             </div>

@@ -1,4 +1,4 @@
-import { TBook } from "../../../pages/books/books";
+import { TBook } from "../../../pages/books/products";
 import { baseApi } from "../../api/baseApi";
 // import { TBook } from "./bookSlice";
 

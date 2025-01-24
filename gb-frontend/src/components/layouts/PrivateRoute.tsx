@@ -1,20 +1,25 @@
-import { ReactNode } from "react";
+// import { ReactNode } from "react";
 import { useCurrentToken } from "../../redux/features/auth/authSlice";
 import { useAppSelector } from "../../redux/hooks";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"
+
+import React, { ReactNode } from 'react';
+
+import { Navigate } from 'react-router-dom';
+
+
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
-const navigate = useNavigate()
+    const isAuthenticated = useAppSelector(useCurrentToken);
+    if (!isAuthenticated) {
 
-    const token = useAppSelector(useCurrentToken);
+        return <Navigate to="/login" />;
 
-    if (!token) { 
-       return navigate('/login')
     }
+    return <>{children}</>;
 
-
-
-    return children;
 };
+
+
 
 export default PrivateRoute;

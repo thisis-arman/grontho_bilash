@@ -1,16 +1,22 @@
 
-// const items = [UserOutlined, VideoCameraOutlined, UploadOutlined, UserOutlined].map(
-//     (icon, index) => ({
-//         key: String(index + 1),
-//         icon: React.createElement(icon),
-//         label: `nav ${index + 1}`,
-//     }),
-// );
-
 import { NavLink } from "react-router-dom";
 
-export const sidebarGenerator = (items,role) => {
-    const sidebar = items.reduce((acc, item) => {
+interface SidebarItem {
+    key: string;
+    label: JSX.Element | string;
+    children?: SidebarItem[];
+}
+
+interface Item {
+    path?: string;
+    name: string;
+    children?: Item[];
+}
+
+export const sidebarGenerator = (items: Item[], role: string): SidebarItem[] => {
+    console.log({ items });
+    const sidebar = items.reduce<SidebarItem[]>((acc, item) => {
+        console.log(acc, item);
         if (item.path && item.name) {
             acc.push({
                 key: item.name,
