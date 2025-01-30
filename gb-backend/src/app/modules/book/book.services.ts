@@ -6,43 +6,59 @@ import { BookModel } from "./book.model";
 import { Document } from "mongoose";
 import { ObjectId } from "mongodb";
 
-
-
-// Service to list a book into the database
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
-  const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
-  const latestBookId = (latestBook as unknown as TBook)?.bookId as string;
-  console.log(latestBookId);
-  let bookId = "";
-  if (latestBookId) {
-    const digit = latestBookId.substring(4);
-    console.log('inside the if condition');
-    const increment = parseInt(digit) + 1;
-    bookId = `book${increment}`;
-  } else {
-    bookId='book100'
-  }
   console.log(bookInfo);
-  console.log({bookId,...bookInfo});
-  const book = await BookModel.create({ bookId, ...bookInfo });
+  // find the recent documents
+  const findLatestProduct = async () => {
+    const latestProduct = await BookModel.aggregate([
+      { $project: { bookId: 1 } },
+    ])
+      .sort({ bookId: -1 })
+      .limit(1)
+      .exec();
+    return latestProduct;
+  };
+  const generateProductId = async () => {
+    const latestProduct = await findLatestProduct();
+    // console.log(latestProduct[0]["bookId"]);
+    const recentProductId = latestProduct[0]["bookId"];
+    const newProductId = recentProductId.substring(4);
+    let productId = `book${parseInt(newProductId) + 1}`;
+    return productId;
+  };
+  const bookId = await generateProductId();
+  console.log({bookId});
+  // Log the bookId and other book information
+  // console.log({ bookId, ...bookInfo });
+
+  // Create and save the new book record
+  const book = await BookModel.create({ bookId,...bookInfo });
+
   return book;
 };
 
 // Service to get a specific book by its ID
 const getBookFromDb = async (_id: string): Promise<Document | null> => {
-  const book = await BookModel.findById({_id});
+  const book = await BookModel.findById({ _id });
   if (!book) {
     throw new Error("Book not found");
   }
   return book;
 };
 
-const getBooksFromDb = async (): Promise<Document[]> => {
-  const books = await BookModel.find();
-  // TODO: check if the book is deleted or isPublished false or not ?
-  // if(books)
-  return books;
+const getBooksFromDb = async () => {
+  // const allBooks = await BookModel.find({
+  //   isDeleted: false,
+  //   // isPublished: true,
+  // });
+
+  // console.log(allBooks); // Logs only non-deleted and published books
+  // return allBooks;
+
+  const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
+  return latestBook;
 };
+
 const getBooksByEmailFromDB = async (email: string) => {
   console.log(email);
   const user = await User.isUserExistsByEmail(email);
@@ -74,14 +90,18 @@ const deleteBookFromDb = async (bookId: string): Promise<Document | null> => {
   return book;
 };
 
-
 const getProductsByCategoriesFromDB = async () => {
   const book = await BookModel.find();
-  return book;
-  // const books = await BookModel.aggregate([
-
-  // ])
-}
+  const books = await BookModel.aggregate([
+    // {
+    //   $group: {
+    //     id: `${book.level}`,
+    //     listOfBooks:
+    //   }
+    // }
+  ]);
+  return books;
+};
 
 // Dynamic update service for books
 const updateBookIntoDb = async (
@@ -105,5 +125,5 @@ export const bookServices = {
   deleteBookFromDb,
   updateBookIntoDb,
   getBooksByEmailFromDB,
- getProductsByCategoriesFromDB,
+  getProductsByCategoriesFromDB,
 };

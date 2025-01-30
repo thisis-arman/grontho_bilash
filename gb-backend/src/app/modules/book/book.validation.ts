@@ -63,7 +63,6 @@ const updateBookSchema = createBookSchema
     createBookSchema.pick({
       // Always optional in updates
       condition: true,
-      isPublished: true,
       images: true,
       // Add other fields that should be optional
     })

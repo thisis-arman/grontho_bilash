@@ -11,9 +11,10 @@ const router = express.Router();
 
 router.get(
   "/",
-  Auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  // Auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   bookController.getBooks
 );
+router.get('/products',bookController.getProductsByCategories)
 router.get("/:email", bookController.getBooksByEmail);
 router.post("/upload", upload.single("image"), async (req, res): Promise<void> => {
   try {
@@ -40,8 +41,8 @@ router.post("/upload", upload.single("image"), async (req, res): Promise<void> =
     res.status(500).json({ error: "Failed to upload image" });
   }
 });
-router.get('/products',bookController.getProductsByCategories)
 
+router.patch("/:id", bookController.deleteBook);
 router.post(
   "/create-book",
   validateRequest(zodValidationSchema.createBookSchema),
@@ -53,6 +54,5 @@ router.patch(
   validateRequest(zodValidationSchema.updateBookSchema),
   bookController.updateBook
 );
-router.patch("/:bookId", bookController.deleteBook);
 
 export const bookRoutes = router;
