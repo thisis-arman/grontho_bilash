@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useDeleteBookMutation, useGetBooksQuery } from "../../../redux/features/book/bookApi";
 import { TBook } from "../../../redux/features/book/bookSlice";
 import Swal from 'sweetalert2'
-import { useState } from "react";
+// import { useState } from "react";
 
 
 const ProductManagement = () => {
@@ -10,11 +10,32 @@ const ProductManagement = () => {
     // const [bookId, setBookId] = useState();
 
     const { data, isLoading } = useGetBooksQuery(undefined);
-    const [ deleteBook ] = useDeleteBookMutation()
-    const handleDeleteProduct = (id:string) => {
-        deleteBook(id);
+    const [deleteBook] = useDeleteBookMutation()
+    const handleDeleteProduct = async (id: string) => {
+        console.log({ id });
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const response = await deleteBook(id).unwrap();
+                if (response?.success) {
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your file has been deleted.",
+                        icon: "success"
+                    });
+                }
+            }
+        });
+
     }
-    
+
     return (
         <>
             {
@@ -71,7 +92,7 @@ const ProductManagement = () => {
                                                     <a href="javascript:void()" className="py-2 px-3 font-medium text-yellow-600 hover:text-yellow-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Edit
                                                     </a>
-                                                    <button onClick={()=>handleDeleteProduct(item._id)} className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                                    <button onClick={() => handleDeleteProduct(item._id)} className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                         Delete
                                                     </button>
                                                 </td>

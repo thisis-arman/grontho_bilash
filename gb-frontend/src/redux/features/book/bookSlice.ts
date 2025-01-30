@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Define the types for book and initial state
 export type TBook = {
+  _id:string,
   user: string;
   bookId: string;
   bookTitle: string;
@@ -48,7 +49,7 @@ const bookSlice = createSlice({
     // DELETE a book by its ID
     deleteBook: (state, action: PayloadAction<string>) => {
       state.books = state.books.filter(
-        (book) => book.bookId !== action.payload
+        (book) => book._id !== action.payload
       );
     },
 

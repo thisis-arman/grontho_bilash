@@ -19,6 +19,7 @@ export const bookApi = baseApi.injectEndpoints({
         url: "/books",
         method: "GET",
       }),
+      providesTags: ["Books"],
     }),
     // Get all books
     getBooksByEmail: builder.query({
@@ -29,6 +30,8 @@ export const bookApi = baseApi.injectEndpoints({
           method: "GET",
         }
       ),
+
+      providesTags: ["Books"],
     }),
 
     getBookById: builder.query({
@@ -49,14 +52,18 @@ export const bookApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
+      invalidatesTags: ["Books"],
     }),
 
-    // Delete a book by ID
     deleteBook: builder.mutation({
-      query: (id) => ({
-        url: `/books/${id}`,
-        method: "DELETE",
-      }),
+      query: (id) => {
+        console.log(id, "delete book");
+        return {
+          url: `/books/${id}`,
+          method: "PATCH",
+        };
+      },
+      invalidatesTags: ["Books"],
     }),
   }),
 });
