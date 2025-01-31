@@ -1,21 +1,20 @@
 'use client';
-import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getProductsFromCart, removeFromCart, updateQuantity,  } from '../../redux/features/cart/cartSlice';
+import { CartItem, getProductsFromCart, removeFromCart, updateQuantity, } from '../../redux/features/cart/cartSlice';
 
 const ShoppingCart = () => {
     const cartItems = useSelector(getProductsFromCart);
     const dispatch = useDispatch();
 
-    console.log({cartItems});
+    console.log({ cartItems });
     // Function to handle quantity change
-    const handleQuantityChange = (productId:string, newQuantity:number) => {
+    const handleQuantityChange = (productId: string, newQuantity: number) => {
         if (newQuantity < 1) return; // Prevent quantity from going below 1
         dispatch(updateQuantity({ productId, quantity: newQuantity }));
     };
 
     // Function to remove a product
-    const handleRemoveProduct = (productId:string) => {
+    const handleRemoveProduct = (productId: string) => {
         dispatch(removeFromCart(productId));
     };
 
@@ -35,7 +34,7 @@ const ShoppingCart = () => {
                             <div className="mt-8">
                                 <div className="flow-root">
                                     <ul role="list" className="-my-6 divide-y divide-gray-200">
-                                        {cartItems.map((product) => (
+                                        {cartItems.map((product: CartItem) => (
                                             <li key={product.book} className="flex py-6">
                                                 <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
                                                     <img
@@ -96,7 +95,7 @@ const ShoppingCart = () => {
                                     <button className="flex w-full items-center justify-center rounded-md border border-transparent bg-yellow-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-yellow-700">
                                         Checkout
                                     </button>
-                               </a>
+                                </a>
                             </div>
                             <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                                 <p>

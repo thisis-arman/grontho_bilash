@@ -1,9 +1,17 @@
-import { TBook } from "../../../pages/books/products";
+// import { TBook } from "../../../pages/books/products";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
-interface CartItem extends TBook {
+
+export type CartItem = {
+    book: string;
     quantity: number;
+    bookTitle: string;
+    price: number;
+    deliveryOption: string,
+    isNegotiable: boolean,
+    productImage: string,
+    shippingCost: number
 }
 
 interface CartState {
@@ -18,7 +26,7 @@ const cartSlice = createSlice({
     name: "cart",
     initialState,
     reducers: {
-        addToCart: (state, action: PayloadAction<TBook>) => {
+        addToCart: (state, action: PayloadAction<CartItem>) => {
             const existingItem = state.items.find((item) => item.book === action.payload.book);
             if (existingItem) {
                 existingItem.quantity += 1;
