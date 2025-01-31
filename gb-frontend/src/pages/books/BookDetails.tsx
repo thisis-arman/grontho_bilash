@@ -34,7 +34,7 @@ const BookDetails = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         const cartInfo = {
-            quantity:1,
+            quantity: 1,
             bookTitle: product?.bookTitle,
             book: product!._id,
             buyer: _id,
@@ -44,7 +44,7 @@ const BookDetails = () => {
             deliveryOption: product?.deliveryOption,
             isNegotiable: product?.isNegotiable,
             productImage: product?.images[0]
-            
+
         }
         try {
 

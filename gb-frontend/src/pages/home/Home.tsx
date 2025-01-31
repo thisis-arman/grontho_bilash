@@ -4,7 +4,7 @@ import Category from "./Category";
 const Home = () => {
     return (
         <>
-            <div className="bg-black bg-opacity-95 relative z-0">
+            <div className="bg-black bg-opacity-95 relative top-0 z-0">
                
 
                 <section className="relative pt-16">

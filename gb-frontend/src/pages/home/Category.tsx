@@ -58,7 +58,7 @@ const Category = () => {
     ]
 
     return (
-        <section className="py-24 px-10  bg-[#09090B] text-white">
+        <section className="py-24 px-10  relative bg-[#09090B] text-white z-0">
             <div className="max-w-screen-lg mx-auto px-4 text-gray-300 md:px-8">
                 <div className="max-w-xl space-y-3">
                     <h3 className="text-gray-400 text-xl font-semibold sm:text-2xl">
