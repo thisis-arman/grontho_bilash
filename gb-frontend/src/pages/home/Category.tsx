@@ -58,26 +58,26 @@ const Category = () => {
     ]
 
     return (
-        <section className="py-24 px-10  relative bg-[#09090B] text-white z-0">
-            <div className="max-w-screen-lg mx-auto px-4 text-gray-300 md:px-8">
+        <section className="py-24 px-10  relative bg-yellow-100 bg-opacity-30  text-black z-0">
+            <div className="max-w-screen-lg mx-auto px-4 text-gray-900 md:px-8">
                 <div className="max-w-xl space-y-3">
-                    <h3 className="text-gray-400 text-xl font-semibold sm:text-2xl">
-                        Browse books by categories
+                    <h3 className="text-gray-900 text-xl font-semibold sm:text-4xl">
+                        Books by categories
                     </h3>
-                    {/* <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec congue, nisl eget molestie varius, enim ex faucibus purus
-                    </p> */}
+                    <p>
+                        Embark book on futuristic journeys. Aliens, tech marvels, and cosmic wonders await in these mind-bending sagas.
+                    </p>
                 </div>
-                <div className="mt-12">
-                    <ul className="grid gap-y-8 gap-x-12 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 justify-between items-center gap-6">
+                    {/* <ul className="grid gap-y-8 gap-x-12 sm:grid-cols-2 lg:grid-cols-3">
                         {
                             features.map((item, idx) => (
                                 <li key={idx} className="flex gap-x-4">
-                                    <div className="flex-none w-12 h-12 bg-yellow-600 text-white rounded-lg flex items-center justify-center">
+                                    <div className="flex-none w-12 h-12 bg-yellow-600  rounded-lg flex items-center justify-center">
                                         {item.icon}
                                     </div>
                                     <div className="space-y-3">
-                                        <h4 className="text-lg text-gray-400 font-semibold">
+                                        <h4 className="text-lg  font-semibold">
                                             {item.title}
                                         </h4>
                                         <p>
@@ -93,7 +93,25 @@ const Category = () => {
                                 </li>
                             ))
                         }
-                    </ul>
+                    </ul> */}
+
+                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                        <img src="/src/assets/logo/school.png" alt="" className="h-36 opacity-75"/>
+                        <h1 className="text-xl font-bold">School</h1>
+                    </a>
+                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                        <img src="/src/assets/logo/school_16491704.png" alt="" className="h-36 opacity-75"/>
+                        <h1 className="text-xl font-bold">College</h1>
+                    </a>
+                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                        <img src="/src/assets/logo/university.png" alt="" className="h-36 opacity-75"/>
+                        <h1 className="text-xl font-bold">University</h1>
+                    </a>
+                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                        <img src="/src/assets/logo/library_14445654.png" alt="" className="h-36 opacity-75"/>
+                        <h1 className="text-xl font-bold">Others</h1>
+                    </a>
+                    
                 </div>
             </div>
         </section>

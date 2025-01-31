@@ -36,12 +36,12 @@ const Navbar = () => {
     }
 
     const Brand = () => (
-        <div className="flex items-center justify-between py-5 md:block">
+        <div className="flex items-center justify-between py-3 md:block">
             <a href="/">
                 <img
                     src="/src/assets/logo/grontho-bilash-transparent.png"
-                    width={40}
-                    height={10}
+                    width={30}
+                    height={20}
                     alt="Grontho Bilash "
                     className="object-fill"
                 />
@@ -67,7 +67,7 @@ const Navbar = () => {
     )
     return (
         <div className=" flex justify-center">
-            <header className="border-b border-gray-500 glass bg-black mt-3 fixed w-full max-w-screen-md mx-auto top-0  z-10  rounded-full ">
+            <header className="shadow border-gray-500 glass bg-yellow-100  mt-3 fixed w-full max-w-screen-md mx-auto top-0  z-10  rounded-full ">
                 <div className={` md:hidden ${state ? "mx-2 pb-5" : "hidden"}`}>
                     <Brand />
                 </div>
@@ -75,11 +75,11 @@ const Navbar = () => {
                     <div className="gap-x-14 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
                         <Brand />
                         <div className={`flex-1 items-center mt-8 md:mt-0 md:flex ${state ? 'block' : 'hidden'} `}>
-                            <ul className="flex-1 justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
+                            <ul className="flex-1 justify-end items-center space-y-4 md:flex md:space-x-6 md:space-y-0">
                                 {
                                     navigation.map((item, idx) => {
                                         return (
-                                            <li key={idx} className="text-gray-300 hover:text-gray-400">
+                                            <li key={idx} className="">
                                                 <a href={item.path} className="block">
                                                     {item.title}
                                                 </a>
@@ -97,12 +97,7 @@ const Navbar = () => {
                                             </svg>
 
                                         </a>
-                                            <Link to={"/cart"} className="inline-block align-center px-2"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                            </svg> <span className="mt-[-6px]">
-                                                    {cartItems?.length}
-                                                </span>
-                                            </Link>
+                                            
                                         </>
                                         :
                                         <Link to='/login' className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex">
