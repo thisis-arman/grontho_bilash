@@ -1,5 +1,5 @@
 'use client'
-import { StarIcon } from '@heroicons/react/20/solid'
+// import { StarIcon } from '@heroicons/react/20/solid'
 import { useParams } from 'react-router-dom';
 import { useGetBookByIdQuery } from '../../redux/features/book/bookApi';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -25,10 +25,10 @@ const BookDetails = () => {
     // console.log({product});
 
 
-    const reviews = { href: '#', average: 4, totalCount: 117 }
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
+    // const reviews = { href: '#', average: 4, totalCount: 117 }
+    // function classNames(...classes) {
+    //     return classes.filter(Boolean).join(' ')
+    // }
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -50,7 +50,7 @@ const BookDetails = () => {
 
             dispatch(addToCart(cartInfo))
             toast.success("Added to cart", { duration: 2000 })
-        } catch (error) {
+        } catch {
             toast.error("failed", { duration: 2000 })
 
 
@@ -133,7 +133,7 @@ const BookDetails = () => {
                                 <p className="text-3xl tracking-tight text-gray-900">{product?.price}</p>
 
                                 {/* Reviews */}
-                                <div className="mt-6">
+                                {/* <div className="mt-6">
                                     <h3 className="sr-only">Reviews</h3>
                                     <div className="flex items-center">
                                         <div className="flex items-center">
@@ -153,7 +153,7 @@ const BookDetails = () => {
                                             {reviews?.totalCount} reviews
                                         </a>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <form className="mt-10">
                                     {/* Colors */}
