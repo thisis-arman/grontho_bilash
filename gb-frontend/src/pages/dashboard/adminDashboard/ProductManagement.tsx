@@ -48,7 +48,7 @@ const ProductManagement = () => {
                         <div className="items-start justify-between md:flex">
                             <div className="max-w-lg">
                                 <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                                    Products
+                                    Products ({data?.data?.length})
                                 </h3>
                                 <p className="text-gray-600 mt-2">
                                     All the products available in database

@@ -1,6 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ubuntu-light {
+  font-family: "Ubuntu", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ubuntu-regular {
+  font-family: "Ubuntu", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ubuntu-medium {
+  font-family: "Ubuntu", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ubuntu-bold {
+  font-family: "Ubuntu", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.ubuntu-light-italic {
+  font-family: "Ubuntu", serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.ubuntu-regular-italic {
+  font-family: "Ubuntu", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.ubuntu-medium-italic {
+  font-family: "Ubuntu", serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.ubuntu-bold-italic {
+  font-family: "Ubuntu", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Apercu Bold";
+  src: url("../src/assets/fonts/Apercu\ Pro\ Bold.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Apercu Medium";
+  src: url("/fonts/ApercuPro-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Apercu Regular";
+  src: url("/fonts/ApercuPro-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.apercu-bold {
+  font-family: "Apercu Bold", sans-serif;
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -27,7 +102,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -53,7 +128,7 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
 }
 @layer base {

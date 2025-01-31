@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { logout, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { getProductsFromCart } from "../../src/redux/features/cart/cartSlice";
 
 const Navbar = () => {
 
@@ -9,10 +10,11 @@ const Navbar = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate()
 
+    const cartItems = useAppSelector(getProductsFromCart);
 
 
     const [state, setState] = useState(false)
- 
+
     // Replace javascript:void(0) paths with your paths
     const navigation = [
         { title: "Blogs", path: "/blogs" },
@@ -85,12 +87,23 @@ const Navbar = () => {
                                 })
                             }
                             <li>
-                                {user ? <a onClick={handleLogout}  className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex cursor-pointer">
-                                    Log Out
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                                    </svg>
-                                </a> :
+
+                                {user ?
+                                    <><a onClick={handleLogout} className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex cursor-pointer">
+                                        Log Out
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                                        </svg>
+
+                                    </a>
+                                        <Link to={"/cart"} className="inline-block align-center px-2"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                        </svg> <span className="mt-[-6px]">
+                                                {cartItems?.length}
+                                            </span>
+                                        </Link>
+                                    </>
+                                    :
                                     <Link to='/login' className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex">
                                         Login
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -103,7 +116,7 @@ const Navbar = () => {
                     </div>
                 </div>
             </nav>
-        </header>
+        </header >
     );
 };
 
