@@ -27,17 +27,17 @@ const cartSlice = createSlice({
             }
         },
         removeFromCart: (state, action: PayloadAction<string>) => {
-            state.items = state.items.filter((item) => item._id !== action.payload);
+            state.items = state.items.filter((item) => item.book !== action.payload);
         },
         updateCartItem: (state, action: PayloadAction<CartItem>) => {
-            const index = state.items.findIndex((item) => item._id === action.payload._id);
+            const index = state.items.findIndex((item) => item.book === action.payload.book);
             if (index !== -1) {
                 state.items[index] = action.payload;
             }
         },
         updateQuantity: (state, action) => {
             const { productId, quantity } = action.payload;
-            const product = state.items.find((item) => item.id === productId);
+            const product = state.items.find((item) => item.book === productId);
             if (product) {
                 product.quantity = quantity;
             }

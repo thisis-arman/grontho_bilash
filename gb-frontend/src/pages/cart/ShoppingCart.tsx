@@ -7,6 +7,7 @@ const ShoppingCart = () => {
     const cartItems = useSelector(getProductsFromCart);
     const dispatch = useDispatch();
 
+    console.log({cartItems});
     // Function to handle quantity change
     const handleQuantityChange = (productId:string, newQuantity:number) => {
         if (newQuantity < 1) return; // Prevent quantity from going below 1
@@ -55,14 +56,14 @@ const ShoppingCart = () => {
                                                     <div className="flex flex-1 items-end justify-between text-sm">
                                                         <div className="flex items-center space-x-2">
                                                             <button
-                                                                onClick={() => handleQuantityChange(product.id, product.quantity - 1)}
+                                                                onClick={() => handleQuantityChange(product.book, product.quantity - 1)}
                                                                 className="px-2 py-1 bg-gray-200 rounded-md"
                                                             >
                                                                 -
                                                             </button>
                                                             <span>{product.quantity}</span>
                                                             <button
-                                                                onClick={() => handleQuantityChange(product.id, product.quantity + 1)}
+                                                                onClick={() => handleQuantityChange(product.book, product.quantity + 1)}
                                                                 className="px-2 py-1 bg-gray-200 rounded-md"
                                                             >
                                                                 +
@@ -70,7 +71,7 @@ const ShoppingCart = () => {
                                                         </div>
 
                                                         <button
-                                                            onClick={() => handleRemoveProduct(product.id)}
+                                                            onClick={() => handleRemoveProduct(product.book)}
                                                             className="font-medium text-red-600 hover:text-red-500"
                                                         >
                                                             Remove
