@@ -47,17 +47,44 @@ const getBookFromDb = async (_id: string): Promise<Document | null> => {
 };
 
 const getBooksFromDb = async () => {
-  // const allBooks = await BookModel.find({
-  //   isDeleted: false,
-  //   // isPublished: true,
-  // });
+  const allBooks = await BookModel.find({
+    isDeleted: false,
+    // isPublished: true,
+  });
 
-  // console.log(allBooks); // Logs only non-deleted and published books
-  // return allBooks;
+  console.log(allBooks); // Logs only non-deleted and published books
+  return allBooks;
 
-  const latestBook = await BookModel.findOne().sort({ _id: -1 }).exec();
-  return latestBook;
+
 };
+
+const searchBooksByTitle = async (searchTerm: string): Promise<Document[]> => {
+  try {
+    const books = await BookModel.aggregate([
+      {
+        $match: {
+          bookTitle: { $regex: searchTerm, $options: "i" }, // Case-insensitive regex match
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          bookId: 1,
+          booktitle: 1, // Add any other fields you need
+        },
+      },
+      {
+        $limit: 10, // Optional: limit results to 10 for faster response time
+      },
+    ]);
+
+    return books;
+  } catch (error) {
+    console.error("Error searching books:", error);
+    throw new Error("Failed to search books");
+  }
+};
+
 
 const getBooksByEmailFromDB = async (email: string) => {
   console.log(email);
@@ -126,4 +153,5 @@ export const bookServices = {
   updateBookIntoDb,
   getBooksByEmailFromDB,
   getProductsByCategoriesFromDB,
+  searchBooksByTitle,
 };

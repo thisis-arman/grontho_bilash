@@ -16,6 +16,7 @@ router.get(
 );
 router.get('/products',bookController.getProductsByCategories)
 router.get("/:email", bookController.getBooksByEmail);
+router.post("/search", bookController.searchBooks);
 router.post("/upload", upload.single("image"), async (req, res): Promise<void> => {
   try {
     const imageName = req.file?.originalname;

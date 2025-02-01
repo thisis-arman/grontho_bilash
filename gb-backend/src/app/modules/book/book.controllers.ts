@@ -63,6 +63,16 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+// Controller to get all books
+const searchBooks = catchAsync(async (req: Request, res: Response) => {
+  const result = await bookServices.searchBooksByTitle(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Books searched successfully",
+    success: true,
+    data: result,
+  });
+});
 
 // Controller to soft delete a book
 const deleteBook = catchAsync(async (req: Request, res: Response) => {
@@ -97,4 +107,5 @@ export const bookController = {
   updateBook,
   getBooksByEmail,
   getProductsByCategories,
+  searchBooks,
 };
