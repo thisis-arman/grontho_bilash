@@ -1,5 +1,6 @@
 import Navbar from "../../shared/Navbar";
 import Category from "./Category";
+import Stats from "./stats";
 
 const Home = () => {
     return (
@@ -80,6 +81,7 @@ const Home = () => {
             </section>
 
             {/* PROMOTIONAL SEGMENT */}
+            <Stats/>
           
         </>
     )
