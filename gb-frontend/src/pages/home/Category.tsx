@@ -99,15 +99,15 @@ const Category = () => {
                         <img src="/src/assets/logo/school.png" alt="" className="h-36 opacity-75"/>
                         <h1 className="text-xl font-bold">School</h1>
                     </a>
-                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                    <a href="#" className="py-4 rounded-md bg-[#f6fcff] w-full flex flex-col items-center justify-center shadow">
                         <img src="/src/assets/logo/school_16491704.png" alt="" className="h-36 opacity-75"/>
                         <h1 className="text-xl font-bold">College</h1>
                     </a>
-                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                    <a href="#" className="py-4 rounded-md bg-[#fffef6] w-full flex flex-col items-center justify-center shadow">
                         <img src="/src/assets/logo/university.png" alt="" className="h-36 opacity-75"/>
                         <h1 className="text-xl font-bold">University</h1>
                     </a>
-                    <a href="#" className="py-4 rounded-md bg-[#FFF6F7] w-full flex flex-col items-center justify-center shadow">
+                    <a href="#" className="py-4 rounded-md bg-[#f6fff6] w-full flex flex-col items-center justify-center shadow">
                         <img src="/src/assets/logo/library_14445654.png" alt="" className="h-36 opacity-75"/>
                         <h1 className="text-xl font-bold">Others</h1>
                     </a>

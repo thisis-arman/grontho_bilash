@@ -50,7 +50,7 @@ const Home = () => {
             <Category />
 
             {/* CTA SECTION */}
-            <section className="relative max-w-screen-xl mx-auto py-4 px-4 md:px-8">
+            <section className="relative max-w-screen-xl mx-auto py-4 px-4 md:px-8 z-0">
                 <div className="absolute top-0 left-0 w-full h-full bg-white opacity-40"></div>
                 <div className="relative z-10 gap-5 items-center lg:flex">
                     <div className="flex-1 max-w-lg py-5 sm:mx-auto sm:text-center lg:max-w-max lg:text-left">
@@ -78,6 +78,9 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* PROMOTIONAL SEGMENT */}
+          
         </>
     )
 }
