@@ -6,6 +6,8 @@ import { PhotoIcon } from '@heroicons/react/24/solid'
 import { useGetCategoriesQuery, } from '../../../redux/features/category/categoryApi';
 import { toast } from 'sonner';
 import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
+import { useAppSelector } from '../../../redux/hooks';
+import { selectCurrentUser, TUser } from '../../../redux/features/auth/authSlice';
 
 
 
@@ -33,6 +35,8 @@ export type TDepartment = {
 
 const AddProduct = () => {
 
+    const {id} = useAppSelector(selectCurrentUser) as TUser;
+    
 
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [faculties, setFaculties] = useState([]);
@@ -216,15 +220,15 @@ const AddProduct = () => {
         e.preventDefault();
         const target = e.target
         // setCategoryId(target.level.value)
-        const user = '67077c39206fc4ecb86b5830'
-        const bookTitle = target.title.value
-        const description = target.description.value
-        const publicationYear = parseInt(target.publicationYear.value)
-        const level = selectedLevel
-        const faculty = selectedFaculty
-        const department = selectedDepartment
-        const price = parseFloat(target.price.value)
-        const images = [imageURL]
+        const user = id;
+        const bookTitle = target.title.value;
+        const description = target.description.value;
+        const publicationYear = parseInt(target.publicationYear.value);
+        const level = selectedLevel;
+        const faculty = selectedFaculty;
+        const department = selectedDepartment;
+        const price = parseFloat(target.price.value);
+        const images = [imageURL];
         const condition = target.condition.value;
         const deliveryOption = selectedDeliveryOption;
         const isContactNoHidden = false;

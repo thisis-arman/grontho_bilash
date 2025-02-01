@@ -7,7 +7,8 @@ import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice
 
 const MyProducts = () => {
     // const { data, isLoading } = useGetBooksQuery(undefined);
-    const { email,  } = useAppSelector(selectCurrentUser) as TUser;
+    const { email } = useAppSelector(selectCurrentUser) as TUser;
+    console.log(email);
     const { data, isLoading } = useGetBooksByEmailQuery(email);
     console.log({ data });
  

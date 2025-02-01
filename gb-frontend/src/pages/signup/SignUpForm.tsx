@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import countryData from '../../assets/db/country_dial_info.json';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCreateUserMutation } from '../../redux/features/user/userApi';
 
 const SignUpForm = () => {
@@ -21,7 +21,7 @@ const SignUpForm = () => {
     const res = localStorage.getItem('otpInfo');
  
 
-    const email = JSON.parse(res).email;
+    const email = res ? JSON.parse(res)?.email : '';
     // Handle input change
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
