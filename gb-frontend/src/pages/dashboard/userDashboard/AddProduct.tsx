@@ -36,8 +36,6 @@ export type TDepartment = {
 const AddProduct = () => {
 
     const {id} = useAppSelector(selectCurrentUser) as TUser;
-    
-
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [faculties, setFaculties] = useState([]);
     const [departments, setDepartments] = useState([]);
