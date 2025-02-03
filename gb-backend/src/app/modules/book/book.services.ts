@@ -89,6 +89,7 @@ const searchBooksByTitle = async (searchTerm: string): Promise<Document[]> => {
 const getBooksByEmailFromDB = async (email: string) => {
   console.log(email);
   const user = await User.isUserExistsByEmail(email);
+  console.log(user);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "user is not found");

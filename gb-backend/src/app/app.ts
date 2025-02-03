@@ -11,22 +11,9 @@ const app: Application = express();
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = ["http://localhost:5173", "http://localhost"]; // List all possible origins
+// const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Specify headers if needed
-  })
-);
+// app.use(cors({ origin: "*", credentials: true }));
 
 // Ensure OPTIONS requests are handled correctly
 app.options("*", cors());
