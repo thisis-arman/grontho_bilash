@@ -7,23 +7,22 @@ const orderSchema = new Schema<TOrder>({
     required: true,
     unique: true,
   },
-  book: {
-    type: Schema.Types.ObjectId,
-    ref: "Book",
-    required: true,
-  },
+  books: [
+    {
+      book: { type: Schema.Types.ObjectId, ref: "Book", required: true }, // Reference to Book
+      seller: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Reference to Seller
+      price: { type: Number, required: true }, // Individual book price
+      quantity: { type: Number, required: true, default: 1 }, // Quantity of the book
+    },
+  ],
   buyer: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  seller: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
   orderDate: {
-    type: String,
+    type: Schema.Types.Date,
+    default: Date.now,
   },
   totalAmount: {
     type: Number,
@@ -51,11 +50,7 @@ const orderSchema = new Schema<TOrder>({
     default: "pending",
   },
   transactionDate: {
-    type: String,
-  },
-  isNegotiable: {
-    type: Boolean,
-    required: true,
+    type: Date,
   },
 });
 

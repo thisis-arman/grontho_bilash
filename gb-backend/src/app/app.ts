@@ -14,6 +14,7 @@ app.use(cookieParser());
 // const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
 // app.use(cors({ origin: "*", credentials: true }));
+app.use(cors({ origin: "*", credentials: true }));
 
 // Ensure OPTIONS requests are handled correctly
 app.options("*", cors());
