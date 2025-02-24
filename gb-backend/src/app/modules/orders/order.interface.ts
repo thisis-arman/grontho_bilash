@@ -1,21 +1,27 @@
-import { Schema, Types, model } from "mongoose";
+import { Types } from "mongoose";
 
 export interface TOrder {
-  orderId: string; // Unique identifier for the order
+  orderId: string;
   books: {
-    book: Types.ObjectId; // Reference to the book being ordered
-    seller: Types.ObjectId; // Reference to the seller (user ID)
-    price: number; // Price of the book
-    quantity: number; // Quantity of the book being ordered
-    isNegotiable?: boolean; // Whether the price was negotiable
-  }[]; // Array to handle multiple books in one order
-  buyer: Types.ObjectId; // Reference to the buyer (user ID)
-  orderDate: Date; // Date when the order was placed
-  totalAmount: number; // Total amount for all books
-  shippingCost?: number; // Shipping cost (if applicable)
-  deliveryOption: "pickup" | "shipping"; // Pickup or shipping option
-  deliveryAddress?: string; // Address for shipping if deliveryOption is 'shipping'
-  paymentStatus: "pending" | "completed" | "failed"; // Payment status of the order
-  orderStatus: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"; // Status of the order
-  transactionDate?: Date; // Date when the payment was completed (optional)
+    book: Types.ObjectId;
+    bookTitle: string;
+    deliveryOption: string;
+    isNegotiable: boolean;
+    productImage: string;
+    seller: Types.ObjectId;
+    price: number;
+    shippingCost?: number;
+    quantity: number;
+  }[];
+  phoneNumber: string;
+  buyer: Types.ObjectId;
+  orderDate: Date;
+  totalAmount: number;
+  shippingCost?: number;
+  deliveryOption: "pickup" | "shipping";
+  deliveryAddress: string;
+  paymentStatus: "pending" | "completed" | "failed";
+  orderStatus: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  transactionDate?: Date;
+  comment?: string;
 }

@@ -6,12 +6,35 @@ import AppError from "../../errors/AppError";
 import { TOrder } from "./order.interface";
 import { orderValidations } from "./order.validation";
 
+// Function to generate a unique orderId
+const generateOrderId = async (): Promise<string> => {
+  // Get the last order sorted by orderId in descending order
+  const lastOrder = await OrderModel.findOne()
+    .sort({ orderId: -1 })
+    .select("orderId");
+
+  if (lastOrder && lastOrder.orderId) {
+    // Extract the numeric part and increment
+    const lastOrderNumber = parseInt(lastOrder.orderId, 10);
+    return (lastOrderNumber + 1).toString();
+  }
+
+  // If no orders exist, start from 1001
+  return "1001";
+};
+
 // Service to create an order
 const createOrder = async (orderData: TOrder) => {
-  // Validate the incoming order data using Zod
-  const validatedOrder = orderValidations.createOrderSchema.parse(orderData);
+  // Generate unique order ID
+  const orderId = await generateOrderId();
 
-  // Create the new order in the database
+  // Validate order data using Zod
+  const validatedOrder = orderValidations.createOrderSchema.parse({
+    ...orderData,
+    orderId,
+  });
+
+  // Save order in the database
   const newOrder = await OrderModel.create(validatedOrder);
   return newOrder;
 };
