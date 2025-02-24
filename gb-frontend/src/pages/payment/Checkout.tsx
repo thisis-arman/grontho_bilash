@@ -2,31 +2,45 @@ import React, { useState, FormEvent } from "react";
 import { RootState } from "../../redux/store"; // Adjust this import based on your store setup
 import { useAppSelector } from "../../redux/hooks";
 import { selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
+import { useCreateOrderMutation } from "../../redux/features/order/orderApi";
+import { toast } from "sonner";
 
 const Checkout = () => {
     const [agreed, setAgreed] = useState(false);
     const cartItems = useAppSelector((state: RootState) => state.cart.items);
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const user = useAppSelector(selectCurrentUser) as TUser;
+    const [createOrder] = useCreateOrderMutation();
 
-  
-    const handleCheckoutForm = (e: FormEvent<HTMLFormElement>) => {
+
+    const handleCheckoutForm = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
 
         const checkoutData = {
-            books: cartItems.map((item) => item.book),
-            buyer: user.id, 
+            books: cartItems,
+            buyer: user.id,
             totalAmount: subtotal,
-            shippingCost: formData.get("shippingcost"),
+            shippingCost: Number(formData.get("shippingcost")),
             deliveryOption: formData.get("deliveryoption"),
             deliveryAddress: formData.get("deliveryaddress"),
             phoneNumber: formData.get("phone"),
             email: formData.get("email"),
-            comments: formData.get("comments"),
+            comment: formData.get("comments"),
         };
 
+        try {
+            const response = await createOrder(checkoutData).unwrap();
+            if (response.success) {
+                toast.success("Order placed successfully")
+            }
+
+        } catch (e) {
+            console.log(e)
+            
+                            toast.error(`failed to place order ${e}`,)
+        }
         console.log("Checkout Data:", checkoutData);
         console.log(cartItems);
         // Submit `checkoutData` to the backend here
@@ -35,6 +49,7 @@ const Checkout = () => {
     return (
         <div className="max-w-4xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Checkout</h2>
+
 
             <form onSubmit={handleCheckoutForm} className="space-y-4">
                 {/* Name Field */}
@@ -88,6 +103,7 @@ const Checkout = () => {
                         id="phone"
                         name="phone"
                         type="text"
+                        maxLength={11}
                         required
                         className="block w-full rounded-md bg-white px-3.5 py-2 shadow-sm focus:ring-yellow-500"
                     />
@@ -114,6 +130,7 @@ const Checkout = () => {
                         id="shippingcost"
                         name="shippingcost"
                         type="number"
+                        min={0}
                         required
                         className="block w-full rounded-md bg-white px-3.5 py-2 shadow-sm focus:ring-yellow-500"
                     />
@@ -130,10 +147,27 @@ const Checkout = () => {
                         required
                         className="block w-full rounded-md bg-white px-3.5 py-2 shadow-sm focus:ring-yellow-500"
                     >
-                        <option value="standard">Standard</option>
-                        <option value="express">Express</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="shipping">Shipping</option>
                     </select>
                 </div>
+                {/* Cart Summary */}
+                <div className="mt-6 bg-white p-4 rounded-md shadow">
+                    <h3 className="text-lg font-semibold text-gray-800">Cart Summary</h3>
+                    <ul className="divide-y divide-gray-200">
+                        {cartItems.map((item) => (
+                            <li key={item.book} className="py-2 flex justify-between text-sm text-gray-700">
+                                <span>{item.bookTitle}</span>
+                                <span>{item.quantity} x ${item.price.toFixed(2)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="mt-4 flex justify-between text-gray-900 font-semibold">
+                        <span>Subtotal</span>
+                        <span>${subtotal.toFixed(2)}</span>
+                    </div>
+                </div>
+
 
                 {/* Agreement Checkbox */}
                 <div className="flex items-center">
@@ -150,6 +184,7 @@ const Checkout = () => {
                     </label>
                 </div>
 
+
                 {/* Submit Button */}
                 <button
                     type="submit"
@@ -161,22 +196,7 @@ const Checkout = () => {
                 </button>
             </form>
 
-            {/* Cart Summary */}
-            <div className="mt-6 bg-white p-4 rounded-md shadow">
-                <h3 className="text-lg font-semibold text-gray-800">Cart Summary</h3>
-                <ul className="divide-y divide-gray-200">
-                    {cartItems.map((item) => (
-                        <li key={item.book} className="py-2 flex justify-between text-sm text-gray-700">
-                            <span>{item.bookTitle}</span>
-                            <span>{item.quantity} x ${item.price.toFixed(2)}</span>
-                        </li>
-                    ))}
-                </ul>
-                <div className="mt-4 flex justify-between text-gray-900 font-semibold">
-                    <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
-                </div>
-            </div>
+
         </div>
     );
 };
