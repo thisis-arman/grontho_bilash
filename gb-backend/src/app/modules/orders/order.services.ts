@@ -126,9 +126,7 @@ const getOrdersByUserId = async (userId: string) => {
   }
 
   const orders = await OrderModel.find({ buyer: userId })
-    .populate("book")
     .populate("buyer")
-    .populate("seller");
 
   return orders;
 };
@@ -139,4 +137,5 @@ export const orderServices = {
   updateOrderById,
   deleteOrderById,
   getOrdersFromDB,
+  getOrdersByUserId,
 };
