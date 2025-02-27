@@ -33,6 +33,7 @@ const Checkout = () => {
         try {
             const response = await createOrder(checkoutData).unwrap();
             if (response.success) {
+                (e.target as HTMLFormElement).reset();
                 toast.success("Order placed successfully")
             }
 
