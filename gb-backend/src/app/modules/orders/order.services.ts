@@ -5,6 +5,7 @@ import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TOrder } from "./order.interface";
 import { orderValidations } from "./order.validation";
+import { User } from "../user/user.model";
 
 // Function to generate a unique orderId
 const generateOrderId = async (): Promise<string> => {
@@ -28,14 +29,19 @@ const createOrder = async (orderData: TOrder) => {
   // Generate unique order ID
   const orderId = await generateOrderId();
 
-  // Validate order data using Zod
-  const validatedOrder = orderValidations.createOrderSchema.parse({
-    ...orderData,
-    orderId,
-  });
+  const data = { ...orderData, orderId };
+  console.log({ data });
 
+  // // Validate order data using Zod
+  // const validatedOrder = orderValidations.createOrderSchema.parse({
+  //   ...orderData,
+  //   orderId,
+  // });
+
+  // console.log("validatedOrder", { validatedOrder });
   // Save order in the database
-  const newOrder = await OrderModel.create(validatedOrder);
+  const newOrder = await OrderModel.create(data);
+  console.log({ newOrder });
   return newOrder;
 };
 
@@ -107,6 +113,24 @@ const deleteOrderById = async (orderId: string) => {
   }
 
   return deletedOrder;
+};
+
+const getOrdersByUserId = async (userId: string) => {
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
+  }
+
+  const isValid = await User.findOne({ _id: userId });
+  if (!isValid) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const orders = await OrderModel.find({ buyer: userId })
+    .populate("book")
+    .populate("buyer")
+    .populate("seller");
+
+  return orders;
 };
 
 export const orderServices = {
