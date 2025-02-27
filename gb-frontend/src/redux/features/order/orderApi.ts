@@ -10,6 +10,17 @@ export const orderApi = baseApi.injectEndpoints({
         };
       },
     }),
+    getOrderByUserId: builder.query({
+      query: (userId) => (
+        console.log(userId, "get books by email"),
+        {
+          url: `/orders/orderbyuserid/${userId}`,
+          method: "GET",
+        }
+      ),
+
+      // providesTags: ["Books"],
+    }),
     createOrder: builder.mutation({
       query: (data) => {
         return {
@@ -22,4 +33,4 @@ export const orderApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetOrdersQuery, useCreateOrderMutation } = orderApi;
+export const { useGetOrdersQuery, useCreateOrderMutation,useGetOrderByUserIdQuery } = orderApi;
