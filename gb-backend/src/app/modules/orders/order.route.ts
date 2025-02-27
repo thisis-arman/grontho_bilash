@@ -26,6 +26,9 @@ router.patch("/:orderId", orderController.updateOrder);
 // Route to get an order by its orderId
 router.get("/:orderId", orderController.getOrder);
 
+// to get all the orders by userId
+router.get("/orderbyuserid/:userid", orderController.getOrdersByUserId);
+
 // Route to delete an order by its orderId
 router.delete("/:orderId", orderController.deleteOrder);
 
