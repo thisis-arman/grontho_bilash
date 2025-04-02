@@ -25,23 +25,27 @@ const router = createBrowserRouter([
             },
             {
                 path: '/blogs',
-                element:<Blogs/>
+                element: <Blogs />
             },
             {
                 path: '/books',
-                element:<Products/>
+                element: <Products />
             },
             {
                 path: '/products/:id',
-                element:<BookDetails/>
+                element: <BookDetails />
             },
             {
                 path: '/cart',
-                element:<ShoppingCart/>
+                element: <PrivateRoute>
+                    <ShoppingCart />
+                </PrivateRoute>
             },
             {
                 path: '/checkout',
-                element:<Checkout/>
+                element: <PrivateRoute>
+                    <Checkout />
+                </PrivateRoute>
             }
         ]
     },
@@ -51,7 +55,7 @@ const router = createBrowserRouter([
             <Dashboard />
         </PrivateRoute>,
         children: routeGenerator(userPaths)
-    }, 
+    },
     {
         path: '/admin',
         element: <PrivateRoute>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, FormHTMLAttributes, useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
@@ -192,9 +192,9 @@ const AddProduct = () => {
 
 
 
-    const handleFileUpload = async (event) => {
+    const handleFileUpload = async (event: FormEvent<HTMLInputElement>) => {
         event.preventDefault();
-        const file = event.target.files[0];
+        const file = event.target?.files[0];
         if (!file) return;
         // Create a form data object
         const formData = new FormData();
@@ -219,8 +219,8 @@ const AddProduct = () => {
         const target = e.target
         // setCategoryId(target.level.value)
         const user = id;
-        const bookTitle = target.title.value;
-        const description = target.description.value;
+        const bookTitle = target?.title.value;
+        const description = target?.description.value;
         const publicationYear = parseInt(target.publicationYear.value);
         const level = selectedLevel;
         const faculty = selectedFaculty;

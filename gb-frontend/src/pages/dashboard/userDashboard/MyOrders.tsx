@@ -9,10 +9,7 @@ const MyOrders = () => {
         // const { data, isLoading } = useGetBooksQuery(undefined);
         const { id } = useAppSelector(selectCurrentUser) as TUser;
 
-        console.log({id});
-        console.log(id);
         const { data, isLoading } = useGetOrderByUserIdQuery(id);
-        console.log({ data });
     return (
         <>
          {
@@ -40,10 +37,11 @@ const MyOrders = () => {
                                     <table className="w-full table-auto text-sm text-left">
                                         <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                                             <tr>
-                                                <th className="py-3 px-6">Book Title</th>
-                                                <th className="py-3 px-6">Price</th>
-                                                <th className="py-3 px-6">Condition</th>
-                                                <th className="py-3 px-6">Delivery Option</th>
+                                                <th className="py-3 px-6">Order NO</th>
+                                                <th className="py-3 px-6">Product Title</th>
+                                                <th className="py-3 px-6">Ordered Amount</th>
+                                                <th className="py-3 px-6">Status</th>
+                                                <th className="py-3 px-6">Actions</th>
         
                                                 <th className="py-3 px-6 text-center">Actions</th>
         
@@ -54,9 +52,11 @@ const MyOrders = () => {
                                                 data?.data?.map((item, idx: number) => (
                                                     <tr key={idx}>
                                                         <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
+                                                            <td className="px-6 py-4 whitespace-nowrap">#{item?.orderId}</td>
                                                             {/* <img src={item?} className="w-10 h-10 rounded-full" /> */}
                                                             <div>
-                                                                <span className="block text-gray-700 text-sm font-medium">{item.bookTitle}</span>
+                                                                <span className="block text-gray-700 text-sm font-medium">{item?.books[idx]?.bookTitle}</span>
+                                                                <span className="block text-gray-700 text-sm font-medium">{item?.books[idx +1]?.bookTitle}</span>
                                                                 {/* <span className="block text-gray-700 text-xs">{item.email}</span> */}
                                                             </div>
                                                         </td>

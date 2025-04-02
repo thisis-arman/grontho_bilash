@@ -1,194 +1,59 @@
+import { useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
+import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
+import { useGetOrderByUserIdQuery } from "../../../redux/features/order/orderApi";
+import { useAppSelector } from "../../../redux/hooks";
+import ReuseableCard from "./components/ReuseableCard";
 
 
 const UserDashboard = () => {
+
+    const { id, email } = useAppSelector(selectCurrentUser) as TUser;
+
+    const { data: orderData, isLoading } = useGetOrderByUserIdQuery(id);
+    const totalSpentAmount = orderData?.data?.reduce((acc: number, data) => acc + data.totalAmount, 0);
+    const { data: bookData } = useGetBooksByEmailQuery(email);
+
     return (
         <div>
             {/* OVERVIEW */}
-            <section className="grid grid-cols-2 sm:grid-cols-4 justify-center items-center gap-4 flex-wrap">
-                <article className="flex items-end justify-between rounded-lg border border-gray-100 bg-white p-8">
-                    <div className="flex items-center gap-4">
-                        <span className="hidden rounded-full bg-gray-100 p-2 text-gray-600 sm:block">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                        </span>
+        
+            {isLoading ? "loading..." : <section className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 justify-center items-center gap-4 ">
 
-                        <div>
-                            <p className="text-sm text-gray-500">Profit</p>
+                <ReuseableCard
+                    amount={totalSpentAmount}
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}       stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
+                    stat={'+20.1% from last month'}
+                    title={'Total Spent'}
+                />
+                <ReuseableCard
+                    amount={bookData?.data?.length}
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}       stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
+                    stat={'+2.1% from last month'}
+                    title={'Total Books'}
+                />
+                <ReuseableCard
+                    amount={bookData?.data?.length}
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}       stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
+                    stat={'+2.1% from last month'}
+                    title={'Total Books'}
+                />
+                <ReuseableCard
+                    amount={bookData?.data?.length}
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}       stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
+                    stat={'+2.1% from last month'}
+                    title={'Total Books'}
+                />
 
-                            <p className="text-2xl font-medium text-gray-900">$240.94</p>
-                        </div>
-                    </div>
 
-                    <div className="inline-flex gap-2 rounded-sm bg-green-100 p-1 text-green-600">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                            />
-                        </svg>
-
-                        <span className="text-xs font-medium"> 67.81% </span>
-                    </div>
-                </article>
-                <article className="flex items-end justify-between rounded-lg border border-gray-100 bg-white p-8">
-                    <div className="flex items-center gap-4">
-                        <span className="hidden rounded-full bg-gray-100 p-2 text-gray-600 sm:block">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                        </span>
-
-                        <div>
-                            <p className="text-sm text-gray-500">Profit</p>
-
-                            <p className="text-2xl font-medium text-gray-900">$240.94</p>
-                        </div>
-                    </div>
-
-                    <div className="inline-flex gap-2 rounded-sm bg-green-100 p-1 text-green-600">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                            />
-                        </svg>
-
-                        <span className="text-xs font-medium"> 67.81% </span>
-                    </div>
-                </article>
-                <article className="flex items-end justify-between rounded-lg border border-gray-100 bg-white p-8">
-                    <div className="flex items-center gap-4">
-                        <span className="hidden rounded-full bg-gray-100 p-2 text-gray-600 sm:block">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                        </span>
-
-                        <div>
-                            <p className="text-sm text-gray-500">Profit</p>
-
-                            <p className="text-2xl font-medium text-gray-900">$240.94</p>
-                        </div>
-                    </div>
-
-                    <div className="inline-flex gap-2 rounded-sm bg-green-100 p-1 text-green-600">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                            />
-                        </svg>
-
-                        <span className="text-xs font-medium"> 67.81% </span>
-                    </div>
-                </article>
-
-                <article className="flex items-end justify-between rounded-lg border border-gray-100 bg-white p-8">
-                    <div className="flex items-center gap-4">
-                        <span className="hidden rounded-full bg-gray-100 p-2 text-gray-600 sm:block">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                        </span>
-
-                        <div>
-                            <p className="text-sm text-gray-500">Profit</p>
-
-                            <p className="text-2xl font-medium text-gray-900">$240.94</p>
-                        </div>
-                    </div>
-
-                    <div className="inline-flex gap-2 rounded-sm bg-red-100 p-1 text-red-600">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                            />
-                        </svg>
-
-                        <span className="text-xs font-medium"> 67.81% </span>
-                    </div>
-                </article>
+              
             </section>
-
+            }
         </div>
+
     );
 };
 
