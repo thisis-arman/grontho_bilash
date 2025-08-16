@@ -71,7 +71,7 @@ const verifyOtp = async (email: string, otp: number): Promise<Otp | null> => {
   otpEntry.verified = true;
   await otpEntry.save();
 
-  return otpEntry; // Return full OTP document
+  return otpEntry; 
 };
 
 export const otpServices = {

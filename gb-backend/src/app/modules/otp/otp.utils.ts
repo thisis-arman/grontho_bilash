@@ -4,7 +4,7 @@ import config from "../../config";
 export const sendEmail = async (email: string, otp: number) => {
   // Configure the mailer
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    service: "gmail",
     port: 587,
     secure: false, // Use false for TLS
     auth: {

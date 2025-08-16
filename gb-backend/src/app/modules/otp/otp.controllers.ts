@@ -6,6 +6,7 @@ import sendResponse from "../../utils/sendResponse";
 // Controller for creating OTP
 const createOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
+  
   console.log({ email });
   const result = await otpServices.createAndSendOtp(email);
   console.log({ result });
