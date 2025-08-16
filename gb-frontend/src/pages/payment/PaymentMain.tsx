@@ -7,6 +7,7 @@ const stripePromise = loadStripe("pk_test_51NEOh0J6vP03PB2ILt5O7hn75B5d8YyGSS2sP
 
 const PaymentMain = () => {
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentIntent,setPaymentIntent]=useState("");
   
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const PaymentMain = () => {
       .then((res) => res.json())
       .then((data) =>{
         setClientSecret(data?.data.clientSecret);
+        setPaymentIntent(data?.data?.id)
       });
   }, []);
 
@@ -43,7 +45,7 @@ const PaymentMain = () => {
   }
 }}>
       <div className="">
-        <CheckoutForm />
+        <CheckoutForm  paymentIntent={paymentIntent}/>
       </div>
     </Elements>
   );

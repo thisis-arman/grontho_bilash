@@ -18,36 +18,34 @@ const navigate= useNavigate();
     const handleCheckoutForm = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // const formData = new FormData(e.target as HTMLFormElement);
+        const formData = new FormData(e.target as HTMLFormElement);
         navigate('/checkout/payment');
 
-        // const checkoutData = {
-        //     books: cartItems,
-        //     buyer: user.id,
-        //     totalAmount: subtotal,
-        //     shippingCost: Number(formData.get("shippingcost")),
-        //     deliveryOption: formData.get("deliveryoption"),
-        //     deliveryAddress: formData.get("deliveryaddress"),
-        //     phoneNumber: formData.get("phone"),
-        //     email: formData.get("email"),
-        //     comment: formData.get("comments"),
-        // };
+        const checkoutData = {
+            books: cartItems,
+            buyer: user.id,
+            totalAmount: subtotal,
+            shippingCost: Number(formData.get("shippingcost")),
+            deliveryOption: formData.get("deliveryoption"),
+            deliveryAddress: formData.get("deliveryaddress"),
+            phoneNumber: formData.get("phone"),
+            email: formData.get("email"),
+            comment: formData.get("comments"),
+        };
 
-        // try {
-        //     const response = await createOrder(checkoutData).unwrap();
-        //     if (response.success) {
-        //         (e.target as HTMLFormElement).reset();
-        //         toast.success("Order placed successfully")
-        //     }
+        try {
+            const response = await createOrder(checkoutData).unwrap();
+            if (response.success) {
+                (e.target as HTMLFormElement).reset();
+                // toast.success("Order placed successfully")
+            }
 
-        // } catch (e) {
-        //     console.log(e)
+        } catch (e) {
+            console.log(e)
             
-        //                     toast.error(`failed to place order ${e}`,)
-        // }
-        // console.log("Checkout Data:", checkoutData);
-        console.log(cartItems);
-        // Submit `checkoutData` to the backend here
+                            toast.error(`failed to place order ${e}`,)
+        }
+        
     };
 
     return (

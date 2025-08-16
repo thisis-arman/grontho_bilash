@@ -52,7 +52,7 @@ const orderSchema = new Schema<TOrder>(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "completed", "failed"],
+      enum: ["pending" , "paid" , "failed" , "cancelled"],
       default: "pending",
     },
     orderStatus: {
