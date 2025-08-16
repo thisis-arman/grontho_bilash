@@ -13,6 +13,7 @@ import Products from "../pages/books/new_products";
 import BookDetails from "../pages/books/BookDetails";
 import ShoppingCart from "../pages/cart/ShoppingCart";
 import Checkout from "../pages/payment/Checkout";
+import PaymentMain from "../pages/payment/PaymentMain";
 
 const router = createBrowserRouter([
     {
@@ -46,6 +47,15 @@ const router = createBrowserRouter([
                 element: <PrivateRoute>
                     <Checkout />
                 </PrivateRoute>
+            },
+            {
+                path:'/checkout/payment',
+                element:<PrivateRoute>
+                    <PaymentMain/>
+                </PrivateRoute>
+            },{
+                path:'/success',
+                element:<h1 className="mt-24 py-4 bg-green-600"> Payment successful</h1>
             }
         ]
     },

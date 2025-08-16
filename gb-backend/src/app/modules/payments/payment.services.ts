@@ -2,37 +2,36 @@
 import { Payment } from "./payment.model";
 import { TPayment } from "./payment.interface";
 import config from "../../config";
-const stripe = require("stripe")(config.stripe_sk
-);
+const stripe = require("stripe")(config.stripe_sk);
 
-
-const calculateOrderAmount = (item) => {
-  // Calculate the order total on the server to prevent
-  // people from directly manipulating the amount on the client
+const calculateOrderAmount = (items: { amount: number }[]) => {
   let total = 0;
-  item.forEach((item) => {
+  items.forEach((item) => {
     total += item.amount;
   });
   return total;
 };
 
-
-const createPaymentIntent = async (item:Record<string,unknown>) => {
-  // Create a PaymentIntent with the order amount and currency
+const createPaymentIntent = async ({
+  amount,
+  currency,
+}: {
+  amount: number;
+  currency: string;
+}) => {
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(item),
-    currency: "usd",
-    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+    amount,
+    currency,
     automatic_payment_methods: {
       enabled: true,
     },
   });
+  console.log("paymentIntent_________", paymentIntent);
 
-  return({
+  return {
     clientSecret: paymentIntent.client_secret,
-    // [DEV]: For demo purposes only, you should avoid exposing the PaymentIntent ID in the client-side code.
     dpmCheckerLink: `https://dashboard.stripe.com/settings/payment_methods/review?transaction_id=${paymentIntent.id}`,
-  });
+  };
 };
 
 const createPayment = async (paymentData: TPayment): Promise<TPayment> => {

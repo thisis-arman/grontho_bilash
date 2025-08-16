@@ -1,74 +1,37 @@
-import React, { useState } from "react";
-import {
-    PaymentElement,
-    useStripe,
-    useElements
-} from "@stripe/react-stripe-js";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { FormEvent, useState } from "react";
 
-export default function CheckoutForm({ dpmCheckerLink }) {
-    const stripe = useStripe();
-    const elements = useElements();
+const CheckoutForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [errorMessage, setErrorMessage] = useState("");
 
-    const [message, setMessage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!stripe || !elements) return;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Confirm payment using the existing PaymentIntent clientSecret
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: "http://localhost:5173/success", // redirect after payment
+      },
+    });
 
-        if (!stripe || !elements) {
-            // Stripe.js hasn't yet loaded.
-            // Make sure to disable form submission until Stripe.js has loaded.
-            return;
-        }
-
-        setIsLoading(true);
-
-        const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                // Make sure to change this to your payment completion page
-                return_url: "http://localhost:3000/complete",
-            },
-        });
-
-        // This point will only be reached if there is an immediate error when
-        // confirming the payment. Otherwise, your customer will be redirected to
-        // your `return_url`. For some payment methods like iDEAL, your customer will
-        // be redirected to an intermediate site first to authorize the payment, then
-        // redirected to the `return_url`.
-        if (error.type === "card_error" || error.type === "validation_error") {
-            setMessage(error.message as string);
-        } else {
-            setMessage("An unexpected error occurred.");
-        }
-
-        setIsLoading(false);
-    };
-
-    const paymentElementOptions = {
-        layout: "accordion"
+    if (error) {
+      setErrorMessage(error.message ?? "Payment failed");
     }
+  };
 
-    return (
-        <>
-            <form id="payment-form" onSubmit={handleSubmit}>
+  return (
+        <div className="p-5">
+                <form onSubmit={handleSubmit}>
+      <PaymentElement />
+      <button type="submit" className="px-5 bg-green-700 rounded-md shadow-sm text-white" disabled={!stripe}>Pay</button>
+      {errorMessage && <div>{errorMessage}</div>}
+    </form>
+        </div>
+  );
+};
 
-                <PaymentElement id="payment-element" options={paymentElementOptions} />
-                <button disabled={isLoading || !stripe || !elements} id="submit">
-                    <span id="button-text">
-                        {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}
-                    </span>
-                </button>
-                {/* Show any error or success messages */}
-                {message && <div id="payment-message">{message}</div>}
-            </form>
-            {/* [DEV]: Display dynamic payment methods annotation and integration checker */}
-            <div id="dpm-annotation">
-                <p>
-                    Payment methods are dynamically displayed based on customer location, order amount, and currency.&nbsp;
-                    <a href={dpmCheckerLink} target="_blank" rel="noopener noreferrer" id="dpm-integration-checker">Preview payment methods by transaction</a>
-                </p>
-            </div>
-        </>
-    );
-}
+export default CheckoutForm;

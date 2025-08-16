@@ -3,14 +3,14 @@ import { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:5000/api/v1",
-  credentials: "include", // ensures cookies and auth headers go through
+  credentials: "include", 
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set("Authorization", `${token}`); // ✅ usually prefixed with "Bearer"
+      headers.set("Authorization", `${token}`); 
     }
-    headers.set("Content-Type", "application/json"); // make sure body is parsed correctly
-    return headers; // ✅ must return
+    headers.set("Content-Type", "application/json"); 
+    return headers; 
   },
 });
 

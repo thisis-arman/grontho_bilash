@@ -15,24 +15,31 @@ const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
 app.use(
   cors({
-    origin: allowedOrigins,  // specify allowed origins
-    credentials: true,       // allow cookies/authorization headers
+    origin: (origin, callback) => {
+      // allow requests with no origin (like Postman or server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy: Origin ${origin} not allowed`));
+      }
+    },
+    credentials: true, // allow cookies/authorization headers
   })
 );
 
-
-// Ensure OPTIONS requests are handled correctly
+// Handle OPTIONS preflight requests for all routes
 app.options("*", cors());
+
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+  res.send("Grontho Bilash server is working...");
 });
 
-// Global Error Handler
 app.use(globalErrorHandler);
 
-// Not Found middleware for all other routes
-app.use("*", notFound); // Catch-all for undefined routes
+app.use(notFound);
 
 export default app;
