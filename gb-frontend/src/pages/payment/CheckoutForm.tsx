@@ -27,7 +27,7 @@ const CheckoutForm = () => {
         <div className="p-5">
                 <form onSubmit={handleSubmit}>
       <PaymentElement />
-      <button type="submit" className="px-5 bg-green-700 rounded-md shadow-sm text-white" disabled={!stripe}>Pay</button>
+      <button type="submit" className="px-5 bg-green-700 rounded-md shadow-sm text-white mt-4" disabled={!stripe}>Pay</button>
       {errorMessage && <div>{errorMessage}</div>}
     </form>
         </div>

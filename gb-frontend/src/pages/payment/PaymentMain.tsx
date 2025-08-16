@@ -17,7 +17,6 @@ const PaymentMain = () => {
     })
       .then((res) => res.json())
       .then((data) =>{
-        console.log(data?.data.clientSecret);
         setClientSecret(data?.data.clientSecret);
       });
   }, []);
@@ -25,7 +24,24 @@ const PaymentMain = () => {
   if (!clientSecret) return <p>Loading payment...</p>;
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret }} >
+   <Elements stripe={stripePromise} options={{
+  clientSecret,
+  appearance: {
+    theme: 'stripe', 
+    labels: 'floating', 
+    variables: {
+      colorPrimary: '#0570de',
+      colorBackground: '#ffffff',
+      colorText: '#30313d',
+      borderRadius: '8px',
+      spacingUnit: '4px',
+    },
+    rules: {
+      ".Input": { padding: '12px' },
+      ".Label": { fontSize: '14px' }
+    }
+  }
+}}>
       <div className="">
         <CheckoutForm />
       </div>
