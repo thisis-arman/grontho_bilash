@@ -26,7 +26,6 @@ const createPaymentIntent = async ({
       enabled: true,
     },
   });
-  console.log("paymentIntent_________", paymentIntent);
 
   return {
     clientSecret: paymentIntent.client_secret,
