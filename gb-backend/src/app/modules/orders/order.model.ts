@@ -52,7 +52,7 @@ const orderSchema = new Schema<TOrder>(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending" , "paid" , "failed" , "cancelled"],
+      enum: ["pending", "paid", "failed", "cancelled"],
       default: "pending",
     },
     orderStatus: {
@@ -66,6 +66,10 @@ const orderSchema = new Schema<TOrder>(
     },
     comment: {
       type: String,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

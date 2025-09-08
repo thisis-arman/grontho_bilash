@@ -24,4 +24,5 @@ export interface TOrder {
   orderStatus: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
   transactionDate?: Date;
   comment?: string;
+  isDeleted:boolean
 }

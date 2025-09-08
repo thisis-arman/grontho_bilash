@@ -3,7 +3,6 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { orderServices } from "./order.services";
 
-// Controller to create an order
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.createOrder(req.body);
   sendResponse(res, {
@@ -14,7 +13,6 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// Controller to get a single order by ID
 const getOrder = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.id;
   const result = await orderServices.getOrderById(orderId);

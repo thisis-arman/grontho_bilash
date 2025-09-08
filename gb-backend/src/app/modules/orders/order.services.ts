@@ -1,32 +1,24 @@
 import { OrderModel } from "./order.model";
 import { Types } from "mongoose";
-// Custom application error handler
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TOrder } from "./order.interface";
 import { orderValidations } from "./order.validation";
 import { User } from "../user/user.model";
 
-// Function to generate a unique orderId
 const generateOrderId = async (): Promise<string> => {
-  // Get the last order sorted by orderId in descending order
   const lastOrder = await OrderModel.findOne()
     .sort({ orderId: -1 })
     .select("orderId");
 
   if (lastOrder && lastOrder.orderId) {
-    // Extract the numeric part and increment
     const lastOrderNumber = parseInt(lastOrder.orderId, 10);
     return (lastOrderNumber + 1).toString();
   }
-
-  // If no orders exist, start from 1001
   return "1001";
 };
 
-// Service to create an order
 const createOrder = async (orderData: TOrder) => {
-  // Generate unique order ID
   const orderId = await generateOrderId();
 
   const data = { ...orderData, orderId };
@@ -64,13 +56,23 @@ const getOrderById = async (orderId: string) => {
 };
 
 const getOrdersFromDB = async () => {
-  const orders = await OrderModel.find()
-    .populate("seller")
-    .populate("buyer")
-    .populate("book");
+  const orders = await OrderModel.aggregate([
+    {$match:{
+      isDeleted:false
+    }},
+    {
+      $lookup:{
+        from:'users',
+        localField:'buyer',
+        foreignField:'_id',
+        as:'bought_by'
+
+      }
+    }
+    
+  ])
   return orders;
 };
-// Service to update an order by ID
 const updateOrderById = async (
   orderId: string,
   updateData: Partial<TOrder>
@@ -79,7 +81,6 @@ const updateOrderById = async (
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
 
-  // Validate the incoming data using Zod for only the fields being updated
   const validatedData = orderValidations.createOrderSchema
     .partial()
     .parse(updateData);
