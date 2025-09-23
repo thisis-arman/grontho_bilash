@@ -1,3 +1,4 @@
+import { pick } from "../../utils/pick";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 
@@ -10,24 +11,40 @@ const createUserIntoDB = async (userInfo: TUser) => {
   }
 
   const user = await User.create(userInfo);
-  console.log({user});
+  console.log({ user });
   return user;
 };
 
 const getUsersFromDB = async () => {
-  const users = await User.find({isDeleted:false});
+  const users = await User.find({ isDeleted: false });
   return users;
 };
 
-const updateUserInfo= async(id:string)=>{
-  const user= await User.find({_id:id, isDeleted:false});
-  if(!user){
-    return "User not found!";
+ const updateUserInfo = async (id: string, payload: Partial<TUser>) => {
+  // whitelist editable fields
+  const allowedFields = ['name', 'status', 'role', 'contactNo'];
+  const dataToUpdate = pick(payload, allowedFields);
+
+  if (Object.keys(dataToUpdate).length === 0) {
+    throw new Error('No valid fields to update');
   }
-  return user;
-}
+
+  // using findOneAndUpdate for atomic update
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: id, isDeleted: false },
+    { $set: dataToUpdate },
+    { new: true, runValidators: true } // runValidators to enforce schema rules
+  );
+
+  if (!updatedUser) {
+    throw new Error('User not found or deleted');
+  }
+
+  return updatedUser;
+};
 
 export const userServices = {
   createUserIntoDB,
   getUsersFromDB,
+  updateUserInfo
 };
