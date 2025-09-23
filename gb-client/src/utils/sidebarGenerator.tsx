@@ -5,14 +5,14 @@ import { NavLink } from "react-router-dom";
 interface SidebarItem {
     key: string;
     label: JSX.Element | string;
-    icon:React.ReactNode;
+    icon?:React.ReactNode;
     children?: SidebarItem[];
 }
 
 interface Item {
     path?: string;
     name: string;
-    icon:React.ReactNode;
+    icon?:React.ReactNode;
     children?: Item[];
 }
 
