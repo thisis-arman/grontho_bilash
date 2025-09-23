@@ -15,10 +15,17 @@ const createUserIntoDB = async (userInfo: TUser) => {
 };
 
 const getUsersFromDB = async () => {
-  const users = await User.find();
-
+  const users = await User.find({isDeleted:false});
   return users;
 };
+
+const updateUserInfo= async(id:string)=>{
+  const user= await User.find({_id:id, isDeleted:false});
+  if(!user){
+    return "User not found!";
+  }
+  return user;
+}
 
 export const userServices = {
   createUserIntoDB,
