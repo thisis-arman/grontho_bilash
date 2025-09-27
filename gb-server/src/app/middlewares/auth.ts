@@ -18,6 +18,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     console.log("18", token);
 
     const decoded = jwt.verify(token, config.jwt_access_secret as string);
+    console.log({decoded});
 
     if (!decoded) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token");
