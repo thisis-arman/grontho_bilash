@@ -20,24 +20,22 @@ const getUsersFromDB = async () => {
   return users;
 };
 
- const updateUserInfo = async (id: string, payload: Partial<TUser>) => {
-  // whitelist editable fields
-  const allowedFields = ['name', 'status', 'role', 'contactNo'];
+const updateUserInfo = async (id: string, payload: Record<string, any>) => {
+  const allowedFields = ["name", "status", "role"];
   const dataToUpdate = pick(payload, allowedFields);
 
   if (Object.keys(dataToUpdate).length === 0) {
-    throw new Error('No valid fields to update');
+    throw new Error("No valid fields to update");
   }
 
-  // using findOneAndUpdate for atomic update
   const updatedUser = await User.findOneAndUpdate(
     { _id: id, isDeleted: false },
     { $set: dataToUpdate },
-    { new: true, runValidators: true } // runValidators to enforce schema rules
+    { new: true, runValidators: true } 
   );
 
   if (!updatedUser) {
-    throw new Error('User not found or deleted');
+    throw new Error("User not found or deleted");
   }
 
   return updatedUser;
@@ -46,5 +44,5 @@ const getUsersFromDB = async () => {
 export const userServices = {
   createUserIntoDB,
   getUsersFromDB,
-  updateUserInfo
+  updateUserInfo,
 };
