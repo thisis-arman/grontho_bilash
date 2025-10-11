@@ -1,4 +1,7 @@
-import { useGetUsersQuery } from "../../../redux/features/user/userApi";
+import { useState } from "react";
+import { useGetUsersQuery, useUpdateUserInfoMutation } from "../../../redux/features/user/userApi";
+
+import { Modal } from "antd";
 
 type TUser= {
     name: string;
@@ -15,10 +18,32 @@ type TUser= {
 
 const UserManagement = () => {
 
+    
     const { data, isLoading } = useGetUsersQuery(undefined);
+    // const [updateUserInfo,result]=useUpdateUserInfoMutation();
 
-    console.log(data);
-
+     const [open, setOpen] = useState(false);
+      const [confirmLoading, setConfirmLoading] = useState(false);
+      const [modalText, setModalText] = useState('Content of the modal');
+    
+      const showModal = () => {
+        setOpen(true);
+      };
+    
+      const handleOk = () => {
+        setModalText('The modal will be closed after two seconds');
+        setConfirmLoading(true);
+        setTimeout(() => {
+          setOpen(false);
+          setConfirmLoading(false);
+        }, 2000);
+      };
+    
+      const handleCancel = () => {
+        console.log('Clicked cancel button');
+        setOpen(false);
+      };
+ 
 
     return (
         <>
@@ -69,7 +94,7 @@ const UserManagement = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">{item.role}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{item.status}</td>
                                         <td className="text-right px-6 whitespace-nowrap">
-                                            <a
+                                            <a onClick={showModal}
                                                 className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg">
                                                 Edit
                                             </a>
@@ -83,7 +108,17 @@ const UserManagement = () => {
                         </tbody>
                     </table>
                 </div>
-            </div>}
+            </div>
+            }
+            <Modal
+        title="Title"
+        open={open}
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+      >
+        <p>{modalText}</p>
+      </Modal>
         </>
     );
 };

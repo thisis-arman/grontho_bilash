@@ -19,7 +19,16 @@ export const userApi = baseApi.injectEndpoints({
         };
       },
     }),
+    updateUserInfo:builder.mutation({
+      query:({id,userInfo})=>{
+        return {
+          url:`users/update-user/${id}`,
+          method:"POST",
+          body:userInfo
+        }
+      }
+    })
   }),
 });
 
-export const { useCreateUserMutation,useGetUsersQuery} = userApi;
+export const { useCreateUserMutation,useGetUsersQuery,useUpdateUserInfoMutation} = userApi;
