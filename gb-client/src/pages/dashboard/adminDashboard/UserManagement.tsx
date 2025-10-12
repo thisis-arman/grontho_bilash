@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGetUsersQuery, useUpdateUserInfoMutation } from "../../../redux/features/user/userApi";
-
+import { useForm } from "react-hook-form"
 import { Modal } from "antd";
 
 type TUser= {
@@ -20,18 +20,18 @@ const UserManagement = () => {
 
     
     const { data, isLoading } = useGetUsersQuery(undefined);
+    console.log("fetching user data",data)
     // const [updateUserInfo,result]=useUpdateUserInfoMutation();
 
      const [open, setOpen] = useState(false);
       const [confirmLoading, setConfirmLoading] = useState(false);
-      const [modalText, setModalText] = useState('Content of the modal');
     
       const showModal = () => {
         setOpen(true);
       };
     
       const handleOk = () => {
-        setModalText('The modal will be closed after two seconds');
+        // setModalText('The modal will be closed after two seconds');
         setConfirmLoading(true);
         setTimeout(() => {
           setOpen(false);
@@ -43,6 +43,10 @@ const UserManagement = () => {
         console.log('Clicked cancel button');
         setOpen(false);
       };
+
+        const { register, handleSubmit, formState: { errors } } = useForm();
+  const onSubmit = data => console.log(data);
+  console.log(errors);
  
 
     return (
@@ -110,14 +114,48 @@ const UserManagement = () => {
                 </div>
             </div>
             }
-            <Modal
+        <Modal
         title="Title"
         open={open}
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
       >
-        <p>{modalText}</p>
+        <form onSubmit={handleSubmit(onSubmit)}>
+         <div className="flex gap-2 justify-between my-2">
+               <div>
+                <label htmlFor="">Name</label>
+                <input  className="w-full py-1  pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white focus:border-indigo-600" type="text" placeholder="Name" {...register("name")} />
+            </div>
+       <div>
+        <label htmlFor="">Email</label>
+        <input   className="w-full py-1  pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white focus:border-indigo-600" type="text" placeholder="Email" {...register("email", { pattern: /^\S+@\S+$/i})} />
+       </div>
+         </div>
+       <div>
+        <label htmlFor="">Contact No</label>
+        <input   className="w-full py-1 pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white focus:border-indigo-600" type="tel"  {...register("contactNo", { minLength: 6, maxLength: 12})} />
+      
+       </div>
+   <div className="flex justify-between gap-2">
+    <div >
+    <label htmlFor="">Role</label>
+       <select   className="w-full py-1  pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white focus:border-indigo-600" {...register("role")}>
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+      </select>
+   </div>
+     <div>
+        <label htmlFor="">Status</label>
+         <select {...register("status")}>
+        <option value="active">active</option>
+        <option value="blocked">blocked</option>
+      </select>
+     </div>
+   </div>
+
+      <input type="submit" />
+    </form>
       </Modal>
         </>
     );
