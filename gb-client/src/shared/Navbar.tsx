@@ -71,7 +71,7 @@ const Navbar = () => {
                 <div className={` md:hidden ${state ? "mx-2 pb-5" : "hidden"}`}>
                     <Brand />
                 </div>
-                <nav className={` md:text-sm ${state ? "absolute z-20 top-0 inset-x-0 bg-gray-800 rounded-xl mx-2  md:mx-0 md:mt-0 md:relative  " : ""}`}>
+                <nav className={` md:text-sm ${state ? "absolute z-20 top-0 inset-x-0 bg-gray-300 rounded-xl mx-2 py-1 md:mx-0 md:mt-0 md:relative  " : ""}`}>
                     <div className="gap-x-14 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
                         <Brand />
                         <div className={`flex-1 items-center mt-8 md:mt-0 md:flex ${state ? 'block' : 'hidden'} `}>

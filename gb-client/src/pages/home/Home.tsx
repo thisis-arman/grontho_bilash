@@ -8,45 +8,72 @@ const Home = () => {
             <div className=" bg-opacity-95 relative top-0 z-0 text-black">
 
 
-                <section className="relative pt-16">
-                    <div className="relative z-10 max-w-screen-xl mx-auto px-4 py-28 md:px-8">
-                        <div className="space-y-5 max-w-4xl mx-auto text-center">
-                            <h2 className="text-4xl  font-extrabold mx-auto md:text-7xl">
-                                Your Marketplace for Affordable Learning Resources
-                            </h2>
-                            <p className="max-w-2xl mx-auto text-gray-900 text-lg">
-                                Grontho Bilash is where students come to buy, sell, and exchange educational materials. From textbooks to study guides, find everything you need in one convenient platform.
-                            </p>
-                            <form
-                                onSubmit={(e) => e.preventDefault()}
-                                className="flex items-center justify-center bg-white rounded-lg p-1 sm:max-w-xl sm:mx-auto"
-                            >
-                                <input
-                                    type="text"
-                                    placeholder="Search for books, notes, and more"
-                                    className="text-gray-500 w-full outline-none focus:ring-0 p-2 focus:outline-none"
-                                />
-                                <button
-                                    className="p-2 px-3 rounded-lg font-medium text-white bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 duration-150 outline-none shadow-md focus:shadow-none sm:px-4"
-                                >
-                                    Search
-                                </button>
-                            </form>
+               <section className="relative overflow-hidden bg-slate-50 pt-16">
+    {/* Refined Background Elements */}
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0">
+        <div 
+            className="absolute inset-0 opacity-30 blur-[120px]" 
+            style={{ background: "radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.4), rgba(14, 165, 233, 0.2), transparent 70%)" }}
+        ></div>
+    </div>
 
-                            {/* <div className="flex justify-center items-center gap-x-4 text-gray-400 text-sm">
-                            <div className="flex">
-                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" /></svg>
-                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" /></svg>
-                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" /></svg>
-                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" /></svg>
-                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" /></svg>
-                            </div>
-                            <p><span className="text-gray-100">5.0</span> by over 200 users</p>
-                        </div> */}
-                        </div>
+    <div className="relative z-10 max-w-screen-xl mx-auto px-4 py-24 md:px-8 lg:py-32">
+        <div className="space-y-8 max-w-4xl mx-auto text-center">
+            
+            {/* Social Proof Badge */}
+            <div className="inline-flex items-center gap-x-2 bg-white/60 border border-gray-200 backdrop-blur-md p-1 pr-3 rounded-full text-sm font-medium text-gray-700 shadow-sm transition-all hover:shadow-md cursor-default">
+                <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs">New</span>
+                <p>Join 2,000+ students exchanging books daily</p>
+            </div>
+
+            {/* Typography: Tighter tracking and balanced line height */}
+            <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 md:text-7xl lg:leading-[1.1]">
+                Your Marketplace for <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-500">
+                    Affordable Learning
+                </span>
+            </h1>
+
+            <p className="max-w-2xl mx-auto text-gray-600 text-lg md:text-xl leading-relaxed">
+                Grontho Bilash is the premier destination to buy, sell, and exchange educational materials. Quality resources, student-friendly prices.
+            </p>
+
+            {/* Premium Search Bar */}
+            <div className="relative max-w-2xl mx-auto group">
+                <form
+                    onSubmit={(e) => e.preventDefault()}
+                    className="flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-xl shadow-gray-200/50 transition-all focus-within:ring-4 focus-within:ring-yellow-500/10 focus-within:border-yellow-500/50"
+                >
+                    <div className="pl-4 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
-                    <div className="absolute inset-0 m-auto max-w-xs h-[357px] blur-[118px] sm:max-w-md md:max-w-lg" style={{ background: "linear-gradient(106.89deg, rgba(192, 132, 252, 0.11) 15.73%, rgba(14, 165, 233, 0.41) 15.74%, rgba(232, 121, 249, 0.26) 56.49%, rgba(79, 70, 229, 0.4) 115.91%)" }}></div>
-                </section>
+                    <input
+                        type="text"
+                        placeholder="Search by title, author, or ISBN..."
+                        className="w-full bg-transparent px-4 py-3 text-gray-700 outline-none placeholder:text-gray-400 border-none focus:border-none "
+                    />
+                    <button
+                        className="hidden sm:block px-8 py-3 rounded-xl font-semibold text-white bg-gray-900 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-300"
+                    >
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            {/* Simple Trust Signals */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all">
+                <p className="text-sm font-semibold uppercase tracking-widest text-gray-500">Trusted by students from</p>
+                <div className="flex gap-4 font-bold text-xl text-gray-400 italic">
+                    <span>UNIVERSITY</span>
+                    <span>COLLEGE</span>
+                    <span>ACADEMY</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
             </div>
             <Category />
 
