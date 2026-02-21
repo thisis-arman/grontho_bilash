@@ -9,8 +9,10 @@ import { TUserRoles } from "../modules/user/user.interface";
 import catchAsync from "../utils/catchAsync";
 
 export const Auth = (...requiredRoles: TUserRoles[]) => {
+  console.log('roles__',requiredRoles);
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
+    console.log("token",token)
 
     if (!token) {
       throw new AppError(httpStatus.NOT_FOUND, "token is not found.");

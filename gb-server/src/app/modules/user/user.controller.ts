@@ -24,7 +24,10 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 const getUsers = catchAsync(async (req, res) => {
+  console.log("req______",req.body)
   const result = await userServices.getUsersFromDB();
+
+  console.log("result---",result);
 
   sendResponse(res, {
     success: true,
