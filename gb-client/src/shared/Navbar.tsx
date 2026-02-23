@@ -39,7 +39,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between py-3 md:block">
             <a href="/">
                 <img
-                    src="/src/assets/logo/grontho-bilash-transparent.png"
+                    src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
                     width={30}
                     height={20}
                     alt="Grontho Bilash "
