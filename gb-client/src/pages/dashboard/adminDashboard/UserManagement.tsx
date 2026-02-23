@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { useGetUsersQuery, useUpdateUserInfoMutation } from "../../../redux/features/user/userApi";
+import { useGetUsersQuery } from "../../../redux/features/user/userApi";
 import { useForm } from "react-hook-form"
 import { Modal } from "antd";
 
@@ -45,7 +46,7 @@ const UserManagement = () => {
       };
 
         const { register, handleSubmit, formState: { errors } } = useForm();
-  const onSubmit = data => console.log(data);
+const onSubmit = (data: any  )=> console.log(data);
   console.log(errors);
  
 

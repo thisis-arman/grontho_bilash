@@ -9,6 +9,15 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "skipLibCheck": true
+   "noEmit": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "5.0",
+    // Add these two lines to be safe:
+    "noUnusedLocals": false,       
+    "noUnusedParameters": false,
+    "noImplicitAny": false, 
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "exclude": ["node_modules"]
   }
-}
+

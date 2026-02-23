@@ -19,26 +19,26 @@
 
 
 
-// export type TBook = {
-//     _id: string,
-//     user: string,
-//     bookTitle: string;
-//     price: number;
-//     description: string;
-//     condition: "fresh" | "used";
-//     level: string;
-//     faculty: string;
-//     department: string;
-//     isPublished: boolean;
-//     isContactNoHidden: boolean;
-//     isNegotiable: boolean;
-//     images: string[];
-//     publicationYear: number;
-//     transactionDate?: Date;
-//     location: string;
-//     deliveryOption: "pickup" | "shipping";
-//     shippingCost?: number;
-// };
+export type TBook = {
+    _id: string,
+    user: string,
+    bookTitle: string;
+    price: number;
+    description: string;
+    condition: "fresh" | "used";
+    level: string;
+    faculty: string;
+    department: string;
+    isPublished: boolean;
+    isContactNoHidden: boolean;
+    isNegotiable: boolean;
+    images: string[];
+    publicationYear: number;
+    transactionDate?: Date;
+    location: string;
+    deliveryOption: "pickup" | "shipping";
+    shippingCost?: number;
+};
 // const Products = () => {
 //     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 

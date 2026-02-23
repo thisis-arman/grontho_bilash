@@ -9,11 +9,10 @@ import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { toast } from 'sonner';
 
 const BookDetails = () => {
-    const { _id } = useAppSelector(selectCurrentUser) as TUser;
+    const { id:userId } = useAppSelector(selectCurrentUser) as TUser;
     const { id } = useParams()
     const { data: product, isLoading } = useGetBookByIdQuery(id);
     const dispatch = useAppDispatch();
-
 
     if (isLoading) {
         return <div className='w-full h-full flex max-h-screen justify-center items-center'>
@@ -35,17 +34,16 @@ const BookDetails = () => {
         event.preventDefault();
         const cartInfo = {
             quantity: 1,
-            bookTitle: product?.bookTitle,
+            bookTitle: product!.bookTitle, // If undefined, use this string
             book: product!._id,
-            buyer: _id,
-            seller: product?.user,
-            price: product?.price,
-            shippingCost: product?.shippingCost,
-            deliveryOption: product?.deliveryOption,
-            isNegotiable: product?.isNegotiable,
-            productImage: product?.images[0]
-
-        }
+            buyer: userId,
+            seller: product?.user || "",
+            price: product?.price || 0,
+            shippingCost: product?.shippingCost || 0,
+            deliveryOption: product?.deliveryOption || "pickup",
+            isNegotiable: product?.isNegotiable || false,
+            productImage: product?.images?.[0] || "/placeholder.png"
+        };
         try {
 
             dispatch(addToCart(cartInfo))

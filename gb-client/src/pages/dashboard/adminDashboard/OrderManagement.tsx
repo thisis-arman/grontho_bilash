@@ -1,10 +1,11 @@
-import React from 'react';
+// import React from 'react';
 import { useGetOrdersQuery } from '../../../redux/features/order/orderApi';
-import { Link } from 'react-router-dom';
+import { TBook } from '../../books/products';
+// import { Link } from 'react-router-dom';
 
 type TOrder= {
     orderId: string;
-    book: string;
+    book: TBook;
     buyer: string;
     seller: string;
     orderDate: string;
@@ -65,9 +66,9 @@ const OrderManagement = () => {
                                         data?.data?.map((item: TOrder, idx: number) => (
                                             <tr key={idx}>
                                                 <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
-                                                    <img src={item?._id} className="w-10 h-10 rounded-full" />
+                                                    <img src={item?.orderId} className="w-10 h-10 rounded-full" />
                                                     <div>
-                                                        <span className="block text-gray-700 text-sm font-medium">{item?.book?.bookTitle}</span>
+                                                        <span className="block text-gray-700 text-sm font-medium">{item?.book.bookTitle ||'Book title not found- check query' }</span>
                                                         {/* <span className="block text-gray-700 text-xs">{item.email}</span> */}
                                                     </div>
                                                 </td>

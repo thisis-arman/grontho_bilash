@@ -1,4 +1,4 @@
-import React, { FormEvent, FormHTMLAttributes, useEffect, useState } from 'react';
+import  { FormEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { PhotoIcon } from '@heroicons/react/24/solid'
@@ -151,7 +151,6 @@ const AddProduct = () => {
         fetchData();
     }, []);
 
-    // Update filtered districts when a division is selected
     useEffect(() => {
         if (selectedDivision) {
             setFilteredDistricts(districts.filter(d => d.division_id === selectedDivision.id));

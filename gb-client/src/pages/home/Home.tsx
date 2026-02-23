@@ -52,10 +52,10 @@ const Home = () => {
                     <input
                         type="text"
                         placeholder="Search by title, author, or ISBN..."
-                        className="w-full bg-transparent px-4 py-3 text-gray-700 outline-none placeholder:text-gray-400 border-none focus:border-none "
+                        className="w-full bg-transparent px-4 py-3 text-gray-800 outline-none placeholder:text-gray-400 border-none focus:border-none "
                     />
                     <button
-                        className="hidden sm:block px-8 py-3 rounded-xl font-semibold text-white bg-gray-900 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-300"
+                        className=" sm:block px-8 py-3 rounded-xl font-semibold text-black bg-yellow-500 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-300"
                     >
                         Search
                     </button>

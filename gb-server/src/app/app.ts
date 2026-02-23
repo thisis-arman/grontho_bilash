@@ -11,22 +11,31 @@ const app: Application = express();
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  // "https://your-production-domain.com", // Add your Vercel URL here later
+];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (like Postman or server-to-server)
+      // 1. Allow server-to-server or Postman (where origin is undefined)
       if (!origin) return callback(null, true);
 
+      // 2. Check if the origin is in our whitelist
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS policy: Origin ${origin} not allowed`));
+        // Log for debugging so you can see which origin failed in production
+        console.error(`Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // allow cookies/authorization headers
-  })
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  }),
 );
 
 // Handle OPTIONS preflight requests for all routes
