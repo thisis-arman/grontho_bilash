@@ -27,7 +27,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     }
 
     console.log("decoded => ", decoded);
-    const { email, role, iat, exp } = decoded;
+    const { email, role, iat, exp } = decoded as JwtPayload;
     const user = await User.isUserExistsByEmail(email);
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
