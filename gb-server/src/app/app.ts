@@ -14,7 +14,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  // "https://your-production-domain.com", // Add your Vercel URL here later
+  "https://gronthobilash.vercel.app", // Add your Vercel URL here later
 ];
 
 app.use(
