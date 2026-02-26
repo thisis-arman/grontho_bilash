@@ -7,18 +7,15 @@ const ShoppingCart = () => {
     const dispatch = useDispatch();
 
     console.log({ cartItems });
-    // Function to handle quantity change
     const handleQuantityChange = (productId: string, newQuantity: number) => {
-        if (newQuantity < 1) return; // Prevent quantity from going below 1
+        if (newQuantity < 1) return;
         dispatch(updateQuantity({ productId, quantity: newQuantity }));
     };
 
-    // Function to remove a product
     const handleRemoveProduct = (productId: string) => {
         dispatch(removeFromCart(productId));
     };
 
-    // Calculate subtotal
     const subtotal = cartItems.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (

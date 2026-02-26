@@ -38,6 +38,7 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
                 mode="inline"
                 defaultSelectedKeys={['1']}
                 items={sidebarItems}
+                
             />
         </Sider>
     );

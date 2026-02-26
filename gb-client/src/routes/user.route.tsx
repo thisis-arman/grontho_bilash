@@ -1,3 +1,4 @@
+import { Book, LayoutDashboard, PlusSquare } from "lucide-react";
 import AddProduct from "../pages/dashboard/userDashboard/AddProduct";
 import History from "../pages/dashboard/userDashboard/History";
 import MyOrders from "../pages/dashboard/userDashboard/MyOrders";
@@ -12,16 +13,19 @@ export const userPaths = [
     {
         name: "Dashboard",
         path: "dashboard",
+        icon:<LayoutDashboard/>,
         element: <UserDashboard />,
     },
     {
         name: "Add Product",
         path: "add-product",
+        icon:<PlusSquare/>,
         element: <AddProduct />,
     },
     {
         name: "My Products",
         path: "my-Products",
+        icon:<Book/>,
         element: <MyProducts />,
     },
     {

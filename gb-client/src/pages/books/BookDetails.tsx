@@ -1,5 +1,4 @@
 'use client'
-// import { StarIcon } from '@heroicons/react/20/solid'
 import { useParams } from 'react-router-dom';
 import { useGetBookByIdQuery } from '../../redux/features/book/bookApi';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -7,283 +6,164 @@ import { addToCart } from '../../redux/features/cart/cartSlice';
 import bookLoading from "../../assets/book-loading.gif";
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { toast } from 'sonner';
+import { ShoppingBag, MapPin, Calendar, BookOpen, CheckCircle, Truck } from 'lucide-react'; // Suggested icons
 
 const BookDetails = () => {
-    const { id:userId } = useAppSelector(selectCurrentUser) as TUser;
+    const { id: userId } = useAppSelector(selectCurrentUser) as TUser;
     const { id } = useParams()
     const { data: product, isLoading } = useGetBookByIdQuery(id);
     const dispatch = useAppDispatch();
 
     if (isLoading) {
-        return <div className='w-full h-full flex max-h-screen justify-center items-center'>
-            <img className='h-screen ' src={bookLoading} alt="" />
-        </div>
+        return (
+            <div className='w-full h-screen flex justify-center items-center bg-gray-50'>
+                <img className='h-32 w-auto' src={bookLoading} alt="Loading..." />
+            </div>
+        )
     }
-
-
-    // console.log({product});
-
-
-    // const reviews = { href: '#', average: 4, totalCount: 117 }
-    // function classNames(...classes) {
-    //     return classes.filter(Boolean).join(' ')
-    // }
-
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         const cartInfo = {
             quantity: 1,
-            bookTitle: product!.bookTitle, // If undefined, use this string
+            bookTitle: product?.bookTitle || "Unknown Book",
             book: product!._id,
             buyer: userId,
             seller: product?.user || "",
             price: product?.price || 0,
             shippingCost: product?.shippingCost || 0,
-            deliveryOption: product?.deliveryOption || "pickup",
+            deliveryOption: product?.deliveryOption || "Pickup",
             isNegotiable: product?.isNegotiable || false,
             productImage: product?.images?.[0] || "/placeholder.png"
         };
+
         try {
-
             dispatch(addToCart(cartInfo))
-            toast.success("Added to cart", { duration: 2000 })
+            toast.success("Added to bag successfully!");
         } catch {
-            toast.error("failed", { duration: 2000 })
-
-
+            toast.error("Failed to add to bag");
         }
-
-
     };
 
     return (
-        <div className='px-4'>
-
-            <div className="bg-white">
-                <div className="pt-6">
-                    <nav aria-label="Breadcrumb">
-                        <ol role="list" className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-                            {/* {product?.breadcrumbs.map((breadcrumb) => (
-                                <li key={breadcrumb.id}>
-                                    <div className="flex items-center">
-                                        <a href={breadcrumb.href} className="mr-2 text-sm font-medium text-gray-900">
-                                            {breadcrumb?.name}
-                                        </a>
-                                        <svg
-                                            fill="currentColor"
-                                            width={16}
-                                            height={20}
-                                            viewBox="0 0 16 20"
-                                            aria-hidden="true"
-                                            className="h-5 w-4 text-gray-300"
-                                        >
-                                            <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-                                        </svg>
-                                    </div>
-                                </li>
-                            ))} */}
-                            <li className="text-sm">
-                                <a href={product?._id} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
-                                    {/* {product?.bookTitle} */}
-                                </a>
-                            </li>
-                        </ol>
-                    </nav>
-
-                    {/* Image gallery */}
-                    <div className='grid md:grid-cols-2 grid-cols-1 border m-4'>
-
-                        <div className="mx-auto  mt-6 grid-cols-1  lg:gap-x-8 lg:px-8">
-                            <img
-                                alt={product?.bookTitle}
-                                src={product?.images[0]}
-                                className="hidden aspect-[3/4] rounded-lg object-cover lg:block"
-                            />
-                            {/* <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
+        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 mt-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 ">
+                        
+                        {/* Left: Image Section */}
+                        <div className="p-6 bg-gray-100 flex items-center justify-center">
+                            <div className="relative group w-full max-w-md">
                                 <img
                                     alt={product?.bookTitle}
-                                    src={product?.images[1]}
-                                    className="aspect-[3/2] size-full rounded-lg object-cover"
+                                    src={product?.images?.[0] || "/placeholder.png"}
+                                    className="w-full aspect-[3/4] object-cover rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-[1.02]"
                                 />
-                                <img
-                                    alt={product?.bookTitle}
-                                    src={product?.images[2]}
-                                    className="aspect-[3/2] size-full rounded-lg object-cover"
-                                />
+                                {product?.isNegotiable && (
+                                    <span className="absolute top-4 left-4 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Negotiable
+                                    </span>
+                                )}
                             </div>
-                            <img
-                                alt={product?.bookTitle}
-                                src={product?.images[3]}
-                                className="aspect-[4/5] size-full object-cover sm:rounded-lg lg:aspect-[3/4]"
-                            /> */}
                         </div>
 
-                        {/* Product info */}
-                        <div className="mx-auto grid-cols-1 px-4 pb-16 pt-10 sm:px-6 lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
-                            <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product?.bookTitle}</h1>
+                        {/* Right: Info Section */}
+                        <div className="p-8 md:p-12 flex flex-col">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                        {product?.condition}
+                                    </span>
+                                    <span className="text-gray-400 text-sm">ID: {product?._id}</span>
+                                </div>
+
+                                <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-2">
+                                    {product?.bookTitle}
+                                </h1>
+                                
+                                <div className="flex items-baseline gap-4 mb-6">
+                                    <span className="text-4xl font-light text-gray-900">${product?.price}</span>
+                                    {product?.shippingCost === 0 ? (
+                                        <span className="text-green-600 text-sm font-medium">Free Shipping</span>
+                                    ) : (
+                                        <span className="text-gray-500 text-sm">+ ${product?.shippingCost} Shipping</span>
+                                    )}
+                                </div>
+
+                                <hr className="my-6 border-gray-100" />
+
+                                {/* Book Specs Grid */}
+                                <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-8">
+                                    <div className="flex items-center gap-3">
+                                        <Calendar className="w-5 h-5 text-gray-400" />
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase">Published</p>
+                                            <p className="text-sm font-medium text-gray-900">{product?.publicationYear}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <MapPin className="w-5 h-5 text-gray-400" />
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase">Location</p>
+                                            <p className="text-sm font-medium text-gray-900">{product?.location}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Truck className="w-5 h-5 text-gray-400" />
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase">Delivery</p>
+                                            <p className="text-sm font-medium text-gray-900">{product?.deliveryOption}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <BookOpen className="w-5 h-5 text-gray-400" />
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase">Condition</p>
+                                            <p className="text-sm font-medium text-gray-900">{product?.condition}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-3">Description</h3>
+                                    <p className="text-gray-600 leading-relaxed text-sm">
+                                        {product?.description}
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Options */}
-                            <div className="mt-4 lg:row-span-3 lg:mt-0">
-                                <h2 className="sr-only">Product information</h2>
-                                <p className="text-3xl tracking-tight text-gray-900">{product?.price}</p>
-
-                                {/* Reviews */}
-                                {/* <div className="mt-6">
-                                    <h3 className="sr-only">Reviews</h3>
-                                    <div className="flex items-center">
-                                        <div className="flex items-center">
-                                            {[0, 1, 2, 3, 4].map((rating) => (
-                                                <StarIcon
-                                                    key={rating}
-                                                    aria-hidden="true"
-                                                    className={classNames(
-                                                        reviews.average > rating ? 'text-gray-900' : 'text-gray-200',
-                                                        'size-5 shrink-0',
-                                                    )}
-                                                />
-                                            ))}
-                                        </div>
-                                        <p className="sr-only">{reviews?.average} out of 5 stars</p>
-                                        <a href={reviews.href} className="ml-3 text-sm font-medium text-yellow-600 hover:text-yellow-500">
-                                            {reviews?.totalCount} reviews
-                                        </a>
-                                    </div>
-                                </div> */}
-
-                                <form className="mt-10">
-                                    {/* Colors */}
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-900">Color</h3>
-
-                                        <fieldset aria-label="Choose a color" className="mt-4">
-                                            {/* <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center space-x-3">
-                                            {product?.colors.map((color) => (
-                                                <Radio
-                                                    key={color.name}
-                                                    value={color}
-                                                    aria-label={color.name}
-                                                    className={classNames(
-                                                        color.selectedClass,
-                                                        'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1',
-                                                    )}
-                                                >
-                                                    <span
-                                                        aria-hidden="true"
-                                                        className={classNames(color.class, 'size-8 rounded-full border border-black/10')}
-                                                    />
-                                                </Radio>
-                                            ))}
-                                        </RadioGroup> */}
-                                        </fieldset>
-                                    </div>
-
-                                    {/* Sizes */}
-                                    <div className="mt-10">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                                            <a href="#" className="text-sm font-medium text-yellow-600 hover:text-yellow-500">
-                                                Size guide
-                                            </a>
-                                        </div>
-
-                                        <fieldset aria-label="Choose a size" className="mt-4">
-                                            {/* <RadioGroup
-                                            value={selectedSize}
-                                            onChange={setSelectedSize}
-                                            className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
-                                        >
-                                            {product.sizes.map((size) => (
-                                                <Radio
-                                                    key={size.name}
-                                                    value={size}
-                                                    disabled={!size.inStock}
-                                                    className={classNames(
-                                                        size.inStock
-                                                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
-                                                            : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                                                        'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-yellow-500 sm:flex-1 sm:py-6',
-                                                    )}
-                                                >
-                                                    <span>{size.name}</span>
-                                                    {size.inStock ? (
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-yellow-500"
-                                                        />
-                                                    ) : (
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
-                                                        >
-                                                            <svg
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 100 100"
-                                                                preserveAspectRatio="none"
-                                                                className="absolute inset-0 size-full stroke-2 text-gray-200"
-                                                            >
-                                                                <line x1={0} x2={100} y1={100} y2={0} vectorEffect="non-scaling-stroke" />
-                                                            </svg>
-                                                        </span>
-                                                    )}
-                                                </Radio>
-                                            ))}
-                                        </RadioGroup> */}
-                                        </fieldset>
-                                    </div>
-
-                                    <button onClick={(e) => handleSubmit(e)}
-                                        type="submit"
-                                        className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-yellow-600 px-8 py-3 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none"
-                                    >
-                                        Add to bag
-                                    </button>
-                                </form>
-                            </div>
+                            {/* Action Button */}
+                            <button
+                                onClick={handleSubmit}
+                                className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-yellow-600 transition-colors duration-200"
+                            >
+                                <ShoppingBag className="w-5 h-5" />
+                                Add to Bag
+                            </button>
                         </div>
                     </div>
+                </div>
 
-
-
-                    <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16  md:px-8 lg:pr-8 lg:pt-6">
-                        {/* Description and details */}
-                        <div>
-                            <h3 className="sr-only">Description</h3>
-
-                            <div className="space-y-6">
-                                <p className="text-base text-gray-900">{product?.description}</p>
-                            </div>
+                {/* Bottom Details Section */}
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="md:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">Seller Notes</h2>
+                        <div className="prose prose-yellow text-gray-600">
+                           <p>This book is currently {product?.isPublished ? 'available' : 'on hold'}. 
+                           Contact information is {product?.isContactNoHidden ? 'private' : 'visible upon purchase'}.</p>
                         </div>
-
-                        <div className="mt-10">
-                            <h3 className="text-sm font-medium text-gray-900">Highlights</h3>
-
-                            {/* <div className="mt-4">
-                                    <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                                        {product.highlights.map((highlight) => (
-                                            <li key={highlight} className="text-gray-400">
-                                                <span className="text-gray-600">{highlight}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div> */}
-                        </div>
-
-                        <div className="mt-10">
-                            <h2 className="text-sm font-medium text-gray-900">Details</h2>
-
-                            <div className="mt-4 space-y-6">
-                                <p className="text-sm text-gray-600">{product?.description}</p>
-                            </div>
-                        </div>
+                    </div>
+                    <div className="bg-yellow-50 p-8 rounded-2xl border border-yellow-100">
+                        <h2 className="text-xl font-bold text-yellow-900 mb-4">Safety Tips</h2>
+                        <ul className="space-y-3 text-sm text-yellow-800">
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 shrink-0" /> Inspect book condition on delivery.</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 shrink-0" /> Always communicate via the platform.</li>
+                            <li className="flex gap-2"><CheckCircle className="w-4 h-4 shrink-0" /> Check publication year matches your curriculum.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-
-
     );
 };
 
