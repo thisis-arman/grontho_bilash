@@ -7,34 +7,40 @@ import { TOrder } from "./order.interface";
 import { orderValidations } from "./order.validation";
 import { User } from "../user/user.model";
 
-const generateOrderId = async (): Promise<string> => {
-  const lastOrder = await OrderModel.findOne()
-    .sort({ orderId: -1 })
-    .select("orderId");
+const generateOrderId = async () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  
+  // Get the count of orders today to increment
+  const orderCount = await OrderModel.countDocuments({
+    createdAt: { 
+      $gte: new Date(date.setHours(0,0,0,0)), 
+      $lte: new Date(date.setHours(23,59,59,999)) 
+    }
+  });
 
-  if (lastOrder && lastOrder.orderId) {
-    const lastOrderNumber = parseInt(lastOrder.orderId, 10);
-    return (lastOrderNumber + 1).toString();
-  }
-  return "1001";
+  const sequence = String(orderCount + 1).padStart(4, '0');
+  return `ORD${year}${month}${sequence}`; 
+  // Result: ORD-202602-0001
 };
 
-const createOrder = async (orderData: TOrder) => {
-  const orderId = await generateOrderId();
+const createOrder = async (orderData: Partial<TOrder>) => {
+  console.log({orderData});
+  const generatedOrderId = await generateOrderId();
+  console.log(generatedOrderId);
+  const payload = { 
+    ...orderData, 
+    orderId:generatedOrderId,
+    transactionId: orderData.paymentMethod === 'bkash' ? orderData.transactionId : 'N/A'
+  };
+  console.log({payload});
+  const validatedOrder = orderValidations.createOrderSchema.parse(payload);
+  const newOrder = await OrderModel.create(validatedOrder);
+  
+  // Optional: You could trigger a notification here (SMS/Email) 
+  // alerting you that a new bKash order needs verification.
 
-  const data = { ...orderData, orderId };
-  console.log({ data });
-
-  // // Validate order data using Zod
-  // const validatedOrder = orderValidations.createOrderSchema.parse({
-  //   ...orderData,
-  //   orderId,
-  // });
-
-  // console.log("validatedOrder", { validatedOrder });
-  // Save order in the database
-  const newOrder = await OrderModel.create(data);
-  console.log({ newOrder });
   return newOrder;
 };
 

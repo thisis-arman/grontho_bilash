@@ -23,7 +23,7 @@ const PaymentMain = () => {
       });
   }, []);
 
-  if (!clientSecret) return <p>Loading payment...</p>;
+  if (!clientSecret) return <p className="h-screen ">Loading payment...</p>;
 
   return (
    <Elements stripe={stripePromise} options={{

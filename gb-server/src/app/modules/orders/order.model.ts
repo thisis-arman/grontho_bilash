@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 import { TOrder } from "./order.interface";
 
 const orderSchema = new Schema<TOrder>(
@@ -12,12 +12,9 @@ const orderSchema = new Schema<TOrder>(
       {
         book: { type: Schema.Types.ObjectId, ref: "Book", required: true },
         bookTitle: { type: String, required: true },
-        deliveryOption: { type: String, required: true },
-        isNegotiable: { type: Boolean, required: true },
         productImage: { type: String, required: true },
         seller: { type: Schema.Types.ObjectId, ref: "User", required: true },
         price: { type: Number, required: true },
-        shippingCost: { type: Number },
         quantity: { type: Number, required: true, default: 1 },
       },
     ],
@@ -30,9 +27,9 @@ const orderSchema = new Schema<TOrder>(
       type: String,
       required: true,
     },
-    orderDate: {
-      type: Schema.Types.Date,
-      default: Date.now,
+    email: { // Added email for order notifications
+      type: String,
+      required: true,
     },
     totalAmount: {
       type: Number,
@@ -40,29 +37,35 @@ const orderSchema = new Schema<TOrder>(
     },
     shippingCost: {
       type: Number,
+      required: true,
     },
-    deliveryOption: {
+    shippingArea: { // Added to distinguish 70tk vs 130tk
       type: String,
-      enum: ["pickup", "shipping"],
+      enum: ["inside", "outside"],
       required: true,
     },
     deliveryAddress: {
       type: String,
       required: true,
     },
+    paymentMethod: { // Added: cod or bkash
+      type: String,
+      enum: ["cod", "bkash"],
+      required: true,
+    },
+    transactionId: { // Required if paymentMethod is bkash
+      type: String,
+      default: "N/A", 
+    },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "cancelled"],
-      default: "pending",
+      enum: ["pending", "paid", "partially-paid", "failed"],
+      default: "pending", // "partially-paid" can represent upfront shipping paid
     },
     orderStatus: {
       type: String,
       enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
       default: "pending",
-    },
-    transactionDate: {
-      type: Date,
-      default: Date.now,
     },
     comment: {
       type: String,
@@ -73,10 +76,7 @@ const orderSchema = new Schema<TOrder>(
     },
   },
   {
-    timestamps: {
-      createdAt: true,
-      updatedAt: true,
-    },
+    timestamps: true,
   }
 );
 
