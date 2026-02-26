@@ -138,7 +138,7 @@ const BookDetails = () => {
                                 className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-yellow-600 transition-colors duration-200"
                             >
                                 <ShoppingBag className="w-5 h-5" />
-                                Add to Bag
+                                Add to Cart
                             </button>
                         </div>
                     </div>
