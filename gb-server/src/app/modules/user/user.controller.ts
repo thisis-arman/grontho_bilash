@@ -23,6 +23,21 @@ const createUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getMe = catchAsync(async (req, res) => {
+  const email= req.params.email;
+  console.log("req______",req.params.email)
+  const result = await userServices.getLoggedInUserFromDB(email);
+
+  console.log("result---",result);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Get me  retrieved successfully",
+    data: result,
+  });
+});
+
 const getUsers = catchAsync(async (req, res) => {
   console.log("req______",req.body)
   const result = await userServices.getUsersFromDB();
@@ -52,4 +67,5 @@ export const userControllers = {
   createUser,
   getUsers,
   updateUserInfo,
+  getMe
 };

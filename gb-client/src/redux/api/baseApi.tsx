@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
+const productionUrl  ='https://grontho-bilash-server.vercel.app';
 const baseQuery = fetchBaseQuery({
-  baseUrl: "https://grontho-bilash-server.vercel.app/api/v1",
+  baseUrl: `${window.origin=='http://localhost:5173'?'http://localhost:5000':productionUrl}/api/v1`,
   credentials: "include", 
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;

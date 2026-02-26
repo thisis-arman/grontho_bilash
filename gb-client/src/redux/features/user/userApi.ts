@@ -2,6 +2,14 @@ import { baseApi } from "../../api/baseApi";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getMe: builder.query({
+      query: (email) => {
+        return {
+          url: `/users/get-me/${email}`,
+          method: "GET",
+        };
+      },
+    }),
     getUsers: builder.query({
       query: () => {
         return {
@@ -31,4 +39,4 @@ export const userApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useCreateUserMutation,useGetUsersQuery,useUpdateUserInfoMutation} = userApi;
+export const { useCreateUserMutation,useGetUsersQuery,useUpdateUserInfoMutation,useGetMeQuery} = userApi;

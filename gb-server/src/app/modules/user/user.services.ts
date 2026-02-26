@@ -15,6 +15,10 @@ const createUserIntoDB = async (userInfo: TUser) => {
   return user;
 };
 
+const getLoggedInUserFromDB = async (email:string) => {
+  const user = await User.findOne({email});
+  return user;
+};
 const getUsersFromDB = async () => {
   const users = await User.find({ isDeleted: false });
   return users;
@@ -45,4 +49,5 @@ export const userServices = {
   createUserIntoDB,
   getUsersFromDB,
   updateUserInfo,
+  getLoggedInUserFromDB
 };
