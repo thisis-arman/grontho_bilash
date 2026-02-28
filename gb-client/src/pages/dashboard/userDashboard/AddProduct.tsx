@@ -1,7 +1,7 @@
 import  { FormEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { PhotoIcon } from '@heroicons/react/24/solid'
+import { Book, MapPin, GraduationCap, Image as ImageIcon, Settings, CheckCircle2 } from 'lucide-react';
 // import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
 import { useGetCategoriesQuery, } from '../../../redux/features/category/categoryApi';
 import { toast } from 'sonner';
@@ -250,461 +250,219 @@ const AddProduct = () => {
 
 
     return (
-        <div className='p-10'>
-            <form onSubmit={handleAddProduct}>
-                <div className="space-y-12">
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Add Product</h2>
-                        <p className="mt-1 text-sm leading-6 text-gray-600">
-                            This information will be displayed publicly so be careful what you share.
-                        </p>
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-4">
-                                <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Title
-                                </label>
-                                <div className="mt-2">
-                                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-yellow-600 sm:max-w-md">
-
-                                        <input
-                                            id="title"
-                                            name="title"
-                                            type="text"
-                                            placeholder="Keep it short!"
-                                            autoComplete="title"
-                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-span-full">
-                                <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Description
-                                </label>
-                                <div className="mt-2">
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        rows={3}
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                        defaultValue={''}
-                                    />
-                                </div>
-                                <p className="mt-3 text-sm leading-6 text-gray-600">Write description about your product.</p>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="publicationYear" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Publication Year
-                                </label>
-                                <div className="mt-2">
-                                    <select
-                                        id="publicationYear"
-                                        name="publicationYear"
-                                        autoComplete="publicationYear"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        {previousYears.map((year) => (
-                                            <option key={year} value={year}>
-                                                {year}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="sm:col-span-3">
-                                <h2 className="text-gray-800 font-medium">Level</h2>
-                                <ul className="mt-3  flex items-center gap-10">
-                                    <select onChange={(e) => handleLevelChange(e.target.value)}
-                                        id="level"
-                                        name="level"
-                                        autoComplete="level"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option value="" disabled selected>
-                                            Select level
-                                        </option>
-                                        {data?.data?.map((item:TEducationCategory, i: number) => (
-                                            <option key={i} value={item._id}>
-                                                {item.levelName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </ul>
-                            </div>
-                            <div className="sm:col-span-3">
-                                <h2 className="text-gray-800 font-medium">Faculty</h2>
-                                <ul className="mt-3  flex items-center gap-10">
-                                    <select onChange={(e) => handleFacultyChange(e.target.value)}
-                                        id="faculty"
-                                        name="faculty"
-                                        autoComplete="faculty"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option value="" disabled selected>
-                                            Select Faculty
-                                        </option>
-                                        {faculties?.map((item: TFaculty, i: number) => (
-                                            <option key={i} value={item._id}>
-                                                {item.faculty} ({item.facultyShorts})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </ul>
-                            </div>
-                            <div className="sm:col-span-3">
-                                <h2 className="text-gray-800 font-medium">Faculty</h2>
-                                <ul className="mt-3  flex items-center gap-10">
-                                    <select onChange={(e) => handleDepartmentChange(e.target.value)}
-                                        id="department"
-                                        name="department"
-                                        autoComplete="department"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option value="" disabled selected>
-                                            Select Department
-                                        </option>
-                                        {departments?.map((item: TDepartment, i: number) => (
-                                            <option key={i} value={item._id}>
-                                                {item.department} ({item.deptShorts})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </ul>
-                            </div>
-                            <div>
-                                <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Price
-                                </label>
-                                <div className="relative mt-2 rounded-md shadow-sm">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-md">৳</span>
-                                    </div>
-                                    <input
-                                        id="price"
-                                        name="price"
-                                        type="text"
-                                        placeholder="0.00"
-                                        className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
-
-                                </div>
-                            </div>
-                            {/*  */}
-
-                            {/* Condition */}
-                            <div>
-                                <h2 className="text-gray-800 font-medium">Condition</h2>
-                                <ul className="mt-3  flex items-center gap-10">
-                                    <select
-                                        id="condition"
-                                        name="condition"
-                                        autoComplete="condition"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        {condition.map((item, i) => (
-                                            <option key={i} value={item}>
-                                                {item}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </ul>
-                            </div>
-
-                            <div className="col-span-full">
-                                <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Product Images
-                                </label>
-                                <div className="mt-2 flex gap-4 justify-center rounded-lg border border-dashed border-gray-900/25 py-10">
-                                    <div className="grid grid-cols-3 gap-5">
-                                        {/* Show placeholders or uploaded images */}
-                                        {Array.from({ length: 6 }).map((_, index) => (
-                                            <div key={index} className="text-center border p-2  relative">
-                                                {/* Show placeholder if image is not uploaded at this index */}
-                                                {productImages[index] ? (
-                                                    <div className="relative">
-                                                        <img src={productImages[index]} alt="Uploaded" className="h-24 w-auto mx-auto" />
-                                                        {/* Cross button to remove image */}
-                                                        <button
-                                                            onClick={() => handleRemoveImage(index)}
-                                                            className="absolute -top-2 right-0 text-red-500  text-3xl"
-                                                        >
-                                                            &times;
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    // Placeholder
-                                                    <>
-                                                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                                            <label
-                                                                htmlFor={`file-upload-${index}`}
-                                                                className="relative cursor-pointer rounded-md bg-white font-semibold text-yellow-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 focus-within:ring-offset-2 hover:text-yellow-500"
-                                                            >
-                                                                <span>Upload a file</span>
-                                                                <input
-                                                                    id={`file-upload-${index}`}
-                                                                    name="file-upload"
-                                                                    type="file"
-                                                                    onChange={handleFileUpload}
-                                                                    className="sr-only"
-                                                                />
-                                                            </label>
-                                                            <p className="pl-1">or drag and drop</p>
-                                                        </div>
-                                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                                    </>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base font-semibold leading-7 text-gray-900">Address</h2>
-
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="col-span-full">
-                                <label htmlFor="Village" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Village
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="village"
-                                        name="village"
-                                        type="text"
-                                        autoComplete="village"
-
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="division" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Division
-                                </label>
-                                <div className="mt-2">
-                                    <select
-                                        id="division"
-                                        required
-                                        name='division'
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                        value={selectedDivision?.id || ""}
-                                        onChange={(e) => {
-                                            const division = divisions.find(d => d.id === e.target.value);
-                                            setSelectedDivision(division);
-                                        }}
-                                    >
-                                        <option value="" disabled>Select Division</option>
-                                        {divisions.map((division) => (
-                                            <option key={division.id} value={division.id}>{division.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                                    District
-                                </label>
-                                <div className="mt-2">
-                                    <select
-                                        id="district"
-                                        required
-                                        name='district'
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                        value={selectedDistrict?.id || ""}
-                                        onChange={(e) => {
-                                            const district = filteredDistricts.find(d => d.id === e.target.value);
-                                            setSelectedDistrict(district);
-                                        }}
-                                        disabled={!selectedDivision}
-                                    >
-                                        <option value="" disabled>Select District</option>
-                                        {filteredDistricts.map((district) => (
-                                            <option key={district.id} value={district.id}>{district.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="region" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Upazila
-                                </label>
-                                <div className="mt-2">
-
-                                    <select
-                                        id="upazila"
-                                        required
-                                        name='upazila'
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                        value={selectedUpazila?.id || ""}
-                                        onChange={(e) => {
-                                            const upazila = filteredUpazilas.find(u => u.id === e.target.value);
-                                            setSelectedUpazila(upazila);
-                                        }}
-                                        disabled={!selectedDistrict}
-                                    >
-                                        <option value="" disabled>Select Upazila</option>
-                                        {filteredUpazilas.map((upazila) => (
-                                            <option key={upazila.id} value={upazila.id}>{upazila.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="postal-code" className="block text-sm font-medium leading-6 text-gray-900">
-                                    ZIP / Postal code
-                                </label>
-                                <div className="mt-2">
-                                    <select
-                                        id="postcode"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-yellow-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                        value={selectedUpazila?.id || ""}
-                                        disabled={!selectedUpazila}
-                                    >
-                                        <option value="" disabled>Select Postcode</option>
-                                        {filteredPostcodes.map((postcode) => (
-                                            <option key={postcode.postCode} value={postcode.postCode}>
-                                                {postcode.postCode} - {postcode.postOffice}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-gray-800 font-medium">Delivery Option</h2>
-                        <ul className="mt-3  flex items-center gap-10">
-                            {deliveryOptions.map((item, idx) => (
-                                <li key={idx} className="flex items-center gap-x-2.5">
-                                    <input
-                                        required
-                                        type="radio"
-                                        name="deliveryOption"
-                                        id={`option-${idx}`}
-                                        value={item} // Set value to distinguish options
-                                        checked={selectedDeliveryOption === item} // Check if the option is selected
-                                        onChange={(e) => setSelectedDeliveryOption(e.target.value)} // Update state when selected
-                                        className="form-radio border-gray-400 text-yellow-600 focus:ring-yellow-600 duration-150"
-                                    />
-                                    <label htmlFor={`option-${idx}`} className="text-sm text-gray-700 font-medium">
-                                        {item}
-                                    </label>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-
-
-                        <div className="mt-10 space-y-10">
-                            <fieldset>
-                                <div className="mt-6 space-y-6">
-                                    <div className="relative flex gap-x-3">
-                                        <div className="flex h-6 items-center">
-                                            <input
-                                                id="isContactNoHidden"
-                                                name="isContactNoHidden"
-                                                type="checkbox"
-                                                className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                            />
-                                        </div>
-                                        <div className="text-sm leading-6">
-                                            <label htmlFor="comments" className="font-medium text-gray-900">
-                                                Do you want to show your contact number?
-                                            </label>
-                                            {/* <p className="text-gray-500">Get notified when someones posts a comment on a posting.</p> */}
-                                        </div>
-                                    </div>
-                                    <div className="relative flex gap-x-3">
-                                        <div className="flex h-6 items-center">
-                                            <input
-                                                id="isNegotiable"
-                                                name="isNegotiable"
-                                                type="checkbox"
-                                                className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                            />
-                                        </div>
-                                        <div className="text-sm leading-6">
-                                            <label htmlFor="candidates" className="font-medium text-gray-900">
-                                                Negotiable
-                                            </label>
-                                            <p className="text-gray-500">If your price is negotiable then check the box.</p>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </fieldset>
-                            {/* <fieldset>
-                                <legend className="text-sm font-semibold leading-6 text-gray-900">Push Notifications</legend>
-                                <p className="mt-1 text-sm leading-6 text-gray-600">These are delivered via SMS to your mobile phone.</p>
-                                <div className="mt-6 space-y-6">
-                                    <div className="flex items-center gap-x-3">
-                                        <input
-                                            id="push-everything"
-                                            name="push-notifications"
-                                            type="radio"
-                                            className="h-4 w-4 border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                        />
-                                        <label htmlFor="push-everything" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Everything
-                                        </label>
-                                    </div>
-                                    <div className="flex items-center gap-x-3">
-                                        <input
-                                            id="push-email"
-                                            name="push-notifications"
-                                            type="radio"
-                                            className="h-4 w-4 border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                        />
-                                        <label htmlFor="push-email" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Same as email
-                                        </label>
-                                    </div>
-                                    <div className="flex items-center gap-x-3">
-                                        <input
-                                            id="push-nothing"
-                                            name="push-notifications"
-                                            type="radio"
-                                            className="h-4 w-4 border-gray-300 text-yellow-600 focus:ring-yellow-600"
-                                        />
-                                        <label htmlFor="push-nothing" className="block text-sm font-medium leading-6 text-gray-900">
-                                            No push notifications
-                                        </label>
-                                    </div>
-                                </div>
-                            </fieldset> */}
-                        </div>
-                    </div>
+        <div className="min-h-screen bg-gray-50/50 py-10 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Add New Product</h1>
+                    <p className="mt-2 text-sm text-gray-500">
+                        Fill out the details below to list your book. Accurate details help buyers find what they need.
+                    </p>
                 </div>
 
-                <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600"
-                    >
-                        Save
-                    </button>
-                </div>
-            </form>
+                <form onSubmit={handleAddProduct} className="space-y-8">
+                    
+                    {/* Basic Information */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <Book className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-500">*</span></label>
+                                <input required id="title" name="title" type="text" placeholder="e.g. Fundamentals of Physics" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="description" name="description" rows={3} placeholder="Describe the condition, edition, and any other relevant details..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Price (৳) <span className="text-red-500">*</span></label>
+                                <div className="relative rounded-md shadow-sm">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span className="text-gray-500 sm:text-sm">৳</span>
+                                    </div>
+                                    <input required id="price" name="price" type="number" step="0.01" min="0" placeholder="0.00" className="w-full pl-7 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Publication Year</label>
+                                <select id="publicationYear" name="publicationYear" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    {previousYears.map((year) => (<option key={year} value={year}>{year}</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Condition <span className="text-red-500">*</span></label>
+                                <select required id="condition" name="condition" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    {condition.map((item, i) => (<option key={i} value={item}>{item}</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Option <span className="text-red-500">*</span></label>
+                                <div className="flex gap-4 mt-2">
+                                    {deliveryOptions.map((item, idx) => (
+                                        <label key={idx} className="flex items-center gap-2 cursor-pointer">
+                                            <input required type="radio" name="deliveryOption" value={item} checked={selectedDeliveryOption === item} onChange={(e) => setSelectedDeliveryOption(e.target.value)} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" />
+                                            <span className="text-sm text-gray-700">{item}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    {/* Academic Details */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <GraduationCap className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-semibold text-gray-900">Academic Target</h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Level <span className="text-red-500">*</span></label>
+                                <select required onChange={(e) => handleLevelChange(e.target.value)} defaultValue="" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Select Level</option>
+                                    {data?.data?.map((item: TEducationCategory, i: number) => (
+                                        <option key={i} value={item._id}>{item.levelName}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Faculty</label>
+                                <select onChange={(e) => handleFacultyChange(e.target.value)} defaultValue="" disabled={!faculties?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                    <option value="" disabled>Select Faculty</option>
+                                    {faculties?.map((item: TFaculty, i: number) => (
+                                        <option key={i} value={item._id}>{item.faculty} ({item.facultyShorts})</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                <select onChange={(e) => handleDepartmentChange(e.target.value)} defaultValue="" disabled={!departments?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                    <option value="" disabled>Select Department</option>
+                                    {departments?.map((item: TDepartment, i: number) => (
+                                        <option key={i} value={item._id}>{item.department} ({item.deptShorts})</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Location Details */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <MapPin className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-semibold text-gray-900">Location Details</h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Division <span className="text-red-500">*</span></label>
+                                <select required name="division" value={selectedDivision?.id || ""} onChange={(e) => setSelectedDivision(divisions.find(d => d.id === e.target.value))} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Select Division</option>
+                                    {divisions.map((d: any) => (<option key={d.id} value={d.id}>{d.name}</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-500">*</span></label>
+                                <select required name="district" value={selectedDistrict?.id || ""} onChange={(e) => setSelectedDistrict(filteredDistricts.find(d => d.id === e.target.value))} disabled={!selectedDivision} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                    <option value="" disabled>Select District</option>
+                                    {filteredDistricts.map((d: any) => (<option key={d.id} value={d.id}>{d.name}</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Upazila <span className="text-red-500">*</span></label>
+                                <select required name="upazila" value={selectedUpazila?.id || ""} onChange={(e) => setSelectedUpazila(filteredUpazilas.find(u => u.id === e.target.value))} disabled={!selectedDistrict} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                    <option value="" disabled>Select Upazila</option>
+                                    {filteredUpazilas.map((u: any) => (<option key={u.id} value={u.id}>{u.name}</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <select disabled={!selectedUpazila} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                    <option value="" disabled>Select Postal Code</option>
+                                    {filteredPostcodes.map((p: any) => (<option key={p.postCode} value={p.postCode}>{p.postCode} - {p.postOffice}</option>))}
+                                </select>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Village / Street Address <span className="text-red-500">*</span></label>
+                                <input required id="village" name="village" type="text" placeholder="House/Road no., Village name..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Media Upload */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <ImageIcon className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
+                        </div>
+                        <div className="p-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                                {Array.from({ length: 6 }).map((_, index) => (
+                                    <div key={index} className="aspect-square relative flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors overflow-hidden group">
+                                        {productImages[index] ? (
+                                            <>
+                                                <img src={productImages[index]} alt={`Upload ${index}`} className="w-full h-full object-cover" />
+                                                <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 text-center">
+                                                <ImageIcon className="w-6 h-6 text-gray-400 mb-2" />
+                                                <span className="text-xs font-medium text-gray-500">Upload</span>
+                                                <input type="file" onChange={handleFileUpload} className="hidden" accept="image/*" />
+                                            </label>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-4 text-center">Supported formats: JPG, PNG. Max size: 5MB per image. First image will be the cover photo.</p>
+                        </div>
+                    </div>
+
+                    {/* Preferences */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <Settings className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center h-5">
+                                    <input id="isNegotiable" name="isNegotiable" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-900">Price is Negotiable</span>
+                                    <span className="text-sm text-gray-500">Allow buyers to negotiate the price with you.</span>
+                                </div>
+                            </label>
+                            
+                            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center h-5">
+                                    <input id="isContactNoHidden" name="isContactNoHidden" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-900">Hide Contact Number</span>
+                                    <span className="text-sm text-gray-500">Hide your phone number from potential buyers by default.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Submit Actions */}
+                    <div className="flex items-center justify-end gap-4 pt-6">
+                        <button type="button" className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </button>
+                        <button type="submit" className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-xl hover:bg-indigo-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4" />
+                            List Product
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
     );
 };

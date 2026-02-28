@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useGetOrderByUserIdQuery } from "../../../redux/features/order/orderApi";
 import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
 import { useAppSelector } from "../../../redux/hooks";
@@ -90,7 +90,7 @@ const MyOrders = () => {
         {
             title: 'Actions',
             key: 'actions',
-            render: (_, record) => (
+            render: () => (
                 <Space size="middle">
                     <Button type="link" className="text-yellow-600 hover:text-yellow-500 p-0 font-medium">Edit</Button>
                     <Button type="link" danger className="p-0 font-medium">Delete</Button>
