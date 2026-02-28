@@ -43,7 +43,7 @@ const UserDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/50  md:p-8">
+        <div className="min-h-screen bg-gray-50/50 ">
             <div className="max-w-7xl mx-auto space-y-8">
                 
                 {/* Header Section */}

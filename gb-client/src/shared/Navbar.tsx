@@ -1,130 +1,197 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logout, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getProductsFromCart } from "../../src/redux/features/cart/cartSlice";
-import { ShoppingCart } from "lucide-react";
-import { Badge } from "antd";
+import { ShoppingCart, Menu, X, LogOut, LogIn } from "lucide-react";
 
 const Navbar = () => {
-
     const user = useAppSelector(selectCurrentUser) as TUser;
     const dispatch = useAppDispatch();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const cartItems = useAppSelector(getProductsFromCart);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
 
-
-    const [state, setState] = useState(false)
-
-    // Replace javascript:void(0) paths with your paths
     const navigation = [
-        { title: "Blogs", path: "/blogs" },
+        { title: "Home", path: "/" },
         { title: "Books", path: "/books" },
-        { title: "Dashboard", path: `/${user?.role}/dashboard` }
-    ]
-
-    useEffect(() => {
-        document.onclick = (e) => {
-            const target = e.target as Element;
-            if (!target.closest(".menu-btn")) setState(false);
-        };
-    }, [])
-
-    const handleLogout = () => {
-
-        dispatch(logout())
-        navigate('/login')
+        // { title: "Blogs", path: "/blogs" },
+    ];
+    
+    // Add dashboard conditionally
+    if (user) {
+        navigation.push({ title: "Dashboard", path: `/${user?.role}/dashboard` });
     }
 
-    const Brand = () => (
-        <div className="flex items-center justify-between py-3 md:block">
-            <a href="/">
-                <img
-                    src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
-                    width={30}
-                    height={20}
-                    alt="Grontho Bilash "
-                    className="object-fill"
-                />
-            </a>
-            <div className="md:hidden">
-                <button className="menu-btn text-gray-400 hover:text-gray-300"
-                    onClick={() => setState(!state)}
-                >
-                    {
-                        state ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                            </svg>
-                        )
-                    }
-                </button>
-            </div>
-        </div>
-    )
+    // Close menu when route changes
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [location.pathname]);
+
+    // Handle scroll effect for navbar
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 10) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/login');
+    };
+
+    const isActive = (path: string) => {
+        if (path === '/' && location.pathname !== '/') return false;
+        return location.pathname.startsWith(path);
+    };
+
     return (
-        <div className=" flex justify-center">
-            <header className="shadow border-gray-500 glass bg-yellow-100  mt-3 fixed w-full max-w-screen-md mx-auto top-0  z-10  rounded-full ">
-                <div className={` md:hidden ${state ? "mx-2 pb-5" : "hidden"}`}>
-                    <Brand />
-                </div>
-                <nav className={` md:text-sm ${state ? "absolute z-20 top-0 inset-x-0 bg-gray-300 rounded-xl mx-2 py-1 md:mx-0 md:mt-0 md:relative  " : ""}`}>
-                    <div className="gap-x-14 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
-                        <Brand />
-                        <div className={`flex-1 items-center mt-8 md:mt-0 md:flex ${state ? 'block' : 'hidden'} `}>
-                            <ul className="flex-1 justify-end items-center space-y-4 md:flex md:space-x-6 md:space-y-0">
-                                {
-                                    navigation.map((item, idx) => {
-                                        return (
-                                            <li key={idx} className="">
-                                                <a href={item.path} className="block">
-                                                    {item.title}
-                                                </a>
-                                            </li>
-                                        )
-                                    })
-                                }
-                                <li>
+        <header 
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+                isScrolled 
+                    ? "bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm py-2" 
+                    : "bg-white/50 backdrop-blur-sm border-b border-transparent py-4"
+            }`}
+        >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center">
+                    {/* Logo */}
+                    <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+                        <img
+                            src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
+                            alt="Grontho Bilash"
+                            className="h-8 w-auto object-contain transition-transform hover:scale-105"
+                        />
+                        <span className="font-bold text-2xl hidden sm:block text-gray-900 tracking-tight">
+                            Grontho<span className="text-yellow-500">Bilash</span>
+                        </span>
+                    </Link>
 
-                                    {user ?
-                                        <div className="flex items-center justify-center space-x-2">
-                                            
-                                         <a href="/cart">
-                                            <Badge color="gold" count={cartItems.length }>
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center gap-8">
+                        {navigation.map((item, idx) => (
+                            <Link 
+                                key={idx} 
+                                to={item.path}
+                                className={`text-sm font-semibold transition-colors duration-200 ${
+                                    isActive(item.path) 
+                                        ? 'text-yellow-600' 
+                                        : 'text-gray-600 hover:text-yellow-500'
+                                }`}
+                            >
+                                {item.title}
+                            </Link>
+                        ))}
+                    </nav>
 
-                                            <ShoppingCart size={26}/>  
-                                            </Badge>
+                    {/* Desktop Actions */}
+                    <div className="hidden md:flex items-center gap-5">
+                        {user && (
+                            <Link to="/cart" className="relative p-2 text-gray-600 hover:text-yellow-500 transition-colors group">
+                                <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                {cartItems.length > 0 && (
+                                    <span className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm border-2 border-white">
+                                        {cartItems.length}
+                                    </span>
+                                )}
+                            </Link>
+                        )}
 
-                                        </a> 
-                                            <a onClick={handleLogout} className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex cursor-pointer">
-                                            Log Out
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                                            </svg>
-
-                                        </a>
-                                        </div>
-                                        :
-                                        <Link to='/login' className="flex items-center justify-center gap-x-1 py-2 px-4 text-gray-900 font-medium bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 duration-150 rounded-full md:inline-flex">
-                                            Login
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                                            </svg>
-                                        </Link>
-                                    }
-                                </li>
-                            </ul>
-                        </div>
+                        {user ? (
+                            <button 
+                                onClick={handleLogout} 
+                                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50 rounded-full hover:bg-gray-100 transition-all border border-gray-200 hover:border-gray-300"
+                            >
+                                <LogOut className="w-4 h-4 text-gray-500" />
+                                <span>Log out</span>
+                            </button>
+                        ) : (
+                            <Link 
+                                to="/login" 
+                                className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-yellow-500 rounded-full hover:bg-yellow-600 transition-all shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] hover:shadow-[0_6px_20px_rgba(234,179,8,0.23)] hover:-translate-y-0.5"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                <span>Sign In</span>
+                            </Link>
+                        )}
                     </div>
-                </nav>
-            </header >
-      </div>
+
+                    {/* Mobile Controls (Menu Toggle & Cart) */}
+                    <div className="flex items-center gap-4 md:hidden">
+                        {user && (
+                            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-yellow-600 transition-colors">
+                                <ShoppingCart className="w-6 h-6" />
+                                {cartItems.length > 0 && (
+                                    <span className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm border-2 border-white">
+                                        {cartItems.length}
+                                    </span>
+                                )}
+                            </Link>
+                        )}
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 -mr-2 text-gray-700 hover:text-yellow-600 hover:bg-yellow-50 rounded-full transition-colors focus:outline-none"
+                            aria-label="Toggle menu"
+                        >
+                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Navigation Menu Dropdown */}
+            <div 
+                className={`md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl transition-all duration-300 ease-in-out origin-top ${
+                    isMenuOpen ? "opacity-100 scale-y-100 visible" : "opacity-0 scale-y-95 invisible pointer-events-none"
+                }`}
+            >
+                <div className="flex flex-col px-4 py-4 space-y-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
+                    {navigation.map((item, idx) => (
+                        <Link 
+                            key={idx} 
+                            to={item.path}
+                            className={`block px-5 py-3.5 rounded-2xl text-base font-semibold transition-all ${
+                                isActive(item.path) 
+                                    ? 'bg-yellow-50 text-yellow-700' 
+                                    : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            {item.title}
+                        </Link>
+                    ))}
+                    
+                    <div className="pt-4 mt-2 border-t border-gray-100">
+                        {user ? (
+                            <button 
+                                onClick={handleLogout} 
+                                className="flex items-center justify-center gap-2 w-full px-5 py-3.5 text-base font-semibold text-red-600 bg-red-50 rounded-2xl hover:bg-red-100 transition-colors"
+                            >
+                                <LogOut className="w-5 h-5" />
+                                <span>Log out</span>
+                            </button>
+                        ) : (
+                            <Link 
+                                to="/login" 
+                                className="flex items-center justify-center gap-2 w-full px-5 py-3.5 text-base font-bold text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600 transition-colors shadow-md"
+                            >
+                                <LogIn className="w-5 h-5" />
+                                <span>Sign In</span>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </header>
     );
 };
 
