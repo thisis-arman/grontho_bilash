@@ -250,7 +250,7 @@ const AddProduct = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50/50 py-10 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50/50 py-10 m-0 sm:px-6 lg:px-4">
             <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Add New Product</h1>
@@ -264,17 +264,17 @@ const AddProduct = () => {
                     {/* Basic Information */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                            <Book className="w-5 h-5 text-indigo-600" />
+                            <Book className="w-5 h-5 text-yellow-600" />
                             <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
                         </div>
                         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-500">*</span></label>
-                                <input required id="title" name="title" type="text" placeholder="e.g. Fundamentals of Physics" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input required id="title" name="title" type="text" placeholder="e.g. Fundamentals of Physics" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500" />
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea id="description" name="description" rows={3} placeholder="Describe the condition, edition, and any other relevant details..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <textarea id="description" name="description" rows={3} placeholder="Describe the condition, edition, and any other relevant details..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Price (৳) <span className="text-red-500">*</span></label>
@@ -282,18 +282,18 @@ const AddProduct = () => {
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <span className="text-gray-500 sm:text-sm">৳</span>
                                     </div>
-                                    <input required id="price" name="price" type="number" step="0.01" min="0" placeholder="0.00" className="w-full pl-7 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                    <input required id="price" name="price" type="number" step="0.01" min="0" placeholder="0.00" className="w-full pl-7 rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Publication Year</label>
-                                <select id="publicationYear" name="publicationYear" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select id="publicationYear" name="publicationYear" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                                     {previousYears.map((year) => (<option key={year} value={year}>{year}</option>))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Condition <span className="text-red-500">*</span></label>
-                                <select required id="condition" name="condition" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select required id="condition" name="condition" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                                     {condition.map((item, i) => (<option key={i} value={item}>{item}</option>))}
                                 </select>
                             </div>
@@ -302,7 +302,7 @@ const AddProduct = () => {
                                 <div className="flex gap-4 mt-2">
                                     {deliveryOptions.map((item, idx) => (
                                         <label key={idx} className="flex items-center gap-2 cursor-pointer">
-                                            <input required type="radio" name="deliveryOption" value={item} checked={selectedDeliveryOption === item} onChange={(e) => setSelectedDeliveryOption(e.target.value)} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" />
+                                            <input required type="radio" name="deliveryOption" value={item} checked={selectedDeliveryOption === item} onChange={(e) => setSelectedDeliveryOption(e.target.value)} className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300" />
                                             <span className="text-sm text-gray-700">{item}</span>
                                         </label>
                                     ))}
@@ -314,13 +314,13 @@ const AddProduct = () => {
                     {/* Academic Details */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                            <GraduationCap className="w-5 h-5 text-indigo-600" />
+                            <GraduationCap className="w-5 h-5 text-yellow-600" />
                             <h2 className="text-lg font-semibold text-gray-900">Academic Target</h2>
                         </div>
                         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Level <span className="text-red-500">*</span></label>
-                                <select required onChange={(e) => handleLevelChange(e.target.value)} defaultValue="" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select required onChange={(e) => handleLevelChange(e.target.value)} defaultValue="" className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                                     <option value="" disabled>Select Level</option>
                                     {data?.data?.map((item: TEducationCategory, i: number) => (
                                         <option key={i} value={item._id}>{item.levelName}</option>
@@ -329,7 +329,7 @@ const AddProduct = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Faculty</label>
-                                <select onChange={(e) => handleFacultyChange(e.target.value)} defaultValue="" disabled={!faculties?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                <select onChange={(e) => handleFacultyChange(e.target.value)} defaultValue="" disabled={!faculties?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-50">
                                     <option value="" disabled>Select Faculty</option>
                                     {faculties?.map((item: TFaculty, i: number) => (
                                         <option key={i} value={item._id}>{item.faculty} ({item.facultyShorts})</option>
@@ -338,7 +338,7 @@ const AddProduct = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                                <select onChange={(e) => handleDepartmentChange(e.target.value)} defaultValue="" disabled={!departments?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                <select onChange={(e) => handleDepartmentChange(e.target.value)} defaultValue="" disabled={!departments?.length} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-50">
                                     <option value="" disabled>Select Department</option>
                                     {departments?.map((item: TDepartment, i: number) => (
                                         <option key={i} value={item._id}>{item.department} ({item.deptShorts})</option>
@@ -351,41 +351,41 @@ const AddProduct = () => {
                     {/* Location Details */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                            <MapPin className="w-5 h-5 text-indigo-600" />
+                            <MapPin className="w-5 h-5 text-yellow-600" />
                             <h2 className="text-lg font-semibold text-gray-900">Location Details</h2>
                         </div>
                         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Division <span className="text-red-500">*</span></label>
-                                <select required name="division" value={selectedDivision?.id || ""} onChange={(e) => setSelectedDivision(divisions.find(d => d.id === e.target.value))} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select required name="division" value={selectedDivision?.id || ""} onChange={(e) => setSelectedDivision(divisions.find(d => d.id === e.target.value))} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                                     <option value="" disabled>Select Division</option>
                                     {divisions.map((d: any) => (<option key={d.id} value={d.id}>{d.name}</option>))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-500">*</span></label>
-                                <select required name="district" value={selectedDistrict?.id || ""} onChange={(e) => setSelectedDistrict(filteredDistricts.find(d => d.id === e.target.value))} disabled={!selectedDivision} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                <select required name="district" value={selectedDistrict?.id || ""} onChange={(e) => setSelectedDistrict(filteredDistricts.find(d => d.id === e.target.value))} disabled={!selectedDivision} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-50">
                                     <option value="" disabled>Select District</option>
                                     {filteredDistricts.map((d: any) => (<option key={d.id} value={d.id}>{d.name}</option>))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Upazila <span className="text-red-500">*</span></label>
-                                <select required name="upazila" value={selectedUpazila?.id || ""} onChange={(e) => setSelectedUpazila(filteredUpazilas.find(u => u.id === e.target.value))} disabled={!selectedDistrict} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                <select required name="upazila" value={selectedUpazila?.id || ""} onChange={(e) => setSelectedUpazila(filteredUpazilas.find(u => u.id === e.target.value))} disabled={!selectedDistrict} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-50">
                                     <option value="" disabled>Select Upazila</option>
                                     {filteredUpazilas.map((u: any) => (<option key={u.id} value={u.id}>{u.name}</option>))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                                <select disabled={!selectedUpazila} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50">
+                                <select disabled={!selectedUpazila} className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-50">
                                     <option value="" disabled>Select Postal Code</option>
                                     {filteredPostcodes.map((p: any) => (<option key={p.postCode} value={p.postCode}>{p.postCode} - {p.postOffice}</option>))}
                                 </select>
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Village / Street Address <span className="text-red-500">*</span></label>
-                                <input required id="village" name="village" type="text" placeholder="House/Road no., Village name..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input required id="village" name="village" type="text" placeholder="House/Road no., Village name..." className="w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500" />
                             </div>
                         </div>
                     </div>
@@ -393,7 +393,7 @@ const AddProduct = () => {
                     {/* Media Upload */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                            <ImageIcon className="w-5 h-5 text-indigo-600" />
+                            <ImageIcon className="w-5 h-5 text-yellow-600" />
                             <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
                         </div>
                         <div className="p-6">
@@ -424,13 +424,13 @@ const AddProduct = () => {
                     {/* Preferences */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-indigo-600" />
+                            <Settings className="w-5 h-5 text-yellow-600" />
                             <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
                         </div>
                         <div className="p-6 space-y-4">
                             <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center h-5">
-                                    <input id="isNegotiable" name="isNegotiable" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                                    <input id="isNegotiable" name="isNegotiable" type="checkbox" className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium text-gray-900">Price is Negotiable</span>
@@ -440,7 +440,7 @@ const AddProduct = () => {
                             
                             <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center h-5">
-                                    <input id="isContactNoHidden" name="isContactNoHidden" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                                    <input id="isContactNoHidden" name="isContactNoHidden" type="checkbox" className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium text-gray-900">Hide Contact Number</span>
@@ -452,12 +452,12 @@ const AddProduct = () => {
 
                     {/* Submit Actions */}
                     <div className="flex items-center justify-end gap-4 pt-6">
-                        <button type="button" className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button type="button" className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
                             Cancel
                         </button>
-                        <button type="submit" className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-xl hover:bg-indigo-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center gap-2">
+                        <button type="submit" className="px-6 py-2.5 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-xl hover:bg-yellow-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4" />
-                            List Product
+                            Submit
                         </button>
                     </div>
 

@@ -29,8 +29,8 @@ const Dashboard = () => {
         </Header>
         <Content className='min-h-screen'
           style={{
-            margin: '24px 16px',
-            padding: 24,
+            // margin: '10px 16px',
+            padding: 12,
             minHeight: 280,
 
           }}
