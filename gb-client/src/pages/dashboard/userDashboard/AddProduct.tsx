@@ -197,7 +197,7 @@ const AddProduct = () => {
         if (!file) return;
         // Create a form data object
         const formData = new FormData();
-        formData.append("image", file); // Change "file" to "image"
+        formData.append("image", file);
         try {
             const response = await axios.post("http://localhost:5000/api/v1/books/upload", formData, {
                 headers: {
