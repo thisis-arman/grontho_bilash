@@ -199,7 +199,7 @@ const AddProduct = () => {
         const formData = new FormData();
         formData.append("image", file); // Change "file" to "image"
         try {
-            const response = await axios.post("https://grontho-bilash-server.vercel.app/api/v1/books/upload", formData, {
+            const response = await axios.post("http://localhost:5000/api/v1/books/upload", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

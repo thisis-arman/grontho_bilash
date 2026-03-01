@@ -1,8 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import multer from "multer";
-
-
+import os from "os";
     // Configuration
     cloudinary.config({
       cloud_name: "dshjcmrd0",
@@ -23,6 +22,11 @@ export const imageUploader = (imageName: string, path: string) => {
           console.log(result?.secure_url);
         resolve(result);
         //delete a file asynchronously
+        fs.unlink(path, (err) => {
+          if (err) {
+            console.error("Error deleting local file after upload:", err);
+          }
+        });
       }
     );
   });
@@ -30,7 +34,7 @@ export const imageUploader = (imageName: string, path: string) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, process.cwd() + "/uploads");
+    cb(null, os.tmpdir());
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
