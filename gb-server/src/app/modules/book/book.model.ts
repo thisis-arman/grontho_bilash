@@ -57,10 +57,10 @@ import { string } from "zod";
       },
       isNegotiable: {
         type: Boolean,
-        default: false, // Default to price not negotiable
+        default: false, 
       },
       images: {
-        type: [String], // An array of image URLs or paths
+        type: [String], 
         default: [], // Default to empty array if no images are provided
       },
       publicationYear: {

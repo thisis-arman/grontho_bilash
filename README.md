@@ -1,5 +1,5 @@
 # Grontho Bilash
-
+![Home page](image.png)
 Grontho Bilash is a platform where students can sell their old books, notes, and guidelines to other students. It facilitates an easy transaction process by charging a small percentage on each transaction, ensuring a seamless experience for both buyers and sellers.
 
 ## Features
