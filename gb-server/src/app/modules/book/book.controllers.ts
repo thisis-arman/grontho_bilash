@@ -2,6 +2,26 @@ import { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { bookServices } from "./book.services";
+import httpStatus from "http-status";
+
+const createProduct = catchAsync(async (req: Request, res: Response) => {
+  // Extract user ID from auth middleware (seller)
+  const user = req.user; 
+  
+  const productData = {
+    ...req.body,
+    seller:'67ec9a1f0dbed76c63bb41f2', // Ensure the logged-in user is the seller
+  };
+
+  const result = await bookServices.createProductIntoDB(productData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Product listed successfully! It is now pending review.",
+    data: result,
+  });
+});
 
 // Controller to list a book
 const listABook = catchAsync(async (req: Request, res: Response) => {
@@ -108,4 +128,5 @@ export const bookController = {
   getBooksByEmail,
   getProductsByCategories,
   searchBooks,
+  createProduct
 };

@@ -5,6 +5,43 @@ import { TBook } from "./book.interface";
 import { BookModel } from "./book.model";
 import { Document } from "mongoose";
 import { ObjectId } from "mongodb";
+import { ProductModel } from "./product.model";
+import slugify from "slugify";
+
+
+const createProductIntoDB = async (payload) => {
+  // 1. Check if the product already exists (by Title or SKU)
+  const isProductExist = await ProductModel.findOne({ title: payload.title });
+  if (isProductExist) {
+    throw new AppError(httpStatus.CONFLICT, "A product with this title already exists!");
+  }
+
+  // 2. Generate SEO-friendly Slug
+  // Example: "Introduction to Algorithms" -> "introduction-to-algorithms-1710245"
+  const baseSlug = slugify(payload.title, { lower: true, strict: true });
+  payload.slug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+
+  // 3. Generate Professional SKU
+  // Example: GB-PHYS-BOOKS-8832
+  const shortType = payload.productType.substring(0, 1).toUpperCase();
+  const shortCat = payload.category.substring(0, 3).toUpperCase();
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+  payload.sku = `GB-${shortType}${shortCat}-${randomNum}`;
+
+  // 4. Data Consistency Logic
+  if (payload.productType === 'Digital') {
+    payload.fulfillmentOptions = {
+      allowPickup: false,
+      allowShipping: false,
+      isDigitalDelivery: true,
+    };
+    payload.condition = "Digital Content";
+  }
+
+  // 5. Create Product
+  const result = await ProductModel.create(payload);
+  return result;
+};
 
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
   console.log(bookInfo);
@@ -99,7 +136,7 @@ const getBooksByEmailFromDB = async (email: string) => {
   }
 
   // Correct the query format here
-  const books = await BookModel.find({ user: user._id });
+  const books = await ProductModel.find({ seller: user._id });
   console.log(books);
 
   return books;
@@ -155,4 +192,5 @@ export const bookServices = {
   getBooksByEmailFromDB,
   getProductsByCategoriesFromDB,
   searchBooksByTitle,
+  createProductIntoDB
 };

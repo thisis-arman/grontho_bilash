@@ -45,10 +45,15 @@ router.post("/upload", upload.single("image"), async (req, res): Promise<void> =
 
 router.patch("/:id", bookController.deleteBook);
 router.post(
+  "/create-product",
+  bookController.createProduct
+);
+router.post(
   "/create-book",
   validateRequest(zodValidationSchema.createBookSchema),
   bookController.listABook
 );
+
 router.get("/book/:id", bookController.getBook);
 router.patch(
   "/:bookId",

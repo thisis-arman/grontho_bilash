@@ -12,6 +12,7 @@ import MyOrders from "../pages/dashboard/userDashboard/MyOrders";
 import MyProducts from "../pages/dashboard/userDashboard/MyProducts";
 import UserDashboard from "../pages/dashboard/userDashboard/UserDashboard";
 import UserProfile from "../pages/dashboard/userDashboard/UserProfile";
+import ListProduct from "../pages/books/ListProduct";
 
 
 export const userPaths = [
@@ -25,7 +26,8 @@ export const userPaths = [
         name: "Add Product",
         path: "add-product",
         icon: <PlusSquare size={18} />,
-        element: <AddProduct />,
+        // element: <AddProduct />,
+        element: <ListProduct />,
     },
     {
         name: "My Products",

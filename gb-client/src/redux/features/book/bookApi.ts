@@ -4,6 +4,13 @@ import { baseApi } from "../../api/baseApi";
 
 export const bookApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    createProduct: builder.mutation({
+      query: (newProduct) => ({
+        url: "/books/create-product",
+        method: "POST",
+        body: newProduct,
+      }),
+    }),
     // Create a new book
     createBook: builder.mutation({
       query: (data) => ({
@@ -76,4 +83,5 @@ export const {
   useUpdateBookMutation,
   useDeleteBookMutation,
   useGetBooksByEmailQuery,
+  useCreateProductMutation
 } = bookApi;
