@@ -8,6 +8,18 @@ import { ObjectId } from "mongodb";
 import { ProductModel } from "./product.model";
 import slugify from "slugify";
 
+interface ProductQuery {
+  page?: string | number;
+  limit?: string | number;
+  productType?: string;
+  category?: string;
+  condition?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  search?: string;
+  minPrice?: string;
+  maxPrice?: string;
+}
 
 const createProductIntoDB = async (payload) => {
   // 1. Check if the product already exists (by Title or SKU)
@@ -83,6 +95,66 @@ const getBookFromDb = async (_id: string): Promise<Document | null> => {
   return book;
 };
 
+const getAllProductsFromDb = async (query: ProductQuery) => {
+  const {
+    page = 1, limit = 12,
+    productType, category, condition,
+    sortBy = "createdAt", sortOrder = "desc",
+    search, minPrice, maxPrice,
+  } = query;
+
+  const filter: Record<string, unknown> = {
+    isDeleted: false,
+    isPublished: true,
+    stockStatus: { $ne: "Out of Stock" },
+  };
+
+  if (productType)  filter.productType = productType;
+  if (category)     filter.category    = category;
+  if (condition)    filter.condition   = condition;
+
+  if (minPrice || maxPrice) {
+    filter["price.basePrice"] = {
+      ...(minPrice ? { $gte: Number(minPrice) } : {}),
+      ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
+    };
+  }
+
+  if (search) {
+    filter.$text = { $search: search };
+  }
+
+  const pageNum  = Number(page);
+  const limitNum = Number(limit);
+  const skip     = (pageNum - 1) * limitNum;
+  const sortDir  = sortOrder === "asc" ? 1 : -1;
+
+  const [data, total] = await Promise.all([
+    ProductModel.find({isPublished:true})
+      .populate("seller", "name email")
+      .sort({ [sortBy]: sortDir })
+      .skip(skip)
+      .limit(limitNum),
+    ProductModel.countDocuments({isPublished:true}),
+  ]);
+
+  return data;
+  // return {
+  //   data,
+  //   meta: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
+  // };
+};
+
+const getProductBySlugFromDb = async (slug: string): Promise<Document> => {
+  const product = await ProductModel.findOneAndUpdate(
+    { slug, isDeleted: false, isPublished: true },
+    { $inc: { viewCount: 1 } },              // auto-increment views on fetch
+    { new: true }
+  ).populate("seller", "name email");
+
+  if (!product) throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  return product;
+};
 const getBooksFromDb = async () => {
   const allBooks = await BookModel.find({
     isDeleted: false,
@@ -192,5 +264,7 @@ export const bookServices = {
   getBooksByEmailFromDB,
   getProductsByCategoriesFromDB,
   searchBooksByTitle,
-  createProductIntoDB
+  createProductIntoDB,
+  getAllProductsFromDb,
+  getProductBySlugFromDb
 };

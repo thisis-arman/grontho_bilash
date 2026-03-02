@@ -1,4 +1,4 @@
-export const BookSkeleton = () => {
+export const ProductSkeleton = () => {
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm animate-pulse">
       {/* Image Skeleton */}

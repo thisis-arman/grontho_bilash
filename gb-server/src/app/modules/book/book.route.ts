@@ -14,7 +14,9 @@ router.get(
   // Auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   bookController.getBooks
 );
-router.get('/products',bookController.getProductsByCategories)
+router.get('/all-products', bookController.getAllProducts)
+router.get('/products', bookController.getProductsByCategories)
+router.get("/products/:slug", bookController.getProductBySlug);
 router.get("/:email", bookController.getBooksByEmail);
 router.post("/search", bookController.searchBooks);
 router.post("/upload", upload.single("image"), async (req, res): Promise<void> => {

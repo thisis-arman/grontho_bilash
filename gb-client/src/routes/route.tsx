@@ -10,7 +10,7 @@ import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
 import Blogs from "../pages/blog/blogs";
 import Products from "../pages/books/new_products";
-import BookDetails from "../pages/books/BookDetails";
+import BookDetails from "../pages/books/ProductDetails";
 import ShoppingCart from "../pages/cart/ShoppingCart";
 import Checkout from "../pages/payment/Checkout";
 import PaymentMain from "../pages/payment/PaymentMain";
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
                 element: <Products />
             },
             {
-                path: '/products/:id',
+                path: '/products/:slug',
                 element: <BookDetails />
             },
             {
@@ -49,13 +49,13 @@ const router = createBrowserRouter([
                 </PrivateRoute>
             },
             {
-                path:'/checkout/payment',
-                element:<PrivateRoute>
-                    <PaymentMain/>
+                path: '/checkout/payment',
+                element: <PrivateRoute>
+                    <PaymentMain />
                 </PrivateRoute>
-            },{
-                path:'/success',
-                element:<h1 className="mt-24 py-4 bg-green-600"> Payment successful</h1>
+            }, {
+                path: '/success',
+                element: <h1 className="mt-24 py-4 bg-green-600"> Payment successful</h1>
             }
         ]
     },

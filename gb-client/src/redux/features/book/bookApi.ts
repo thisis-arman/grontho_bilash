@@ -11,6 +11,18 @@ export const bookApi = baseApi.injectEndpoints({
         body: newProduct,
       }),
     }),
+    getProducts: builder.query({
+      query: (params) => ({
+        url: "/books/all-products",
+        method: "GET",
+        params: params ?? {},
+      }),
+      // providesTags: ["Product"],
+    }),
+    getProductBySlug: builder.query({
+      query: (slug) => ({ url: `/books/products/${slug}`, method: "GET" }),
+      // providesTags: (_result, _err, slug) => [{ type: "Product", id: slug }],
+    }),
     // Create a new book
     createBook: builder.mutation({
       query: (data) => ({
@@ -83,5 +95,7 @@ export const {
   useUpdateBookMutation,
   useDeleteBookMutation,
   useGetBooksByEmailQuery,
-  useCreateProductMutation
+  useCreateProductMutation,
+  useGetProductsQuery,
+  useGetProductBySlugQuery
 } = bookApi;

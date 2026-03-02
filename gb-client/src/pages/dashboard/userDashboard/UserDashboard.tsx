@@ -106,8 +106,8 @@ const UserDashboard = () => {
                                     >
                                         <defs>
                                             <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#e5c046ff" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#e5e546ff" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
@@ -117,7 +117,7 @@ const UserDashboard = () => {
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                             formatter={(value: any) => [`৳ ${value}`, 'Amount']}
                                         />
-                                        <Area type="monotone" dataKey="amount" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
+                                        <Area type="monotone" dataKey="amount" stroke="#e59346ff" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             ) : (

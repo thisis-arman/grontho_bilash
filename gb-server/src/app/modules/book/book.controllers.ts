@@ -6,11 +6,11 @@ import httpStatus from "http-status";
 
 const createProduct = catchAsync(async (req: Request, res: Response) => {
   // Extract user ID from auth middleware (seller)
-  const user = req.user; 
-  
+  const user = req.user;
+
   const productData = {
     ...req.body,
-    seller:'67ec9a1f0dbed76c63bb41f2', // Ensure the logged-in user is the seller
+    seller: '67ec9a1f0dbed76c63bb41f2', // Ensure the logged-in user is the seller
   };
 
   const result = await bookServices.createProductIntoDB(productData);
@@ -34,20 +34,29 @@ const listABook = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllProducts = catchAsync(async (req: Request, res: Response) => {
+  const result = await bookServices.getAllProductsFromDb(req.query);
+  sendResponse(res, { statusCode: 200, success: true, message: "Products fetched successfully", data: result });
+});
 
 const getBooksByEmail = catchAsync(async (req, res) => {
   const email = req.params.email;
-console.log(email);
+  console.log(email);
   const result = await bookServices.getBooksByEmailFromDB(email);
- sendResponse(res, {
-   statusCode: 200,
-   message: "Book fetched successfully",
-   success: true,
-   data: result,
- });
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Book fetched successfully",
+    success: true,
+    data: result,
+  });
 
 
 })
+
+const getProductBySlug = catchAsync(async (req: Request, res: Response) => {
+  const result = await bookServices.getProductBySlugFromDb(req.params.slug);
+  sendResponse(res, { statusCode: 200, success: true, message: "Product fetched successfully", data: result });
+});
 
 const getProductsByCategories = catchAsync(async (req, res) => {
   const result = await bookServices.getProductsByCategoriesFromDB();
@@ -63,7 +72,7 @@ const getProductsByCategories = catchAsync(async (req, res) => {
 const getBook = catchAsync(async (req: Request, res: Response) => {
   console.log(req.params);
   const bookId = req.params.id;
-  console.log({bookId});
+  console.log({ bookId });
   const result = await bookServices.getBookFromDb(bookId);
   sendResponse(res, {
     statusCode: 200,
@@ -128,5 +137,7 @@ export const bookController = {
   getBooksByEmail,
   getProductsByCategories,
   searchBooks,
-  createProduct
+  createProduct,
+  getAllProducts,
+  getProductBySlug
 };
