@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import {
     ArrowRight, BookOpen, Zap, ShieldCheck, Users, Recycle, Laptop, Star, TrendingUp, Package,
     Search,
-    Sparkles,
     ChevronRight
 } from "lucide-react";
 import { useGetBooksQuery, useGetProductsQuery } from "../../redux/features/book/bookApi";

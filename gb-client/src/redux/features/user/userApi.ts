@@ -17,6 +17,7 @@ export const userApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["Users"],
     }),
     createUser: builder.mutation({
       query: (userInfo) => {
@@ -26,17 +27,19 @@ export const userApi = baseApi.injectEndpoints({
           body: userInfo,
         };
       },
+      invalidatesTags: ["Users"],
     }),
-    updateUserInfo:builder.mutation({
-      query:({id,userInfo})=>{
+    updateUserInfo: builder.mutation({
+      query: ({ id, userInfo }) => {
         return {
-          url:`users/update-user/${id}`,
-          method:"POST",
-          body:userInfo
+          url: `users/update-user/${id}`,
+          method: "POST",
+          body: userInfo
         }
-      }
+      },
+      invalidatesTags: ["Users"],
     })
   }),
 });
 
-export const { useCreateUserMutation,useGetUsersQuery,useUpdateUserInfoMutation,useGetMeQuery} = userApi;
+export const { useCreateUserMutation, useGetUsersQuery, useUpdateUserInfoMutation, useGetMeQuery } = userApi;
