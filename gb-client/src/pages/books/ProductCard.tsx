@@ -8,7 +8,6 @@ import { addToCart } from '../../redux/features/cart/cartSlice';
 // import { TProduct } from '../../redux/features/product/productApi';
 import { ShoppingCart, Eye, MapPin, Zap, Package, BookOpen } from 'lucide-react';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const conditionColors: Record<string, string> = {
   "New":        "bg-emerald-100 text-emerald-700",
@@ -20,7 +19,6 @@ const conditionColors: Record<string, string> = {
 const formatPrice = (price: number) =>
   `৳${new Intl.NumberFormat("en-BD").format(price)}`;
 
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 const TypeBadge = ({ type }: { type: "Physical" | "Digital" }) => (
   <span className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm ${
@@ -40,7 +38,6 @@ const ConditionBadge = ({ condition }: { condition?: string }) => {
   );
 };
 
-// ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductCard = ({ products }) => {
   const user     = useAppSelector(selectCurrentUser) as TUser;
@@ -191,7 +188,7 @@ const ProductCard = ({ products }) => {
               ) : product.productType === "Digital" ? (
                 <Link
                   to={`/products/${product.slug}`}
-                  className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <Zap size={15} />
                   Get Digital Copy
