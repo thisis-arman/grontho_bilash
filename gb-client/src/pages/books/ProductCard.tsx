@@ -22,7 +22,7 @@ const formatPrice = (price: number) =>
 
 const TypeBadge = ({ type }: { type: "Physical" | "Digital" }) => (
   <span className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm ${
-    type === "Digital" ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
+    type === "Digital" ? "bg-yellow-500/90 text-white" : "bg-white/90 text-stone-700"
   }`}>
     {type === "Digital" ? <Zap size={10} /> : <Package size={10} />}
     {type}
@@ -162,7 +162,7 @@ const ProductCard = ({ products }) => {
                 </span>
               )}
               {product.productType === "Digital" && product.digitalDetails?.fileType && (
-                <span className="px-2 py-0.5 rounded-md bg-violet-50 text-violet-500 text-[10px] font-semibold border border-violet-100">
+                <span className="px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
                   {product.digitalDetails.fileType}
                 </span>
               )}
