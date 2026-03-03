@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Category from "./Category";
 import Stats from "./stats";
 import { BookOpen, Laptop, Recycle } from "lucide-react";
+import Feature from "./Features";
 
 const Home = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -99,6 +100,7 @@ const Home = () => {
                     </div>
                 </section>
             </div>
+            <Feature/>
             
             <Category />
 
