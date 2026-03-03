@@ -199,7 +199,7 @@ const ProductCard = ({ products }) => {
                   className="w-full py-2.5 bg-yellow-50 hover:bg-yellow-600 text-stone-800 hover:text-white  hover:border-stone-900 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={15} />
-                  Add to Bag
+                  Add to Cart
                 </button>
               )}
             </div>

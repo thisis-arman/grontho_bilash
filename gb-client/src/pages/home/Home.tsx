@@ -1,7 +1,10 @@
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-    ArrowRight, BookOpen, Zap, ShieldCheck, Users, Recycle, Laptop, Star, TrendingUp, Package
+    ArrowRight, BookOpen, Zap, ShieldCheck, Users, Recycle, Laptop, Star, TrendingUp, Package,
+    Search,
+    Sparkles,
+    ChevronRight
 } from "lucide-react";
 import { useGetBooksQuery, useGetProductsQuery } from "../../redux/features/book/bookApi";
 
@@ -67,104 +70,118 @@ const Home = () => {
         }
     };
 
+    const spines = [
+        { title: "Atomic Habits", color: "bg-amber-400", h: "h-48", w: "w-10" },
+        { title: "Clean Code", color: "bg-sky-500", h: "h-56", w: "w-9" },
+        { title: "Calculus Vol. II", color: "bg-emerald-500", h: "h-40", w: "w-11" },
+        { title: "Physics Fundamentals", color: "bg-rose-400", h: "h-52", w: "w-10" },
+        { title: "Deep Work", color: "bg-orange-400", h: "h-60", w: "w-10" },
+        { title: "Zero to One", color: "bg-teal-500", h: "h-36", w: "w-9" },
+    ];
+    const ticker = ["Used Textbooks", "Digital PDFs", "Study Notes", "Fiction", "Academic Books", "Science Books", "Self-Help", "Business Books"];
+
     return (
         <div className="bg-stone-50">
-            <section className="relative overflow-hidden bg-stone-900 text-white">
+            <section className="bg-[#fdf9f4] min-h-screen flex items-center overflow-hidden relative">
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-amber-400/15 blur-[100px] pointer-events-none" />
 
-                <div
-                    className="absolute inset-0 opacity-[0.025] pointer-events-none"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    }}
-                />
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-                {/* Glow orbs */}
-                <div className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full bg-amber-500/10 blur-[140px] pointer-events-none" />
-                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-amber-600/8 blur-[100px] pointer-events-none" />
+                        {/* Left */}
+                        <div>
+                            <Link to="/blog" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold tracking-wide mb-8 hover:bg-amber-200 transition-colors">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                Digital products now available <ChevronRight size={12} />
+                            </Link>
 
-                <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 lg:pt-32 lg:pb-40">
-                    <div className="max-w-3xl mx-auto text-center">
-
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-8">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                            Bangladesh's Book Marketplace
-                        </div>
-
-                        {/* Headline */}
-                        <h1 className="text-5xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight mb-6">
-                            Give Books a{" "}
-                            <span className="text-amber-400">Second Life</span>
-                        </h1>
-
-                        <p className="text-stone-400 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto">
-                            Grontho Bilash is Bangladesh's trusted marketplace to buy and sell{" "}
-                            <span className="text-stone-200 font-semibold">used books, study resources, and digital products</span>.
-                            Affordable learning starts here.
-                        </p>
-
-                        {/* Highlight pills */}
-                        <div className="flex flex-wrap justify-center gap-3 mb-10">
-                            {highlights.map(({ icon: Icon, label }) => (
-                                <div key={label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/8 border border-white/10 text-stone-300 text-sm font-medium">
-                                    <Icon size={14} className="text-amber-400" />
-                                    {label}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Search bar */}
-                        {/* Premium Search Bar */}
-                        <div className="relative max-w-2xl mx-auto group mt-4 mb-4">
-                            <form
-                                onSubmit={handleSearch}
-                                className="flex items-center bg-white border border-yellow-200 rounded-2xl p-2  shadow-yellow-100/50 transition-all focus-within:ring-4 focus-within:ring-yellow-500/20 focus-within:border-yellow-400"
-                            >
-                                <div className="pl-4 text-yellow-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black text-stone-900 leading-[1.0] tracking-tighter mb-6">
+                                Buy &amp; sell books{" "}
+                                <span className="relative inline-block">
+                                    <span className="text-amber-500">smarter.</span>
+                                    {/* Handdrawn underline */}
+                                    <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
+                                        <path d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
                                     </svg>
+                                </span>
+                            </h1>
+
+                            <p className="text-stone-500 text-lg leading-relaxed mb-8 max-w-md">
+                                Bangladesh's trusted marketplace for used textbooks, digital PDFs,
+                                and study resources. Join 4,800+ students saving money.
+                            </p>
+
+                            <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-md mb-8">
+                                <div className="flex-1 relative">
+                                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                                    <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                                        placeholder="Search books, authors..."
+                                        className="w-full pl-10 pr-4 py-3.5 bg-white border border-stone-200 rounded-xl text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/15 shadow-sm transition-all"
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search old books, digital notes, authors..."
-                                    className="w-full bg-transparent px-4 py-3 text-gray-800 outline-none placeholder:text-gray-400 border-none focus:border-none focus:ring-0"
-                                />
-                                <button
-                                    type="submit"
-                                    className="hidden sm:block px-8 py-3 rounded-xl font-bold text-white bg-yellow-500 hover:bg-yellow-600 transition-all active:scale-95 shadow-md shadow-yellow-200"
-                                >
-                                    Search
+                                <button type="submit" className="w-12 h-12 bg-stone-900 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center transition-all hover:-translate-y-0.5 flex-shrink-0">
+                                    <ArrowRight size={16} />
                                 </button>
                             </form>
+
+                            <div className="flex flex-wrap gap-2">
+                                <Link to="/products" className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
+                                    Browse Books <ArrowRight size={14} />
+                                </Link>
+                                <Link to="/dashboard/add-product" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
+                                    <Zap size={14} /> Sell Yours
+                                </Link>
+                            </div>
                         </div>
 
-                        {/* CTA pair */}
-                        <div className="flex flex-wrap justify-center gap-3">
-                            <Link
-                                to="/books"
-                                className="inline-flex items-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-500/30 text-sm"
-                            >
-                                Browse Listings
-                                <ArrowRight size={15} />
-                            </Link>
-                            <Link
-                                to="/dashboard/add-product"
-                                className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold rounded-2xl transition-all text-sm"
-                            >
-                                Sell a Book
-                            </Link>
+                        {/* Right — Bento */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-stone-900 text-white rounded-3xl p-6 flex flex-col justify-between">
+                                <p className="text-[11px] font-bold tracking-widest uppercase text-stone-500">Books Listed</p>
+                                <div className="mt-4">
+                                    <p className="text-5xl font-black">12K+</p>
+                                    <p className="text-xs text-stone-400 mt-1">across Bangladesh</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-amber-500 rounded-3xl p-6 flex flex-col justify-between">
+                                <div className="w-9 h-9 bg-stone-900/15 rounded-xl flex items-center justify-center mb-4">
+                                    <Zap size={18} className="text-stone-900" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-stone-900">Instant Digital Delivery</p>
+                                    <p className="text-xs text-stone-800/70 mt-1">Download PDFs right after checkout</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white border border-stone-100 rounded-3xl p-6 shadow-sm">
+                                <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+                                    <BookOpen size={18} className="text-emerald-600" />
+                                </div>
+                                <p className="text-sm font-bold text-stone-900">All Conditions</p>
+                                <p className="text-xs text-stone-400 mt-1">New, Like New, Good &amp; Acceptable</p>
+                            </div>
+
+                            <div className="bg-stone-100 rounded-3xl p-6 flex flex-col justify-between">
+                                <p className="text-[11px] font-bold tracking-widest uppercase text-stone-400">Satisfaction</p>
+                                <div className="mt-4">
+                                    <p className="text-5xl font-black text-stone-900">98%</p>
+                                    <p className="text-xs text-stone-400 mt-1">of buyers satisfied</p>
+                                </div>
+                            </div>
+
+                            <div className="col-span-2 bg-gradient-to-r from-stone-900 to-stone-800 rounded-3xl p-5 flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-bold text-stone-500 mb-1">Join the community</p>
+                                    <p className="text-white font-bold text-sm">4,800+ students already saving money</p>
+                                </div>
+                                <Link to="/register" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-xs transition-all whitespace-nowrap">
+                                    Join Free <ArrowRight size={13} />
+                                </Link>
+                            </div>
                         </div>
+
                     </div>
-                </div>
-
-                {/* Wave divider */}
-                <div className="absolute bottom-0 left-0 right-0">
-                    <svg viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block" preserveAspectRatio="none">
-                        <path d="M0 48L1440 48L1440 24C1200 48 900 0 720 24C540 48 240 0 0 24L0 48Z" fill="#f8f5f0" />
-                    </svg>
                 </div>
             </section>
 
