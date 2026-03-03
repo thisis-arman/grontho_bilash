@@ -5,6 +5,7 @@ import { adminPaths } from "../../routes/admin.route";
 import { userPaths } from "../../routes/user.route";
 import { useAppSelector } from "../../redux/hooks";
 import { selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
+import { isMobile } from 'mobile-device-detect';
 
 const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
     const {role} = useAppSelector(selectCurrentUser) as TUser;
@@ -26,9 +27,8 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
         default:
             break;
     }
-    console.log("sidebar items_______",sidebarItems);
     return (
-        <Sider trigger={null} collapsible collapsed={collapsed} className="h-screen sticky top-0">
+        <Sider trigger={null} collapsible collapsed={collapsed} className={`h-screen sticky top-0 ${(collapsed && isMobile) ?'hidden':'block'}` }>
             <a href="/" className="demo-logo-vertical h-12 mx-auto p-4 flex justify-center items-center " >
                 {/* <h1 className='text-white font-bold text-2xl'>GB</h1> */}
                 <img src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png" className='h-12 w-12' alt="" />

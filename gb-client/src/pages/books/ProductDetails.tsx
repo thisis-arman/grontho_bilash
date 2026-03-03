@@ -117,11 +117,11 @@ const ProductDetails = () => {
           <div className="grid grid-cols-1 md:grid-cols-2">
 
             {/* Left: Image */}
-            <div className="relative bg-stone-100 flex items-center justify-center min-h-[420px] md:min-h-[560px]">
+            <div className="relative bg-stone-100 flex items-center justify-center min-h-[420px] md:min-h-[560px]  p-4">
               <img
                 alt={product.title}
                 src={product.images?.[0] ?? "/placeholder.png"}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-2xl"
               />
 
               {/* Product type badge */}
@@ -281,10 +281,10 @@ const ProductDetails = () => {
               ) : (
                 <button
                   onClick={handleAddToCart}
-                  className="w-full py-4 bg-stone-900 hover:bg-amber-600 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <ShoppingBag className="w-5 h-5" />
-                  Add to Bag
+                  Add to cart
                 </button>
               )}
             </div>
