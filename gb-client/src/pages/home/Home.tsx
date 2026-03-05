@@ -357,7 +357,7 @@ const Home = () => {
                             </ul>
 
                             <Link
-                                to="/dashboard/add-product"
+                                to="/user/add-product"
                                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-stone-900 hover:bg-amber-500 text-white hover:text-stone-900 font-bold rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl text-sm"
                             >
                                 <Package size={16} />
