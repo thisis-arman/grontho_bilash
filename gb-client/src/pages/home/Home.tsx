@@ -86,10 +86,8 @@ const Home = () => {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-                        {/* Left */}
                         <div>
-                            <Link to="/blog" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold tracking-wide mb-8 hover:bg-amber-200 transition-colors">
+                            <Link to="/blog" className="inline-flex items-center gap-2 px-3 py-1.5 mt-2 rounded-full bg-amber-100 text-amber-700 text-xs font-bold tracking-wide mb-8 hover:bg-amber-200 transition-colors">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                                 Digital products now available <ChevronRight size={12} />
                             </Link>
@@ -98,7 +96,6 @@ const Home = () => {
                                 Buy &amp; sell books{" "}
                                 <span className="relative inline-block">
                                     <span className="text-amber-500">smarter.</span>
-                                    {/* Handdrawn underline */}
                                     <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                                         <path d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
                                     </svg>
@@ -127,7 +124,7 @@ const Home = () => {
                                 <Link to="/books" className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
                                     Browse Books <ArrowRight size={14} />
                                 </Link>
-                                <Link to="/dashboard/add-product" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
+                                <Link to="/user/add-product" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
                                     <Zap size={14} /> Sell Yours
                                 </Link>
                             </div>
