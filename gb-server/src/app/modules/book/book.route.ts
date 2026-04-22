@@ -46,6 +46,7 @@ router.post("/upload", upload.single("image"), async (req, res): Promise<void> =
 });
 
 router.patch("/:id", bookController.deleteBook);
+//currently using this api to create product 4/22/26
 router.post(
   "/create-product",
   bookController.createProduct

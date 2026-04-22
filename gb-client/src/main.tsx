@@ -7,7 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import router from './routes/route';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
-
+import { Analytics } from '@vercel/analytics/react';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -16,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <RouterProvider router={router} />
       </PersistGate>
       <Toaster position="top-center" />
+      <Analytics />
     </Provider>
   </React.StrictMode>
 );
