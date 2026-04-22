@@ -6,7 +6,6 @@ import { SlidersHorizontal, X, Package, Zap, ChevronDown } from 'lucide-react';
 import { ProductSkeleton } from './ProductSkeleton';
 import { useGetProductsQuery } from '../../redux/features/book/bookApi';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
   "All", "Academic", "Fiction", "Non-Fiction", "Science",
@@ -21,8 +20,6 @@ const SORT_OPTIONS = [
   { label: "Price: High–Low", value: "price_desc" },
   { label: "Most Viewed",     value: "views" },
 ];
-
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 const LoadingState = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -58,8 +55,6 @@ const FilterChip = ({
     {label}
   </button>
 );
-
-// ── Main Component ────────────────────────────────────────────────────────────
 
 const Products = () => {
   const { data: productsResponse, isLoading } = useGetProductsQuery(undefined);
@@ -275,7 +270,7 @@ const Products = () => {
         ) : filtered.length === 0 ? (
           <EmptyState searchQuery={searchQuery} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <ProductCard products={filtered} />
           </div>
         )}

@@ -82,10 +82,10 @@ const ProductDetails = () => {
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isDigital) {
-      toast.info("Proceed to checkout for digital products");
-      return;
-    }
+    // if (isDigital) {
+    //   toast.info("Proceed to checkout for digital products");
+    //   return;
+    // }
 
     const cartInfo = {
       quantity:       1,

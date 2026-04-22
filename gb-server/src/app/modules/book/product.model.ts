@@ -102,7 +102,7 @@ const productSchema = new Schema(
     isPublished: { type: Boolean, default: false, index: true },
     isContactNoHidden: { type: Boolean, default: false },
     viewCount: { type: Number, default: 0 },
-    location: { type: String, required: true }, // For physical pickup context
+    location: { type: String, required: true }, 
 
     isDeleted: { type: Boolean, default: false, index: true },
   },

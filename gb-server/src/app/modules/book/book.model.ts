@@ -61,18 +61,18 @@ import { string } from "zod";
       },
       images: {
         type: [String], 
-        default: [], // Default to empty array if no images are provided
+        default: [], 
       },
       publicationYear: {
         type: Number,
         required: true,
       },
       transactionDate: {
-        type: Date, // Optional field for the sale date
+        type: Date, 
       },
       location: {
         type: String,
-        required: true, // Seller's location
+        required: true, 
       },
       deliveryOption: {
         type: String,
