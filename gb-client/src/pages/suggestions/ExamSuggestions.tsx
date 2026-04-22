@@ -32,7 +32,7 @@ const ExamSuggestions = () => {
           {departments.map(dept => (
             <button
               key={dept}
-              className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`py-3 px-2 md:px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === dept
                   ? 'border-yellow-500 text-yellow-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -55,7 +55,7 @@ const ExamSuggestions = () => {
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md"
             >
               <button
-                className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none"
+                className="w-full px-2 md:px-6 py-5 text-left flex justify-between items-center focus:outline-none"
                 onClick={() => setExpandedSubject(
                   expandedSubject === subject.subjectCode ? null : subject.subjectCode
                 )}
@@ -77,7 +77,7 @@ const ExamSuggestions = () => {
 
               {/* Chapters Content */}
               <div 
-                className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${
+                className={`px-2 md:px-6 overflow-hidden transition-all duration-300 ease-in-out ${
                   expandedSubject === subject.subjectCode ? 'max-h-[5000px] opacity-100 pb-6' : 'max-h-0 opacity-0'
                 }`}
               >

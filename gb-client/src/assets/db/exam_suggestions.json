@@ -192,5 +192,56 @@
         ]
       }
     ]
+  },
+  {
+    "subjectCode": "MGT-401",
+    "subjectName": "Project Management (Demo)",
+    "department": "Management",
+    "year": "BBA 4th Year",
+    "examYear": "2024 (Held in 2026)",
+    "preparedBy": "Demo Teacher",
+    "chapters": [
+      {
+        "chapterNo": "০১",
+        "chapterName": "উপস্থাপনা",
+        "questions": [
+          { "text": "এটি একটি ডেমো প্রশ্ন (ম্যানেজমেন্ট)।", "priority": 3 }
+        ]
+      }
+    ]
+  },
+  {
+    "subjectCode": "FIN-401",
+    "subjectName": "Corporate Finance (Demo)",
+    "department": "Finance",
+    "year": "BBA 4th Year",
+    "examYear": "2024 (Held in 2026)",
+    "preparedBy": "Demo Teacher",
+    "chapters": [
+      {
+        "chapterNo": "০১",
+        "chapterName": "উপস্থাপনা",
+        "questions": [
+          { "text": "এটি একটি ডেমো প্রশ্ন (ফিন্যান্স)।", "priority": 3 }
+        ]
+      }
+    ]
+  },
+  {
+    "subjectCode": "MKT-401",
+    "subjectName": "Consumer Behavior (Demo)",
+    "department": "Marketing",
+    "year": "BBA 4th Year",
+    "examYear": "2024 (Held in 2026)",
+    "preparedBy": "Demo Teacher",
+    "chapters": [
+      {
+        "chapterNo": "০১",
+        "chapterName": "উপস্থাপনা",
+        "questions": [
+          { "text": "এটি একটি ডেমো প্রশ্ন (মার্কেটিং)।", "priority": 3 }
+        ]
+      }
+    ]
   }
 ]
