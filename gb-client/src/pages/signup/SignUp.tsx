@@ -75,7 +75,7 @@ const SignUp = () => {
                 toast.error("Invalid OTP");
             }
         } catch (error) {
-            console.error("Error during OTP verification:", error);
+            toast.error("Invalid OTP");
         }
     };
 
