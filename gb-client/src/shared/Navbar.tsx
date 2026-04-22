@@ -18,8 +18,9 @@ const Navbar = () => {
     const navigation = [
         { title: "Home", path: "/" },
         { title: "Books", path: "/books" },
-        // { title: "Blogs", path: "/blogs" },
+        { title: "Suggestions", path: "/exam-suggestions" },
     ];
+
     
     // Add dashboard conditionally
     if (user) {

@@ -14,6 +14,7 @@ import BookDetails from "../pages/books/ProductDetails";
 import ShoppingCart from "../pages/cart/ShoppingCart";
 import Checkout from "../pages/payment/Checkout";
 import PaymentMain from "../pages/payment/PaymentMain";
+import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
 
 const router = createBrowserRouter([
     {
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
             }, {
                 path: '/success',
                 element: <h1 className="mt-24 py-4 bg-green-600"> Payment successful</h1>
+            },
+            {
+                path: '/exam-suggestions',
+                element: <ExamSuggestions />
             }
         ]
     },
