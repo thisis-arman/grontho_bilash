@@ -15,6 +15,7 @@ import ShoppingCart from "../pages/cart/ShoppingCart";
 import Checkout from "../pages/payment/Checkout";
 import PaymentMain from "../pages/payment/PaymentMain";
 import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
+import CgpaCalculator from "../pages/tools/cgpa-calculator/CgpaCalculator";
 
 const router = createBrowserRouter([
     {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
             {
                 path: '/exam-suggestions',
                 element: <ExamSuggestions />
+            },
+            {
+                path: '/tools/cgpa-calculator',
+                element: <CgpaCalculator />
             }
         ]
     },

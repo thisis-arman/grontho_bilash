@@ -2,7 +2,6 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import SignUpForm from "./SignUpForm";
 import { useCreateOtpMutation, useVerifyOtpMutation } from "../../redux/features/otp/otpApi";
-import { toast } from "sonner";
 
 const SignUp = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
@@ -72,10 +71,10 @@ const SignUp = () => {
                 setIsVerified(true);
                 setStep({ currentStep: 3, stepsCount: [1, 2, 3] });
             } else {
-                toast.error("Invalid OTP");
+                console.log("Invalid OTP or OTP verification failed.");
             }
         } catch (error) {
-            toast.error("Invalid OTP");
+            console.error("Error during OTP verification:", error);
         }
     };
 

@@ -19,6 +19,7 @@ const Navbar = () => {
         { title: "Home", path: "/" },
         { title: "Books", path: "/books" },
         { title: "Suggestions", path: "/exam-suggestions" },
+        { title: "Tools", path: "/tools/cgpa-calculator" },
     ];
 
     
