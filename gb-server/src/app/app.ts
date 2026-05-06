@@ -5,9 +5,23 @@ import express from "express";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
 import notFound from "./middlewares/NotFound";
 import cookieParser from "cookie-parser";
-// import notFound from "./middlewares/notFound"
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 const app: Application = express();
+
+// Security Middlewares
+app.use(helmet());
+
+// Apply rate limiting to all requests
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use(limiter);
 
 app.use(express.json());
 app.use(cookieParser());
