@@ -10,7 +10,7 @@ const orderSchema = new Schema<TOrder>(
     },
     books: [
       {
-        book: { type: Schema.Types.ObjectId, ref: "Book", required: true },
+        book: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         bookTitle: { type: String, required: true },
         productImage: { type: String, required: true },
         seller: { type: Schema.Types.ObjectId, ref: "User", required: true },

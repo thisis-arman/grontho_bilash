@@ -55,21 +55,21 @@ const getOrderById = async (orderId: string) => {
     { $match: { _id:new mongoose.Types.ObjectId(orderId) }},
     {
     $lookup: {
-      from: "books",              
+      from: "products",              
       let: { bookIds: "$books.book" }, 
       pipeline: [
         { $match: { $expr: { $in: ["$_id", "$$bookIds"] } } },
-        { $project: { title: 1, price: 1, _id: 1 } } 
+        { $project: { title: 1, price: 1, _id: 1, productType: 1, digitalDetails: 1 } } 
       ],
       as: "book_details"          
     }
   },
     {
       $lookup: {
-        from: "books",
-        localField: "book",
+        from: "products",
+        localField: "books.book",
         foreignField: "_id",
-        as: "book_details",
+        as: "product_details",
       },
     },
     {
@@ -168,7 +168,7 @@ const getOrdersByUserId = async (userId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const orders = await OrderModel.find({ buyer: userId }).populate("buyer");
+  const orders = await OrderModel.find({ buyer: userId }).populate("buyer").populate("books.book");
 
   return orders;
 };

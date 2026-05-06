@@ -4,7 +4,7 @@ import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice
 import { useAppSelector } from "../../../redux/hooks";
 import { Table, Input, Tag, Space, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
 
 const MyOrders = () => {
     const { id } = useAppSelector(selectCurrentUser) as TUser;
@@ -38,11 +38,23 @@ const MyOrders = () => {
             title: 'Products',
             key: 'products',
             render: (_, record) => (
-                <div className="flex flex-col gap-1 min-w-[150px]">
-                    {record.books?.map((book: any, i: number) => (
-                        <span key={i} className="text-sm text-gray-600 line-clamp-1 block">
-                            • {book.bookTitle}
-                        </span>
+                <div className="flex flex-col gap-2 min-w-[150px]">
+                    {record.books?.map((item: any, i: number) => (
+                        <div key={i} className="flex flex-col gap-1">
+                            <span className="text-sm text-gray-600 line-clamp-1 block">
+                                • {item.bookTitle}
+                            </span>
+                            {item.book?.productType === 'Digital' && record.paymentStatus?.toLowerCase() === 'paid' && item.book?.digitalDetails?.downloadUrl && (
+                                <a 
+                                    href={item.book.digitalDetails.downloadUrl} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="text-xs text-blue-600 hover:text-blue-800 underline ml-3 flex items-center gap-1 w-fit bg-blue-50 px-2 py-1 rounded-md transition-colors"
+                                >
+                                    <Download size={12} /> Download
+                                </a>
+                            )}
+                        </div>
                     ))}
                 </div>
             ),
