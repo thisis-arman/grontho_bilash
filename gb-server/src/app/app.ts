@@ -14,50 +14,56 @@ const app: Application = express();
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 1000, 
-  standardHeaders: true, 
-  legacyHeaders: false, 
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 app.use(limiter);
 
 app.use(express.json());
 app.use(cookieParser());
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://gronthobilash.vercel.app", // Add your Vercel URL here later
+  "https://gronthobilash.vercel.app",
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // 1. Allow server-to-server or Postman (where origin is undefined)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: (origin: any, callback: any) => {
+    if (!origin) return callback(null, true);
 
-      // 2. Check if the origin is in our whitelist
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // Log for debugging so you can see which origin failed in production
-        console.error(`Blocked by CORS: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  }),
-);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// Handle OPTIONS preflight requests for all routes
-app.options("*", cors());
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Grontho Bilash server is working...");
+  res.status(200).json({
+    success: true,
+    message: "API is operational.",
+    data: {
+      name: "Grontho Bilash API",
+      version: "1.0.0",
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV,
+    },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use(globalErrorHandler);
