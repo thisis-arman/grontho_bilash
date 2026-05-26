@@ -45,8 +45,6 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
                 }`}
             style={{ display: "flex", flexDirection: "column" }}
         >
-            {/* ── Logo ── */}
-
             <a
                 href="/"
                 className="h-12 mx-auto p-4 flex justify-center items-center"

@@ -24,8 +24,13 @@ router.get(
 );
 router.put(
   "/update-user/:id",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  Auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
   userControllers.updateUserInfo
+);
+router.delete(
+  "/delete-me/:id",
+  Auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  userControllers.deleteMe
 );
 
 export const userRoutes = router;

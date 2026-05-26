@@ -4,6 +4,9 @@ import { logout, selectCurrentUser, TUser } from "../redux/features/auth/authSli
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getProductsFromCart } from "../../src/redux/features/cart/cartSlice";
 import { ShoppingCart, Menu, X, LogOut, LogIn } from "lucide-react";
+import { Avatar, Button, Dropdown, MenuProps, Space } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+
 
 const Navbar = () => {
     const user = useAppSelector(selectCurrentUser) as TUser;
@@ -22,7 +25,7 @@ const Navbar = () => {
         { title: "Tools", path: "/tools/cgpa-calculator" },
     ];
 
-    
+
     // Add dashboard conditionally
     if (user) {
         navigation.push({ title: "Dashboard", path: `/${user?.role}/dashboard` });
@@ -57,13 +60,51 @@ const Navbar = () => {
         return location.pathname.startsWith(path);
     };
 
+    const items: MenuProps['items'] = [
+        {
+            key: '1',
+            label: (
+                <Link to={`/${user?.role}/dashboard`}>
+                    Dashboard
+                </Link>
+            ),
+        },
+        {
+            key: '2',
+            label: (
+                <Link to={`/${user?.role}/user-profile`}>
+                    Profile
+                </Link>
+            ),
+        },
+        {
+            key: '3',
+            label: (
+                <Link to={`/${user.role}/my-orders`}>
+                    My Orders
+                </Link>
+            ),
+        },
+        {
+            key: '4',
+            label: (
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50  hover:bg-gray-100 transition-all border border-gray-200 hover:border-gray-300"
+                >
+                    <LogOut className="w-4 h-4 text-gray-500" />
+                    <span>Log out</span>
+                </button>
+            ),
+        },
+    ];
+
     return (
-        <header 
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-                isScrolled 
-                    ? "bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm py-2" 
-                    : "bg-white/50 backdrop-blur-sm border-b border-transparent py-4"
-            }`}
+        <header
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+                ? "bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm py-2"
+                : "bg-white/50 backdrop-blur-sm border-b border-transparent py-4"
+                }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
@@ -82,14 +123,13 @@ const Navbar = () => {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-8">
                         {navigation.map((item, idx) => (
-                            <Link 
-                                key={idx} 
+                            <Link
+                                key={idx}
                                 to={item.path}
-                                className={`text-sm font-semibold transition-colors duration-200 ${
-                                    isActive(item.path) 
-                                        ? 'text-yellow-600' 
-                                        : 'text-gray-600 hover:text-yellow-500'
-                                }`}
+                                className={`text-sm font-semibold transition-colors duration-200 ${isActive(item.path)
+                                    ? 'text-yellow-600'
+                                    : 'text-gray-600 hover:text-yellow-500'
+                                    }`}
                             >
                                 {item.title}
                             </Link>
@@ -110,16 +150,16 @@ const Navbar = () => {
                         )}
 
                         {user ? (
-                            <button 
-                                onClick={handleLogout} 
-                                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50 rounded-full hover:bg-gray-100 transition-all border border-gray-200 hover:border-gray-300"
-                            >
-                                <LogOut className="w-4 h-4 text-gray-500" />
-                                <span>Log out</span>
-                            </button>
+                            <Space >
+                                <Space wrap>
+                                    <Dropdown menu={{ items }} placement="bottomLeft" className="hover:cursor-pointer">
+                                        <Avatar icon={<UserOutlined />} />
+                                    </Dropdown>
+                                </Space>
+                            </Space>
                         ) : (
-                            <Link 
-                                to="/login" 
+                            <Link
+                                to="/login"
                                 className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-yellow-500 rounded-full hover:bg-yellow-600 transition-all shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] hover:shadow-[0_6px_20px_rgba(234,179,8,0.23)] hover:-translate-y-0.5"
                             >
                                 <LogIn className="w-4 h-4" />
@@ -152,38 +192,36 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Navigation Menu Dropdown */}
-            <div 
-                className={`md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl transition-all duration-300 ease-in-out origin-top ${
-                    isMenuOpen ? "opacity-100 scale-y-100 visible" : "opacity-0 scale-y-95 invisible pointer-events-none"
-                }`}
+            <div
+                className={`md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? "opacity-100 scale-y-100 visible" : "opacity-0 scale-y-95 invisible pointer-events-none"
+                    }`}
             >
                 <div className="flex flex-col px-4 py-4 space-y-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
                     {navigation.map((item, idx) => (
-                        <Link 
-                            key={idx} 
+                        <Link
+                            key={idx}
                             to={item.path}
-                            className={`block px-5 py-3.5 rounded-2xl text-base font-semibold transition-all ${
-                                isActive(item.path) 
-                                    ? 'bg-yellow-50 text-yellow-700' 
-                                    : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                            className={`block px-5 py-3.5 rounded-2xl text-base font-semibold transition-all ${isActive(item.path)
+                                ? 'bg-yellow-50 text-yellow-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                                }`}
                         >
                             {item.title}
                         </Link>
                     ))}
-                    
+
                     <div className="pt-4 mt-2 border-t border-gray-100">
                         {user ? (
-                            <button 
-                                onClick={handleLogout} 
+                            <button
+                                onClick={handleLogout}
                                 className="flex items-center justify-center gap-2 w-full px-5 py-3.5 text-base font-semibold text-red-600 bg-red-50 rounded-2xl hover:bg-red-100 transition-colors"
                             >
                                 <LogOut className="w-5 h-5" />
                                 <span>Log out</span>
                             </button>
                         ) : (
-                            <Link 
-                                to="/login" 
+                            <Link
+                                to="/login"
                                 className="flex items-center justify-center gap-2 w-full px-5 py-3.5 text-base font-bold text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600 transition-colors shadow-md"
                             >
                                 <LogIn className="w-5 h-5" />

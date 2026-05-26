@@ -54,7 +54,8 @@ const getUsers = catchAsync(async (req, res) => {
 
 export const updateUserInfo = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const result = await userServices.updateUserInfo(id, req.body);
+  const { email, role } = req.user;
+  const result = await userServices.updateUserInfo(id, req.body, email, role);
 
   sendResponse(res, {
     success: true,
@@ -63,9 +64,24 @@ export const updateUserInfo = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+export const deleteMe = catchAsync(async (req, res) => {
+  const id = req.params.id;
+  const { email, role } = req.user;
+  const result = await userServices.deleteUser(id, email, role);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User deactivated successfully",
+    data: result,
+  });
+});
+
 export const userControllers = {
   createUser,
   getUsers,
   updateUserInfo,
-  getMe
+  getMe,
+  deleteMe
 };

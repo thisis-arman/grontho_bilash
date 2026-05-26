@@ -99,7 +99,32 @@ const refreshToken =async (token: string) => {
     };
 };
 
+const changePassword = async (email: string, oldPassword: string, newPassword: string) => {
+  const user = await User.isUserExistsByEmail(email);
+  if (!user) {
+    throw new Error("This user is not found !");
+  }
+  if (user.isDeleted) {
+    throw new Error("This user is deleted !");
+  }
+  if (user.status === "blocked") {
+    throw new Error("This user is blocked !");
+  }
+
+  // Check if old password matches
+  const isPasswordMatch = await User.isPasswordMatched(oldPassword, user.password);
+  if (!isPasswordMatch) {
+    throw new Error("Old password does not match!");
+  }
+
+  // Update password and passwordChangedAt (triggers the pre-save bcrypt hash middleware)
+  (user as any).password = newPassword;
+  (user as any).passwordChangedAt = new Date();
+  await (user as any).save();
+};
+
 export const authServices = {
   loginUser,
-  refreshToken
+  refreshToken,
+  changePassword
 };
