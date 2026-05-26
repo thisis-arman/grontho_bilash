@@ -512,6 +512,7 @@ const UserManagement = () => {
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
                     </select>
+                    
                     <Shield size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
                   </div>
                 </div>

@@ -80,7 +80,7 @@ const Navbar = () => {
         {
             key: '3',
             label: (
-                <Link to={`/${user.role}/my-orders`}>
+                <Link to={`/${user?.role}/my-orders`}>
                     My Orders
                 </Link>
             ),
@@ -150,13 +150,16 @@ const Navbar = () => {
                         )}
 
                         {user ? (
-                            <Space >
-                                <Space wrap>
-                                    <Dropdown menu={{ items }} placement="bottomLeft" className="hover:cursor-pointer">
-                                        <Avatar icon={<UserOutlined />} />
-                                    </Dropdown>
+                            <>
+                                <Space >
+                                    <Space wrap>
+                                        <Dropdown menu={{ items }} placement="bottomLeft" className="hover:cursor-pointer">
+                                            <Avatar icon={<UserOutlined />} />
+                                        </Dropdown>
+                                    </Space>
                                 </Space>
-                            </Space>
+                                <Link to={`/${user?.role}/add-product`} className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-yellow-500  rounded-md hover:bg-yellow-600 transition-all shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] hover:shadow-[0_6px_20px_rgba(234,179,8,0.23)] hover:-translate-y-0.5">Sell</Link>
+                            </>
                         ) : (
                             <Link
                                 to="/login"

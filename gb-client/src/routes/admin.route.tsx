@@ -1,43 +1,47 @@
 
-import { LucideLayoutDashboard } from "lucide-react";
-import { LiaUsersCogSolid } from "react-icons/lia";
+import { 
+  LayoutDashboard, 
+  Users, 
+  BookOpen, 
+  ShoppingBag, 
+  UserCircle 
+} from "lucide-react";
 import AdminDashboard from "../pages/dashboard/adminDashboard/AdminDashboard";
 import AdminProfile from "../pages/dashboard/adminDashboard/AdminProfile";
 import OrderManagement from "../pages/dashboard/adminDashboard/OrderManagement";
 import ProductManagement from "../pages/dashboard/adminDashboard/ProductManagement";
 import UserManagement from "../pages/dashboard/adminDashboard/UserManagement";
 
-
 export const adminPaths = [
   {
     name: "Dashboard",
     path: "dashboard",
-    icon:<LucideLayoutDashboard />,
-    element: <AdminDashboard/>,
+    icon: <LayoutDashboard size={18} />,
+    element: <AdminDashboard />,
   },
   {
     name: "User Management",
     path: "user-management",
-    icon:<LiaUsersCogSolid />,
-    element: <UserManagement/>,
+    icon: <Users size={18} />,
+    element: <UserManagement />,
   },
   {
     name: "Product Management",
     path: "product-management",
-    icon:<LiaUsersCogSolid />,
-    element: <ProductManagement/>,
+    icon: <BookOpen size={18} />,
+    element: <ProductManagement />,
   },
   {
     name: "Order Management",
     path: "order-management",
-    icon:<LiaUsersCogSolid />,
-    element: <OrderManagement/>,
+    icon: <ShoppingBag size={18} />,
+    element: <OrderManagement />,
   },
   {
     name: "Profile",
     path: "admin-profile",
-    icon:<LiaUsersCogSolid />,
-    element: <AdminProfile/>,
+    icon: <UserCircle size={18} />,
+    element: <AdminProfile />,
   },
 ];
 
