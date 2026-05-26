@@ -18,9 +18,9 @@ const formatPrice = (price: number) =>
   `৳${new Intl.NumberFormat("en-BD").format(price)}`;
 
 const conditionColors: Record<string, string> = {
-  "New":        "bg-emerald-100 text-emerald-700 border-emerald-200",
-  "Like New":   "bg-sky-100 text-sky-700 border-sky-200",
-  "Good":       "bg-amber-100 text-amber-700 border-amber-200",
+  "New": "bg-emerald-100 text-emerald-700 border-emerald-200",
+  "Like New": "bg-sky-100 text-sky-700 border-sky-200",
+  "Good": "bg-amber-100 text-amber-700 border-amber-200",
   "Acceptable": "bg-stone-100 text-stone-600 border-stone-200",
 };
 
@@ -52,8 +52,8 @@ const SectionCard = ({ children, className = "" }: { children: React.ReactNode; 
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductDetails = () => {
-  const { slug }  = useParams<{ slug: string }>();
-  const { id: userId } = useAppSelector(selectCurrentUser) as TUser;
+  const { slug } = useParams<{ slug: string }>();
+  const currentUser = useAppSelector(selectCurrentUser) as TUser;
   const { data: response, isLoading } = useGetProductBySlugQuery(slug!);
   const dispatch = useAppDispatch();
 
@@ -76,7 +76,7 @@ const ProductDetails = () => {
     );
   }
 
-  const isDigital  = product.productType === "Digital";
+  const isDigital = product.productType === "Digital";
   const isOutOfStock = product.stockStatus === "Out of Stock";
 
   const handleAddToCart = (e: React.FormEvent) => {
@@ -88,16 +88,16 @@ const ProductDetails = () => {
     // }
 
     const cartInfo = {
-      quantity:       1,
-      bookTitle:      product.title,
-      book:           product._id,
-      buyer:          userId,
-      seller:         product.seller._id,
-      price:          product.price.basePrice,
-      shippingCost:   0,                           // platform-controlled
-      deliveryOption: product.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
-      isNegotiable:   product.price.isNegotiable,
-      productImage:   product.images?.[0] ?? "/placeholder.png",
+      quantity: 1,
+      bookTitle: product?.title,
+      book: product?._id,
+      buyer: currentUser?.id,
+      seller: product?.seller?._id,
+      price: product?.price?.basePrice,
+      shippingCost: 0,                           // platform-controlled
+      deliveryOption: product?.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
+      isNegotiable: product.price.isNegotiable,
+      productImage: product.images?.[0] ?? "/placeholder.png",
     };
 
     try {
@@ -125,9 +125,8 @@ const ProductDetails = () => {
               />
 
               {/* Product type badge */}
-              <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow ${
-                isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
-              }`}>
+              <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
+                }`}>
                 {isDigital ? <Zap size={12} /> : <Package size={12} />}
                 {product.productType}
               </span>
@@ -221,24 +220,24 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {!isDigital && (
                     <>
-                      <MetaItem icon={MapPin}    label="Location"   value={product.location} />
-                      <MetaItem icon={Truck}     label="Delivery"
+                      <MetaItem icon={MapPin} label="Location" value={product.location} />
+                      <MetaItem icon={Truck} label="Delivery"
                         value={
                           product.fulfillmentOptions?.allowShipping && product.fulfillmentOptions?.allowPickup
                             ? "Shipping & Pickup"
                             : product.fulfillmentOptions?.allowShipping
-                            ? "Shipping"
-                            : "Pickup Only"
+                              ? "Shipping"
+                              : "Pickup Only"
                         }
                       />
                     </>
                   )}
-                  <MetaItem icon={Calendar}   label="Published"  value={product.bookMetadata?.publicationYear} />
-                  <MetaItem icon={Globe}      label="Language"   value={product.bookMetadata?.language} />
-                  <MetaItem icon={Hash}       label="ISBN"       value={product.bookMetadata?.isbn} />
-                  <MetaItem icon={BookOpen}   label="Publisher"  value={product.bookMetadata?.publisher} />
+                  <MetaItem icon={Calendar} label="Published" value={product.bookMetadata?.publicationYear} />
+                  <MetaItem icon={Globe} label="Language" value={product.bookMetadata?.language} />
+                  <MetaItem icon={Hash} label="ISBN" value={product.bookMetadata?.isbn} />
+                  <MetaItem icon={BookOpen} label="Publisher" value={product.bookMetadata?.publisher} />
                   {isDigital && (
-                    <MetaItem icon={Download} label="File Size"  value={product.digitalDetails?.fileSize ? `${product.digitalDetails.fileSize} MB` : undefined} />
+                    <MetaItem icon={Download} label="File Size" value={product.digitalDetails?.fileSize ? `${product.digitalDetails.fileSize} MB` : undefined} />
                   )}
                 </div>
 
@@ -305,8 +304,8 @@ const ProductDetails = () => {
               </div>
               <div className="space-y-3 text-sm">
                 {[
-                  { label: "Level",      value: product.academicMetadata?.level },
-                  { label: "Faculty",    value: product.academicMetadata?.faculty },
+                  { label: "Level", value: product.academicMetadata?.level },
+                  { label: "Faculty", value: product.academicMetadata?.faculty },
                   { label: "Department", value: product.academicMetadata?.department },
                 ].map(({ label, value }) => value ? (
                   <div key={label} className="flex justify-between items-center py-1.5 border-b border-stone-50">
