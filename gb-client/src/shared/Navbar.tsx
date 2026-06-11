@@ -31,12 +31,10 @@ const Navbar = () => {
         navigation.push({ title: "Dashboard", path: `/${user?.role}/dashboard` });
     }
 
-    // Close menu when route changes
     useEffect(() => {
         setIsMenuOpen(false);
     }, [location.pathname]);
 
-    // Handle scroll effect for navbar
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 10) {
