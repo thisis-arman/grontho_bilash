@@ -8,6 +8,10 @@ import { toast } from 'sonner';
 import { useCreateBookMutation } from '../../../redux/features/book/bookApi';
 import { useAppSelector } from '../../../redux/hooks';
 import { selectCurrentUser, TUser } from '../../../redux/features/auth/authSlice';
+import divisionsData from '../../../assets/db/bangladesh-geojson-master/bd-divisions.json';
+import districtsData from '../../../assets/db/bangladesh-geojson-master/bd-districts.json';
+import upazilasData from '../../../assets/db/bangladesh-geojson-master/bd-upazilas.json';
+import postcodesData from '../../../assets/db/bangladesh-geojson-master/bd-postcodes.json';
 
 
 
@@ -41,17 +45,16 @@ const AddProduct = () => {
     const [departments, setDepartments] = useState([]);
     const [selectedFaculty, setSelectedFaculty] = useState<string | null>(null);
     const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-    const [divisions, setDivisions] = useState([]);
-    const [districts, setDistricts] = useState([]);
-    const [filteredDistricts, setFilteredDistricts] = useState([]);
-    const [upazilas, setUpazilas] = useState([]);
-    const [filteredUpazilas, setFilteredUpazilas] = useState([]);
-    const [postcodes, setPostcodes] = useState([]);
-    const [filteredPostcodes, setFilteredPostcodes] = useState([]);
-    const [selectedDivision, setSelectedDivision] = useState(null);
-    const [selectedDistrict, setSelectedDistrict] = useState(null);
-    const [selectedUpazila, setSelectedUpazila] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [divisions, setDivisions] = useState<any[]>(divisionsData.divisions);
+    const [districts, setDistricts] = useState<any[]>(districtsData.districts);
+    const [filteredDistricts, setFilteredDistricts] = useState<any[]>([]);
+    const [upazilas, setUpazilas] = useState<any[]>(upazilasData.upazilas);
+    const [filteredUpazilas, setFilteredUpazilas] = useState<any[]>([]);
+    const [postcodes, setPostcodes] = useState<any[]>(postcodesData.postcodes);
+    const [filteredPostcodes, setFilteredPostcodes] = useState<any[]>([]);
+    const [selectedDivision, setSelectedDivision] = useState<any>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
+    const [selectedUpazila, setSelectedUpazila] = useState<any>(null);
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
     const [imageURL, setImageURL] = useState(null);
     const [productImages, setProductImages] = useState<string[]>([]);
@@ -115,41 +118,7 @@ const AddProduct = () => {
 
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const [divisionRes, districtRes, upazilaRes, postcodeRes] = await Promise.all([
-                    fetch("/src/assets/db/bangladesh-geojson-master/bd-divisions.json"),
-                    fetch("/src/assets/db/bangladesh-geojson-master/bd-districts.json"),
-                    fetch("/src/assets/db/bangladesh-geojson-master/bd-upazilas.json"),
-                    fetch("/src/assets/db/bangladesh-geojson-master/bd-postcodes.json")
-                ]);
 
-                if (![divisionRes, districtRes, upazilaRes, postcodeRes].every(res => res.ok)) {
-                    throw new Error("One or more requests failed");
-                }
-
-                const [divisionData, districtData, upazilaData, postcodeData] = await Promise.all([
-                    divisionRes.json(),
-                    districtRes.json(),
-                    upazilaRes.json(),
-                    postcodeRes.json()
-                ]);
-
-                setDivisions(divisionData.divisions);
-                setDistricts(districtData.districts);
-                setUpazilas(upazilaData.upazilas);
-                setPostcodes(postcodeData.postcodes);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     useEffect(() => {
         if (selectedDivision) {

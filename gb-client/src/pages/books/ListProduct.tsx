@@ -9,6 +9,10 @@ import { useAppSelector } from '../../redux/hooks';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { useGetCategoriesQuery } from '../../redux/features/category/categoryApi';
 import { useCreateProductMutation } from '../../redux/features/book/bookApi';
+import divisionsData from '../../assets/db/bangladesh-geojson-master/bd-divisions.json';
+import districtsData from '../../assets/db/bangladesh-geojson-master/bd-districts.json';
+import upazilasData from '../../assets/db/bangladesh-geojson-master/bd-upazilas.json';
+import postcodesData from '../../assets/db/bangladesh-geojson-master/bd-postcodes.json';
 
 export type TEducationCategory = {
   _id: string; levelId: string; levelName: string; faculties: TFaculty[];
@@ -78,17 +82,16 @@ const AddProduct = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const [divisions, setDivisions] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
+  const [divisions, setDivisions] = useState<any[]>(divisionsData.divisions);
+  const [districts, setDistricts] = useState<any[]>(districtsData.districts);
   const [filteredDistricts, setFilteredDistricts] = useState<any[]>([]);
-  const [upazilas, setUpazilas] = useState<any[]>([]);
+  const [upazilas, setUpazilas] = useState<any[]>(upazilasData.upazilas);
   const [filteredUpazilas, setFilteredUpazilas] = useState<any[]>([]);
-  const [postcodes, setPostcodes] = useState<any[]>([]);
+  const [postcodes, setPostcodes] = useState<any[]>(postcodesData.postcodes);
   const [filteredPostcodes, setFilteredPostcodes] = useState<any[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<any>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
   const [selectedUpazila, setSelectedUpazila] = useState<any>(null);
-  const [locationLoading, setLocationLoading] = useState(true);
 
   // Image state
   const [productImages, setProductImages] = useState<string[]>([]);
@@ -120,30 +123,6 @@ const AddProduct = () => {
       .then(d => setDepartments(d?.data?.departments || []))
       .catch(console.error);
   }, [selectedFaculty]);
-
-  // ── Fetch location data ──────────────────────────────────────────────────
-  useEffect(() => {
-    const fetchGeo = async () => {
-      setLocationLoading(true);
-      try {
-        const [divRes, distRes, upaRes, postRes] = await Promise.all([
-          fetch("/src/assets/db/bangladesh-geojson-master/bd-divisions.json"),
-          fetch("/src/assets/db/bangladesh-geojson-master/bd-districts.json"),
-          fetch("/src/assets/db/bangladesh-geojson-master/bd-upazilas.json"),
-          fetch("/src/assets/db/bangladesh-geojson-master/bd-postcodes.json"),
-        ]);
-        const [divData, distData, upaData, postData] = await Promise.all([
-          divRes.json(), distRes.json(), upaRes.json(), postRes.json(),
-        ]);
-        setDivisions(divData.divisions);
-        setDistricts(distData.districts);
-        setUpazilas(upaData.upazilas);
-        setPostcodes(postData.postcodes);
-      } catch (e) { console.error(e); }
-      finally { setLocationLoading(false); }
-    };
-    fetchGeo();
-  }, []);
 
   useEffect(() => {
     if (selectedDivision) {
@@ -257,7 +236,7 @@ const AddProduct = () => {
     }
   };
 
-  if (isLoading || locationLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
