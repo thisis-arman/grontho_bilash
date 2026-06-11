@@ -162,13 +162,15 @@ const AddProduct = () => {
 
     const handleFileUpload = async (event: FormEvent<HTMLInputElement>) => {
         event.preventDefault();
-        const file = event.target?.files[0];
+        const file = (event.target as HTMLInputElement).files?.[0];
         if (!file) return;
         // Create a form data object
         const formData = new FormData();
         formData.append("image", file);
         try {
-            const response = await axios.post("http://localhost:5000/api/v1/books/upload", formData, {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^(192\.168\.|10\.|172\.)/.test(window.location.hostname);
+            const uploadUrl = isLocal ? `http://${window.location.hostname}:5000/api/v1/books/upload` : 'https://grontho-bilash-server.vercel.app/api/v1/books/upload';
+            const response = await axios.post(uploadUrl, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
