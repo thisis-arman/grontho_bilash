@@ -308,9 +308,9 @@ const Navbar = () => {
                       <span className={`transition-transform duration-150 ${isActive ? "scale-110" : ""}`}>
                         {item.icon}
                       </span>
-                      <span className="truncate w-full text-center px-1 leading-tight">
+                      <span className="truncate w-full text-center px-1">
                         {/* Shorten long labels for small screens */}
-                        {item.name.split(" ")[0]}
+                        {item.name}
                       </span>
                     </>
                   )}
