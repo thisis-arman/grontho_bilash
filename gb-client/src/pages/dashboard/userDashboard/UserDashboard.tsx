@@ -5,14 +5,14 @@ import { useGetOrderByUserIdQuery } from "../../../redux/features/order/orderApi
 import { useAppSelector } from "../../../redux/hooks";
 import ReuseableCard from "./components/ReuseableCard";
 import { Link } from "react-router-dom";
-import { 
-    AreaChart, 
-    Area, 
-    XAxis, 
-    YAxis, 
-    CartesianGrid, 
-    Tooltip, 
-    ResponsiveContainer 
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
 } from 'recharts';
 import { BookOpen, Wallet, ShoppingBag, Clock } from 'lucide-react';
 
@@ -24,7 +24,7 @@ const UserDashboard = () => {
 
     const orders = orderData?.data || [];
     const books = bookData?.data || [];
-    
+
     const totalSpentAmount = orders.reduce((acc: number, data: any) => acc + data.totalAmount, 0);
     const pendingOrders = orders.filter((order: any) => order.orderStatus === 'Pending' || order.orderStatus === 'Processing');
 
@@ -45,48 +45,47 @@ const UserDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50/50 ">
             <div className="max-w-7xl mx-auto space-y-8">
-                
+
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                        <h1 className="text-xl md:text-3xl font-bold tracking-tight text-gray-900">
                             Welcome back, {name || 'User'}! 👋
                         </h1>
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-500">
                             Here is what's happening with your bookstore account today.
                         </p>
                     </div>
                 </div>
-
                 {/* KPI Cards */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                     <ReuseableCard
-                        amount={`৳ ${totalSpentAmount}`}
-                        icon={<Wallet color='gold' className="w-6 h-6" />}
-                        stat={'+12.5%'}
-                        trend="up"
                         title="Total Spent"
+                        amount={`৳ ${totalSpentAmount}`}
+                        icon={<Wallet className="w-full h-full" />}
+                        stat={totalSpentAmount > 0 ? `৳ ${totalSpentAmount}` : 'No spending yet'}
+                        trend={totalSpentAmount > 0 ? 'up' : 'neutral'}
                     />
                     <ReuseableCard
-                        amount={orders.length}
-                        icon={<ShoppingBag color='gold' className="w-6 h-6" />}
-                        stat={'+5.2%'}
-                        trend="up"
                         title="Total Orders"
+                        amount={orders.length}
+                        icon={<ShoppingBag className="w-full h-full" />}
+                        stat={orders.length > 0 ? `${orders.length} placed` : 'No orders yet'}
+                        trend={orders.length > 0 ? 'up' : 'neutral'}
                     />
                     <ReuseableCard
-                        amount={pendingOrders.length}
-                        icon={<Clock color='gold' className="w-6 h-6 text-amber-600" />}
-                        stat={pendingOrders.length > 0 ? "Action needed" : "All clear"}
-                        trend={pendingOrders.length > 0 ? "down" : "neutral"}
                         title="In Progress"
+                        amount={pendingOrders.length}
+                        icon={<Clock className="w-full h-full" />}
+                        stat={pendingOrders.length > 0 ? 'Action needed' : 'All clear'}
+                        trend={pendingOrders.length > 0 ? 'down' : 'up'}
                     />
                     <ReuseableCard
-                        amount={books.length}
-                        icon={<BookOpen color='gold' className="w-6 h-6 text-indigo-600" />}
-                        stat={'+2 New this week'}
-                        trend="up"
                         title="Books Owned"
+                        amount={books.length}
+                        icon={<BookOpen className="w-full h-full" />}
+                        stat={books.length > 0 ? `${books.length} listed` : 'No books yet'}
+                        trend={books.length > 0 ? 'up' : 'neutral'}
                     />
                 </section>
 
@@ -106,14 +105,14 @@ const UserDashboard = () => {
                                     >
                                         <defs>
                                             <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#e5c046ff" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#e5e546ff" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#e5c046ff" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#e5e546ff" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12}} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12}} dx={-10} tickFormatter={(value) => `৳ ${value}`} />
-                                        <Tooltip 
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dx={-10} tickFormatter={(value) => `৳ ${value}`} />
+                                        <Tooltip
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                             formatter={(value: any) => [`৳ ${value}`, 'Amount']}
                                         />
@@ -160,9 +159,9 @@ const UserDashboard = () => {
                                         <div className="text-right">
                                             <p className="text-sm font-semibold text-gray-900">৳ {order.totalAmount}</p>
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-1
-                                                ${order.orderStatus === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 
-                                                order.orderStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 
-                                                'bg-blue-100 text-blue-800'}`}>
+                                                ${order.orderStatus === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
+                                                    order.orderStatus === 'Pending' ? 'bg-amber-100 text-amber-800' :
+                                                        'bg-blue-100 text-blue-800'}`}>
                                                 {order.orderStatus || 'Pending'}
                                             </span>
                                         </div>
