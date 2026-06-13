@@ -516,14 +516,14 @@ const AddProduct = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-stone-50 py-2 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
 
         {/* ── Page Header & Step Tracker ── */}
-        <div className="mb-10 text-center sm:text-left">
+        <div className="mb-4 text-center sm:text-left ">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-black text-stone-900 tracking-tight">Create Listing</h1>
+              <h1 className="text-2xl font-black text-stone-900 tracking-tight">Create Listing</h1>
               <p className="mt-1 text-sm text-stone-500">
                 Publish a physical book or a digital file to the marketplace in 3 simple steps.
               </p>
