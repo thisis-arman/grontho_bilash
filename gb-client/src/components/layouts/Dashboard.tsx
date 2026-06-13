@@ -1,44 +1,35 @@
-import  { useState } from 'react';
-import { MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
-import { Button, Layout } from 'antd';
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../ui/Sidebar';
-
-const { Header, Content } = Layout;
+import DashboardTopNav from '../ui/dashboardMobile/DashboardTopNav';
+import DashboardBottomNav from '../ui/dashboardMobile/DashboardBottomNav';
+import DashboardMobileMenu from '../ui/dashboardMobile/DashboardMobileMenu';
 
 const Dashboard = () => {
-  const [collapsed, setCollapsed] = useState(false);
-
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <Layout >
-      <Sidebar collapsed={ collapsed}  />
-      <Layout>
-        <Header style={{ padding: 0 }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined className='text-white border p-2 rounded shadow' /> : <MenuFoldOutlined className='text-white border p-2 rounded shadow' />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 64,
-              height: 64,
-            }}
-          />
-        </Header>
-        <Content className='min-h-screen'
-          style={{
-            // margin: '10px 16px',
-            padding: 12,
-            minHeight: 280,
+  <>
+   <div className="min-h-screen bg-gray-50">
+      <DashboardTopNav
+        onMenuToggle={() => setMobileMenuOpen((prev) => !prev)}
+        mobileMenuOpen={mobileMenuOpen}
+      />
 
-          }}
-        >
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white border-b border-gray-200 shadow-md">
+          <DashboardMobileMenu onClose={() => setMobileMenuOpen(false)} />
+        </div>
+      )}
+
+      <main className="pb-20 lg:pb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </main>
+
+      <DashboardBottomNav />
+    </div>
+  </>
   );
 };
 
