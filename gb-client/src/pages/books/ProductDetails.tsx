@@ -9,7 +9,8 @@ import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Calendar, BookOpen, CheckCircle,
   Truck, Zap, Package, User, Globe, Hash, Tag,
-  Eye, Heart, Download, Shield
+  Eye, Heart, Download, Shield,
+  Phone
 } from 'lucide-react';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -108,6 +109,7 @@ const ProductDetails = () => {
     }
   };
 
+  console.log({ seller: product?.seller })
   return (
     <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -188,10 +190,10 @@ const ProductDetails = () => {
                   <p className="text-sm text-stone-500 mb-5">
                     by{" "}
                     <span className="font-semibold text-stone-700">
-                      {product.bookMetadata.author}
+                      {product.bookMetadata?.author}
                     </span>
-                    {product.bookMetadata.edition && (
-                      <span className="text-stone-400"> · {product.bookMetadata.edition}</span>
+                    {product.bookMetadata?.edition && (
+                      <span className="text-stone-400"> · {product?.bookMetadata?.edition}</span>
                     )}
                   </p>
                 )}
@@ -199,11 +201,11 @@ const ProductDetails = () => {
                 {/* Price block */}
                 <div className="flex items-baseline gap-3 mb-6">
                   <span className="text-4xl font-bold text-stone-900">
-                    {formatPrice(product.price.basePrice)}
+                    {formatPrice(product?.price?.basePrice)}
                   </span>
-                  {(product.price.discountPrice ?? 0) > 0 && (
+                  {(product?.price?.discountPrice ?? 0) > 0 && (
                     <span className="text-lg text-stone-400 line-through font-normal">
-                      {formatPrice(product.price.discountPrice!)}
+                      {formatPrice(product?.price?.discountPrice!)}
                     </span>
                   )}
                   {/* Shipping note — only for physical */}
@@ -220,31 +222,31 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {!isDigital && (
                     <>
-                      <MetaItem icon={MapPin} label="Location" value={product.location} />
+                      <MetaItem icon={MapPin} label="Location" value={product?.location} />
                       <MetaItem icon={Truck} label="Delivery"
                         value={
-                          product.fulfillmentOptions?.allowShipping && product.fulfillmentOptions?.allowPickup
+                          product?.fulfillmentOptions?.allowShipping && product?.fulfillmentOptions?.allowPickup
                             ? "Shipping & Pickup"
-                            : product.fulfillmentOptions?.allowShipping
+                            : product?.fulfillmentOptions?.allowShipping
                               ? "Shipping"
                               : "Pickup Only"
                         }
                       />
                     </>
                   )}
-                  <MetaItem icon={Calendar} label="Published" value={product.bookMetadata?.publicationYear} />
-                  <MetaItem icon={Globe} label="Language" value={product.bookMetadata?.language} />
-                  <MetaItem icon={Hash} label="ISBN" value={product.bookMetadata?.isbn} />
-                  <MetaItem icon={BookOpen} label="Publisher" value={product.bookMetadata?.publisher} />
+                  <MetaItem icon={Calendar} label="Published" value={product?.bookMetadata?.publicationYear} />
+                  <MetaItem icon={Globe} label="Language" value={product?.bookMetadata?.language} />
+                  <MetaItem icon={Hash} label="ISBN" value={product?.bookMetadata?.isbn} />
+                  <MetaItem icon={BookOpen} label="Publisher" value={product?.bookMetadata?.publisher} />
                   {isDigital && (
-                    <MetaItem icon={Download} label="File Size" value={product.digitalDetails?.fileSize ? `${product.digitalDetails.fileSize} MB` : undefined} />
+                    <MetaItem icon={Download} label="File Size" value={product?.digitalDetails?.fileSize ? `${product?.digitalDetails?.fileSize} MB` : undefined} />
                   )}
                 </div>
 
                 {/* Description */}
                 <div className="mb-6">
                   <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400 mb-2">Description</p>
-                  <p className="text-sm text-stone-600 leading-relaxed">{product.description}</p>
+                  <p className="text-sm text-stone-600 leading-relaxed">{product?.description}</p>
                 </div>
 
                 {/* Seller */}
@@ -259,7 +261,7 @@ const ProductDetails = () => {
                     </p>
                   </div>
                   {!product.isContactHidden && (
-                    <span className="ml-auto text-xs text-emerald-600 font-medium">Contact visible</span>
+                    <span className="ml-auto text-xs text-emerald-600 font-medium"><Phone size={16} className="text-emerald-600 inline-block pr-1" />  {product.seller?.contactNo ?? "—"}</span>
                   )}
                 </div>
               </div>
@@ -304,9 +306,9 @@ const ProductDetails = () => {
               </div>
               <div className="space-y-3 text-sm">
                 {[
-                  { label: "Level", value: product.academicMetadata?.level },
-                  { label: "Faculty", value: product.academicMetadata?.faculty },
-                  { label: "Department", value: product.academicMetadata?.department },
+                  { label: "Level", value: product?.academicMetadata?.level },
+                  { label: "Faculty", value: product?.academicMetadata?.faculty },
+                  { label: "Department", value: product?.academicMetadata?.department },
                 ].map(({ label, value }) => value ? (
                   <div key={label} className="flex justify-between items-center py-1.5 border-b border-stone-50">
                     <span className="text-stone-400 text-xs font-medium">{label}</span>

@@ -76,12 +76,12 @@ const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
     return productId;
   };
   const bookId = await generateProductId();
-  console.log({bookId});
+  console.log({ bookId });
   // Log the bookId and other book information
   // console.log({ bookId, ...bookInfo });
 
   // Create and save the new book record
-  const book = await BookModel.create({ bookId,...bookInfo });
+  const book = await BookModel.create({ bookId, ...bookInfo });
 
   return book;
 };
@@ -109,9 +109,9 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
     stockStatus: { $ne: "Out of Stock" },
   };
 
-  if (productType)  filter.productType = productType;
-  if (category)     filter.category    = category;
-  if (condition)    filter.condition   = condition;
+  if (productType) filter.productType = productType;
+  if (category) filter.category = category;
+  if (condition) filter.condition = condition;
 
   if (minPrice || maxPrice) {
     filter["price.basePrice"] = {
@@ -124,18 +124,18 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
     filter.$text = { $search: search };
   }
 
-  const pageNum  = Number(page);
+  const pageNum = Number(page);
   const limitNum = Number(limit);
-  const skip     = (pageNum - 1) * limitNum;
-  const sortDir  = sortOrder === "asc" ? 1 : -1;
+  const skip = (pageNum - 1) * limitNum;
+  const sortDir = sortOrder === "asc" ? 1 : -1;
 
   const [data, total] = await Promise.all([
-    ProductModel.find({isPublished:true})
-      .populate("seller", "name email")
+    ProductModel.find({ isPublished: true })
+      .populate("seller", "name email contactNo")
       .sort({ [sortBy]: sortDir })
       .skip(skip)
       .limit(limitNum),
-    ProductModel.countDocuments({isPublished:true}),
+    ProductModel.countDocuments({ isPublished: true }),
   ]);
 
   return data;
@@ -150,7 +150,7 @@ const getProductBySlugFromDb = async (slug: string): Promise<Document> => {
     { slug, isDeleted: false, isPublished: true },
     { $inc: { viewCount: 1 } },              // auto-increment views on fetch
     { new: true }
-  ).populate("seller", "name email");
+  ).populate("seller", "name email contactNo ");
 
   if (!product) throw new AppError(httpStatus.NOT_FOUND, "Product not found");
   return product;
@@ -208,17 +208,16 @@ const getBooksByEmailFromDB = async (email: string) => {
   }
 
   // Correct the query format here
-  const books = await ProductModel.find({ seller: user._id });
+  const books = await ProductModel.find({ seller: user._id, isDeleted: false, }).populate("seller", "name email contactNo ");
   console.log(books);
 
   return books;
 };
 
-// Service to soft delete a book (set a flag instead of actually deleting)
 const deleteBookFromDb = async (bookId: string): Promise<Document | null> => {
-  const book = await BookModel.findByIdAndUpdate(
+  const book = await ProductModel.findByIdAndUpdate(
     bookId,
-    { isDeleted: true }, // Soft delete by setting an "isDeleted" flag
+    { isDeleted: true },
     { new: true }
   );
   if (!book) {

@@ -14,6 +14,7 @@ router.get(
   // Auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   bookController.getBooks
 );
+// NOTE: THIS API IS ONLY FOR TESTING - REMOVE AFTER TESTING (http://localhost:5000/api/v1/books/all-products)
 router.get('/all-products', bookController.getAllProducts)
 router.get('/products', bookController.getProductsByCategories)
 router.get("/products/:slug", bookController.getProductBySlug);
@@ -46,6 +47,7 @@ router.post("/upload", upload.single("image"), async (req, res): Promise<void> =
 });
 
 router.patch("/:id", bookController.deleteBook);
+
 //currently using this api to create product 4/22/26
 router.post(
   "/create-product",

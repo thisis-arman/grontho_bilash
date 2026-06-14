@@ -5,7 +5,8 @@ import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice
 import { Table, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Search, Plus, Package, Zap, MapPin, Truck, CheckCircle, XCircle } from "lucide-react";
-import { useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
+import { useDeleteBookMutation, useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
+import Swal from 'sweetalert2'
 
 
 type TPrice = { basePrice: number; isNegotiable: boolean; discountPrice: number };
@@ -49,10 +50,46 @@ const StatCard = ({ label, value, sub }: { label: string; value: string | number
 
 
 const MyProducts = () => {
-    const { id,email } = useAppSelector(selectCurrentUser) as TUser;
-    const { data: responseData, isLoading } = useGetBooksByEmailQuery(email);
+    const { id, email } = useAppSelector(selectCurrentUser) as TUser;
+    const { data: responseData, isLoading, refetch } = useGetBooksByEmailQuery(email);
     const [searchText, setSearchText] = useState("");
     const [typeFilter, setTypeFilter] = useState<"All" | "Physical" | "Digital">("All");
+    const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
+
+    const handleDelete = async (productId: string) => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d6a130ff",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await deleteBook(productId).unwrap();
+
+            await Swal.fire({
+                title: "Deleted!",
+                text: "Book deleted successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+            refetch();
+        } catch (error: any) {
+            Swal.fire({
+                title: "Error",
+                text:
+                    error?.data?.message ||
+                    "Something went wrong while deleting the book.",
+                icon: "error",
+            });
+        }
+    };
 
     const products: TProduct[] = responseData?.data || [];
 
@@ -72,7 +109,8 @@ const MyProducts = () => {
         return matchesSearch && matchesType;
     });
 
-   const columns: ColumnsType<TProduct> = [
+
+    const columns: ColumnsType<TProduct> = [
         {
             title: "Product",
             key: "product",
@@ -211,8 +249,12 @@ const MyProducts = () => {
                             Edit
                         </button>
                     </Link>
-                    <button className="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors">
-                        Delete
+                    <button
+                        disabled={isDeleting}
+                        onClick={() => handleDelete(r._id)}
+                        className="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {isDeleting ? "Deleting..." : "Delete"}
                     </button>
                 </Space>
             ),
@@ -259,11 +301,10 @@ const MyProducts = () => {
                             <button
                                 key={type}
                                 onClick={() => setTypeFilter(type)}
-                                className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all ${
-                                    typeFilter === type
-                                        ? "bg-stone-900 text-white border-stone-900"
-                                        : "bg-white text-stone-600 border-stone-200 hover:border-stone-300"
-                                }`}
+                                className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all ${typeFilter === type
+                                    ? "bg-stone-900 text-white border-stone-900"
+                                    : "bg-white text-stone-600 border-stone-200 hover:border-stone-300"
+                                    }`}
                             >
                                 {type === "Physical" && <Package className="w-3 h-3 inline mr-1" />}
                                 {type === "Digital" && <Zap className="w-3 h-3 inline mr-1" />}
