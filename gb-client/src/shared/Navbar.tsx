@@ -310,7 +310,7 @@ const Navbar = () => {
                       </span>
                       <span className="truncate w-full text-center px-1">
                         {/* Shorten long labels for small screens */}
-                        {item.name}
+                        {/* {item.name} */}
                       </span>
                     </>
                   )}
@@ -343,7 +343,7 @@ const Navbar = () => {
                         </span>
                       )}
                     </span>
-                    <span>Cart</span>
+                    {/* <span>Cart</span> */}
                   </>
                 )}
               </NavLink>

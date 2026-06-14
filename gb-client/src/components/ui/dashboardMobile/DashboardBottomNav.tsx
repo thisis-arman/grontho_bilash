@@ -39,7 +39,7 @@ const DashboardBottomNav = () => {
           >
             <span className="w-5 h-5 flex items-center justify-center">{item.icon}</span>
             <span className="truncate w-full text-center px-0.5 leading-tight">
-              {item.name.split(' ')[0]}
+              {/* {item.name.split(' ')[0]} */}
             </span>
           </NavLink>
         ))}
