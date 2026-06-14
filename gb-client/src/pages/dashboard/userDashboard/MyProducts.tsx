@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
-import { Table, Space } from "antd";
+import { Table, Space, Modal, Row, Col, Form, InputNumber, Input, Switch } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Search, Plus, Package, Zap, MapPin, Truck, CheckCircle, XCircle } from "lucide-react";
-import { useDeleteBookMutation, useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
+import { useDeleteBookMutation, useGetBooksByEmailQuery, useUpdateBookMutation } from "../../../redux/features/book/bookApi";
 import Swal from 'sweetalert2'
+import { toast } from "sonner";
+
 
 
 type TPrice = { basePrice: number; isNegotiable: boolean; discountPrice: number };
@@ -41,7 +43,7 @@ type TProduct = {
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 const StatCard = ({ label, value, sub }: { label: string; value: string | number; sub?: string }) => (
-    <div className="bg-white rounded-2xl border border-stone-100 p-5">
+    <div className="bg-white  border border-stone-100 p-3 md:p-4">
         <p className="text-xs font-semibold tracking-widest uppercase text-stone-400 mb-1">{label}</p>
         <p className="text-2xl font-bold text-stone-900">{value}</p>
         {sub && <p className="text-xs text-stone-400 mt-0.5">{sub}</p>}
@@ -55,6 +57,13 @@ const MyProducts = () => {
     const [searchText, setSearchText] = useState("");
     const [typeFilter, setTypeFilter] = useState<"All" | "Physical" | "Digital">("All");
     const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
+    const [updateBook, { isLoading: isUpdating }] =
+        useUpdateBookMutation();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] =
+        useState<TProduct | null>(null);
+
+    const [form] = Form.useForm();
 
     const handleDelete = async (productId: string) => {
         const result = await Swal.fire({
@@ -91,6 +100,68 @@ const MyProducts = () => {
         }
     };
 
+
+    const handleEdit = (product: TProduct) => {
+        setSelectedProduct(product);
+
+        form.setFieldsValue({
+            title: product.title,
+            location: product.location,
+            condition: product.condition,
+
+            basePrice: product.price.basePrice,
+            discountPrice: product.price.discountPrice,
+
+            author: product.bookMetadata?.author,
+            publisher: product.bookMetadata?.publisher,
+            publicationYear:
+                product.bookMetadata?.publicationYear,
+
+            isPublished: product.isPublished,
+        });
+
+        setIsEditModalOpen(true);
+    };
+
+
+    const handleUpdate = async () => {
+        try {
+            const values = await form.validateFields();
+
+            const payload = {
+                title: values.title,
+                location: values.location,
+                condition: values.condition,
+
+                price: {
+                    basePrice: values.basePrice,
+                    discountPrice: values.discountPrice,
+                },
+
+                bookMetadata: {
+                    author: values.author,
+                    publisher: values.publisher,
+                    publicationYear: values.publicationYear,
+                },
+
+                isPublished: values.isPublished,
+            };
+
+            await updateBook({
+                id: selectedProduct?._id,
+                data: payload,
+            }).unwrap();
+
+            toast.success("Product updated successfully");
+
+            setIsEditModalOpen(false);
+            form.resetFields();
+
+            refetch();
+        } catch (error) {
+            toast.error("Failed to update product");
+        }
+    };
     const products: TProduct[] = responseData?.data || [];
 
     const totalProducts = products.length;
@@ -244,11 +315,12 @@ const MyProducts = () => {
             key: "actions",
             render: (_, r) => (
                 <Space size={4}>
-                    <Link to={`/user/edit-product/${r._id}`}>
-                        <button className="px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
-                            Edit
-                        </button>
-                    </Link>
+                    <button
+                        onClick={() => handleEdit(r)}
+                        className="px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg"
+                    >
+                        Edit
+                    </button>
                     <button
                         disabled={isDeleting}
                         onClick={() => handleDelete(r._id)}
@@ -263,11 +335,11 @@ const MyProducts = () => {
 
     return (
         <div className="min-h-screen bg-stone-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2">
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
                     <div>
-                        <h1 className="text-2xl font-bold text-stone-900">My Listings</h1>
+                        <h1 className="md:text-2xl text-xl font-bold text-stone-900">My Listings</h1>
                         <p className="text-sm text-stone-500 mt-0.5">Manage your physical and digital products</p>
                     </div>
                     <Link to="/user/add-product">
@@ -278,7 +350,7 @@ const MyProducts = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-4 md:mb-8">
                     <StatCard label="Total Listings" value={totalProducts} />
                     <StatCard label="Published" value={publishedCount} sub={`${totalProducts - publishedCount} drafts`} />
                     <StatCard label="Physical" value={physicalCount} sub="Books & Items" />
@@ -345,7 +417,103 @@ const MyProducts = () => {
                         }}
                     />
                 </div>
+                {/* Edit PRoduct modal */}
+                <Modal
+                    title={
+                        <div className="text-lg font-semibold">
+                            Edit Product
+                        </div>
+                    }
+                    open={isEditModalOpen}
+                    onCancel={() => setIsEditModalOpen(false)}
+                    onOk={handleUpdate}
+                    confirmLoading={isUpdating}
+                    okText="Save Changes"
+                    width={800}
+                    centered
+                    destroyOnClose
+                >
+                    <Form
+                        layout="vertical"
+                        form={form}
+                    >
+                        <Row gutter={16}>
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Title"
+                                    name="title"
+                                    rules={[
+                                        {
+                                            required: true,
+                                        },
+                                    ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
 
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Location"
+                                    name="location"
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Price"
+                                    name="basePrice"
+                                >
+                                    <InputNumber
+                                        className="w-full"
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Discount Price"
+                                    name="discountPrice"
+                                >
+                                    <InputNumber
+                                        className="w-full"
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Author"
+                                    name="author"
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Publisher"
+                                    name="publisher"
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24}>
+                                <Form.Item
+                                    label="Published"
+                                    name="isPublished"
+                                    valuePropName="checked"
+                                    
+                                >
+                                    <Switch />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Modal>
             </div>
         </div>
     );

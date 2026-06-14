@@ -35,7 +35,7 @@ const listABook = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllProducts = catchAsync(async (req: Request, res: Response) => {
-  const result = await bookServices.getAllProductsFromDb(req.query);
+  const result = await bookServices.getAllProductsFromDb({ ...req.query});
   sendResponse(res, { statusCode: 200, success: true, message: "Products fetched successfully", data: result });
 });
 

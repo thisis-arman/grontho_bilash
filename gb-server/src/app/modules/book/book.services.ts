@@ -130,12 +130,12 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
   const sortDir = sortOrder === "asc" ? 1 : -1;
 
   const [data, total] = await Promise.all([
-    ProductModel.find({ isPublished: true })
+    ProductModel.find({ isPublished: true, isDeleted: false, stockStatus: { $ne: "Out of Stock" }, })
       .populate("seller", "name email contactNo")
       .sort({ [sortBy]: sortDir })
       .skip(skip)
       .limit(limitNum),
-    ProductModel.countDocuments({ isPublished: true }),
+    ProductModel.countDocuments({ isPublished: true, isDeleted: false, stockStatus: { $ne: "Out of Stock" }, }),
   ]);
 
   return data;
@@ -239,19 +239,47 @@ const getProductsByCategoriesFromDB = async () => {
   return books;
 };
 
-// Dynamic update service for books
 const updateBookIntoDb = async (
   bookId: string,
-  updateData: Partial<TBook>
-): Promise<Document | null> => {
-  const book = await BookModel.findByIdAndUpdate(bookId, updateData, {
-    new: true, // Return the updated document
-    runValidators: true, // Ensure validation is run on the updated data
-  });
-  if (!book) {
-    throw new Error("Book not found for update");
+  payload: Partial<TBook>
+) => {
+  const modifiedData: Record<string, unknown> = {};
+
+  if (payload.bookMetadata) {
+    Object.entries(payload.bookMetadata).forEach(
+      ([key, value]) => {
+        modifiedData[`bookMetadata.${key}`] = value;
+      }
+    );
   }
-  return book;
+
+  if (payload.price) {
+    Object.entries(payload.price).forEach(
+      ([key, value]) => {
+        modifiedData[`price.${key}`] = value;
+      }
+    );
+  }
+
+  Object.entries(payload).forEach(
+    ([key, value]) => {
+      if (
+        key !== "bookMetadata" &&
+        key !== "price"
+      ) {
+        modifiedData[key] = value;
+      }
+    }
+  );
+
+  return ProductModel.findByIdAndUpdate(
+    bookId,
+    { $set: modifiedData },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 };
 
 export const bookServices = {

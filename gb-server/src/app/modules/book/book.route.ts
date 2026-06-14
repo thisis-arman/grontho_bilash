@@ -60,9 +60,10 @@ router.post(
 );
 
 router.get("/book/:id", bookController.getBook);
-router.patch(
+
+router.put(
   "/:bookId",
-  validateRequest(zodValidationSchema.updateBookSchema),
+  // validateRequest(zodValidationSchema.updateBookSchema),
   bookController.updateBook
 );
 
