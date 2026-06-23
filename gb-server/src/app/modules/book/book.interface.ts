@@ -11,7 +11,7 @@ export type TBook = {
   faculty: Types.ObjectId;
   department: Types.ObjectId;
   isPublished: boolean;
-  isContactNoHidden: boolean;
+  isContactHidden: boolean;
   isNegotiable: boolean;
   images: string[];
   publicationYear: number;
@@ -28,11 +28,11 @@ type TLevel = {
   faculty: string;
 };
 type TFaculty = {
-  facultyId:string;
+  facultyId: string;
   faculty: string; // science,humanities,bba,bsc,bss
-  facultyShorts:string; //bba, 
+  facultyShorts: string; //bba, 
   department?: Types.ObjectId;// ,
-  level:Types.ObjectId
+  level: Types.ObjectId
 }
 type TDepartment = {
   deptId: string;

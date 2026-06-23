@@ -64,7 +64,10 @@ const AddProduct = () => {
     const saved = sessionStorage.getItem("gb_list_product_draft");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Backfill quantity for drafts saved before this field existed
+        if (parsed.quantity === undefined) parsed.quantity = "1";
+        return parsed;
       } catch (e) {
         console.error("Failed to parse draft from sessionStorage", e);
       }
@@ -82,8 +85,9 @@ const AddProduct = () => {
       language: "English",
       price: "",
       isNegotiable: false,
-      isContactNoHidden: false,
+      isContactHidden: false,
       condition: "New", // Default to "New" which is valid for physical
+      quantity: "1", // How many identical copies the seller has (Physical only)
       village: "",
       allowPickup: true,
       allowShipping: true,
@@ -319,6 +323,14 @@ const AddProduct = () => {
         if (!formData.condition) {
           newErrors.condition = "Condition is required";
         }
+
+        const qtyNum = parseInt(formData.quantity, 10);
+        if (formData.quantity === "" || formData.quantity === null || formData.quantity === undefined) {
+          newErrors.quantity = "Quantity is required";
+        } else if (isNaN(qtyNum) || !Number.isInteger(qtyNum) || qtyNum < 1) {
+          newErrors.quantity = "Quantity must be a whole number of 1 or more";
+        }
+
         if (!selectedDivision) {
           newErrors.division = "Division is required";
         }
@@ -396,8 +408,9 @@ const AddProduct = () => {
         language: "English",
         price: "",
         isNegotiable: false,
-        isContactNoHidden: false,
+        isContactHidden: false,
         condition: "New",
+        quantity: "1",
         village: "",
         allowPickup: true,
         allowShipping: true,
@@ -445,7 +458,7 @@ const AddProduct = () => {
       images: productImages.filter(Boolean),
       location: locationStr,
       isPublished: true, // Explicitly published immediately upon creation
-      isContactNoHidden: formData.isContactNoHidden,
+      isContactHidden: formData.isContactHidden,
       fulfillmentOptions: {
         allowPickup: formData.productType === "Physical" ? formData.allowPickup : false,
         allowShipping: formData.productType === "Physical" ? formData.allowShipping : false,
@@ -459,6 +472,13 @@ const AddProduct = () => {
         edition: formData.edition,
         language: formData.language,
       },
+      // Inventory is only meaningful for Physical stock; Digital products
+      // rely on the backend's default (unlimited / always-1) quantity.
+      ...(formData.productType === "Physical" && {
+        inventory: {
+          quantity: parseInt(formData.quantity, 10) || 1,
+        },
+      }),
       ...(formData.productType === "Digital" && {
         digitalDetails: {
           fileType: formData.fileType,
@@ -566,13 +586,12 @@ const AddProduct = () => {
                     }}
                     className="flex flex-col items-center group cursor-pointer focus:outline-none"
                   >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${
-                      isCompleted
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isCompleted
                         ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/10"
                         : isActive
-                        ? "bg-white text-amber-600 border-amber-500 shadow-lg shadow-amber-500/20 scale-110"
-                        : "bg-white text-stone-400 border-stone-200 hover:border-stone-400"
-                    }`}>
+                          ? "bg-white text-amber-600 border-amber-500 shadow-lg shadow-amber-500/20 scale-110"
+                          : "bg-white text-stone-400 border-stone-200 hover:border-stone-400"
+                      }`}>
                       {isCompleted ? <Check className="w-5 h-5" /> : s.number}
                     </div>
                     <div className="mt-2 text-center">
@@ -596,27 +615,25 @@ const AddProduct = () => {
           {/* ────────────────── STEP 1: Details ────────────────── */}
           {step === 1 && (
             <div className="space-y-6 animate-fadeIn">
-              
+
               {/* Product Type (Physical vs Digital) */}
               <div className="bg-white rounded-2xl border border-stone-100 p-6 shadow-sm">
                 <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider mb-4 flex items-center gap-2">
                   <Book className="w-4 h-4 text-amber-500" />
                   Product Type
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <button
                     type="button"
                     onClick={() => updateField("productType", "Physical")}
-                    className={`flex items-start gap-4 p-5 rounded-2xl border text-left transition-all ${
-                      formData.productType === "Physical"
+                    className={`flex items-start gap-4 p-5 rounded-2xl border text-left transition-all ${formData.productType === "Physical"
                         ? "border-amber-500 bg-amber-50/20 ring-2 ring-amber-500/15 shadow-sm"
                         : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50/20"
-                    }`}
+                      }`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      formData.productType === "Physical" ? "bg-amber-100 text-amber-600" : "bg-stone-100 text-stone-500"
-                    }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${formData.productType === "Physical" ? "bg-amber-100 text-amber-600" : "bg-stone-100 text-stone-500"
+                      }`}>
                       <Package className="w-5 h-5" />
                     </div>
                     <div>
@@ -628,15 +645,13 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => updateField("productType", "Digital")}
-                    className={`flex items-start gap-4 p-5 rounded-2xl border text-left transition-all ${
-                      formData.productType === "Digital"
+                    className={`flex items-start gap-4 p-5 rounded-2xl border text-left transition-all ${formData.productType === "Digital"
                         ? "border-violet-500 bg-violet-50/20 ring-2 ring-violet-500/15 shadow-sm"
                         : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50/20"
-                    }`}
+                      }`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      formData.productType === "Digital" ? "bg-violet-100 text-violet-600" : "bg-stone-100 text-stone-500"
-                    }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${formData.productType === "Digital" ? "bg-violet-100 text-violet-600" : "bg-stone-100 text-stone-500"
+                      }`}>
                       <Zap className="w-5 h-5" />
                     </div>
                     <div>
@@ -894,10 +909,10 @@ const AddProduct = () => {
 
                     <label className="flex items-start gap-3 p-3 rounded-xl border border-stone-100 cursor-pointer hover:bg-stone-50 transition-colors">
                       <input
-                        name="isContactNoHidden"
+                        name="isContactHidden"
                         type="checkbox"
-                        checked={formData.isContactNoHidden}
-                        onChange={e => updateField("isContactNoHidden", e.target.checked)}
+                        checked={formData.isContactHidden}
+                        onChange={e => updateField("isContactHidden", e.target.checked)}
                         className="mt-1 w-4 h-4 text-amber-500 border-stone-300 rounded focus:ring-amber-500"
                       />
                       <div>
@@ -912,7 +927,7 @@ const AddProduct = () => {
               {/* Physical Logistics Details */}
               {formData.productType === "Physical" && (
                 <div className="space-y-6">
-                  {/* Condition & Fulfillment */}
+                  {/* Condition, Quantity & Fulfillment */}
                   <div className="bg-white rounded-2xl border border-stone-100 p-6 shadow-sm space-y-5">
                     <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider border-b border-stone-100 pb-3 flex items-center gap-2">
                       <Package className="w-4 h-4 text-amber-500" />
@@ -934,12 +949,32 @@ const AddProduct = () => {
                         </div>
                       </Field>
 
-                      <div className="space-y-3">
+                      <Field
+                        label="Quantity Available"
+                        required
+                        error={errors.quantity}
+                      >
+                        <input
+                          name="quantity"
+                          type="number"
+                          step="1"
+                          min="1"
+                          value={formData.quantity}
+                          onChange={e => updateField("quantity", e.target.value)}
+                          placeholder="1"
+                          className={inputCls}
+                        />
+                        <p className="text-[10px] text-stone-400 mt-1">
+                          Defaults to 1. Increase only if you have multiple identical copies of this exact book.
+                        </p>
+                      </Field>
+
+                      <div className="space-y-3 md:col-span-2">
                         <p className="block text-xs font-semibold tracking-wide uppercase text-stone-500">
                           Fulfillment Options <span className="text-rose-500">*</span>
                         </p>
                         {errors.fulfillment && <p className="text-xs text-rose-500 font-medium">{errors.fulfillment}</p>}
-                        
+
                         <div className="grid grid-cols-2 gap-3">
                           <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-stone-100 cursor-pointer hover:bg-stone-50 transition-all">
                             <input
@@ -1193,7 +1228,7 @@ const AddProduct = () => {
 
               {/* ── Visual Review & Mock Card ── */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-                
+
                 {/* Live Card Mockup (Left/4 cols) */}
                 <div className="lg:col-span-5 bg-white border border-stone-100 rounded-3xl p-5 shadow-sm space-y-4">
                   <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-600 mb-2">
@@ -1210,11 +1245,22 @@ const AddProduct = () => {
                           <span className="text-xs font-semibold">Upload cover photo</span>
                         </div>
                       )}
-                      <span className={`absolute top-3 left-3 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-sm ${
-                        formData.productType === "Digital" ? "bg-violet-100 text-violet-700" : "bg-amber-100 text-amber-700"
-                      }`}>
+                      <span className={`absolute top-3 left-3 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-sm ${formData.productType === "Digital" ? "bg-violet-100 text-violet-700" : "bg-amber-100 text-amber-700"
+                        }`}>
                         {formData.productType}
                       </span>
+                      {formData.productType === "Physical" && (
+                        (() => {
+                          const qty = parseInt(formData.quantity, 10) || 0;
+                          const outOfStock = qty <= 0;
+                          return (
+                            <span className={`absolute top-3 right-3 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-sm ${outOfStock ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
+                              }`}>
+                              {outOfStock ? "Out of Stock" : qty > 1 ? `${qty} Copies` : "In Stock"}
+                            </span>
+                          );
+                        })()
+                      )}
                     </div>
 
                     <div className="p-4 space-y-3">
@@ -1287,10 +1333,10 @@ const AddProduct = () => {
 
                     {formData.productType === "Physical" ? (
                       <>
-                        <div className="col-span-2">
-                          <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">Dispatch Location</p>
-                          <p className="text-stone-800 mt-0.5 font-semibold truncate">
-                            {formData.village}, {selectedUpazila?.name}, {selectedDistrict?.name}, {selectedDivision?.name}
+                        <div>
+                          <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">Quantity Available</p>
+                          <p className="text-stone-800 mt-0.5 font-semibold">
+                            {formData.quantity || "1"} {parseInt(formData.quantity, 10) === 1 ? "copy" : "copies"}
                           </p>
                         </div>
                         <div>
@@ -1300,6 +1346,12 @@ const AddProduct = () => {
                               formData.allowPickup && "Pickup",
                               formData.allowShipping && "Shipping"
                             ].filter(Boolean).join(" & ") || "None"}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">Dispatch Location</p>
+                          <p className="text-stone-800 mt-0.5 font-semibold truncate">
+                            {formData.village}, {selectedUpazila?.name}, {selectedDistrict?.name}, {selectedDivision?.name}
                           </p>
                         </div>
                       </>
@@ -1319,7 +1371,7 @@ const AddProduct = () => {
                         </div>
                       </>
                     )}
-                    
+
                     <div>
                       <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">Language & ISBN</p>
                       <p className="text-stone-800 mt-0.5 font-semibold">

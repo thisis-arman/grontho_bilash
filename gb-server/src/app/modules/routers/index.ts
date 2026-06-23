@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { userRoutes } from "../user/user.route";
 import { otpRoutes } from "../otp/otp.route";
 import { authRoutes } from "../auth/auth.routes";
-import { bookRoutes } from "../book/book.route";
+import { bookRoutes } from "../book/product.route";
 import { orderRoutes } from "../orders/order.route";
 import { paymentRoutes } from "../payments/payment.routes";
 import { categoryRoutes } from "../category/category.route";

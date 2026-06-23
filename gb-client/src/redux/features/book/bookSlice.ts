@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Define the types for book and initial state
 export type TBook = {
-  _id:string,
+  _id: string,
   user: string;
   bookId: string;
   bookTitle: string;
@@ -11,7 +11,7 @@ export type TBook = {
   condition: "fresh" | "used";
   level: "ssc" | "hsc" | "bachelor" | "master";
   isPublished: boolean;
-  isContactNoHidden: boolean;
+  isContactHidden: boolean;
   isNegotiable: boolean;
   images: string[];
   publicationYear: number;

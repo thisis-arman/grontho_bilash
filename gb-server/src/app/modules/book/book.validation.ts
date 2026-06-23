@@ -3,7 +3,7 @@ import { z } from "zod";
 
 
 const createBookSchema = z.object({
-   user:z.string(),
+  user: z.string(),
   bookTitle: z
     .string({ message: "Book title is required" })
     .min(1, { message: "Book title cannot be empty" }),
@@ -17,16 +17,16 @@ const createBookSchema = z.object({
     message: "Condition must be 'fresh' or 'used'",
   }),
   level: z.string({
-    message:"level is required"
+    message: "level is required"
   }),
   faculty: z.string({
-    message:"faculty is required"
+    message: "faculty is required"
   }).optional(),
   department: z.string({
-    message:"department is required"
+    message: "department is required"
   }).optional(),
-  isContactNoHidden: z.boolean({
-    message: "isContactNoHidden must be a boolean value",
+  isContactHidden: z.boolean({
+    message: "isContactHidden must be a boolean value",
   }),
   isNegotiable: z.boolean({ message: "isNegotiable must be a boolean value" }),
   images: z

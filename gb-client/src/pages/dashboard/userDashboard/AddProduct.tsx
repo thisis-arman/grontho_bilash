@@ -1,4 +1,4 @@
-import  { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { Book, MapPin, GraduationCap, Image as ImageIcon, Settings, CheckCircle2 } from 'lucide-react';
@@ -39,7 +39,7 @@ export type TDepartment = {
 
 const AddProduct = () => {
 
-    const {id} = useAppSelector(selectCurrentUser) as TUser;
+    const { id } = useAppSelector(selectCurrentUser) as TUser;
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [faculties, setFaculties] = useState([]);
     const [departments, setDepartments] = useState([]);
@@ -199,14 +199,14 @@ const AddProduct = () => {
         const images = [imageURL];
         const condition = target.condition.value;
         const deliveryOption = selectedDeliveryOption;
-        const isContactNoHidden = false;
+        const isContactHidden = false;
 
         const isNegotiable = false;
         const location = `${target?.village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
-        console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption });
+        console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactHidden, publicationYear, description, images, deliveryOption });
         try {
-            const response = await createBook({ user, bookTitle, price, level, faculty, department,condition, isNegotiable, location, isContactNoHidden, publicationYear, description, images, deliveryOption })
+            const response = await createBook({ user, bookTitle, price, level, faculty, department, condition, isNegotiable, location, isContactHidden, publicationYear, description, images, deliveryOption })
             if (response?.success) {
                 toast.success("Book created successfully")
             }
@@ -231,7 +231,7 @@ const AddProduct = () => {
                 </div>
 
                 <form onSubmit={handleAddProduct} className="space-y-8">
-                    
+
                     {/* Basic Information */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
@@ -408,10 +408,10 @@ const AddProduct = () => {
                                     <span className="text-sm text-gray-500">Allow buyers to negotiate the price with you.</span>
                                 </div>
                             </label>
-                            
+
                             <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center h-5">
-                                    <input id="isContactNoHidden" name="isContactNoHidden" type="checkbox" className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500" />
+                                    <input id="isContactHidden" name="isContactHidden" type="checkbox" className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium text-gray-900">Hide Contact Number</span>

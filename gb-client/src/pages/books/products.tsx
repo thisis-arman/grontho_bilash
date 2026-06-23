@@ -30,7 +30,7 @@ export type TBook = {
     faculty: string;
     department: string;
     isPublished: boolean;
-    isContactNoHidden: boolean;
+    isContactHidden: boolean;
     isNegotiable: boolean;
     images: string[];
     publicationYear: number;

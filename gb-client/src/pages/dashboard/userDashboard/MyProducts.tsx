@@ -30,7 +30,7 @@ type TProduct = {
     location: string;
     stockStatus: string;
     isPublished: boolean;
-    isContactNoHidden: boolean;
+    isContactHidden: boolean;
     viewCount: number;
     estimatedShipping: number;
     fulfillmentOptions: TFulfillment;
@@ -506,7 +506,7 @@ const MyProducts = () => {
                                     label="Published"
                                     name="isPublished"
                                     valuePropName="checked"
-                                    
+
                                 >
                                     <Switch />
                                 </Form.Item>
