@@ -122,57 +122,57 @@ const ProductCard = ({ products }) => {
             {/* Title + Price */}
             <div className="flex items-start justify-between gap-2">
               <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors flex-1">
-                <Link to={`/products/${product.slug}`}>{product.title}</Link>
+                <Link to={`/products/${product?.slug}`}>{product?.title}</Link>
               </h3>
               <div className="text-right flex-shrink-0">
                 <p className="text-base font-bold text-stone-900">
-                  {formatPrice(product.price.basePrice)}
+                  {formatPrice(product?.price?.basePrice!)}
                 </p>
-                {(product.price.discountPrice ?? 0) > 0 && (
+                {(product?.price?.discountPrice ?? 0) > 0 && (
                   <p className="text-xs text-stone-400 line-through">
-                    {formatPrice(product.price.discountPrice!)}
+                    {formatPrice(product?.price?.discountPrice!)}
                   </p>
                 )}
               </div>
             </div>
 
             {/* Author / edition */}
-            {product.bookMetadata?.author && (
-              <p className="text-xs text-stone-400 line-clamp-1">
+            {product?.bookMetadata?.author && (
+              <p className="text-xs text-stone-400">
                 by{" "}
                 <span className="text-stone-600 font-medium">
-                  {product.bookMetadata.author}
+                  {product?.bookMetadata?.author}
                 </span>
-                {product.bookMetadata.edition && (
-                  <span> · {product.bookMetadata.edition}</span>
+                {product?.bookMetadata?.edition && (
+                  <span> · {product?.bookMetadata?.edition}</span>
                 )}
               </p>
             )}
 
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-1.5">
-              {product.price.isNegotiable && (
-                <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold border border-amber-100">
+              {product?.price?.isNegotiable && (
+                <span className="px-2  rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold border border-amber-100">
                   Negotiable
                 </span>
               )}
-              {product.category && (
-                <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-500 text-[10px] font-semibold">
-                  {product.category}
+              {product?.category && (
+                <span className="px-2  rounded-md bg-stone-100 text-stone-500 text-[10px] font-semibold">
+                  {product?.category}
                 </span>
               )}
-              {product.productType === "Digital" && product.digitalDetails?.fileType && (
-                <span className="px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
-                  {product.digitalDetails.fileType}
+              {product?.productType === "Digital" && product?.digitalDetails?.fileType && (
+                <span className="px-2  rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
+                  {product?.digitalDetails?.fileType}
                 </span>
               )}
             </div>
 
             {/* Location — physical only */}
-            {product.productType === "Physical" && product.location && (
+            {product?.productType === "Physical" && product?.location && (
               <div className="flex items-center gap-1 text-stone-400 text-xs">
                 <MapPin size={11} className="flex-shrink-0" />
-                <span className="line-clamp-1">{product.location}</span>
+                <span className="line-clamp-1">{product?.location}</span>
               </div>
             )}
 
@@ -185,9 +185,9 @@ const ProductCard = ({ products }) => {
                 >
                   Unavailable
                 </button>
-              ) : product.productType === "Digital" ? (
+              ) : product?.productType === "Digital" ? (
                 <Link
-                  to={`/products/${product.slug}`}
+                  to={`/products/${product?.slug}`}
                   className="w-full py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <Zap size={15} />

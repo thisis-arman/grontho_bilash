@@ -11,33 +11,33 @@ const generateOrderId = async () => {
   const date = new Date();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  
+
   // Get the count of orders today to increment
   const orderCount = await OrderModel.countDocuments({
-    createdAt: { 
-      $gte: new Date(date.setHours(0,0,0,0)), 
-      $lte: new Date(date.setHours(23,59,59,999)) 
+    createdAt: {
+      $gte: new Date(date.setHours(0, 0, 0, 0)),
+      $lte: new Date(date.setHours(23, 59, 59, 999))
     }
   });
 
   const sequence = String(orderCount + 1).padStart(4, '0');
-  return `ORD${year}${month}${sequence}`; 
+  return `ORD${year}${month}${sequence}`;
   // Result: ORD-202602-0001
 };
 
 const createOrder = async (orderData: Partial<TOrder>) => {
-  console.log({orderData});
+  console.log({ orderData });
   const generatedOrderId = await generateOrderId();
   console.log(generatedOrderId);
-  const payload = { 
-    ...orderData, 
-    orderId:generatedOrderId,
+  const payload = {
+    ...orderData,
+    orderId: generatedOrderId,
     transactionId: orderData.paymentMethod === 'bkash' ? orderData.transactionId : 'N/A'
   };
-  console.log({payload});
+  console.log({ payload });
   const validatedOrder = orderValidations.createOrderSchema.parse(payload);
   const newOrder = await OrderModel.create(validatedOrder);
-  
+
   // Optional: You could trigger a notification here (SMS/Email) 
   // alerting you that a new bKash order needs verification.
 
@@ -52,18 +52,18 @@ const getOrderById = async (orderId: string) => {
   }
 
   const order = await OrderModel.aggregate([
-    { $match: { _id:new mongoose.Types.ObjectId(orderId) }},
+    { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
     {
-    $lookup: {
-      from: "products",              
-      let: { bookIds: "$books.book" }, 
-      pipeline: [
-        { $match: { $expr: { $in: ["$_id", "$$bookIds"] } } },
-        { $project: { title: 1, price: 1, _id: 1, productType: 1, digitalDetails: 1 } } 
-      ],
-      as: "book_details"          
-    }
-  },
+      $lookup: {
+        from: "products",
+        let: { bookIds: "$books.book" },
+        pipeline: [
+          { $match: { $expr: { $in: ["$_id", "$$bookIds"] } } },
+          { $project: { title: 1, price: 1, _id: 1, productType: 1, digitalDetails: 1 } }
+        ],
+        as: "book_details"
+      }
+    },
     {
       $lookup: {
         from: "products",
@@ -115,17 +115,19 @@ const getOrdersFromDB = async () => {
   ]);
   return orders;
 };
+
+// Update an order by ID
 const updateOrderById = async (
   orderId: string,
   updateData: Partial<TOrder>
 ) => {
+
+  console.log({ orderId, updateData });
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
 
-  const validatedData = orderValidations.createOrderSchema
-    .partial()
-    .parse(updateData);
+  const validatedData = orderValidations.updateOrderSchema.parse(updateData);
 
   const updatedOrder = await OrderModel.findByIdAndUpdate(
     orderId,

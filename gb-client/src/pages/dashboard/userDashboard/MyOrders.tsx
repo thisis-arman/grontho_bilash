@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { 
-    useGetOrderByUserIdQuery, 
-    useDeleteOrderMutation, 
-    useUpdateOrderMutation 
+import {
+    useGetOrderByUserIdQuery,
+    useDeleteOrderMutation,
+    useUpdateOrderMutation
 } from "../../../redux/features/order/orderApi";
 import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
 import { useAppSelector } from "../../../redux/hooks";
@@ -28,12 +28,12 @@ const MyOrders = () => {
     const filteredOrders = orders.filter((order: any) => {
         const searchLower = searchText.toLowerCase();
         const orderIdMatch = order?.orderId?.toLowerCase().includes(searchLower);
-        const titleMatch = order?.books?.some((item: any) => 
+        const titleMatch = order?.books?.some((item: any) =>
             item?.bookTitle?.toLowerCase().includes(searchLower)
         );
         const statusMatch = order?.orderStatus?.toLowerCase().includes(searchLower);
         const paymentMatch = order?.paymentStatus?.toLowerCase().includes(searchLower);
-        
+
         return orderIdMatch || titleMatch || statusMatch || paymentMatch;
     });
 
@@ -56,11 +56,24 @@ const MyOrders = () => {
     };
 
     const handleEditSubmit = async (values: any) => {
+        console.log("check--", editingOrder, values);
+        const isOrderEditable = () => {
+            const orderStatus = editingOrder?.orderStatus?.toLowerCase();
+            const paymentStatus = editingOrder?.paymentStatus?.toLowerCase();
+
+            return (
+                orderStatus !== "delivered" &&
+                orderStatus !== "cancelled" &&
+                orderStatus !== "confirmed" &&
+                paymentStatus !== "paid"
+            );
+        };
+        if (!isOrderEditable()) return;
         if (!editingOrder) return;
         try {
-            await updateOrder({ 
-                id: editingOrder._id, 
-                data: values 
+            await updateOrder({
+                id: editingOrder._id,
+                data: values
             }).unwrap();
             toast.success("Order updated successfully");
             setIsEditModalVisible(false);
@@ -94,9 +107,9 @@ const MyOrders = () => {
                                 • {item.bookTitle}
                             </span>
                             {item.book?.productType === 'Digital' && record.paymentStatus?.toLowerCase() === 'paid' && item.book?.digitalDetails?.downloadUrl && (
-                                <a 
-                                    href={item.book.digitalDetails.downloadUrl} 
-                                    target="_blank" 
+                                <a
+                                    href={item.book.digitalDetails.downloadUrl}
+                                    target="_blank"
                                     rel="noreferrer"
                                     className="text-xs font-semibold text-violet-600 hover:text-violet-800 underline ml-3 flex items-center gap-1 w-fit bg-violet-50 px-2.5 py-1 rounded-md transition-colors border border-violet-100"
                                 >
@@ -180,14 +193,13 @@ const MyOrders = () => {
 
                 return (
                     <Space size={8}>
-                        <button 
+                        <button
                             onClick={() => handleEditClick(record)}
                             disabled={!isPending}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                                isPending 
-                                    ? "text-stone-700 bg-stone-100 hover:bg-stone-200" 
-                                    : "text-stone-400 bg-stone-50 cursor-not-allowed"
-                            }`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${isPending
+                                ? "text-stone-700 bg-stone-100 hover:bg-stone-200"
+                                : "text-stone-400 bg-stone-50 cursor-not-allowed"
+                                }`}
                         >
                             Edit
                         </button>
@@ -199,13 +211,12 @@ const MyOrders = () => {
                             cancelText="No"
                             disabled={!isPending}
                         >
-                            <button 
+                            <button
                                 disabled={!isPending}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                                    isPending 
-                                        ? "text-rose-600 bg-rose-50 hover:bg-rose-100" 
-                                        : "text-stone-400 bg-stone-50 cursor-not-allowed"
-                                }`}
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${isPending
+                                    ? "text-rose-600 bg-rose-50 hover:bg-rose-100"
+                                    : "text-stone-400 bg-stone-50 cursor-not-allowed"
+                                    }`}
                             >
                                 Delete
                             </button>
@@ -219,7 +230,7 @@ const MyOrders = () => {
     return (
         <div className="min-h-screen bg-stone-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-                
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
@@ -296,7 +307,7 @@ const MyOrders = () => {
                         Note: You can only update your delivery details while the order is still pending. Once processed, you'll need to contact support.
                     </p>
                 </div>
-                
+
                 <Form
                     form={form}
                     layout="vertical"
@@ -308,8 +319,8 @@ const MyOrders = () => {
                         label={<span className="text-sm font-semibold text-stone-700">Delivery Address</span>}
                         rules={[{ required: true, message: 'Please input your delivery address!' }]}
                     >
-                        <Input.TextArea 
-                            rows={3} 
+                        <Input.TextArea
+                            rows={3}
                             placeholder="Enter full shipping address"
                             className="rounded-xl border-stone-200 hover:border-amber-400 focus:border-amber-500 focus:ring-amber-500/20 transition-all resize-none"
                         />
@@ -320,24 +331,24 @@ const MyOrders = () => {
                         label={<span className="text-sm font-semibold text-stone-700">Contact Number</span>}
                         rules={[{ required: true, message: 'Please input your phone number!' }]}
                     >
-                        <Input 
+                        <Input
                             prefix={<Phone size={14} className="text-stone-400 mr-1" />}
-                            placeholder="Enter contact number" 
+                            placeholder="Enter contact number"
                             className="rounded-xl py-2 border-stone-200 hover:border-amber-400 focus:border-amber-500 focus:ring-amber-500/20 transition-all"
                         />
                     </Form.Item>
 
                     <Form.Item className="mb-0 mt-6 flex justify-end">
                         <Space>
-                            <Button 
+                            <Button
                                 onClick={() => setIsEditModalVisible(false)}
                                 className="rounded-xl font-medium border-stone-200 text-stone-600 hover:text-stone-800 hover:border-stone-300"
                             >
                                 Cancel
                             </Button>
-                            <Button 
-                                type="primary" 
-                                htmlType="submit" 
+                            <Button
+                                type="primary"
+                                htmlType="submit"
                                 loading={isUpdating}
                                 className="rounded-xl font-semibold bg-amber-500 hover:bg-amber-600 border-transparent shadow-sm hover:shadow-md transition-all px-6"
                             >

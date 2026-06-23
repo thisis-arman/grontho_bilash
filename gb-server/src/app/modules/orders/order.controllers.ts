@@ -50,7 +50,7 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
 
 // Controller to update an order by ID
 const updateOrder = catchAsync(async (req: Request, res: Response) => {
-  const orderId = req.params.id;
+  const orderId = req.params.orderId;
   const updateData = req.body;
   const result = await orderServices.updateOrderById(orderId, updateData);
   sendResponse(res, {

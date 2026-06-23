@@ -68,8 +68,6 @@ const Products = () => {
   const [sortBy, setSortBy]             = useState("newest");
   const [showFilters, setShowFilters]   = useState(false);
 
-  console.log(productsResponse?.data);
-  // ── Derived data ───────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     if (!productsResponse?.data) return [];
 
