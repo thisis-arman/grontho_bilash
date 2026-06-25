@@ -18,7 +18,7 @@ const DashboardTopNav = ({ onMenuToggle, mobileMenuOpen }: Props) => {
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+console.log({user});
   const ROLE = { ADMIN: 'admin', USER: 'user' };
   const navPaths = role === ROLE.ADMIN ? adminPaths : userPaths;
   const rolePrefix = role === ROLE.ADMIN ? '/admin' : '/user';

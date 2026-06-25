@@ -2,16 +2,24 @@ import { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { orderServices } from "./order.services";
+import { orderValidations } from "./order.validation";
+
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
-  const result = await orderServices.createOrder(req.body);
+  const validatedPayload = orderValidations.createOrderSchema.parse(req.body);
+  const result = await orderServices.createOrder(validatedPayload);
+ 
   sendResponse(res, {
     statusCode: 201,
-    message: "Order created successfully",
+    message:
+      result.length > 1
+        ? `${result.length} orders created successfully (split by seller)`
+        : "Order created successfully",
     success: true,
     data: result,
   });
 });
+ 
 
 const getOrder = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.orderId;

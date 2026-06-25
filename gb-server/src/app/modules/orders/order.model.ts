@@ -1,5 +1,31 @@
-import { model, Schema } from "mongoose";
+
+
+// ─────────────────────────────────────────────────────────────
+// Order Counter — unchanged from before. Still needed: order IDs
+// must remain race-free regardless of the order shape change.
+// ─────────────────────────────────────────────────────────────
+
+import { model, Model, Schema } from "mongoose";
 import { TOrder } from "./order.interface";
+
+interface IOrderCounter extends Omit<Document, "_id"> {
+  _id: string; // e.g. "202602"
+  seq: number;
+}
+
+const orderCounterSchema = new Schema<IOrderCounter>({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 },
+});
+
+export const OrderCounterModel: Model<IOrderCounter> = model<IOrderCounter>(
+  "OrderCounter",
+  orderCounterSchema
+);
+
+// ─────────────────────────────────────────────────────────────
+// Order — exactly your schema, unchanged.
+// ─────────────────────────────────────────────────────────────
 
 const orderSchema = new Schema<TOrder>(
   {
@@ -27,7 +53,7 @@ const orderSchema = new Schema<TOrder>(
       type: String,
       required: true,
     },
-    email: { // Added email for order notifications
+    email: {
       type: String,
       required: true,
     },
@@ -39,7 +65,7 @@ const orderSchema = new Schema<TOrder>(
       type: Number,
       required: true,
     },
-    shippingArea: { // Added to distinguish 70tk vs 130tk
+    shippingArea: {
       type: String,
       enum: ["inside", "outside"],
       required: true,
@@ -48,19 +74,19 @@ const orderSchema = new Schema<TOrder>(
       type: String,
       required: true,
     },
-    paymentMethod: { // Added: cod or bkash
+    paymentMethod: {
       type: String,
       enum: ["cod", "bkash"],
       required: true,
     },
-    transactionId: { // Required if paymentMethod is bkash
+    transactionId: {
       type: String,
-      default: "N/A", 
+      default: "N/A",
     },
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "partially-paid", "failed"],
-      default: "pending", // "partially-paid" can represent upfront shipping paid
+      default: "pending",
     },
     orderStatus: {
       type: String,

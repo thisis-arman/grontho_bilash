@@ -1,40 +1,33 @@
 import { Types } from "mongoose";
 
+export type ShippingArea = "inside" | "outside";
+export type PaymentMethod = "cod" | "bkash";
+export type PaymentStatus = "pending" | "paid" | "partially-paid" | "failed";
+export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+
+export interface TOrderBookItem {
+  book: Types.ObjectId;
+  bookTitle: string;
+  productImage: string;
+  seller: Types.ObjectId;
+  price: number; // UNIT price per copy — line total = price * quantity
+  quantity: number;
+}
+
 export interface TOrder {
-  orderId?: string;
-  books: {
-    book: Types.ObjectId;
-    bookTitle: string;
-    productImage: string;
-    seller: Types.ObjectId;
-    price: number;
-    quantity: number;
-  }[];
-  
-  // Buyer Details
+  orderId: string;
+  books: TOrderBookItem[];
   buyer: Types.ObjectId;
   phoneNumber: string;
-  email: string; // Added for notifications
-  deliveryAddress: string;
-  
-  // Shipping Logic
-  shippingArea: "inside" | "outside"; // Added to handle 70tk vs 130tk logic
-  shippingCost: number; // Now required as it's part of your new logic
+  email: string;
   totalAmount: number;
-  
-  // Payment Details
-  paymentMethod: "cod" | "bkash"; // Added for BD context
-  transactionId?: string; // Storing the bKash TrxID
-  paymentStatus: "pending" | "paid" | "partially-paid" | "failed" | "cancelled";
-  
-  // Order Metadata
-  orderStatus: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
-  orderDate?: Date;
-  transactionDate?: Date;
+  shippingCost: number;
+  shippingArea: ShippingArea;
+  deliveryAddress: string;
+  paymentMethod: PaymentMethod;
+  transactionId: string;
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
   comment?: string;
   isDeleted: boolean;
-  
-  // Timestamps (handled by Mongoose, but good for typing)
-  createdAt?: Date;
-  updatedAt?: Date;
 }

@@ -25,7 +25,7 @@ const UserDashboard = () => {
     const orders = orderData?.data || [];
     const books = bookData?.data || [];
 
-    const totalSpentAmount = orders.reduce((acc: number, data: any) => acc + data.totalAmount, 0);
+    const totalSpentAmount = orders.reduce((acc: number, data: any) => acc + data.totalAmount, 0).toFixed(2);
     const pendingOrders = orders.filter((order: any) => order.orderStatus === 'Pending' || order.orderStatus === 'Processing');
 
     // Chart Data Preparation (Group by Date or use Sequence)

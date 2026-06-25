@@ -3,13 +3,14 @@ import React, { useState, FormEvent } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import {  Plus, Minus, ShoppingBag,  Truck, Wallet, CheckCircle, Info } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, Truck, Wallet, CheckCircle, Info, Delete, Trash, Trash2 } from 'lucide-react';
 
 import { useAppSelector } from "../../redux/hooks";
-import { 
+import {
     clearCart,
-    getProductsFromCart, 
-    updateQuantity 
+    getProductsFromCart,
+    removeFromCart,
+    updateQuantity
 } from '../../redux/features/cart/cartSlice';
 import { selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
 import { useCreateOrderMutation } from "../../redux/features/order/orderApi";
@@ -18,7 +19,7 @@ const CheckoutPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [createOrder, { isLoading }] = useCreateOrderMutation();
-    
+
     const cartItems = useSelector(getProductsFromCart);
     const user = useAppSelector(selectCurrentUser) as TUser;
 
@@ -29,7 +30,7 @@ const CheckoutPage = () => {
 
     // Dynamic Constants
     const SHIPPING_COST = shippingArea === "inside" ? 70 : 130;
-    const BKASH_MARCHENT_NUMBER = "01883-350118"; 
+    const BKASH_MARCHENT_NUMBER = "01883-350118";
 
     // Calculations
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -59,16 +60,22 @@ const CheckoutPage = () => {
         };
 
         try {
-            console.log({checkoutData});
             const response = await createOrder(checkoutData).unwrap();
+            console.log({ checkoutData });
             if (response.success) {
                 toast.success("Order Placed Successfully!");
                 dispatch(clearCart());
-            //     navigate('/order-confirmation');
+                //     navigate('/order-confirmation');
+            } else {
+                toast.error(response.message);
             }
-        } catch (error) {
-            toast.error("Something went wrong. Please try again.");
+        } catch (error: any) {
+            toast.error(error?.data?.message || "Failed to place order");
         }
+    };
+    const handleRemove = (productId:string) => {
+      
+        dispatch(removeFromCart(productId));
     };
 
     if (cartItems.length === 0) return <EmptyCartView navigate={navigate} />;
@@ -77,11 +84,11 @@ const CheckoutPage = () => {
         <div className="bg-slate-50 min-h-screen py-10 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    
+
                     {/* LEFT: Shipping & Payment Details */}
                     <div className="lg:col-span-7 space-y-6 mt-8 ">
                         <form id="checkout-form" onSubmit={handleCheckoutSubmit} className="space-y-6">
-                            
+
                             {/* 1. Shipping Information */}
                             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -113,7 +120,7 @@ const CheckoutPage = () => {
                                             </button>
                                         </div>
                                     </div>
-                                       <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="text-sm font-semibold text-gray-600">Notes *</label>
                                         <textarea name="notes" required rows={2} className="w-full mt-1 p-3 rounded-xl border-gray-200 bg-gray-50 border" placeholder="Share your notes..." />
                                     </div>
@@ -121,7 +128,7 @@ const CheckoutPage = () => {
                                         <label className="text-sm font-semibold text-gray-600">Full Address*</label>
                                         <textarea name="deliveryaddress" required rows={2} className="w-full mt-1 p-3 rounded-xl border-gray-200 bg-gray-50 border" placeholder="House no, Road no, Area..." />
                                     </div>
-                                 
+
                                 </div>
                             </section>
 
@@ -192,12 +199,15 @@ const CheckoutPage = () => {
                                     <div key={item.book} className="py-4 flex gap-4">
                                         <img src={item.productImage} className="w-16 h-20 object-cover rounded-lg shadow-sm" alt="" />
                                         <div className="flex-1">
-                                            <h4 className="text-sm font-bold line-clamp-1">{item.bookTitle}</h4>
+                                            <span className="flex items-center justify-between">
+                                                <h4 className="text-sm font-bold line-clamp-1">{item.bookTitle}</h4>
+                                                <Trash2 onClick={() => handleRemove(item.book)} className="cursor-pointer text-red-600" size={16} />
+                                            </span>
                                             <div className="flex items-center justify-between mt-2">
                                                 <div className="flex items-center gap-3 border rounded-lg px-2 py-1">
-                                                    <button onClick={() => handleQuantity(item.book, item.quantity, -1)} className="hover:text-yellow-600"><Minus size={14}/></button>
+                                                    <button onClick={() => handleQuantity(item.book, item.quantity, -1)} className="hover:text-yellow-600"><Minus size={14} /></button>
                                                     <span className="text-sm font-bold">{item.quantity}</span>
-                                                    <button onClick={() => handleQuantity(item.book, item.quantity, 1)} className="hover:text-yellow-600"><Plus size={14}/></button>
+                                                    <button onClick={() => handleQuantity(item.book, item.quantity, 1)} className="hover:text-yellow-600"><Plus size={14} /></button>
                                                 </div>
                                                 <p className="font-bold text-sm">৳{item.price * item.quantity}</p>
                                             </div>
@@ -230,7 +240,7 @@ const CheckoutPage = () => {
                                         disabled={!agreed || isLoading}
                                         className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${agreed ? "bg-yellow-600 hover:bg-yellow-700 active:scale-95 shadow-yellow-200" : "bg-gray-300 cursor-not-allowed"}`}
                                     >
-                                        {isLoading ? "Processing..." : <><CheckCircle size={20}/> Confirm Order</>}
+                                        {isLoading ? "Processing..." : <><CheckCircle size={20} /> Confirm Order</>}
                                     </button>
                                 </div>
                             </div>
