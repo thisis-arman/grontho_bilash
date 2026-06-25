@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   useGetBooksQuery,
   useDeleteBookMutation,
+  useGetProductsQuery,
 } from "../../../redux/features/book/bookApi";
 import {
   Search, Plus, Trash2, Edit2, Package, Zap,
@@ -79,9 +80,10 @@ const DeleteConfirmModal = ({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductManagement = () => {
-  const { data: productsData, isLoading } = useGetBooksQuery(undefined);
+  const { data: productsData, isLoading } = useGetProductsQuery(undefined);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
 
+  console.log("productsData",productsData)
   // Delete modal
   const [pendingDelete, setPendingDelete] = useState<IProduct | null>(null);
 
@@ -95,8 +97,8 @@ const ProductManagement = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const allProducts: IProduct[] = productsData?.data?.data ?? [];
-
+  const allProducts: IProduct[] = productsData?.data ?? [];
+console.log("allProducts",allProducts);
   // ── Derived ──────────────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
@@ -369,7 +371,7 @@ const ProductManagement = () => {
 
                     {/* Actions */}
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-1 ">
                         <Link
                           to={`/dashboard/edit-product/${item._id}`}
                           className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-colors"
@@ -379,7 +381,7 @@ const ProductManagement = () => {
                         </Link>
                         <button
                           onClick={() => setPendingDelete(item)}
-                          className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={15} />
