@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Modal, Form, Input, InputNumber, Select, message } from "antd";
 import {
   useGetBooksQuery,
   useDeleteBookMutation,
   useGetProductsQuery,
+  useUpdateBookMutation,
 } from "../../../redux/features/book/bookApi";
 import {
   Search, Plus, Trash2, Edit2, Package, Zap,
@@ -80,10 +82,14 @@ const DeleteConfirmModal = ({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductManagement = () => {
-  const { data: productsData, isLoading } = useGetProductsQuery(undefined);
+  const { data: productsData, isLoading, refetch } = useGetProductsQuery(undefined);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
+  const [updateBook, { isLoading: isUpdating }] = useUpdateBookMutation();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
+  const [form] = Form.useForm();
 
-  console.log("productsData",productsData)
+  console.log("productsData", productsData)
   // Delete modal
   const [pendingDelete, setPendingDelete] = useState<IProduct | null>(null);
 
@@ -98,8 +104,54 @@ const ProductManagement = () => {
   const [pageSize, setPageSize] = useState(10);
 
   const allProducts: IProduct[] = productsData?.data ?? [];
-console.log("allProducts",allProducts);
+  console.log("allProducts", allProducts);
   // ── Derived ──────────────────────────────────────────────────────────────────
+
+  const handleEditClick = (product: IProduct) => {
+    setEditingProduct(product);
+
+    form.setFieldsValue({
+      title: product.title,
+      category: product.category,
+      productType: product.productType,
+      stockStatus: product.stockStatus,
+      basePrice: product.price?.basePrice,
+    });
+
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateProduct = async () => {
+    try {
+      const values = await form.validateFields();
+
+      console.log("Updated Values", values);
+
+      /**
+       * Later:
+       * await updateProduct({
+       *   id: editingProduct?._id,
+       *   data: values
+       * }).unwrap();
+       */
+      await updateBook({
+        id: editingProduct?._id,
+        data: {
+          ...values,
+          'price.basePrice': values.basePrice,
+        }
+      }).unwrap();
+
+      message.success("Product updated successfully");
+      refetch();
+
+      setEditModalOpen(false);
+      setEditingProduct(null);
+      form.resetFields();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const filtered = useMemo(() => {
     let list = [...allProducts];
@@ -372,13 +424,13 @@ console.log("allProducts",allProducts);
                     {/* Actions */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1 ">
-                        <Link
-                          to={`/dashboard/edit-product/${item._id}`}
+                        <button
+                          onClick={() => handleEditClick(item)}
                           className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-colors"
-                          title="Edit"
+                          title="Edit Product"
                         >
                           <Edit2 size={15} />
-                        </Link>
+                        </button>
                         <button
                           onClick={() => setPendingDelete(item)}
                           className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
@@ -443,6 +495,118 @@ console.log("allProducts",allProducts);
         </div>
       )}
 
+      {/* Product editng modal */}
+      <Modal
+        title={
+          <span className="font-bold text-stone-800">
+            Edit Product
+          </span>
+        }
+        open={editModalOpen}
+        onCancel={() => {
+          setEditModalOpen(false);
+          setEditingProduct(null);
+          form.resetFields();
+        }}
+        onOk={handleUpdateProduct}
+        okText="Save Changes"
+        cancelText="Cancel"
+        width={700}
+        styles={{
+          header: {
+            borderBottom: "1px solid #e7e5e4",
+            paddingBottom: 12,
+          },
+          body: {
+            paddingTop: 24,
+          },
+        }}
+        okButtonProps={{
+          style: {
+            background: "#f59e0b",
+            borderColor: "#f59e0b",
+            fontWeight: 600,
+          },
+        }}
+      >
+        <Form
+          layout="vertical"
+          form={form}
+        >
+          <Form.Item
+            label="Product Title"
+            name="title"
+            rules={[
+              {
+                required: true,
+                message: "Product title is required",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              label="Category"
+              name="category"
+            >
+              <Select
+                options={CATEGORIES.map((cat) => ({
+                  label: cat,
+                  value: cat,
+                }))}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Product Type"
+              name="productType"
+            >
+              <Select
+                options={[
+                  { label: "Physical", value: "Physical" },
+                  { label: "Digital", value: "Digital" },
+                ]}
+              />
+            </Form.Item>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              label="Price"
+              name="basePrice"
+            >
+              <InputNumber
+                className="w-full"
+                min={0}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Stock Status"
+              name="stockStatus"
+            >
+              <Select
+                options={[
+                  {
+                    label: "In Stock",
+                    value: "In Stock",
+                  },
+                  {
+                    label: "Out of Stock",
+                    value: "Out of Stock",
+                  },
+                  {
+                    label: "Pre-order",
+                    value: "Pre-order",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </div>
+        </Form>
+      </Modal>
       {/* ── Delete confirm modal ── */}
       {pendingDelete && (
         <DeleteConfirmModal

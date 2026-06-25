@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { bookServices } from "./book.services";
+import { bookServices } from "./product.services";
 import httpStatus from "http-status";
 
 const createProduct = catchAsync(async (req: Request, res: Response) => {
@@ -117,9 +117,9 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 
 // Controller to dynamically update a book
 const updateBook = catchAsync(async (req: Request, res: Response) => {
-  const bookId = req.params.id;
+  const {bookId} = req.params;
   const updateData = req.body;
-  const result = await bookServices.updateBookIntoDb(bookId, updateData);
+  const result = await bookServices.updateProductIntoDb(bookId, updateData);
   sendResponse(res, {
     statusCode: 200,
     message: "Book updated successfully",

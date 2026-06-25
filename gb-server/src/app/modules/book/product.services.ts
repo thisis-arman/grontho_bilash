@@ -239,11 +239,12 @@ const getProductsByCategoriesFromDB = async () => {
   return books;
 };
 
-const updateBookIntoDb = async (
+const updateProductIntoDb = async (
   bookId: string,
   payload: Partial<TBook>
 ) => {
   const modifiedData: Record<string, unknown> = {};
+  console.log("payload", payload);
 
   if (payload.bookMetadata) {
     Object.entries(payload.bookMetadata).forEach(
@@ -260,7 +261,7 @@ const updateBookIntoDb = async (
       }
     );
   }
-
+console.log(modifiedData,'md')
   Object.entries(payload).forEach(
     ([key, value]) => {
       if (
@@ -272,7 +273,9 @@ const updateBookIntoDb = async (
     }
   );
 
-  return ProductModel.findByIdAndUpdate(
+  console.log("modifiedData", modifiedData,bookId);
+
+  const result = await ProductModel.findByIdAndUpdate(
     bookId,
     { $set: modifiedData },
     {
@@ -280,14 +283,16 @@ const updateBookIntoDb = async (
       runValidators: true,
     }
   );
+  console.log("result", result);
+
+  return result;
 };
 
 export const bookServices = {
   listABookIntoDb,
   getBookFromDb,
   getBooksFromDb,
-  deleteBookFromDb,
-  updateBookIntoDb,
+  deleteBookFromDb, updateProductIntoDb,
   getBooksByEmailFromDB,
   getProductsByCategoriesFromDB,
   searchBooksByTitle,
