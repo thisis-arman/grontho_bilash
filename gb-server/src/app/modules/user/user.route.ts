@@ -13,15 +13,16 @@ router.post(
   userControllers.createUser
 );
 router.get(
-  "/get-me/:email",
-  Auth(USER_ROLE.admin,USER_ROLE.user, USER_ROLE.superAdmin),
-  userControllers.getMe
-);
-router.get(
   "/",
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
   userControllers.getUsers
 );
+router.get(
+  "/get-me/:email",
+  Auth(USER_ROLE.admin, USER_ROLE.user, USER_ROLE.superAdmin),
+  userControllers.getMe
+);
+
 router.put(
   "/update-user/:id",
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),

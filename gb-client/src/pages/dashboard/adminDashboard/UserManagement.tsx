@@ -7,6 +7,8 @@ import {
   SlidersHorizontal, UserCheck, UserX
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAppSelector } from "../../../redux/hooks";
+import { selectCurrentUser } from "../../../redux/features/auth/authSlice";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -55,6 +57,7 @@ const StatCard = ({
 const UserManagement = () => {
   const { data: usersData, isLoading } = useGetUsersQuery(undefined);
   const [updateUserInfo, { isLoading: isUpdating }] = useUpdateUserInfoMutation();
+  const {email} = useAppSelector(selectCurrentUser) as TUser;
 
   // ── Modal state ──────────────────────────────────────────────────────────────
   const [isEditModalOpen, setIsEditModalOpen]   = useState(false);
@@ -374,7 +377,7 @@ const UserManagement = () => {
 
                     {/* Actions */}
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                     { user.email !== email && <div className="flex items-center justify-end gap-1 ">
                         <button
                           onClick={() => toggleUserStatus(user)}
                           title={user.status === "active" ? "Block User" : "Unblock User"}
@@ -393,7 +396,7 @@ const UserManagement = () => {
                         >
                           <Edit2 size={15} />
                         </button>
-                      </div>
+                      </div>}
                     </td>
                   </tr>
                 ))}

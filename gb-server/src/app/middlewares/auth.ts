@@ -36,6 +36,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     if (user?.isDeleted) {
       throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
     }
+    console.log("user----",user)
     if (user.status == "blocked") {
       throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
     }
