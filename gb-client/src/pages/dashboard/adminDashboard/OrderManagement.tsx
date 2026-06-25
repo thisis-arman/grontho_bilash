@@ -7,7 +7,8 @@ import {
 import {
   Search, SlidersHorizontal, X, ChevronLeft, ChevronRight,
   ShoppingBag, DollarSign, Clock, CheckCircle, Edit, Trash2,
-  Package, MapPin, CreditCard, Tag
+  Package, MapPin, CreditCard, Tag,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,7 +56,7 @@ const StatCard = ({ label, value, icon: Icon, color }: {
 );
 
 const OrderManagement = () => {
-  const { data: ordersResponse, isLoading } = useGetOrdersQuery(undefined);
+  const { data: ordersResponse, isLoading, refetch } = useGetOrdersQuery(undefined);
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
 
@@ -73,7 +74,7 @@ const OrderManagement = () => {
   const [newOrderStatus, setNewOrderStatus] = useState<TOrder["orderStatus"]>("pending");
   const [newPaymentStatus, setNewPaymentStatus] = useState<TOrder["paymentStatus"]>("pending");
   const [pendingDeleteOrder, setPendingDeleteOrder] = useState<TOrder | null>(null);
-
+  const [viewOrder, setViewOrder] = useState<TOrder | null>(null);
   const allOrders: TOrder[] = ordersResponse?.data || [];
 
   // Derived Data & Filtering
@@ -146,6 +147,7 @@ const OrderManagement = () => {
           paymentStatus: newPaymentStatus
         }
       }).unwrap();
+      refetch();
       toast.success("Order status updated successfully!");
       setIsEditModalOpen(false);
       setSelectedOrder(null);
@@ -212,8 +214,8 @@ const OrderManagement = () => {
         <button
           onClick={() => setShowFilters((v) => !v)}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${showFilters || activeFilterCount > 0
-              ? "bg-stone-900 text-white border-stone-900"
-              : "bg-white border-stone-200 text-stone-600 hover:border-stone-400"
+            ? "bg-stone-900 text-white border-stone-900"
+            : "bg-white border-stone-200 text-stone-600 hover:border-stone-400"
             }`}
         >
           <SlidersHorizontal size={15} />
@@ -248,8 +250,8 @@ const OrderManagement = () => {
                   key={status}
                   onClick={() => applyFilter(() => setOrderStatusFilter(status))}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${orderStatusFilter === status
-                      ? "bg-stone-900 text-white border-stone-900"
-                      : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
+                    ? "bg-stone-900 text-white border-stone-900"
+                    : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
                     }`}
                 >
                   {status}
@@ -267,8 +269,8 @@ const OrderManagement = () => {
                   key={pStatus}
                   onClick={() => applyFilter(() => setPaymentStatusFilter(pStatus))}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${paymentStatusFilter === pStatus
-                      ? "bg-stone-900 text-white border-stone-900"
-                      : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
+                    ? "bg-stone-900 text-white border-stone-900"
+                    : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
                     }`}
                 >
                   {pStatus}
@@ -341,7 +343,7 @@ const OrderManagement = () => {
 
                       {/* Order ID & Date */}
                       <td className="px-2 py-2">
-                        <p className="font-extrabold text-stone-900 text-sm">#{item.orderId || item._id.slice(-8).toUpperCase()}</p>
+                        <p className="font-extrabold text-stone-900 text-sm">#{item.orderId || item._id.slice(-6)}</p>
                         <span className="text-[10px] text-stone-400 font-bold block mt-0.5">
                           {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "—"}
                         </span>
@@ -404,12 +406,12 @@ const OrderManagement = () => {
                         {/* Order status */}
                         <div>
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black capitalize ${item.orderStatus === "delivered"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : item.orderStatus === "shipped"
-                                ? "bg-blue-100 text-blue-700"
-                                : item.orderStatus === "cancelled"
-                                  ? "bg-red-150 text-red-750"
-                                  : "bg-amber-100 text-amber-700"
+                            ? "bg-green-400 text-green-100"
+                            : item.orderStatus === "shipped"
+                              ? "bg-blue-400 text-blue-100"
+                              : item.orderStatus === "cancelled"
+                                ? "bg-red-400 text-red-100"
+                                : "bg-yellow-400 text-yellow-100"
                             }`}>
                             {item.orderStatus}
                           </span>
@@ -417,10 +419,10 @@ const OrderManagement = () => {
                         {/* Payment status */}
                         <div>
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize border ${item.paymentStatus === "paid"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                              : item.paymentStatus === "failed" || item.paymentStatus === "cancelled"
-                                ? "bg-rose-50 text-rose-700 border-rose-100"
-                                : "bg-amber-50 text-amber-700 border-amber-100"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : item.paymentStatus === "failed" || item.paymentStatus === "cancelled"
+                              ? "bg-rose-50 text-rose-700 border-rose-100"
+                              : "bg-amber-50 text-amber-700 border-amber-100"
                             }`}>
                             Pay: {item.paymentStatus}
                           </span>
@@ -443,6 +445,13 @@ const OrderManagement = () => {
                             className="p-2 text-red-400 hover:text-red-650 hover:bg-red-50 rounded-xl transition-colors"
                           >
                             <Trash2 size={15} />
+                          </button>
+                          <button
+                            onClick={() => setViewOrder(item)}
+                            className="p-2 text-stone-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-colors"
+                            title="View Details"
+                          >
+                            <Eye size={15} />
                           </button>
                         </div>
                       </td>
@@ -626,7 +635,200 @@ const OrderManagement = () => {
           </div>
         </div>
       )}
+      {viewOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm"
+            onClick={() => setViewOrder(null)}
+          />
+
+          <div className="relative bg-white rounded-md shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-stone-100">
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-black text-stone-900">
+                  Order Details
+                </h3>
+                <p className="text-xs text-stone-400 mt-1">
+                  Order ID: #{viewOrder.orderId}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setViewOrder(null)}
+                className="w-9 h-9 rounded-xl hover:bg-stone-100 flex items-center justify-center text-stone-400"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6">
+
+              {/* Customer & Order */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+
+                <div className="bg-stone-50 rounded-2xl p-5">
+                  <h4 className="font-black text-stone-900 mb-4">
+                    Customer Information
+                  </h4>
+
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-semibold text-stone-500">Name:</span>{" "}
+                      {viewOrder.bought_by?.[0]?.name || "N/A"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold text-stone-500">Email:</span>{" "}
+                      {viewOrder.email}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold text-stone-500">Phone:</span>{" "}
+                      {viewOrder.phoneNumber}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-stone-50 rounded-2xl p-5">
+                  <h4 className="font-black text-stone-900 mb-4">
+                    Order Summary
+                  </h4>
+
+                  <div className="space-y-2 text-sm">
+
+                    <p>
+                      <span className="font-semibold text-stone-500">
+                        Payment:
+                      </span>{" "}
+                      {viewOrder.paymentMethod}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold text-stone-500">
+                        Payment Status:
+                      </span>{" "}
+                      {viewOrder.paymentStatus}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold text-stone-500">
+                        Order Status:
+                      </span>{" "}
+                      {viewOrder.orderStatus}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold text-stone-500">
+                        Total Amount:
+                      </span>{" "}
+                      ৳{viewOrder.totalAmount.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery */}
+              <div className="bg-stone-50 rounded-2xl p-5 mb-6">
+                <h4 className="font-black text-stone-900 mb-4">
+                  Delivery Information
+                </h4>
+
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-semibold text-stone-500">
+                      Address:
+                    </span>{" "}
+                    {viewOrder.deliveryAddress}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold text-stone-500">
+                      Shipping Area:
+                    </span>{" "}
+                    {viewOrder.shippingArea}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold text-stone-500">
+                      Shipping Cost:
+                    </span>{" "}
+                    ৳{viewOrder.shippingCost}
+                  </p>
+                </div>
+              </div>
+
+              {/* Books */}
+              <div>
+                <h4 className="font-black text-stone-900 mb-4">
+                  Purchased Products
+                </h4>
+
+                <div className="space-y-3">
+                  {viewOrder.books.map((book) => (
+                    <div
+                      key={book.book}
+                      className="border border-stone-100 rounded-2xl p-4 flex items-center gap-4"
+                    >
+                      <img
+                        src={book.productImage}
+                        alt={book.bookTitle}
+                        className="w-16 h-16 rounded-xl object-cover border border-stone-100"
+                      />
+
+                      <div className="flex-1">
+                        <p className="font-bold text-stone-900">
+                          {book.bookTitle}
+                        </p>
+
+                        <p className="text-sm text-stone-500">
+                          Quantity: {book.quantity}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="font-black text-stone-900">
+                          ৳{book.price}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Transaction */}
+              {viewOrder.transactionId &&
+                viewOrder.transactionId !== "N/A" && (
+                  <div className="mt-6 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+                    <p className="text-sm">
+                      <span className="font-semibold text-amber-700">
+                        Transaction ID:
+                      </span>{" "}
+                      {viewOrder.transactionId}
+                    </p>
+                  </div>
+                )}
+
+              {/* Comment */}
+              {viewOrder?.comment && (
+                <div className="mt-6 bg-stone-50 rounded-2xl p-4">
+                  <h4 className="font-bold text-stone-900 mb-2">
+                    Comment
+                  </h4>
+
+                  <p className="text-sm text-stone-600 whitespace-pre-wrap">
+                    {viewOrder?.comment}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
+
   );
 };
 
