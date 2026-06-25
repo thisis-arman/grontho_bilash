@@ -3,24 +3,19 @@ import { Link } from "react-router-dom";
 import {
   useGetBooksQuery,
   useDeleteBookMutation,
-  TBook,
 } from "../../../redux/features/book/bookApi";
 import {
   Search, Plus, Trash2, Edit2, Package, Zap,
   ChevronLeft, ChevronRight, SlidersHorizontal,
   X, BookOpen, TrendingUp, LayoutGrid
 } from "lucide-react";
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-
+import { IProduct } from "../../../types/interface";
 const CATEGORIES = ["All", "Academic", "Fiction", "Non-Fiction", "Science", "Technology", "Religion", "Children", "Self-Help", "Business", "Other"];
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const formatPrice = (p: number) => `৳${new Intl.NumberFormat("en-BD").format(p)}`;
 
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 const StatCard = ({ label, value, icon: Icon, color }: {
   label: string; value: number | string; icon: React.ElementType; color: string;
@@ -41,7 +36,7 @@ const StatCard = ({ label, value, icon: Icon, color }: {
 const DeleteConfirmModal = ({
   product, onConfirm, onCancel, isDeleting,
 }: {
-  product: TBook; onConfirm: () => void; onCancel: () => void; isDeleting: boolean;
+  product: IProduct; onConfirm: () => void; onCancel: () => void; isDeleting: boolean;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm" onClick={onCancel} />
@@ -88,19 +83,19 @@ const ProductManagement = () => {
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
 
   // Delete modal
-  const [pendingDelete, setPendingDelete] = useState<TBook | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<IProduct | null>(null);
 
   // Search & filter
-  const [search, setSearch]               = useState("");
-  const [typeFilter, setTypeFilter]       = useState<"All" | "Physical" | "Digital">("All");
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"All" | "Physical" | "Digital">("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [showFilters, setShowFilters]     = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Pagination
-  const [page, setPage]         = useState(1);
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const allProducts: TBook[] = productsData?.data?.data ?? [];
+  const allProducts: IProduct[] = productsData?.data?.data ?? [];
 
   // ── Derived ──────────────────────────────────────────────────────────────────
 
@@ -116,17 +111,17 @@ const ProductManagement = () => {
           p.category?.toLowerCase().includes(q)
       );
     }
-    if (typeFilter !== "All")     list = list.filter((p) => p.productType === typeFilter);
+    if (typeFilter !== "All") list = list.filter((p) => p.productType === typeFilter);
     if (categoryFilter !== "All") list = list.filter((p) => p.category === categoryFilter);
     return list;
   }, [allProducts, search, typeFilter, categoryFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safePage   = Math.min(page, totalPages);
-  const paginated  = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   const physicalCount = allProducts.filter((p) => p.productType === "Physical").length;
-  const digitalCount  = allProducts.filter((p) => p.productType === "Digital").length;
+  const digitalCount = allProducts.filter((p) => p.productType === "Digital").length;
   const activeFilterCount = [typeFilter !== "All", categoryFilter !== "All"].filter(Boolean).length;
 
   const applyFilter = (fn: () => void) => { fn(); setPage(1); };
@@ -170,10 +165,10 @@ const ProductManagement = () => {
       {/* ── Stats ── */}
       {!isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Total"    value={allProducts.length} icon={LayoutGrid}  color="bg-stone-100 text-stone-600" />
-          <StatCard label="Physical" value={physicalCount}      icon={Package}     color="bg-amber-100 text-amber-600" />
-          <StatCard label="Digital"  value={digitalCount}       icon={Zap}         color="bg-violet-100 text-violet-600" />
-          <StatCard label="Filtered" value={filtered.length}    icon={TrendingUp}  color="bg-emerald-100 text-emerald-600" />
+          <StatCard label="Total" value={allProducts.length} icon={LayoutGrid} color="bg-stone-100 text-stone-600" />
+          <StatCard label="Physical" value={physicalCount} icon={Package} color="bg-amber-100 text-amber-600" />
+          <StatCard label="Digital" value={digitalCount} icon={Zap} color="bg-violet-100 text-violet-600" />
+          <StatCard label="Filtered" value={filtered.length} icon={TrendingUp} color="bg-emerald-100 text-emerald-600" />
         </div>
       )}
 
@@ -196,11 +191,10 @@ const ProductManagement = () => {
         </div>
         <button
           onClick={() => setShowFilters((v) => !v)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-            showFilters || activeFilterCount > 0
-              ? "bg-stone-900 text-white border-stone-900"
-              : "bg-white border-stone-200 text-stone-600 hover:border-stone-400"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${showFilters || activeFilterCount > 0
+            ? "bg-stone-900 text-white border-stone-900"
+            : "bg-white border-stone-200 text-stone-600 hover:border-stone-400"
+            }`}
         >
           <SlidersHorizontal size={15} />
           Filters
@@ -228,9 +222,8 @@ const ProductManagement = () => {
             <div className="flex gap-2">
               {(["All", "Physical", "Digital"] as const).map((t) => (
                 <button key={t} onClick={() => applyFilter(() => setTypeFilter(t))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
-                    typeFilter === t ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${typeFilter === t ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
+                    }`}
                 >
                   {t === "All" ? "All Types" : t === "Physical" ? "📦 Physical" : "⚡ Digital"}
                 </button>
@@ -242,9 +235,8 @@ const ProductManagement = () => {
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
                 <button key={c} onClick={() => applyFilter(() => setCategoryFilter(c))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
-                    categoryFilter === c ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${categoryFilter === c ? "bg-stone-900 text-white border-stone-900" : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
+                    }`}
                 >
                   {c}
                 </button>
@@ -308,7 +300,7 @@ const ProductManagement = () => {
                       </div>
                     </td>
                   </tr>
-                ) : paginated.map((item: TBook) => (
+                ) : paginated.map((item: IProduct) => (
                   <tr key={item._id} className="hover:bg-stone-50/60 transition-colors group">
 
                     {/* Product */}
@@ -349,11 +341,10 @@ const ProductManagement = () => {
 
                     {/* Type */}
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                        item.productType === "Digital"
-                          ? "bg-violet-100 text-violet-700"
-                          : "bg-stone-100 text-stone-700"
-                      }`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${item.productType === "Digital"
+                        ? "bg-violet-100 text-violet-700"
+                        : "bg-stone-100 text-stone-700"
+                        }`}>
                         {item.productType === "Digital" ? <Zap size={10} /> : <Package size={10} />}
                         {item.productType}
                       </span>
@@ -366,13 +357,12 @@ const ProductManagement = () => {
 
                     {/* Stock */}
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                        item.stockStatus === "In Stock"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : item.stockStatus === "Pre-order"
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${item.stockStatus === "In Stock"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : item.stockStatus === "Pre-order"
                           ? "bg-sky-100 text-sky-700"
                           : "bg-red-100 text-red-600"
-                      }`}>
+                        }`}>
                         {item.stockStatus}
                       </span>
                     </td>
@@ -430,9 +420,8 @@ const ProductManagement = () => {
                       <span key={`el-${i}`} className="w-8 h-8 flex items-center justify-center text-stone-400 text-xs">…</span>
                     ) : (
                       <button key={p} onClick={() => setPage(p as number)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
-                          safePage === p ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:border-stone-400"
-                        }`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${safePage === p ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:border-stone-400"
+                          }`}
                       >
                         {p}
                       </button>

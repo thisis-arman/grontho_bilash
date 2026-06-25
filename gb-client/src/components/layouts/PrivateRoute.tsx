@@ -15,7 +15,6 @@ const PrivateRoute = ({ children }: { children: ReactNode }) => {
     }
 
     const decodedToken = jwtDecode(isAuthenticated as string);
-    console.log({decodedToken})
     const currentTime = Math.floor(Date.now() / 1000);
 
     if (!decodedToken.exp || decodedToken.exp <= currentTime) {

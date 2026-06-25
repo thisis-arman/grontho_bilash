@@ -15,6 +15,7 @@ import {
   BookOpen,
   Lightbulb,
   Calculator,
+  LayoutDashboard,
 } from "lucide-react";
 import { Avatar, Dropdown, Space, MenuProps } from "antd";
 import { UserOutlined } from "@ant-design/icons";
@@ -27,7 +28,7 @@ const publicNav = [
   { title: "Tools", path: "/tools/cgpa-calculator", icon: <Calculator size={20} /> },
 ];
 
-// ─── Bottom nav for logged-in users (mobile only) — max 5 items ─────────────
+// ─── Bottom nav for logged-in users, INSIDE the dashboard only — max 5 items ─
 const MAX_BOTTOM_ITEMS = 5;
 
 const Navbar = () => {
@@ -40,10 +41,10 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Build dashboard nav items for bottom bar
+  // Build dashboard nav items for the dashboard's own bottom bar
   const dashPaths = user?.role === "admin" ? adminPaths : userPaths;
   const rolePrefix = user?.role === "admin" ? "/admin" : "/user";
-  const bottomNavItems = dashPaths.slice(0, MAX_BOTTOM_ITEMS);
+  const dashboardBottomNavItems = dashPaths.slice(0, MAX_BOTTOM_ITEMS);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -97,6 +98,9 @@ const Navbar = () => {
   ];
 
   // ─── Whether we're inside the dashboard ──────────────────────────────────
+  // This is the single source of truth for which bottom bar renders.
+  // Dashboard menu items must ONLY ever be reachable from here — a user
+  // browsing Home/Books/etc. should never see dashboard options at all.
   const inDashboard =
     location.pathname.startsWith("/admin") ||
     location.pathname.startsWith("/user");
@@ -227,7 +231,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ── Mobile slide-down menu (public pages only) ── */}
+        {/* ── Mobile slide-down menu (hamburger — public pages only) ── */}
         <div
           className={`md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl transition-all duration-300 ease-in-out origin-top ${
             mobileMenuOpen
@@ -275,17 +279,20 @@ const Navbar = () => {
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          MOBILE BOTTOM NAV — only when user is logged in, only on mobile/tablet
-          Hidden on md+ screens
+          MOBILE BOTTOM NAV — exactly ONE of these two renders at a time,
+          decided purely by `inDashboard`. A user on Home/Books/Suggestions/
+          Tools/Cart/Login etc. must NEVER see dashboard menu items here —
+          only once they've actually navigated into /admin or /user does
+          the dashboard's own bottom bar take over.
       ═══════════════════════════════════════════════════════════════════ */}
-      {user && (
+      {inDashboard ? (
+        /* ── DASHBOARD bottom bar — only inside /admin or /user ── */
         <nav
           className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           <div className="flex items-stretch">
-            {/* Dashboard nav items */}
-            {bottomNavItems.map((item) => {
+            {dashboardBottomNavItems.map((item) => {
               const to = `${rolePrefix}/${item.path}`;
               return (
                 <NavLink
@@ -301,7 +308,6 @@ const Navbar = () => {
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Active indicator bar */}
                       {isActive && (
                         <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
                       )}
@@ -318,8 +324,8 @@ const Navbar = () => {
               );
             })}
 
-            {/* Cart tab — only for users (not admin) */}
-            {user.role !== "admin" && (
+            {/* Cart tab — only for regular users (not admin) */}
+            {user?.role !== "admin" && (
               <NavLink
                 to="/cart"
                 className={({ isActive }) =>
@@ -343,7 +349,6 @@ const Navbar = () => {
                         </span>
                       )}
                     </span>
-                    {/* <span>Cart</span> */}
                   </>
                 )}
               </NavLink>
@@ -357,6 +362,146 @@ const Navbar = () => {
               <LogOut size={20} />
               <span>Logout</span>
             </button>
+          </div>
+        </nav>
+      ) : (
+        /* ── PUBLIC bottom bar — everywhere else (Home, Books, Cart, etc.)
+             Always visible regardless of auth state. Logged-in users get
+             Home / Books / Dashboard / Cart / Logout. Logged-out visitors
+             get Home / Books / Login — dashboard, cart, and logout have
+             no meaning for a guest, so they're left out rather than padded
+             with placeholders. ── */
+        <nav
+          className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <div className="flex items-stretch">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold transition-colors relative ${
+                  isActive
+                    ? "text-yellow-600 bg-yellow-50"
+                    : "text-gray-400 hover:text-gray-600"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
+                  )}
+                  <Home size={20} />
+                  <span>Home</span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/books"
+              className={({ isActive }) =>
+                `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold transition-colors relative ${
+                  isActive
+                    ? "text-yellow-600 bg-yellow-50"
+                    : "text-gray-400 hover:text-gray-600"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
+                  )}
+                  <BookOpen size={20} />
+                  <span>Books</span>
+                </>
+              )}
+            </NavLink>
+
+            {user ? (
+              <>
+                <NavLink
+                  to={`/${user.role}/dashboard`}
+                  className={({ isActive }) =>
+                    `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold transition-colors relative ${
+                      isActive
+                        ? "text-yellow-600 bg-yellow-50"
+                        : "text-gray-400 hover:text-gray-600"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
+                      )}
+                      <LayoutDashboard size={20} />
+                      <span>Dashboard</span>
+                    </>
+                  )}
+                </NavLink>
+
+                {user.role !== "admin" && (
+                  <NavLink
+                    to="/cart"
+                    className={({ isActive }) =>
+                      `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold transition-colors relative ${
+                        isActive
+                          ? "text-yellow-600 bg-yellow-50"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
+                        )}
+                        <span className="relative">
+                          <ShoppingCart size={20} />
+                          {cartItems.length > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold text-white bg-red-500 rounded-full">
+                              {cartItems.length}
+                            </span>
+                          )}
+                        </span>
+                        <span>Cart</span>
+                      </>
+                    )}
+                  </NavLink>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={20} />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-[10px] font-semibold transition-colors relative ${
+                    isActive
+                      ? "text-yellow-600 bg-yellow-50"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-yellow-500 rounded-full" />
+                    )}
+                    <LogIn size={20} />
+                    <span>Sign In</span>
+                  </>
+                )}
+              </NavLink>
+            )}
           </div>
         </nav>
       )}

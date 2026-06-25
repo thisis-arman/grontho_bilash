@@ -109,9 +109,9 @@ const ProductDetails = () => {
     }
   };
 
-  console.log({ seller: product?.seller })
+
   return (
-    <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8 mt-12">
+    <div className="min-h-screen bg-stone-50 md:py-10  px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* ── Main Card ── */}

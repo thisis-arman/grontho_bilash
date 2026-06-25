@@ -6,6 +6,7 @@ import {
   Search, ChevronLeft, ChevronRight, Users, X,
   SlidersHorizontal, UserCheck, UserX
 } from "lucide-react";
+import { toast } from "sonner";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -124,7 +125,7 @@ const UserManagement = () => {
   const onSubmitUpdate = async (formData: TUser) => {
     if (!selectedUser) return;
     try {
-      await updateUserInfo({
+      const response = await updateUserInfo({
         id: selectedUser._id,
         userInfo: {
           name: formData.name,
@@ -133,9 +134,10 @@ const UserManagement = () => {
           status: formData.status,
         },
       }).unwrap();
+      toast.success(response?.message || "User updated successfully");
       handleCloseModal();
-    } catch (error) {
-      console.error("Failed to update user", error);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update user");
     }
   };
 

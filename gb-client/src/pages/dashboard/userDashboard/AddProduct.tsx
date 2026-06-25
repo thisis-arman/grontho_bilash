@@ -68,9 +68,6 @@ const AddProduct = () => {
 
 
     const handleLevelChange = (level: string) => {
-        console.log({ level });
-        console.log({ selectedLevel });
-        console.log(faculties);
         setSelectedLevel(level);
     };
 
@@ -79,7 +76,6 @@ const AddProduct = () => {
             fetch(`https://grontho-bilash-server.vercel.app/api/v1/level?level=${selectedLevel}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data.data.faculties);
                     setFaculties(data?.data?.faculties);
                 })
                 .catch((error) => {
@@ -93,10 +89,10 @@ const AddProduct = () => {
             fetch(`https://grontho-bilash-server.vercel.app/api/v1/faculty?facultyId=${selectedFaculty}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data?.data?.departments);
                     setDepartments(data?.data?.departments)
                 })
                 .catch((error) => {
+                    toast.error("Error fetching level data")
                     console.error("Error fetching level data:", error);
                 });
         }
@@ -104,17 +100,12 @@ const AddProduct = () => {
 
 
     const handleFacultyChange = (facultyId: string) => {
-        console.log({ facultyId });
         setSelectedFaculty(facultyId);
-        console.log(faculties);
-        console.log(departments);
+       
 
     };
     const handleDepartmentChange = (departmentId: string) => {
-        console.log({ departmentId });
         setSelectedDepartment(departmentId);
-        console.log(faculties);
-        console.log(departments);
 
     };
 
@@ -175,13 +166,13 @@ const AddProduct = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log("response", response);
+           
             setImageURL(response.data.url);
             productImages.push(response.data.url)
         } catch (error) {
+            toast.error("Error uploading the image")
             console.error("Error uploading the image:", error);
         }
-        console.log({ formData });
     };
 
     const handleAddProduct = async (e) => {
@@ -211,6 +202,7 @@ const AddProduct = () => {
                 toast.success("Book created successfully")
             }
         } catch (error) {
+            toast.error("Error listing product")
             console.log(error);
         }
     }

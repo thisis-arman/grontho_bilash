@@ -15,8 +15,8 @@ const createUserIntoDB = async (userInfo: TUser) => {
   return user;
 };
 
-const getLoggedInUserFromDB = async (email:string) => {
-  const user = await User.findOne({email});
+const getLoggedInUserFromDB = async (email: string) => {
+  const user = await User.findOne({ email });
   return user;
 };
 const getUsersFromDB = async () => {
@@ -34,7 +34,6 @@ const updateUserInfo = async (
   if (!userToUpdate || userToUpdate.isDeleted) {
     throw new Error("User not found or deleted");
   }
-
   // Security check: if role is 'user', they can only update their own profile
   if (loggedInUserRole === "user" && userToUpdate.email !== loggedInUserEmail) {
     throw new Error("You are not authorized to update this profile");
@@ -42,6 +41,7 @@ const updateUserInfo = async (
 
   const allowedFields = loggedInUserRole === "user" ? ["name", "contactNo"] : ["name", "status", "role", "contactNo"];
   const dataToUpdate = pick(payload, allowedFields);
+  console.log({ dataToUpdate })
 
   if (Object.keys(dataToUpdate).length === 0) {
     throw new Error("No valid fields to update");
@@ -50,9 +50,9 @@ const updateUserInfo = async (
   const updatedUser = await User.findOneAndUpdate(
     { _id: id, isDeleted: false },
     { $set: dataToUpdate },
-    { new: true, runValidators: true } 
+    { new: true, runValidators: true }
   );
-
+  console.log({ updatedUser })
   if (!updatedUser) {
     throw new Error("User not found or deleted");
   }
