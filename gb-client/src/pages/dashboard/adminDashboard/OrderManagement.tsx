@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { 
-  useGetOrdersQuery, 
-  useUpdateOrderMutation, 
-  useDeleteOrderMutation 
+import {
+  useGetOrdersQuery,
+  useUpdateOrderMutation,
+  useDeleteOrderMutation
 } from "../../../redux/features/order/orderApi";
-import { 
-  Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, 
+import {
+  Search, SlidersHorizontal, X, ChevronLeft, ChevronRight,
   ShoppingBag, DollarSign, Clock, CheckCircle, Edit, Trash2,
   Package, MapPin, CreditCard, Tag
 } from "lucide-react";
@@ -43,13 +43,13 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50];
 const StatCard = ({ label, value, icon: Icon, color }: {
   label: string; value: number | string; icon: React.ElementType; color: string;
 }) => (
-  <div className="bg-white border border-stone-100 rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-      <Icon size={18} />
+  <div className="bg-white border border-stone-100 rounded-lg px-2 py-2 flex items-center gap-2 shadow-sm">
+    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
+      <Icon size={16} />
     </div>
     <div>
-      <p className="text-2xl font-extrabold text-stone-900">{value}</p>
-      <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest">{label}</p>
+      <p className="text-xs md:text-md font-medium text-stone-400 uppercase tracking-widest">{label}</p>
+      <p className="text-sm md:text-xl font-extrabold text-stone-900">{value}</p>
     </div>
   </div>
 );
@@ -168,11 +168,11 @@ const OrderManagement = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-stone-50 min-h-screen">
+    <div className="p-1 sm:p-6 lg:p-8 bg-stone-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-stone-900 tracking-tight">Order Management</h1>
+          <h1 className="text-xl md:text-2xl font-black text-stone-900 tracking-tight">Order Management</h1>
           <p className="text-stone-400 text-sm mt-1">
             Track transactions, update shipment states, and monitor order processing.
           </p>
@@ -181,7 +181,7 @@ const OrderManagement = () => {
 
       {/* Stats Cards */}
       {!isLoading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
           <StatCard label="Total Orders" value={allOrders.length} icon={ShoppingBag} color="bg-stone-100 text-stone-600" />
           <StatCard label="Total Revenue" value={`৳ ${totalAmountSum.toLocaleString()}`} icon={DollarSign} color="bg-emerald-100 text-emerald-600" />
           <StatCard label="Pending State" value={pendingOrdersCount} icon={Clock} color="bg-amber-100 text-amber-600" />
@@ -211,11 +211,10 @@ const OrderManagement = () => {
         {/* Filter Toggle */}
         <button
           onClick={() => setShowFilters((v) => !v)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-            showFilters || activeFilterCount > 0
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${showFilters || activeFilterCount > 0
               ? "bg-stone-900 text-white border-stone-900"
               : "bg-white border-stone-200 text-stone-600 hover:border-stone-400"
-          }`}
+            }`}
         >
           <SlidersHorizontal size={15} />
           Filters
@@ -248,11 +247,10 @@ const OrderManagement = () => {
                 <button
                   key={status}
                   onClick={() => applyFilter(() => setOrderStatusFilter(status))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${
-                    orderStatusFilter === status
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${orderStatusFilter === status
                       ? "bg-stone-900 text-white border-stone-900"
                       : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
-                  }`}
+                    }`}
                 >
                   {status}
                 </button>
@@ -268,11 +266,10 @@ const OrderManagement = () => {
                 <button
                   key={pStatus}
                   onClick={() => applyFilter(() => setPaymentStatusFilter(pStatus))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${
-                    paymentStatusFilter === pStatus
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize ${paymentStatusFilter === pStatus
                       ? "bg-stone-900 text-white border-stone-900"
                       : "bg-white text-stone-500 border-stone-200 hover:border-stone-400"
-                  }`}
+                    }`}
                 >
                   {pStatus}
                 </button>
@@ -312,20 +309,20 @@ const OrderManagement = () => {
         <div className="bg-white border border-stone-100 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-stone-50 border-b border-stone-100 text-[11px] font-bold tracking-widest uppercase text-stone-400">
+              <thead className="bg-stone-50 border-b border-stone-100 text-[11px] font-medium tracking-widest uppercase text-stone-400">
                 <tr>
-                  <th className="px-6 py-4">Order ID & Date</th>
-                  <th className="px-6 py-4">Purchased Books</th>
-                  <th className="px-6 py-4">Buyer Details</th>
-                  <th className="px-6 py-4">Transaction details</th>
-                  <th className="px-6 py-4">Status Badges</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-1 py-1">Order ID & Date</th>
+                  <th className="px-1 py-1">Purchased Books</th>
+                  <th className="px-1 py-1">Buyer Details</th>
+                  <th className="px-1 py-1">Transaction details</th>
+                  <th className="px-1 py-1">Status Badges</th>
+                  <th className="px-1 py-1 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-50">
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center">
+                    <td colSpan={6} className="px-1 py-16 text-center">
                       <div className="flex flex-col items-center gap-2 text-stone-400">
                         <ShoppingBag size={28} className="text-stone-300" />
                         <p className="text-sm font-medium">No orders match your criteria</p>
@@ -341,9 +338,9 @@ const OrderManagement = () => {
 
                   return (
                     <tr key={item._id} className="hover:bg-stone-50/60 transition-colors group">
-                      
+
                       {/* Order ID & Date */}
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         <p className="font-extrabold text-stone-900 text-sm">#{item.orderId || item._id.slice(-8).toUpperCase()}</p>
                         <span className="text-[10px] text-stone-400 font-bold block mt-0.5">
                           {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "—"}
@@ -351,7 +348,7 @@ const OrderManagement = () => {
                       </td>
 
                       {/* Purchased Books */}
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0 border border-stone-200 flex items-center justify-center">
                             {firstBook?.productImage ? (
@@ -377,7 +374,7 @@ const OrderManagement = () => {
                       </td>
 
                       {/* Buyer Details */}
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         <p className="text-stone-900 font-bold text-xs">
                           {item.bought_by?.[0]?.name || item.email?.split("@")[0] || "Guest Buyer"}
                         </p>
@@ -386,7 +383,7 @@ const OrderManagement = () => {
                       </td>
 
                       {/* Transaction Details */}
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2">
                         <div className="space-y-0.5">
                           <p className="text-stone-900 font-extrabold text-sm">৳{item.totalAmount?.toLocaleString()}</p>
                           <div className="flex items-center gap-2 text-[10px] text-stone-400 font-semibold">
@@ -403,38 +400,36 @@ const OrderManagement = () => {
                       </td>
 
                       {/* Status Badges */}
-                      <td className="px-6 py-4 space-y-1.5">
+                      <td className="px-2 py-2 space-y-1.5">
                         {/* Order status */}
                         <div>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black capitalize ${
-                            item.orderStatus === "delivered"
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black capitalize ${item.orderStatus === "delivered"
                               ? "bg-emerald-100 text-emerald-700"
                               : item.orderStatus === "shipped"
-                              ? "bg-blue-100 text-blue-700"
-                              : item.orderStatus === "cancelled"
-                              ? "bg-red-150 text-red-750"
-                              : "bg-amber-100 text-amber-700"
-                          }`}>
+                                ? "bg-blue-100 text-blue-700"
+                                : item.orderStatus === "cancelled"
+                                  ? "bg-red-150 text-red-750"
+                                  : "bg-amber-100 text-amber-700"
+                            }`}>
                             {item.orderStatus}
                           </span>
                         </div>
                         {/* Payment status */}
                         <div>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize border ${
-                            item.paymentStatus === "paid"
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize border ${item.paymentStatus === "paid"
                               ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                               : item.paymentStatus === "failed" || item.paymentStatus === "cancelled"
-                              ? "bg-rose-50 text-rose-700 border-rose-100"
-                              : "bg-amber-50 text-amber-700 border-amber-100"
-                          }`}>
+                                ? "bg-rose-50 text-rose-700 border-rose-100"
+                                : "bg-amber-50 text-amber-700 border-amber-100"
+                            }`}>
                             Pay: {item.paymentStatus}
                           </span>
                         </div>
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="px-2 py-2 text-right">
+                        <div className="flex items-center justify-end gap-1 ">
                           <button
                             onClick={() => handleEditClick(item)}
                             title="Edit Status"
@@ -445,7 +440,7 @@ const OrderManagement = () => {
                           <button
                             onClick={() => setPendingDeleteOrder(item)}
                             title="Delete Order"
-                            className="p-2 text-stone-400 hover:text-red-650 hover:bg-red-50 rounded-xl transition-colors"
+                            className="p-2 text-red-400 hover:text-red-650 hover:bg-red-50 rounded-xl transition-colors"
                           >
                             <Trash2 size={15} />
                           </button>
@@ -487,9 +482,8 @@ const OrderManagement = () => {
                       <span key={`el-${i}`} className="w-8 h-8 flex items-center justify-center text-stone-400 text-xs">…</span>
                     ) : (
                       <button key={p} onClick={() => setPage(p as number)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
-                          safePage === p ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:border-stone-400"
-                        }`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${safePage === p ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:border-stone-400"
+                          }`}
                       >
                         {p}
                       </button>
@@ -525,7 +519,7 @@ const OrderManagement = () => {
                   <p className="text-xs text-stone-400">Order ID: #{selectedOrder.orderId}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="w-8 h-8 rounded-xl hover:bg-stone-100 flex items-center justify-center text-stone-400 transition-colors"
               >
