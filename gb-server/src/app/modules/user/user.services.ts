@@ -3,7 +3,6 @@ import { TUser } from "./user.interface";
 import { User } from "./user.model";
 
 const createUserIntoDB = async (userInfo: TUser) => {
-  console.log(userInfo.name);
   const isUserExists = await User.isUserExistsByEmail(userInfo.email);
 
   if (isUserExists) {
@@ -11,7 +10,6 @@ const createUserIntoDB = async (userInfo: TUser) => {
   }
 
   const user = await User.create(userInfo);
-  console.log({ user });
   return user;
 };
 
