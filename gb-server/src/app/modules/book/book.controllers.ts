@@ -5,12 +5,10 @@ import { bookServices } from "./product.services";
 import httpStatus from "http-status";
 
 const createProduct = catchAsync(async (req: Request, res: Response) => {
-  // Extract user ID from auth middleware (seller)
   const user = req.user;
-
   const productData = {
     ...req.body,
-    seller: '67ec9a1f0dbed76c63bb41f2', // Ensure the logged-in user is the seller
+    seller: user?.id
   };
 
   const result = await bookServices.createProductIntoDB(productData);

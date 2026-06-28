@@ -50,7 +50,7 @@ router.patch("/:id", bookController.deleteBook);
 
 //currently using this api to create product 4/22/26
 router.post(
-  "/create-product",
+  "/create-product", Auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
   bookController.createProduct
 );
 router.post(

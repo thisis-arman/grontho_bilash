@@ -62,7 +62,6 @@ const AddProduct = () => {
     // const [categoryId, setCategoryId] = useState(null);
     // const { data, isLoading } = useGetSingleCategoryQuery(categoryId);
 
-
     const { data, isLoading } = useGetCategoriesQuery(undefined);
     // RTK
 

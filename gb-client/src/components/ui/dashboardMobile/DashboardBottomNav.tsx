@@ -18,6 +18,7 @@ const DashboardBottomNav = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    
     navigate('/login');
   };
 

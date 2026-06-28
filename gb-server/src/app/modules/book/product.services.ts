@@ -208,8 +208,8 @@ const getBooksByEmailFromDB = async (email: string) => {
   }
 
   // Correct the query format here
-  const books = await ProductModel.find({ seller: user._id, isDeleted: false, }).populate("seller", "name email contactNo ");
-  console.log(books);
+  const books = await ProductModel.find({ seller: user?._id, isDeleted: false, }).populate("seller", "name email contactNo ");
+  console.log("booooooks_____", books);
 
   return books;
 };
@@ -261,7 +261,7 @@ const updateProductIntoDb = async (
       }
     );
   }
-console.log(modifiedData,'md')
+  console.log(modifiedData, 'md')
   Object.entries(payload).forEach(
     ([key, value]) => {
       if (
@@ -273,7 +273,7 @@ console.log(modifiedData,'md')
     }
   );
 
-  console.log("modifiedData", modifiedData,bookId);
+  console.log("modifiedData", modifiedData, bookId);
 
   const result = await ProductModel.findByIdAndUpdate(
     bookId,
