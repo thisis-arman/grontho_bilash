@@ -3,12 +3,11 @@ import config from "../../config";
 import { TOrder } from "./order.interface";
 
 export const sendEmailAboutOrderDetailtoSystemAdmin = async (
-  email: string,
+  adminEmails: string[],
   order: TOrder
 ) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
-    port: 587,
     secure: false,
     auth: {
       user: config.email,
@@ -31,7 +30,7 @@ export const sendEmailAboutOrderDetailtoSystemAdmin = async (
 
   const mailOptions = {
     from: `"Grontho Bilash" <${config.email}>`,
-    to: email,
+    to: adminEmails,
     subject: `🛒 New Order Received | ${order.orderId}`,
 
     text: `
