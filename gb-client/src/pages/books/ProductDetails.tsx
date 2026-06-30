@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductBySlugQuery } from '../../redux/features/book/bookApi';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -9,8 +10,8 @@ import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Calendar, BookOpen, CheckCircle,
   Truck, Zap, Package, User, Globe, Hash, Tag,
-  Eye, Heart, Download, Shield,
-  Phone
+  Eye, Download, Shield,
+  Phone, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -36,9 +37,9 @@ const MetaItem = ({
       <div className="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
         <Icon className="w-4 h-4 text-stone-500" />
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">{label}</p>
-        <p className="text-sm font-medium text-stone-800 mt-0.5">{value}</p>
+        <p className="text-sm font-medium text-stone-800 mt-0.5 truncate">{value}</p>
       </div>
     </div>
   );
@@ -49,6 +50,99 @@ const SectionCard = ({ children, className = "" }: { children: React.ReactNode; 
     {children}
   </div>
 );
+
+// ── Image Gallery ─────────────────────────────────────────────────────────────
+
+const ImageGallery = ({
+  images, title, isDigital, isOutOfStock, condition, viewCount,
+}: {
+  images: string[];
+  title: string;
+  isDigital: boolean;
+  isOutOfStock: boolean;
+  condition?: string;
+  viewCount?: number;
+}) => {
+  const gallery = images?.length ? images : ["/placeholder.png"];
+  const [active, setActive] = useState(0);
+
+  const goPrev = () => setActive((i) => (i - 1 + gallery.length) % gallery.length);
+  const goNext = () => setActive((i) => (i + 1) % gallery.length);
+
+  return (
+    <div className="flex flex-col gap-3 p-4">
+      <div className="relative bg-stone-100 rounded-2xl overflow-hidden aspect-[4/5] md:aspect-auto md:h-[480px]">
+        <img
+          alt={title}
+          src={gallery[active]}
+          className="w-full h-full object-cover"
+        />
+
+        {gallery.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              aria-label="Previous image"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center text-stone-600 hover:bg-white transition-colors"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="Next image"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center text-stone-600 hover:bg-white transition-colors"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </>
+        )}
+
+        <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
+          }`}>
+          {isDigital ? <Zap size={12} /> : <Package size={12} />}
+          {isDigital ? "Digital" : "Physical"}
+        </span>
+
+        {!isDigital && condition && (
+          <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${conditionColors[condition] ?? "bg-stone-100 text-stone-600"}`}>
+            {condition}
+          </span>
+        )}
+
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-white/75 flex items-center justify-center">
+            <span className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-xl tracking-widest uppercase">
+              Sold Out
+            </span>
+          </div>
+        )}
+
+        <span className="absolute bottom-4 left-4 flex items-center gap-1 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-stone-600 shadow">
+          <Eye size={12} /> {viewCount ?? 0} views
+        </span>
+      </div>
+
+      {gallery.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {gallery.map((src, idx) => (
+            <button
+              type="button"
+              key={src + idx}
+              onClick={() => setActive(idx)}
+              aria-label={`View image ${idx + 1}`}
+              className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${idx === active ? "border-yellow-600" : "border-transparent hover:border-stone-200"
+                }`}
+            >
+              <img src={src} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
@@ -83,11 +177,6 @@ const ProductDetails = () => {
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (isDigital) {
-    //   toast.info("Proceed to checkout for digital products");
-    //   return;
-    // }
-
     const cartInfo = {
       quantity: 1,
       bookTitle: product?.title,
@@ -109,55 +198,28 @@ const ProductDetails = () => {
     }
   };
 
+  const ctaLabel = isDigital ? "Get Digital Copy" : "Add to cart";
+  const CtaIcon = isDigital ? Zap : ShoppingBag;
 
   return (
-    <div className="min-h-screen bg-stone-50 md:py-10  px-4 sm:px-6 lg:px-8 mt-12">
+    <div className="min-h-screen bg-stone-50 md:py-10 px-4 sm:px-6 lg:px-8 mt-12 pb-28 md:pb-10">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* ── Main Card ── */}
         <div className="bg-white rounded-3xl border border-stone-100 shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
 
-            {/* Left: Image */}
-            <div className="relative bg-stone-100 flex items-center justify-center min-h-[420px] md:min-h-[560px]  p-4">
-              <img
-                alt={product.title}
-                src={product.images?.[0] ?? "/placeholder.png"}
-                className="w-full h-full object-cover rounded-2xl"
-              />
+            {/* Left: Gallery */}
+            <ImageGallery
+              images={product.images ?? []}
+              title={product.title}
+              isDigital={isDigital}
+              isOutOfStock={isOutOfStock}
+              condition={product.condition}
+              viewCount={product.viewCount}
+            />
 
-              {/* Product type badge */}
-              <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
-                }`}>
-                {isDigital ? <Zap size={12} /> : <Package size={12} />}
-                {product.productType}
-              </span>
-
-              {/* Condition badge (physical) */}
-              {!isDigital && product.condition && (
-                <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${conditionColors[product.condition] ?? "bg-stone-100 text-stone-600"}`}>
-                  {product.condition}
-                </span>
-              )}
-
-              {/* Out of stock overlay */}
-              {isOutOfStock && (
-                <div className="absolute inset-0 bg-white/75 flex items-center justify-center">
-                  <span className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-xl tracking-widest uppercase">
-                    Sold Out
-                  </span>
-                </div>
-              )}
-
-              {/* Stats row */}
-              <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-stone-600 shadow">
-                  <Eye size={12} /> {product.viewCount ?? 0} views
-                </span>
-              </div>
-            </div>
-
-            {/* Right: Info */}
+            {/* Right: Purchase panel — title, price, key facts, seller, CTA only */}
             <div className="flex flex-col p-8 lg:p-10">
               <div className="flex-1">
 
@@ -199,7 +261,7 @@ const ProductDetails = () => {
                 )}
 
                 {/* Price block */}
-                <div className="flex items-baseline gap-3 mb-6">
+                <div className="flex items-baseline gap-3 mb-6 flex-wrap">
                   <span className="text-4xl font-bold text-stone-900">
                     {formatPrice(product?.price?.basePrice)}
                   </span>
@@ -208,7 +270,6 @@ const ProductDetails = () => {
                       {formatPrice(product?.price?.discountPrice!)}
                     </span>
                   )}
-                  {/* Shipping note — only for physical */}
                   {!isDigital && (
                     <span className="text-sm text-emerald-600 font-medium">
                       + Platform shipping
@@ -218,7 +279,7 @@ const ProductDetails = () => {
 
                 <div className="border-t border-stone-100 mb-6" />
 
-                {/* Meta grid */}
+                {/* Key facts only — full spec lives below the fold */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {!isDigital && (
                     <>
@@ -234,93 +295,94 @@ const ProductDetails = () => {
                       />
                     </>
                   )}
-                  <MetaItem icon={Calendar} label="Published" value={product?.bookMetadata?.publicationYear} />
-                  <MetaItem icon={Globe} label="Language" value={product?.bookMetadata?.language} />
-                  <MetaItem icon={Hash} label="ISBN" value={product?.bookMetadata?.isbn} />
-                  <MetaItem icon={BookOpen} label="Publisher" value={product?.bookMetadata?.publisher} />
                   {isDigital && (
                     <MetaItem icon={Download} label="File Size" value={product?.digitalDetails?.fileSize ? `${product?.digitalDetails?.fileSize} MB` : undefined} />
                   )}
-                </div>
-
-                {/* Description */}
-                <div className="mb-6">
-                  <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400 mb-2">Description</p>
-                  <p className="text-sm text-stone-600 leading-relaxed">{product?.description}</p>
+                  <MetaItem icon={Calendar} label="Published" value={product?.bookMetadata?.publicationYear} />
+                  <MetaItem icon={BookOpen} label="Publisher" value={product?.bookMetadata?.publisher} />
                 </div>
 
                 {/* Seller */}
                 <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-100 mb-6">
-                  <div className="w-9 h-9 rounded-full bg-stone-200 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-stone-200 flex items-center justify-center flex-shrink-0">
                     <User size={16} className="text-stone-500" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">Seller</p>
-                    <p className="text-sm font-semibold text-stone-700">
+                    <p className="text-sm font-semibold text-stone-700 truncate">
                       {product.seller?.name ?? "—"}
                     </p>
                   </div>
                   {!product.isContactHidden && (
-                    <span className="ml-auto text-xs text-emerald-600 font-medium"><Phone size={16} className="text-emerald-600 inline-block pr-1" />  {product.seller?.contactNo ?? "—"}</span>
+                    <span className="ml-auto flex-shrink-0 text-xs text-emerald-600 font-medium flex items-center gap-1">
+                      <Phone size={14} className="text-emerald-600" /> {product.seller?.contactNo ?? "—"}
+                    </span>
                   )}
                 </div>
               </div>
 
-              {/* CTA */}
-              {isOutOfStock ? (
-                <button disabled className="w-full py-4 rounded-2xl text-sm font-bold bg-stone-100 text-stone-400 cursor-not-allowed">
-                  Unavailable
-                </button>
-              ) : isDigital ? (
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-yellow-200 hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <Zap className="w-5 h-5" />
-                  Get Digital Copy
-                </button>
-              ) : (
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  Add to cart
-                </button>
-              )}
+              {/* CTA — hidden on mobile, replaced by sticky bar below */}
+              <div className="hidden md:block">
+                {isOutOfStock ? (
+                  <button disabled className="w-full py-4 rounded-2xl text-sm font-bold bg-stone-100 text-stone-400 cursor-not-allowed">
+                    Unavailable
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className="w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-yellow-200 hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    <CtaIcon className="w-5 h-5" />
+                    {ctaLabel}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
+        {/* ── Description ── full width, below the fold (reading content, not decision content) ── */}
+        <SectionCard>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center">
+              <BookOpen size={14} className="text-stone-500" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-800">Description</h2>
+          </div>
+          <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
+            {product?.description}
+          </p>
+        </SectionCard>
+
         {/* ── Bottom row ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-          {/* Academic metadata */}
-          {product.academicMetadata?.level && (
-            <SectionCard>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
-                  <Tag size={14} className="text-amber-600" />
+          {/* Specifications (merged book + academic metadata) */}
+          <SectionCard>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                <Tag size={14} className="text-amber-600" />
+              </div>
+              <h2 className="text-sm font-bold text-stone-800">Specifications</h2>
+            </div>
+            <div className="space-y-3 text-sm">
+              {[
+                { label: "Language", value: product?.bookMetadata?.language },
+                { label: "ISBN", value: product?.bookMetadata?.isbn },
+                { label: "Level", value: product?.academicMetadata?.level },
+                { label: "Faculty", value: product?.academicMetadata?.faculty },
+                { label: "Department", value: product?.academicMetadata?.department },
+              ].map(({ label, value }) => value ? (
+                <div key={label} className="flex justify-between items-center py-1.5 border-b border-stone-50 last:border-0">
+                  <span className="text-stone-400 text-xs font-medium">{label}</span>
+                  <span className="text-stone-700 font-semibold text-xs text-right">{String(value)}</span>
                 </div>
-                <h2 className="text-sm font-bold text-stone-800">Academic Info</h2>
-              </div>
-              <div className="space-y-3 text-sm">
-                {[
-                  { label: "Level", value: product?.academicMetadata?.level },
-                  { label: "Faculty", value: product?.academicMetadata?.faculty },
-                  { label: "Department", value: product?.academicMetadata?.department },
-                ].map(({ label, value }) => value ? (
-                  <div key={label} className="flex justify-between items-center py-1.5 border-b border-stone-50">
-                    <span className="text-stone-400 text-xs font-medium">{label}</span>
-                    <span className="text-stone-700 font-semibold text-xs">{String(value)}</span>
-                  </div>
-                ) : null)}
-              </div>
-            </SectionCard>
-          )}
+              ) : null)}
+            </div>
+          </SectionCard>
 
           {/* Seller notes */}
-          <SectionCard className={product.academicMetadata?.level ? "" : "md:col-span-2"}>
+          <SectionCard>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center">
                 <User size={14} className="text-stone-500" />
@@ -338,7 +400,7 @@ const ProductDetails = () => {
               </span>.
               {product.price.isNegotiable && (
                 <span className="block mt-2 text-amber-600 font-medium">
-                  💬 The seller is open to price negotiation.
+                  The seller is open to price negotiation.
                 </span>
               )}
             </p>
@@ -372,6 +434,27 @@ const ProductDetails = () => {
           </SectionCard>
         </div>
 
+      </div>
+
+      {/* ── Sticky mobile CTA bar ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)] z-20">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">Price</p>
+          <p className="text-lg font-bold text-stone-900 truncate">{formatPrice(product?.price?.basePrice)}</p>
+        </div>
+        {isOutOfStock ? (
+          <button disabled className="ml-auto py-3 px-6 rounded-xl text-sm font-bold bg-stone-100 text-stone-400 cursor-not-allowed">
+            Unavailable
+          </button>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            className="ml-auto py-3 px-6 bg-yellow-600 active:bg-yellow-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+          >
+            <CtaIcon className="w-4 h-4" />
+            {ctaLabel}
+          </button>
+        )}
       </div>
     </div>
   );

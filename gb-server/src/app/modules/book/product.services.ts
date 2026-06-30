@@ -97,7 +97,7 @@ const getBookFromDb = async (_id: string): Promise<Document | null> => {
 
 const getAllProductsFromDb = async (query: ProductQuery) => {
   const {
-    page = 1, limit = 12,
+    page = 1, limit = 30,
     productType, category, condition,
     sortBy = "createdAt", sortOrder = "desc",
     search, minPrice, maxPrice,

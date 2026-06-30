@@ -33,8 +33,13 @@ const listABook = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllProducts = catchAsync(async (req: Request, res: Response) => {
-  const result = await bookServices.getAllProductsFromDb({ ...req.query});
-  sendResponse(res, { statusCode: 200, success: true, message: "Products fetched successfully", data: result });
+  const result = await bookServices.getAllProductsFromDb({ ...req.query });
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Products fetched successfully",
+    data: result
+  });
 });
 
 const getBooksByEmail = catchAsync(async (req, res) => {
@@ -115,7 +120,7 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 
 // Controller to dynamically update a book
 const updateBook = catchAsync(async (req: Request, res: Response) => {
-  const {bookId} = req.params;
+  const { bookId } = req.params;
   const updateData = req.body;
   const result = await bookServices.updateProductIntoDb(bookId, updateData);
   sendResponse(res, {
