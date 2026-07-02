@@ -79,3 +79,31 @@ export interface IProduct {
     // Virtuals
     estimatedShipping: number;
 }
+
+
+ 
+export interface TPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+ 
+export interface TProductsResponse {
+  data: IProduct[]; // your existing TProduct type
+  meta: TPaginationMeta;
+}
+ 
+export interface TProductQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  productType?: "Physical" | "Digital";
+  category?: string;
+  condition?: string;
+  sortBy?: "createdAt" | "price" | "viewCount" | "title";
+  sortOrder?: "asc" | "desc";
+  minPrice?: number;
+  maxPrice?: number;
+}
+ 

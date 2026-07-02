@@ -6,6 +6,7 @@ import {
     ChevronRight
 } from "lucide-react";
 import { useGetBooksQuery, useGetProductsQuery } from "../../redux/features/book/bookApi";
+import { IProduct } from "../../types/interface";
 
 
 const stats = [
@@ -58,9 +59,7 @@ const Home = () => {
         sortBy: "createdAt",
         sortOrder: "desc",
     });
-    const recentProducts = productsRes?.data ?? [];
-
-    console.log(recentProducts)
+    const recentProducts = productsRes?.data?.data ?? [];
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
@@ -81,33 +80,36 @@ const Home = () => {
 
     return (
         <div className="bg-stone-50">
+            {/* HERO SECTION */}
             <section className="bg-[#fdf9f4] min-h-screen flex items-center overflow-hidden relative">
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-amber-400/15 blur-[100px] pointer-events-none" />
+                <div className="absolute top-0 left-0 w-[360px] h-[360px] rounded-full bg-stone-300/10 blur-[90px] pointer-events-none" />
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <Link to="/blog" className="inline-flex items-center gap-2 px-3 py-1.5 mt-2 rounded-full bg-amber-100 text-amber-700 text-xs font-bold tracking-wide mb-8 hover:bg-amber-200 transition-colors">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                Digital products now available <ChevronRight size={12} />
-                            </Link>
 
+                        {/* ── Left: message ── */}
+                        <div>
                             <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black text-stone-900 leading-[1.0] tracking-tighter mb-6">
-                                Buy &amp; sell books{" "}
+                                Buy &amp; sell books,{" "}
                                 <span className="relative inline-block">
-                                    <span className="text-amber-500">smarter.</span>
+                                    <span className="text-amber-500">for less.</span>
                                     <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                                         <path d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
                                     </svg>
                                 </span>
                             </h1>
 
-                            <p className="text-stone-500 text-lg leading-relaxed mb-8 max-w-md">
-                                Bangladesh's trusted marketplace for used textbooks, digital PDFs,
-                                and study resources. Join 4,800+ students saving money.
+                            <p className="text-stone-500 text-lg leading-relaxed mb-3 max-w-md">
+                                Bangladesh's marketplace for used textbooks and digital notes.
+                                4,800+ students already save here.
                             </p>
 
-                            <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-md mb-8">
+                            <Link to="/books?type=Digital" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:text-amber-800 mb-8 transition-colors">
+                                New — instant digital downloads <ChevronRight size={12} />
+                            </Link>
+
+                            <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-md mb-6">
                                 <div className="flex-1 relative">
                                     <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
                                     <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
@@ -120,65 +122,54 @@ const Home = () => {
                                 </button>
                             </form>
 
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <Link to="/books" className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
                                     Browse Books <ArrowRight size={14} />
                                 </Link>
-                                <Link to="/user/add-product" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-sm">
-                                    <Zap size={14} /> Sell Yours
+                                <Link to="/user/add-product" className="inline-flex items-center gap-2 px-5 py-2.5 border border-stone-300 hover:border-stone-900 text-stone-700 hover:text-stone-900 font-bold rounded-xl text-sm transition-colors">
+                                    <Zap size={14} /> Sell yours
                                 </Link>
                             </div>
                         </div>
 
-                        {/* Right — Bento */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-stone-900 text-white rounded-3xl p-6 flex flex-col justify-between">
-                                <p className="text-[11px] font-bold tracking-widest uppercase text-stone-500">Books Listed</p>
-                                <div className="mt-4">
-                                    <p className="text-5xl font-black">12K+</p>
-                                    <p className="text-xs text-stone-400 mt-1">across Bangladesh</p>
+                        {/* ── Right: signature visual ── */}
+                        <div className="relative flex items-center justify-center min-h-[360px]">
+                            <div className="absolute w-64 h-64 rounded-full bg-amber-400/25 blur-[70px] pointer-events-none" />
+
+                            <div className="gb-book" aria-hidden="true">
+                                <div className="gb-book-shadow" />
+                                <div className="gb-book-spine" />
+                                <div className="gb-book-page gb-book-page--left">
+                                    <span /><span /><span />
                                 </div>
+                                <div className="gb-book-page gb-book-page--right">
+                                    <span /><span /><span />
+                                </div>
+                                <div className="gb-book-page gb-book-page--flip" />
                             </div>
 
-                            <div className="bg-amber-500 rounded-3xl p-6 flex flex-col justify-between">
-                                <div className="w-9 h-9 bg-stone-900/15 rounded-xl flex items-center justify-center mb-4">
-                                    <Zap size={18} className="text-stone-900" />
-                                </div>
+                            <div className="gb-float-badge gb-float-badge--1 flex items-center gap-2">
+                                <BookOpen size={14} className="text-stone-900" />
                                 <div>
-                                    <p className="text-sm font-bold text-stone-900">Instant Digital Delivery</p>
-                                    <p className="text-xs text-stone-800/70 mt-1">Download PDFs right after checkout</p>
+                                    <p className="text-sm font-black text-stone-900 leading-none">12K+</p>
+                                    <p className="text-[10px] text-stone-400 leading-none mt-0.5">books listed</p>
                                 </div>
                             </div>
 
-                            <div className="bg-white border border-stone-100 rounded-3xl p-6 shadow-sm">
-                                <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
-                                    <BookOpen size={18} className="text-emerald-600" />
-                                </div>
-                                <p className="text-sm font-bold text-stone-900">All Conditions</p>
-                                <p className="text-xs text-stone-400 mt-1">New, Like New, Good &amp; Acceptable</p>
+                            <div className="gb-float-badge gb-float-badge--2">
+                                <p className="text-sm font-black text-stone-900 leading-none">4,800+</p>
+                                <p className="text-[10px] text-stone-400 leading-none mt-0.5">students</p>
                             </div>
 
-                            <div className="bg-stone-100 rounded-3xl p-6 flex flex-col justify-between">
-                                <p className="text-[11px] font-bold tracking-widest uppercase text-stone-400">Satisfaction</p>
-                                <div className="mt-4">
-                                    <p className="text-5xl font-black text-stone-900">98%</p>
-                                    <p className="text-xs text-stone-400 mt-1">of buyers satisfied</p>
-                                </div>
-                            </div>
-
-                            <div className="col-span-2 bg-gradient-to-r from-stone-900 to-stone-800 rounded-3xl p-5 flex items-center justify-between gap-4">
-                                <div>
-                                    <p className="text-xs font-bold text-stone-500 mb-1">Join the community</p>
-                                    <p className="text-white font-bold text-sm">4,800+ students already saving money</p>
-                                </div>
-                                <Link to="/register" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-xs transition-all whitespace-nowrap">
-                                    Join Free <ArrowRight size={13} />
-                                </Link>
+                            <div className="gb-float-badge gb-float-badge--3 flex items-center gap-1.5">
+                                <Zap size={12} className="text-amber-600" />
+                                <p className="text-[11px] font-bold text-stone-700 leading-none">Instant digital delivery</p>
                             </div>
                         </div>
 
                     </div>
                 </div>
+
             </section>
 
             {/* ━━━━ STATS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -249,7 +240,7 @@ const Home = () => {
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                            {recentProducts.map((product) => (
+                            {recentProducts.map((product: IProduct) => (
                                 <Link
                                     key={product._id}
                                     to={`/products/${product.slug}`}
@@ -426,7 +417,97 @@ const Home = () => {
                 </div>
             </section>
 
+            <style>{`
+        .gb-book {
+            position: relative;
+            width: 220px;
+            height: 160px;
+            perspective: 1400px;
+        }
+        .gb-book-shadow {
+            position: absolute;
+            left: 50%; bottom: -18px;
+            width: 200px; height: 24px;
+            transform: translateX(-50%);
+            background: radial-gradient(ellipse at center, rgba(28,25,23,0.18) 0%, rgba(28,25,23,0) 70%);
+        }
+        .gb-book-spine {
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 5px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #44403c, #292524);
+            border-radius: 2px;
+            z-index: 3;
+        }
+        .gb-book-page {
+            position: absolute;
+            top: 0;
+            width: 110px;
+            height: 160px;
+            background: #fffdf9;
+            border: 1px solid #e7e5e4;
+            padding: 18px 14px;
+            box-sizing: border-box;
+        }
+        .gb-book-page span {
+            display: block;
+            height: 3px;
+            border-radius: 2px;
+            background: #eeebe6;
+            margin-bottom: 10px;
+        }
+        .gb-book-page span:nth-child(2) { width: 80%; }
+        .gb-book-page span:nth-child(3) { width: 55%; }
+        .gb-book-page--left {
+            left: 0;
+            border-radius: 10px 2px 2px 10px;
+            box-shadow: -6px 6px 16px rgba(28,25,23,0.06);
+        }
+        .gb-book-page--right {
+            right: 0;
+            border-radius: 2px 10px 10px 2px;
+            box-shadow: 6px 6px 16px rgba(28,25,23,0.06);
+        }
+        .gb-book-page--flip {
+            right: 0;
+            border-radius: 2px 10px 10px 2px;
+            background: linear-gradient(120deg, #fffdf9 55%, #fef3c7 100%);
+            transform-origin: left center;
+            z-index: 2;
+            animation: gb-flip 5s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+        }
+        @keyframes gb-flip {
+            0%, 12%   { transform: rotateY(0deg); }
+            42%, 58%  { transform: rotateY(-165deg); }
+            88%, 100% { transform: rotateY(0deg); }
+        }
+        .gb-float-badge {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid #f0ede7;
+            border-radius: 14px;
+            padding: 8px 12px;
+            box-shadow: 0 8px 24px rgba(28,25,23,0.08);
+            animation: gb-float 6s ease-in-out infinite;
+        }
+        .gb-float-badge--1 { top: 8%;  left: -4%;  animation-delay: 0s; }
+        .gb-float-badge--2 { bottom: 12%; right: -2%; text-align: right; animation-delay: 1.4s; }
+        .gb-float-badge--3 { bottom: -2%; left: 18%; animation-delay: 0.7s; }
+        @keyframes gb-float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-8px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .gb-book-page--flip, .gb-float-badge { animation: none; }
+        }
+        @media (max-width: 1023px) {
+            .gb-float-badge--1 { left: 2%; }
+            .gb-float-badge--2 { right: 2%; }
+        }
+    `}</style>
         </div>
+
     );
 };
 

@@ -7,21 +7,22 @@ import { Document } from "mongoose";
 import { ObjectId } from "mongodb";
 import { ProductModel } from "./product.model";
 import slugify from "slugify";
+import { IProduct } from "./product.interface";
 
-interface ProductQuery {
-  page?: string | number;
-  limit?: string | number;
-  productType?: string;
+export interface ProductQuery {
+  page?: number | string;
+  limit?: number | string;
+  productType?: "Physical" | "Digital";
   category?: string;
   condition?: string;
-  sortBy?: string;
-  sortOrder?: string;
+  sortBy?: "createdAt" | "price" | "viewCount" | "title";
+  sortOrder?: "asc" | "desc";
   search?: string;
-  minPrice?: string;
-  maxPrice?: string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
 }
 
-const createProductIntoDB = async (payload) => {
+const createProductIntoDB = async (payload: IProduct) => {
   // 1. Check if the product already exists (by Title or SKU)
   const isProductExist = await ProductModel.findOne({ title: payload.title });
   if (isProductExist) {
@@ -95,12 +96,34 @@ const getBookFromDb = async (_id: string): Promise<Document | null> => {
   return book;
 };
 
+
+
+
+// Maps public/API field names -> actual Mongo document paths.
+// Extend this if you add more sortable fields — never interpolate
+// req.query.sortBy directly into the sort object.
+const SORT_FIELD_MAP: Record<string, string> = {
+  createdAt: "createdAt",
+  price: "price.basePrice",
+  viewCount: "viewCount",
+  title: "title",
+};
+
+const MAX_LIMIT = 48;
+const DEFAULT_LIMIT = 12;
+
 const getAllProductsFromDb = async (query: ProductQuery) => {
   const {
-    page = 1, limit = 30,
-    productType, category, condition,
-    sortBy = "createdAt", sortOrder = "desc",
-    search, minPrice, maxPrice,
+    page = 1,
+    limit = DEFAULT_LIMIT,
+    productType,
+    category,
+    condition,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+    search,
+    minPrice,
+    maxPrice,
   } = query;
 
   const filter: Record<string, unknown> = {
@@ -120,30 +143,47 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
     };
   }
 
+  // Requires a text index on the Product schema, e.g.:
+  //   productSchema.index({ title: "text", description: "text", tags: "text" });
+  // Without it, $text will throw. Run this once in Mongo / add via schema.
   if (search) {
     filter.$text = { $search: search };
   }
 
-  const pageNum = Number(page);
-  const limitNum = Number(limit);
+  const pageNum = Math.max(1, Number(page) || 1);
+  const limitNum = Math.min(MAX_LIMIT, Math.max(1, Number(limit) || DEFAULT_LIMIT));
   const skip = (pageNum - 1) * limitNum;
+
+  const sortField = SORT_FIELD_MAP[sortBy as string] ?? SORT_FIELD_MAP.createdAt;
   const sortDir = sortOrder === "asc" ? 1 : -1;
 
+  // _id tie-break keeps page ordering stable when many docs share
+  // the same sort value (e.g. same createdAt second, or same price).
+  // Without this, skip/limit pagination can show duplicates or skip
+  // items when two documents tie on the primary sort key.
+  const sort: Record<string, 1 | -1> = { [sortField]: sortDir, _id: -1 };
+
   const [data, total] = await Promise.all([
-    ProductModel.find({ isPublished: true, isDeleted: false, stockStatus: { $ne: "Out of Stock" }, })
+    ProductModel.find(filter)
       .populate("seller", "name email contactNo")
-      .sort({ [sortBy]: sortDir })
+      .sort(sort)
       .skip(skip)
       .limit(limitNum),
-    ProductModel.countDocuments({ isPublished: true, isDeleted: false, stockStatus: { $ne: "Out of Stock" }, }),
+    ProductModel.countDocuments(filter),
   ]);
 
-  return data;
-  // return {
-  //   data,
-  //   meta: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
-  // };
+  return {
+    data,
+    meta: {
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.max(1, Math.ceil(total / limitNum)),
+    },
+  };
 };
+
+export { getAllProductsFromDb };
 
 const getProductBySlugFromDb = async (slug: string): Promise<Document> => {
   const product = await ProductModel.findOneAndUpdate(

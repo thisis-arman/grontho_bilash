@@ -5,8 +5,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { toast } from 'sonner';
 import { addToCart } from '../../redux/features/cart/cartSlice';
-// import { TProduct } from '../../redux/features/product/productApi';
 import { ShoppingCart, Eye, MapPin, Zap, Package, BookOpen } from 'lucide-react';
+import { IProduct } from '../../types/interface';
 
 
 const conditionColors: Record<string, string> = {
@@ -39,11 +39,11 @@ const ConditionBadge = ({ condition }: { condition?: string }) => {
 };
 
 
-const ProductCard = ({ products }) => {
+const ProductCard = ({ products }: { products: IProduct[] }) => {
   const user     = useAppSelector(selectCurrentUser) as TUser;
   const dispatch = useAppDispatch();
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: IProduct) => {
     if (product.productType === "Digital") {
       toast.info("Proceed to checkout for digital products");
       return;
@@ -51,20 +51,20 @@ const ProductCard = ({ products }) => {
 
     const cartInfo = {
       quantity:       1,
-      bookTitle:      product.title,
-      book:           product._id,
+      bookTitle:      product?.title,
+      book:           product?._id,
       buyer:          user?.id,
-      seller:         product.seller._id,
-      price:          product.price.basePrice,
-      shippingCost:   0,                         // platform-controlled
-      deliveryOption: product.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
-      isNegotiable:   product.price.isNegotiable,
-      productImage:   product.images[0] ?? "/placeholder.png",
+      seller:         product?.seller?._id as string,
+      price:          product?.price?.basePrice,
+      shippingCost:   0,                         
+      deliveryOption: product?.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
+      isNegotiable:   product?.price?.isNegotiable,
+      productImage:   product?.images?.[0] ?? "/placeholder.png",
     };
 
     try {
       dispatch(addToCart(cartInfo));
-      toast.success(`"${product.title}" added to bag`);
+      toast.success(`"${product?.title}" added to bag`);
     } catch {
       toast.error("Failed to add to cart");
     }
@@ -72,13 +72,18 @@ const ProductCard = ({ products }) => {
 
   return (
     <>
-      {products?.map((product) => (
+      {products?.map((product : IProduct) => (
         <article
           key={product._id}
           className="group relative flex flex-col bg-white rounded-2xl border border-stone-100 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
         >
-          {/* ── Image ── */}
-          <div className="relative aspect-square overflow-hidden bg-stone-100">
+          {/* ── Image ──
+              Whole image is a tap target, not just the hover overlay:
+              the hover-revealed Eye button is unreachable on touch
+              devices since there's no hover state, so mobile users
+              need the image itself to be clickable through to the
+              product page. */}
+          <Link to={`/products/${product.slug}`} className="relative aspect-square overflow-hidden bg-stone-100 block">
             {product.images?.[0] ? (
               <img
                 alt={product.title}
@@ -92,15 +97,14 @@ const ProductCard = ({ products }) => {
               </div>
             )}
 
-            {/* Hover overlay with View button */}
-            <div className="absolute inset-0 bg-stone-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <Link
-                to={`/products/${product.slug}`}
-                className="p-3 bg-white rounded-full text-stone-900 hover:bg-amber-500 hover:text-white transition-colors shadow-lg"
+            {/* Hover overlay — desktop polish only, image itself is already tappable on mobile */}
+            <div className="absolute inset-0 bg-stone-900/30 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex items-center justify-center">
+              <span
+                className="p-3 bg-white rounded-full text-stone-900 group-hover:bg-amber-500 group-hover:text-white transition-colors shadow-lg"
                 title="View Details"
               >
                 <Eye size={18} />
-              </Link>
+              </span>
             </div>
 
             <ConditionBadge condition={product.condition} />
@@ -114,18 +118,18 @@ const ProductCard = ({ products }) => {
                 </span>
               </div>
             )}
-          </div>
+          </Link>
 
           {/* ── Content ── */}
-          <div className="p-4 flex flex-col flex-1 gap-2.5">
+          <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 sm:gap-2.5">
 
             {/* Title + Price */}
             <div className="flex items-start justify-between gap-2">
-              <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors flex-1">
+              <h3 className="text-xs sm:text-sm font-semibold text-stone-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors flex-1">
                 <Link to={`/products/${product?.slug}`}>{product?.title}</Link>
               </h3>
               <div className="text-right flex-shrink-0">
-                <p className="text-base font-bold text-stone-900">
+                <p className="text-sm sm:text-base font-bold text-stone-900">
                   {formatPrice(product?.price?.basePrice!)}
                 </p>
                 {(product?.price?.discountPrice ?? 0) > 0 && (
@@ -152,17 +156,17 @@ const ProductCard = ({ products }) => {
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-1.5">
               {product?.price?.isNegotiable && (
-                <span className="px-2  rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold border border-amber-100">
+                <span className="px-2 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold border border-amber-100">
                   Negotiable
                 </span>
               )}
               {product?.category && (
-                <span className="px-2  rounded-md bg-stone-100 text-stone-500 text-[10px] font-semibold">
+                <span className="px-2 rounded-md bg-stone-100 text-stone-500 text-[10px] font-semibold">
                   {product?.category}
                 </span>
               )}
               {product?.productType === "Digital" && product?.digitalDetails?.fileType && (
-                <span className="px-2  rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
+                <span className="px-2 rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
                   {product?.digitalDetails?.fileType}
                 </span>
               )}
@@ -181,14 +185,14 @@ const ProductCard = ({ products }) => {
               {product.stockStatus === "Out of Stock" ? (
                 <button
                   disabled
-                  className="w-full py-2.5 rounded-xl text-sm font-semibold bg-stone-100 text-stone-400 cursor-not-allowed"
+                  className="w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-100 text-stone-400 cursor-not-allowed"
                 >
                   Unavailable
                 </button>
               ) : product?.productType === "Digital" ? (
                 <Link
                   to={`/products/${product?.slug}`}
-                  className="w-full py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <Zap size={15} />
                   Get Digital Copy
@@ -196,7 +200,7 @@ const ProductCard = ({ products }) => {
               ) : (
                 <button
                   onClick={() => handleAddToCart(product)}
-                  className="w-full py-2.5 bg-yellow-50 hover:bg-yellow-600 text-stone-800 hover:text-white  hover:border-stone-900 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full py-2 sm:py-2.5 bg-yellow-50 hover:bg-yellow-600 text-stone-800 hover:text-white rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={15} />
                   Add to Cart
