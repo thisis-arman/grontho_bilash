@@ -16,6 +16,11 @@ import Checkout from "../pages/payment/Checkout";
 import PaymentMain from "../pages/payment/PaymentMain";
 import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
 import CgpaCalculator from "../pages/tools/cgpa-calculator/CgpaCalculator";
+import FAQ from "../pages/faq/FAQ";
+import ContactUs from "../pages/contact/ContactUs";
+import AboutUs from "../pages/about/AboutUs";
+import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
+import TermsOfUse from "../pages/Terms/TermsOfUse";
 
 const router = createBrowserRouter([
     {
@@ -30,6 +35,27 @@ const router = createBrowserRouter([
                 path: '/blogs',
                 element: <Blogs />
             },
+            {
+                path: '/terms',
+                element: <TermsOfUse />
+            },
+            {
+                path: '/privacy',
+                element: <PrivacyPolicy />
+            },
+            {
+                path: '/faq',
+                element: <FAQ />
+            },
+            {
+                path: '/about',
+                element: <AboutUs />
+            },
+            {
+                path: '/contact',
+                element: <ContactUs />
+            },
+            
             {
                 path: '/books',
                 element: <Products />
