@@ -2,6 +2,7 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import SignUpForm from "./SignUpForm";
 import { useCreateOtpMutation, useVerifyOtpMutation } from "../../redux/features/otp/otpApi";
+import { Link } from "react-router-dom";
 
 const STEPS = [
   { id: 1, label: "Email" },
@@ -131,12 +132,19 @@ const SignUp = () => {
       <header className="py-6 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center shadow-md">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
+            <div className="">
+              <Link to="/" className="flex items-center gap-2" >
+                <img
+                  src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
+                  alt="Grontho Bilash"
+                  className="h-8 w-auto object-contain"
+                />
+                <span className="font-bold text-xl text-neutral-900 dark:text-white tracking-tight">
+                  Grontho<span className="text-yellow-500">Bilash</span>
+                </span>
+              </Link>
             </div>
-            <span className="font-bold text-gray-900 text-lg tracking-tight">YourBrand</span>
+
           </div>
           <a href="/login" className="text-sm font-medium text-gray-500 hover:text-yellow-600 transition-colors">
             Already have an account? <span className="text-yellow-600 underline underline-offset-2">Log in</span>
@@ -160,8 +168,8 @@ const SignUp = () => {
                         ${currentStep > step.id
                           ? "bg-yellow-500 text-white shadow-md shadow-yellow-200"
                           : currentStep === step.id
-                          ? "bg-white text-yellow-600 border-2 border-yellow-500 shadow-md shadow-yellow-100"
-                          : "bg-white text-gray-300 border-2 border-gray-200"
+                            ? "bg-white text-yellow-600 border-2 border-yellow-500 shadow-md shadow-yellow-100"
+                            : "bg-white text-gray-300 border-2 border-gray-200"
                         }
                       `}>
                         {currentStep > step.id ? (
