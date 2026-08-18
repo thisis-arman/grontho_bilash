@@ -17,7 +17,7 @@ const footerNavs = [
     label: "Company",
     items: [
       { to: "/about", name: "About Us" },
-      { to: "/blog", name: "Blog" },
+      { to: "/blogs", name: "Blog" },
       { to: "/careers", name: "Careers" },
       { to: "/contact", name: "Contact" },
     ],

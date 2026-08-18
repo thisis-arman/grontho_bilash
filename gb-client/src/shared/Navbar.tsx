@@ -33,10 +33,10 @@ import { getProductsFromCart } from "../redux/features/cart/cartSlice";
 
 // ─── Public nav links (rendered via the resizable-navbar's NavItems) ───────
 const publicNav = [
-  { name: "Home", link: "/", icon: <Home size={18} /> },
-  { name: "Books", link: "/books", icon: <BookOpen size={18} /> },
-  { name: "Suggestions", link: "/exam-suggestions", icon: <Lightbulb size={18} /> },
-  { name: "Tools", link: "/tools/cgpa-calculator", icon: <Calculator size={18} /> },
+  { name: "হোম", link: "/", icon: <Home size={18} /> },
+  { name: "বই", link: "/books", icon: <BookOpen size={18} /> },
+  { name: "সাজেশন", link: "/exam-suggestions", icon: <Lightbulb size={18} /> },
+  { name: "টুলস", link: "/tools/cgpa-calculator", icon: <Calculator size={18} /> },
 ];
 
 export function Nav() {
@@ -68,15 +68,15 @@ export function Nav() {
   const dropdownItems: MenuProps["items"] = [
     {
       key: "dashboard",
-      label: <Link to={`/${user?.role}/dashboard`}>Dashboard</Link>,
+      label: <Link to={`/${user?.role}/dashboard`}>ড্যাশবোর্ড</Link>,
     },
     {
       key: "profile",
-      label: <Link to={`/${user?.role}/user-profile`}>Profile</Link>,
+      label: <Link to={`/${user?.role}/user-profile`}>প্রোফাইল</Link>,
     },
     {
       key: "orders",
-      label: <Link to={`/${user?.role}/my-orders`}>My Orders</Link>,
+      label: <Link to={`/${user?.role}/my-orders`}>আমার অর্ডার</Link>,
     },
     { type: "divider" },
     {
@@ -84,7 +84,7 @@ export function Nav() {
       label: (
         <button onClick={handleLogout} className="flex items-center gap-2 w-full text-red-600">
           <LogOut size={14} />
-          Sign out
+          সাইন আউট
         </button>
       ),
     },
@@ -112,7 +112,7 @@ export function Nav() {
               className="h-8 w-auto object-contain"
             />
             <span className="font-bold text-xl text-neutral-900 dark:text-white tracking-tight">
-              Grontho<span className="text-yellow-500">Bilash</span>
+              গ্রন্থ<span className="text-yellow-500">বিলাস</span>
             </span>
           </Link>
 
@@ -129,13 +129,13 @@ export function Nav() {
                   </Dropdown>
                 </Space>
                 <NavbarButton href={`/${user.role}/add-product`} variant="primary">
-                  Sell
+                  বিক্রি করো
                 </NavbarButton>
               </>
             ) : (
               <NavbarButton href="/login" variant="primary" className="flex items-center gap-2">
                 <LogIn className="w-4 h-4" />
-                Sign In
+                সাইন ইন
               </NavbarButton>
             )}
           </div>
@@ -186,7 +186,7 @@ export function Nav() {
                   }`}
               >
                 <LayoutDashboard size={18} />
-                Dashboard
+                ড্যাশবোর্ড
               </Link>
             )}
 
@@ -199,11 +199,11 @@ export function Nav() {
                     variant="primary"
                     className="w-full"
                   >
-                    Sell
+                    বিক্রি করো
                   </NavbarButton>
                   <NavbarButton onClick={handleLogout} variant="secondary" className="w-full flex items-center justify-center gap-2">
                     <LogOut size={16} />
-                    Log out
+                    লগ আউট
                   </NavbarButton>
                 </>
               ) : (
@@ -214,7 +214,7 @@ export function Nav() {
                   className="w-full flex items-center justify-center gap-2"
                 >
                   <LogIn size={16} />
-                  Sign In
+                  সাইন ইন
                 </NavbarButton>
               )}
             </div>

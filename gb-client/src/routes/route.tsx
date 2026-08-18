@@ -21,6 +21,8 @@ import ContactUs from "../pages/contact/ContactUs";
 import AboutUs from "../pages/about/AboutUs";
 import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
 import TermsOfUse from "../pages/Terms/TermsOfUse";
+import NotFound from "../pages/404/NotFound";
+import Careers from "../pages/careers/Careers";
 
 const router = createBrowserRouter([
     {
@@ -34,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: '/blogs',
                 element: <Blogs />
+            },
+            {
+                path: '/careers',
+                element: <Careers />
             },
             {
                 path: '/terms',
@@ -55,7 +61,7 @@ const router = createBrowserRouter([
                 path: '/contact',
                 element: <ContactUs />
             },
-            
+
             {
                 path: '/books',
                 element: <Products />
@@ -94,6 +100,10 @@ const router = createBrowserRouter([
                 element: <CgpaCalculator />
             }
         ]
+    },
+    {
+        path: "*",
+        element: <NotFound />
     },
     {
         path: '/user',

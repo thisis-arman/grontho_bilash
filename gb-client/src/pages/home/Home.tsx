@@ -23,31 +23,30 @@ import { cn } from "../../lib/utils";
 
 
 const stats = [
-    { target: 12, suffix: "K+", label: "Books Listed" },
-    { target: 4.8, suffix: "K", decimals: 1, label: "Happy Buyers" },
-    { target: 98, suffix: "%", label: "Satisfaction" },
-    { value: "BD", label: "Nationwide" },
+    { target: 12, suffix: "K+", label: "তালিকাভুক্ত বই" },
+    { target: 4.8, suffix: "K", decimals: 1, label: "সন্তুষ্ট ক্রেতা" },
+    { target: 98, suffix: "%", label: "সন্তুষ্টির হার" },
+    { value: "সারাদেশে", label: "কভারেজ" },
 ];
 
 const features = [
-    { icon: BookOpen, title: "Physical & Digital", desc: "Buy used textbooks or download digital copies instantly." },
-    { icon: ShieldCheck, title: "Safe Transactions", desc: "Platform-handled shipping and secure checkout every time." },
-    { icon: Zap, title: "Instant Listings", desc: "List your book in under 2 minutes and reach thousands of students." },
-    { icon: Users, title: "Student Community", desc: "Built by students, for students across every institution in BD." },
+    { icon: BookOpen, title: "ফিজিক্যাল ও ডিজিটাল", desc: "পুরনো বই কেনো অথবা সাথে সাথে ডিজিটাল কপি ডাউনলোড করো।" },
+    { icon: ShieldCheck, title: "নিরাপদ লেনদেন", desc: "প্রতিটি অর্ডারে প্ল্যাটফর্ম-নিয়ন্ত্রিত শিপিং ও নিরাপদ পেমেন্ট।" },
+    { icon: Zap, title: "সহজ লিস্টিং", desc: "২ মিনিটের মধ্যে বই লিস্ট করো, হাজারো শিক্ষার্থীর কাছে পৌঁছাও।" },
+    { icon: Users, title: "শিক্ষার্থীদের কমিউনিটি", desc: "বাংলাদেশের প্রতিটি প্রতিষ্ঠানের শিক্ষার্থীদের জন্য, শিক্ষার্থীদের তৈরি।" },
 ];
 
 const categories = [
-    { label: "Academic", emoji: "🎓", slug: "Academic" },
-    { label: "Fiction", emoji: "📖", slug: "Fiction" },
-    { label: "Science", emoji: "🔬", slug: "Science" },
-    { label: "Technology", emoji: "💻", slug: "Technology" },
-    { label: "Self-Help", emoji: "🌱", slug: "Self-Help" },
-    { label: "Business", emoji: "📊", slug: "Business" },
-    { label: "Religion", emoji: "🕌", slug: "Religion" },
-    { label: "Children", emoji: "🧸", slug: "Children" },
+    { label: "একাডেমিক", emoji: "🎓", slug: "Academic" },
+    { label: "কল্পকাহিনী", emoji: "📖", slug: "Fiction" },
+    { label: "বিজ্ঞান", emoji: "🔬", slug: "Science" },
+    { label: "প্রযুক্তি", emoji: "💻", slug: "Technology" },
+    { label: "সেলফ-হেল্প", emoji: "🌱", slug: "Self-Help" },
+    { label: "ব্যবসা", emoji: "📊", slug: "Business" },
+    { label: "ধর্মীয়", emoji: "🕌", slug: "Religion" },
+    { label: "শিশুতোষ", emoji: "🧸", slug: "Children" },
 ];
 
-// Books that "sit on the shelf" in the hero — dropped in with spring physics.
 const spines = [
     { title: "Atomic Habits", color: "bg-amber-400", h: 176, w: 38 },
     { title: "Clean Code", color: "bg-sky-500", h: 204, w: 34 },
@@ -55,7 +54,6 @@ const spines = [
     { title: "Physics Fundamentals", color: "bg-rose-400", h: 190, w: 38 },
     { title: "Deep Work", color: "bg-orange-400", h: 216, w: 38 },
     { title: "Zero to One", color: "bg-teal-500", h: 136, w: 34 },
-    { title: "The Almack Of Naval Ravikant", color: "bg-yellow-500", h: 166, w: 34 },
 ];
 
 
@@ -88,12 +86,13 @@ const isLowStock = (product: IProduct) => {
 
 
 const SectionLabel = ({ text }: { text: string }) => (
-    <p className="text-xs font-semibold tracking-widest uppercase text-amber-600 mb-2">{text}</p>
+    <p className="text-xs font-semibold tracking-wide text-amber-600 mb-2">{text}</p>
 );
 
 // ── Hero motion config ──────────────────────────────────────────────────
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const;
-const HEADLINE_WORDS = ["Buy", "&", "sell", "books,"];
+// "বই কেনো, বই বেচো," → highlighted "কম দামে।" (Buy books, sell books, for less.)
+const HEADLINE_WORDS = ["বই", "কেনো,", "বই", "বেচো,"];
 
 const MotionLink = motion(Link);
 
@@ -258,21 +257,21 @@ const Home = () => {
                                     initial="hidden"
                                     animate="visible"
                                     variants={headlineContainer}
-                                    className="text-5xl lg:text-6xl xl:text-7xl font-black text-stone-900 leading-[1.0] tracking-tighter mb-6"
+                                    className="font-display text-5xl lg:text-6xl xl:text-7xl font-bold text-stone-900 leading-[1.15] mb-6"
                                 >
                                     {HEADLINE_WORDS.map((word, i) => (
-                                        <span key={word + i} className="inline-block overflow-hidden pb-1 align-bottom mr-[0.22em] last:mr-0">
+                                        <span key={word + i} className="inline-block overflow-hidden pb-2 align-bottom mr-[0.28em] last:mr-0">
                                             <motion.span variants={wordVariant} className="inline-block">
                                                 {word}
                                             </motion.span>
                                         </span>
                                     ))}
-                                    <span className="relative inline-block overflow-hidden pb-1 align-bottom">
+                                    <span className="relative inline-block overflow-hidden pb-2 align-bottom">
                                         <motion.span
                                             variants={wordVariant}
                                             className="relative inline-block text-amber-500"
                                         >
-                                            for less.
+                                            কম দামে।
                                             <svg
                                                 className="absolute -bottom-1 left-0 w-full"
                                                 viewBox="0 0 200 8"
@@ -302,8 +301,8 @@ const Home = () => {
                                     transition={{ delay: shouldReduceMotion ? 0 : 1.35, duration: 0.6, ease: EASE_EDITORIAL }}
                                     className="text-stone-500 text-lg leading-relaxed mb-3 max-w-md"
                                 >
-                                    Bangladesh's marketplace for used textbooks and digital notes.
-                                    4,800+ students already save here.
+                                    বাংলাদেশের পুরনো বই ও ডিজিটাল নোটের মার্কেটপ্লেস।
+                                    ইতিমধ্যে ৪,৮০০+ শিক্ষার্থী এখানে সাশ্রয় করছে।
                                 </motion.p>
 
                                 <motion.div
@@ -312,7 +311,7 @@ const Home = () => {
                                     transition={{ delay: shouldReduceMotion ? 0 : 1.45, duration: 0.6, ease: EASE_EDITORIAL }}
                                 >
                                     <Link to="/books?type=Digital" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:text-amber-800 mb-8 transition-colors">
-                                        New — instant digital downloads <ChevronRight size={12} />
+                                        নতুন — সাথে সাথে ডিজিটাল ডাউনলোড <ChevronRight size={12} />
                                     </Link>
                                 </motion.div>
 
@@ -337,7 +336,7 @@ const Home = () => {
                                         <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                                             onFocus={() => setIsSearchFocused(true)}
                                             onBlur={() => setIsSearchFocused(false)}
-                                            placeholder="Search books, authors..."
+                                            placeholder="বই, লেখক খুঁজুন..."
                                             className="w-full pl-10 pr-4 py-3.5 bg-white border border-stone-200 rounded-xl text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/15 transition-all"
                                         />
                                     </motion.div>
@@ -365,7 +364,7 @@ const Home = () => {
                                         transition={{ type: "spring", stiffness: 300, damping: 18 }}
                                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-sm shadow-sm"
                                     >
-                                        Browse Books <ArrowRight size={14} />
+                                        সব বই দেখো <ArrowRight size={14} />
                                     </MotionLink>
                                     <MotionLink
                                         to="/user/add-product"
@@ -374,7 +373,7 @@ const Home = () => {
                                         transition={{ type: "spring", stiffness: 300, damping: 18 }}
                                         className="inline-flex items-center gap-2 px-5 py-2.5 border border-stone-300 hover:border-stone-900 text-stone-700 hover:text-stone-900 font-bold rounded-xl text-sm"
                                     >
-                                        <Zap size={14} /> Sell yours
+                                        <Zap size={14} />বই বিক্রি করো
                                     </MotionLink>
                                 </motion.div>
                             </div>
@@ -483,7 +482,7 @@ const Home = () => {
                                     }}
                                     whileHover={{ scale: 1.06, rotate: 0, boxShadow: "0 14px 30px rgba(28,25,23,0.16)" }}
                                 >
-                                    <p className="text-[10px] text-stone-400 font-semibold uppercase tracking-wide leading-none">Starting at</p>
+                                    <p className="text-[10px] text-stone-400 font-semibold leading-none">শুরু মাত্র</p>
                                     <p className="text-sm font-black text-stone-900 leading-none mt-1">৳150</p>
                                 </motion.div>
 
@@ -505,8 +504,8 @@ const Home = () => {
                                 >
                                     <BookOpen size={14} className="text-stone-900" />
                                     <div>
-                                        <p className="text-sm font-black text-stone-900 leading-none">12K+</p>
-                                        <p className="text-[10px] text-stone-400 leading-none mt-0.5">books listed</p>
+                                        <p className="text-sm font-black text-stone-900 leading-none">১২,০০০+</p>
+                                        <p className="text-[10px] text-stone-400 leading-none mt-0.5">তালিকাভুক্ত বই</p>
                                     </div>
                                 </motion.div>
                             </div>
@@ -518,7 +517,7 @@ const Home = () => {
             </div>
 
             {/* ━━━━ STATS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            <section className="bg-stone-50 py-12">
+            {/* <section className="bg-stone-50 py-12">
                 <motion.div
                     className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
                     initial="hidden"
@@ -540,26 +539,28 @@ const Home = () => {
                                         stat.value
                                     )}
                                 </span>
-                                <span className="text-[11px] font-semibold text-stone-400 tracking-widest uppercase">{stat.label}</span>
+                                <span className="text-[11px] font-semibold text-stone-400 tracking-wide">{stat.label}</span>
                             </motion.div>
                         ))}
                     </div>
                 </motion.div>
-            </section>
+            </section> */}
+
+        
 
             {/* ━━━━ CATEGORIES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
             <section className="py-16 bg-stone-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-end justify-between mb-8">
                         <div>
-                            <SectionLabel text="Explore" />
-                            <h2 className="text-2xl font-bold text-stone-900">Browse by Category</h2>
+                            <SectionLabel text="অন্বেষণ করো" />
+                            <h2 className="font-display text-2xl font-bold text-stone-900">ক্যাটাগরি অনুযায়ী ব্রাউজ করো</h2>
                         </div>
                         <Link
                             to="/books"
                             className="text-sm font-semibold text-stone-500 hover:text-amber-600 transition-colors flex items-center gap-1"
                         >
-                            View all <ArrowRight size={14} />
+                            সব দেখো <ArrowRight size={14} />
                         </Link>
                     </div>
 
@@ -593,17 +594,17 @@ const Home = () => {
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-end justify-between mb-8">
                             <div>
-                                <SectionLabel text="Fresh Arrivals" />
-                                <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+                                <SectionLabel text="নতুন সংযোজন" />
+                                <h2 className="font-display text-2xl font-bold text-stone-900 flex items-center gap-2">
                                     <TrendingUp size={20} className="text-amber-500" />
-                                    Recently Listed
+                                    সদ্য তালিকাভুক্ত
                                 </h2>
                             </div>
                             <Link
                                 to="/books"
                                 className="text-sm font-semibold text-stone-500 hover:text-amber-600 transition-colors flex items-center gap-1"
                             >
-                                See all <ArrowRight size={14} />
+                                সব দেখো <ArrowRight size={14} />
                             </Link>
                         </div>
 
@@ -645,12 +646,12 @@ const Home = () => {
 
                                                 {/* Type badge */}
                                                 <span
-                                                    className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${product.productType === "Digital"
+                                                    className={`absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${product.productType === "Digital"
                                                         ? "bg-violet-500 text-white"
                                                         : "bg-white/90 text-stone-700"
                                                         }`}
                                                 >
-                                                    {product.productType === "Digital" ? "⚡ Digital" : "📦 Physical"}
+                                                    {product.productType === "Digital" ? "⚡ ডিজিটাল" : "📦 ফিজিক্যাল"}
                                                 </span>
 
                                                 {/* Discount badge */}
@@ -663,9 +664,9 @@ const Home = () => {
                                                 {/* Out of stock overlay */}
                                                 {outOfStock && (
                                                     <div className="absolute inset-0 flex items-center justify-center bg-stone-900/30">
-                                                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-white bg-stone-900/80 px-2.5 py-1 rounded-full">
+                                                        <span className="flex items-center gap-1 text-[10px] font-bold text-white bg-stone-900/80 px-2.5 py-1 rounded-full">
                                                             <PackageX size={11} />
-                                                            Out of Stock
+                                                            স্টক নেই
                                                         </span>
                                                     </div>
                                                 )}
@@ -714,12 +715,12 @@ const Home = () => {
                                                         )}
                                                         {product.price.isNegotiable && (
                                                             <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600">
-                                                                Negotiable
+                                                                দরদাম চলবে
                                                             </span>
                                                         )}
                                                         {lowStock && (
                                                             <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-red-50 text-red-500">
-                                                                {remainingStock} left
+                                                                {remainingStock}টি বাকি
                                                             </span>
                                                         )}
                                                     </div>
@@ -738,8 +739,8 @@ const Home = () => {
             <section className="py-16 bg-stone-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <SectionLabel text="Why Us" />
-                        <h2 className="text-2xl font-bold text-stone-900">Everything you need to trade books</h2>
+                        <SectionLabel text="কেন আমরা" />
+                        <h2 className="font-display text-2xl font-bold text-stone-900">বই কেনাবেচার জন্য যা যা দরকার</h2>
                     </div>
                     <motion.div
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
@@ -786,17 +787,17 @@ const Home = () => {
                             viewport={{ once: true, margin: "-80px" }}
                             transition={{ duration: 0.6, ease: EASE_EDITORIAL }}
                         >
-                            <div className="inline-block px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 font-semibold text-xs tracking-wide mb-5">
-                                Sell your resources
+                            <div className="inline-block px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 font-semibold text-xs mb-5">
+                                তোমার বই বিক্রি করো
                             </div>
-                            <h2 className="text-3xl lg:text-4xl font-extrabold text-stone-900 leading-tight mb-4">
-                                Turn old books into{" "}
-                                <span className="text-amber-500">cash</span> today.
+                            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900 leading-tight mb-4">
+                                পুরনো বইকে বানাও{" "}
+                                <span className="text-amber-500">নগদ টাকা</span>, আজই।
                             </h2>
                             <p className="text-stone-500 text-base leading-relaxed mb-8 max-w-md">
-                                Don't let past semester books gather dust. List them in minutes,
-                                help juniors find affordable resources, and earn for your next read.
-                                Digital notes too.
+                                আগের সেমিস্টারের বই ফেলে না রেখে, মিনিটেই লিস্ট করো।
+                                জুনিয়রদের সাশ্রয়ী রিসোর্স খুঁজে পেতে সাহায্য করো, আর পরের বইয়ের জন্য আয় করো।
+                                ডিজিটাল নোটও চলবে।
                             </p>
 
                             {/* Mini checklist */}
@@ -807,7 +808,7 @@ const Home = () => {
                                 viewport={{ once: true, margin: "-80px" }}
                                 variants={revealContainer}
                             >
-                                {["Free to list — no hidden fees", "Platform handles shipping & payments", "Reach thousands of students nationwide"].map(item => (
+                                {["লিস্ট করা সম্পূর্ণ ফ্রি — কোনো লুকানো ফি নেই", "শিপিং ও পেমেন্ট প্ল্যাটফর্মই সামলায়", "সারাদেশের হাজারো শিক্ষার্থীর কাছে পৌঁছাও"].map(item => (
                                     <motion.li key={item} variants={revealItem} className="flex items-center gap-2.5 text-sm text-stone-600">
                                         <span className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
                                             <Star size={10} className="text-amber-600 fill-amber-600" />
@@ -825,7 +826,7 @@ const Home = () => {
                                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-stone-900 hover:bg-amber-500 text-white hover:text-stone-900 font-bold rounded-2xl hover:shadow-xl text-sm"
                             >
                                 <Package size={16} />
-                                Start Selling Free
+                                ফ্রিতে বিক্রি শুরু করো
                                 <ArrowRight size={15} />
                             </MotionLink>
                         </motion.div>
@@ -846,7 +847,7 @@ const Home = () => {
                             >
                                 <img
                                     src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=900"
-                                    alt="Student with books"
+                                    alt="বই হাতে একজন শিক্ষার্থী"
                                     className="w-full h-72 object-cover rounded-2xl"
                                 />
                             </motion.div>
@@ -862,8 +863,8 @@ const Home = () => {
                                     <TrendingUp size={18} className="text-amber-600" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] text-stone-400 font-semibold tracking-wide uppercase">This week</p>
-                                    <p className="text-sm font-extrabold text-stone-900">248 new listings</p>
+                                    <p className="text-[10px] text-stone-400 font-semibold">এই সপ্তাহে</p>
+                                    <p className="text-sm font-extrabold text-stone-900">২৪৮টি নতুন লিস্টিং</p>
                                 </div>
                             </motion.div>
                         </motion.div>
@@ -893,13 +894,13 @@ const Home = () => {
                         />
                         <div className="absolute top-4 right-20 w-16 h-16 rounded-full bg-amber-300/30" />
                         <div className="relative">
-                            <p className="text-xs font-bold tracking-widest uppercase text-stone-700/70 mb-3">Grontho Bilash</p>
-                            <h2 className="text-3xl lg:text-4xl font-extrabold text-stone-900 mb-3 leading-tight">
-                                Affordable learning <br className="hidden sm:block" /> for every student.
+                            <p className="text-xs font-bold text-stone-700/70 mb-3">Grontho Bilash</p>
+                            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900 mb-3 leading-tight">
+                                প্রতিটি শিক্ষার্থীর জন্য <br className="hidden sm:block" /> সাশ্রয়ী পড়াশোনা।
                             </h2>
                             <p className="text-stone-800/65 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-                                Join thousands of students across Bangladesh already buying and
-                                selling books smarter.
+                                বাংলাদেশের হাজারো শিক্ষার্থী ইতিমধ্যে স্মার্টভাবে বই কেনাবেচা করছে,
+                                তুমিও যোগ দাও।
                             </p>
                             <div className="flex flex-wrap justify-center gap-3">
                                 <MotionLink
@@ -909,7 +910,7 @@ const Home = () => {
                                     transition={{ type: "spring", stiffness: 300, damping: 18 }}
                                     className="inline-flex items-center gap-2 px-7 py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl hover:shadow-xl text-sm"
                                 >
-                                    Browse All Books
+                                    সব বই দেখো
                                     <ArrowRight size={15} />
                                 </MotionLink>
                                 <MotionLink
@@ -919,7 +920,7 @@ const Home = () => {
                                     transition={{ type: "spring", stiffness: 300, damping: 18 }}
                                     className="inline-flex items-center gap-2 px-7 py-3.5 bg-white/80 hover:bg-white text-stone-800 font-bold rounded-2xl text-sm"
                                 >
-                                    Join for Free
+                                    ফ্রিতে যোগ দাও
                                 </MotionLink>
                             </div>
                         </div>

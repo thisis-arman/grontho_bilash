@@ -28,7 +28,10 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://gronthobilash.com",
+  "https://www.gronthobilash.com",
   "https://gronthobilash.vercel.app",
+
 ];
 
 const corsOptions = {

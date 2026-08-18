@@ -19,11 +19,20 @@ import {
 const formatPrice = (price: number) =>
   `৳${new Intl.NumberFormat("en-BD").format(price)}`;
 
+// Keys here MUST match the backend's condition values exactly (used for lookup).
 const conditionColors: Record<string, string> = {
   "New": "bg-emerald-100 text-emerald-700 border-emerald-200",
   "Like New": "bg-sky-100 text-sky-700 border-sky-200",
   "Good": "bg-amber-100 text-amber-700 border-amber-200",
   "Acceptable": "bg-stone-100 text-stone-600 border-stone-200",
+};
+
+// Display-only Bangla labels for the same backend condition values.
+const conditionLabels: Record<string, string> = {
+  "New": "নতুন",
+  "Like New": "প্রায় নতুন",
+  "Good": "ভালো",
+  "Acceptable": "ব্যবহারযোগ্য",
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -38,7 +47,7 @@ const MetaItem = ({
         <Icon className="w-4 h-4 text-stone-500" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">{label}</p>
+        <p className="text-[10px] font-semibold tracking-wide text-stone-400">{label}</p>
         <p className="text-sm font-medium text-stone-800 mt-0.5 truncate">{value}</p>
       </div>
     </div>
@@ -83,7 +92,7 @@ const ImageGallery = ({
             <button
               type="button"
               onClick={goPrev}
-              aria-label="Previous image"
+              aria-label="আগের ছবি"
               className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center text-stone-600 hover:bg-white transition-colors"
             >
               <ChevronLeft size={18} />
@@ -91,7 +100,7 @@ const ImageGallery = ({
             <button
               type="button"
               onClick={goNext}
-              aria-label="Next image"
+              aria-label="পরের ছবি"
               className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center text-stone-600 hover:bg-white transition-colors"
             >
               <ChevronRight size={18} />
@@ -99,28 +108,28 @@ const ImageGallery = ({
           </>
         )}
 
-        <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
+        <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
           }`}>
           {isDigital ? <Zap size={12} /> : <Package size={12} />}
-          {isDigital ? "Digital" : "Physical"}
+          {isDigital ? "ডিজিটাল" : "ফিজিক্যাল"}
         </span>
 
         {!isDigital && condition && (
-          <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${conditionColors[condition] ?? "bg-stone-100 text-stone-600"}`}>
-            {condition}
+          <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-bold border ${conditionColors[condition] ?? "bg-stone-100 text-stone-600"}`}>
+            {conditionLabels[condition] ?? condition}
           </span>
         )}
 
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/75 flex items-center justify-center">
-            <span className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-xl tracking-widest uppercase">
-              Sold Out
+            <span className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-xl">
+              স্টক শেষ
             </span>
           </div>
         )}
 
         <span className="absolute bottom-4 left-4 flex items-center gap-1 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-stone-600 shadow">
-          <Eye size={12} /> {viewCount ?? 0} views
+          <Eye size={12} /> {viewCount ?? 0} বার দেখা হয়েছে
         </span>
       </div>
 
@@ -131,7 +140,7 @@ const ImageGallery = ({
               type="button"
               key={src + idx}
               onClick={() => setActive(idx)}
-              aria-label={`View image ${idx + 1}`}
+              aria-label={`ছবি ${idx + 1} দেখো`}
               className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${idx === active ? "border-yellow-600" : "border-transparent hover:border-stone-200"
                 }`}
             >
@@ -157,7 +166,7 @@ const ProductDetails = () => {
   if (isLoading) {
     return (
       <div className="w-full h-screen flex justify-center items-center bg-stone-50">
-        <img className="h-32 w-auto" src={bookLoading} alt="Loading..." />
+        <img className="h-32 w-auto" src={bookLoading} alt="লোড হচ্ছে..." />
       </div>
     );
   }
@@ -166,7 +175,7 @@ const ProductDetails = () => {
     return (
       <div className="w-full h-screen flex flex-col justify-center items-center bg-stone-50 gap-3">
         <BookOpen className="w-12 h-12 text-stone-300" />
-        <p className="text-stone-500 font-medium">Product not found</p>
+        <p className="text-stone-500 font-medium">পণ্যটি খুঁজে পাওয়া যায়নি</p>
       </div>
     );
   }
@@ -192,13 +201,13 @@ const ProductDetails = () => {
 
     try {
       dispatch(addToCart(cartInfo));
-      toast.success(`"${product.title}" added to bag!`);
+      toast.success(`"${product.title}" ব্যাগে যোগ করা হয়েছে!`);
     } catch {
-      toast.error("Failed to add to bag");
+      toast.error("ব্যাগে যোগ করা যায়নি");
     }
   };
 
-  const ctaLabel = isDigital ? "Get Digital Copy" : "Add to cart";
+  const ctaLabel = isDigital ? "ডিজিটাল কপি নাও" : "কার্টে যোগ করো";
   const CtaIcon = isDigital ? Zap : ShoppingBag;
 
   return (
@@ -232,7 +241,7 @@ const ProductDetails = () => {
                   )}
                   {product.price.isNegotiable && (
                     <span className="px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-lg border border-amber-100">
-                      Negotiable
+                      দরদাম চলবে
                     </span>
                   )}
                   {isDigital && product.digitalDetails?.fileType && (
@@ -250,7 +259,7 @@ const ProductDetails = () => {
                 {/* Author */}
                 {product.bookMetadata?.author && (
                   <p className="text-sm text-stone-500 mb-5">
-                    by{" "}
+                    লেখক:{" "}
                     <span className="font-semibold text-stone-700">
                       {product.bookMetadata?.author}
                     </span>
@@ -272,7 +281,7 @@ const ProductDetails = () => {
                   )}
                   {!isDigital && (
                     <span className="text-sm text-emerald-600 font-medium">
-                      + Platform shipping
+                      + প্ল্যাটফর্ম শিপিং
                     </span>
                   )}
                 </div>
@@ -283,23 +292,23 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {!isDigital && (
                     <>
-                      <MetaItem icon={MapPin} label="Location" value={product?.location} />
-                      <MetaItem icon={Truck} label="Delivery"
+                      <MetaItem icon={MapPin} label="অবস্থান" value={product?.location} />
+                      <MetaItem icon={Truck} label="ডেলিভারি"
                         value={
                           product?.fulfillmentOptions?.allowShipping && product?.fulfillmentOptions?.allowPickup
-                            ? "Shipping & Pickup"
+                            ? "শিপিং ও পিকআপ"
                             : product?.fulfillmentOptions?.allowShipping
-                              ? "Shipping"
-                              : "Pickup Only"
+                              ? "শিপিং"
+                              : "শুধু পিকআপ"
                         }
                       />
                     </>
                   )}
                   {isDigital && (
-                    <MetaItem icon={Download} label="File Size" value={product?.digitalDetails?.fileSize ? `${product?.digitalDetails?.fileSize} MB` : undefined} />
+                    <MetaItem icon={Download} label="ফাইল সাইজ" value={product?.digitalDetails?.fileSize ? `${product?.digitalDetails?.fileSize} MB` : undefined} />
                   )}
-                  <MetaItem icon={Calendar} label="Published" value={product?.bookMetadata?.publicationYear} />
-                  <MetaItem icon={BookOpen} label="Publisher" value={product?.bookMetadata?.publisher} />
+                  <MetaItem icon={Calendar} label="প্রকাশকাল" value={product?.bookMetadata?.publicationYear} />
+                  <MetaItem icon={BookOpen} label="প্রকাশক" value={product?.bookMetadata?.publisher} />
                 </div>
 
                 {/* Seller */}
@@ -308,7 +317,7 @@ const ProductDetails = () => {
                     <User size={16} className="text-stone-500" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">Seller</p>
+                    <p className="text-[10px] font-semibold tracking-wide text-stone-400">বিক্রেতা</p>
                     <p className="text-sm font-semibold text-stone-700 truncate">
                       {product.seller?.name ?? "—"}
                     </p>
@@ -325,7 +334,7 @@ const ProductDetails = () => {
               <div className="hidden md:block">
                 {isOutOfStock ? (
                   <button disabled className="w-full py-4 rounded-2xl text-sm font-bold bg-stone-100 text-stone-400 cursor-not-allowed">
-                    Unavailable
+                    অনুপলব্ধ
                   </button>
                 ) : (
                   <button
@@ -347,7 +356,7 @@ const ProductDetails = () => {
             <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center">
               <BookOpen size={14} className="text-stone-500" />
             </div>
-            <h2 className="text-sm font-bold text-stone-800">Description</h2>
+            <h2 className="text-sm font-bold text-stone-800">বিবরণ</h2>
           </div>
           <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
             {product?.description}
@@ -363,15 +372,15 @@ const ProductDetails = () => {
               <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
                 <Tag size={14} className="text-amber-600" />
               </div>
-              <h2 className="text-sm font-bold text-stone-800">Specifications</h2>
+              <h2 className="text-sm font-bold text-stone-800">স্পেসিফিকেশন</h2>
             </div>
             <div className="space-y-3 text-sm">
               {[
-                { label: "Language", value: product?.bookMetadata?.language },
+                { label: "ভাষা", value: product?.bookMetadata?.language },
                 { label: "ISBN", value: product?.bookMetadata?.isbn },
-                { label: "Level", value: product?.academicMetadata?.level },
-                { label: "Faculty", value: product?.academicMetadata?.faculty },
-                { label: "Department", value: product?.academicMetadata?.department },
+                { label: "লেভেল", value: product?.academicMetadata?.level },
+                { label: "অনুষদ", value: product?.academicMetadata?.faculty },
+                { label: "বিভাগ", value: product?.academicMetadata?.department },
               ].map(({ label, value }) => value ? (
                 <div key={label} className="flex justify-between items-center py-1.5 border-b border-stone-50 last:border-0">
                   <span className="text-stone-400 text-xs font-medium">{label}</span>
@@ -387,20 +396,20 @@ const ProductDetails = () => {
               <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center">
                 <User size={14} className="text-stone-500" />
               </div>
-              <h2 className="text-sm font-bold text-stone-800">Seller Notes</h2>
+              <h2 className="text-sm font-bold text-stone-800">বিক্রেতার নোট</h2>
             </div>
             <p className="text-sm text-stone-500 leading-relaxed">
-              This listing is currently{" "}
+              এই লিস্টিংটি বর্তমানে{" "}
               <span className={`font-semibold ${product.isPublished ? "text-emerald-600" : "text-amber-600"}`}>
-                {product.isPublished ? "active" : "on hold"}
-              </span>.
-              {" "}Contact information is{" "}
+                {product.isPublished ? "সক্রিয়" : "স্থগিত"}
+              </span>।
+              {" "}যোগাযোগের তথ্য{" "}
               <span className="font-semibold text-stone-700">
-                {product.isContactHidden ? "private" : "visible upon purchase"}
-              </span>.
+                {product.isContactHidden ? "গোপন" : "কেনার পর দেখা যাবে"}
+              </span>।
               {product.price.isNegotiable && (
                 <span className="block mt-2 text-amber-600 font-medium">
-                  The seller is open to price negotiation.
+                  বিক্রেতা দরদামে রাজি।
                 </span>
               )}
             </p>
@@ -412,18 +421,18 @@ const ProductDetails = () => {
               <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
                 <Shield size={14} className="text-amber-600" />
               </div>
-              <h2 className="text-sm font-bold text-amber-900">Safety Tips</h2>
+              <h2 className="text-sm font-bold text-amber-900">নিরাপত্তা টিপস</h2>
             </div>
             <ul className="space-y-2.5 text-xs text-amber-800">
               {[
                 isDigital
-                  ? "Only download from the secure link provided after purchase."
-                  : "Inspect book condition before completing the exchange.",
-                "Always communicate through the platform chat.",
+                  ? "কেনার পর প্রদত্ত নিরাপদ লিংক থেকেই ডাউনলোড করো।"
+                  : "লেনদেন সম্পন্ন করার আগে বইয়ের অবস্থা যাচাই করো।",
+                "সবসময় প্ল্যাটফর্মের চ্যাটের মাধ্যমে যোগাযোগ করো।",
                 isDigital
-                  ? "Digital products are non-refundable after download."
-                  : "Verify the publication year matches your curriculum.",
-                "Report suspicious behaviour to our support team.",
+                  ? "ডাউনলোডের পর ডিজিটাল পণ্য ফেরতযোগ্য নয়।"
+                  : "প্রকাশকাল তোমার কারিকুলামের সাথে মিলছে কিনা যাচাই করো।",
+                "সন্দেহজনক আচরণ আমাদের সাপোর্ট টিমকে জানাও।",
               ].map((tip, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-600" />
@@ -439,12 +448,12 @@ const ProductDetails = () => {
       {/* ── Sticky mobile CTA bar ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)] z-20">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">Price</p>
+          <p className="text-[10px] font-semibold tracking-wide text-stone-400">মূল্য</p>
           <p className="text-lg font-bold text-stone-900 truncate">{formatPrice(product?.price?.basePrice)}</p>
         </div>
         {isOutOfStock ? (
           <button disabled className="ml-auto py-3 px-6 rounded-xl text-sm font-bold bg-stone-100 text-stone-400 cursor-not-allowed">
-            Unavailable
+            অনুপলব্ধ
           </button>
         ) : (
           <button
