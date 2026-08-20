@@ -4,7 +4,7 @@ import categoryService from "./category.service";
 
 const createLevel = catchAsync(async (req, res) => {
   const result = await categoryService.createLevelIntoDB(req.body);
-  console.log(result);
+  //console.log(result);
   sendResponse(res, {
     success: true,
     message: "Level created successfully",
@@ -14,7 +14,7 @@ const createLevel = catchAsync(async (req, res) => {
 });
 const getLevels = catchAsync(async (req, res) => {
   const result = await categoryService.getLevelFromDB();
-  console.log(result);
+  //console.log(result);
   sendResponse(res, {
     success: true,
     message: "Levels retrieved successfully",
@@ -54,9 +54,9 @@ const getFaculties = catchAsync(async (req, res) => {
   });
 });
 const getFaculty = catchAsync(async (req, res) => {
-const facultyId = req.query.facultyId;
+  const facultyId = req.query.facultyId;
   const result = await categoryService.getFacultyFromDB(facultyId as string);
-  console.log(result);
+  //console.log(result);
   sendResponse(res, {
     success: true,
     message: "Faculty retrieved successfully",

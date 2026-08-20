@@ -7,9 +7,9 @@ import sendResponse from "../../utils/sendResponse";
 const createOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
 
-  console.log({ email });
+  //console.log({ email });
   const result = await otpServices.createAndSendOtp(email);
-  console.log({ result });
+  //console.log({ result });
 
   sendResponse(res, {
     statusCode: 200,
@@ -22,12 +22,12 @@ const createOtp = async (req: Request, res: Response) => {
 // Controller for verifying OTP
 const verifyOtp = async (req: Request, res: Response) => {
   const { email, otp } = req.body;
-  console.log({email,otp});
+  //console.log({email,otp});
 
   // Call the service to verify the OTP
   const result = await otpServices.verifyOtp(email, otp);
 
-  console.log(result ,'controllers');
+  //console.log(result ,'controllers');
   if (!result?.verified) {
     sendResponse(res, {
       statusCode: 401,
@@ -36,12 +36,12 @@ const verifyOtp = async (req: Request, res: Response) => {
       data: result,
     });
   }
-    sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: "OTP Verified Successfully ",
-      data: result,
-    });
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "OTP Verified Successfully ",
+    data: result,
+  });
 };
 
 export const otpControllers = {

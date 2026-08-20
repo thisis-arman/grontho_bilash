@@ -12,7 +12,7 @@ const Checkout = () => {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const user = useAppSelector(selectCurrentUser) as TUser;
     const [createOrder] = useCreateOrderMutation();
-const navigate= useNavigate();
+    const navigate = useNavigate();
 
 
     const handleCheckoutForm = async (e: FormEvent<HTMLFormElement>) => {
@@ -41,11 +41,11 @@ const navigate= useNavigate();
             }
 
         } catch (e) {
-            console.log(e)
-            
-                            toast.error(`failed to place order ${e}`,)
+            //console.log(e)
+
+            toast.error(`failed to place order ${e}`,)
         }
-        
+
     };
 
     return (

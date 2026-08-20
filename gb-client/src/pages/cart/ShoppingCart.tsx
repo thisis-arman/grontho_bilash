@@ -61,7 +61,7 @@ const CheckoutPage = () => {
 
         try {
             const response = await createOrder(checkoutData).unwrap();
-            console.log({ checkoutData });
+            //console.log({ checkoutData });
             if (response.success) {
                 toast.success("Order Placed Successfully!");
                 dispatch(clearCart());
@@ -73,8 +73,8 @@ const CheckoutPage = () => {
             toast.error(error?.data?.message || "Failed to place order");
         }
     };
-    const handleRemove = (productId:string) => {
-      
+    const handleRemove = (productId: string) => {
+
         dispatch(removeFromCart(productId));
     };
 

@@ -1,39 +1,56 @@
-import React, { useState, useRef, useEffect, FormEvent } from "react";
+import {
+    memo,
+    useEffect,
+    useRef,
+    useState,
+    type CSSProperties,
+    type FormEvent,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import {
-    motion,
-    useMotionValue,
-    useTransform,
-    useSpring,
-    useReducedMotion,
-    useInView,
-    animate,
-    Variants,
-} from "framer-motion";
-import {
-    ArrowRight, BookOpen, Zap, ShieldCheck, Users, Recycle, Laptop, Star, TrendingUp, Package,
+    ArrowRight,
+    BookOpen,
+    ShieldCheck,
+    Users,
+    Zap,
     Search,
     ChevronRight,
     MapPin,
     PackageX,
+    Star,
+    TrendingUp,
+    Package,
 } from "lucide-react";
+
 import { useGetProductsQuery } from "../../redux/features/book/bookApi";
 import { IProduct } from "../../types/interface";
-import { cn } from "../../lib/utils";
 
-
-const stats = [
-    { target: 12, suffix: "K+", label: "তালিকাভুক্ত বই" },
-    { target: 4.8, suffix: "K", decimals: 1, label: "সন্তুষ্ট ক্রেতা" },
-    { target: 98, suffix: "%", label: "সন্তুষ্টির হার" },
-    { value: "সারাদেশে", label: "কভারেজ" },
-];
+/* ==========================================================================
+   STATIC DATA
+   ========================================================================== */
 
 const features = [
-    { icon: BookOpen, title: "ফিজিক্যাল ও ডিজিটাল", desc: "পুরনো বই কেনো অথবা সাথে সাথে ডিজিটাল কপি ডাউনলোড করো।" },
-    { icon: ShieldCheck, title: "নিরাপদ লেনদেন", desc: "প্রতিটি অর্ডারে প্ল্যাটফর্ম-নিয়ন্ত্রিত শিপিং ও নিরাপদ পেমেন্ট।" },
-    { icon: Zap, title: "সহজ লিস্টিং", desc: "২ মিনিটের মধ্যে বই লিস্ট করো, হাজারো শিক্ষার্থীর কাছে পৌঁছাও।" },
-    { icon: Users, title: "শিক্ষার্থীদের কমিউনিটি", desc: "বাংলাদেশের প্রতিটি প্রতিষ্ঠানের শিক্ষার্থীদের জন্য, শিক্ষার্থীদের তৈরি।" },
+    {
+        icon: BookOpen,
+        title: "ফিজিক্যাল ও ডিজিটাল",
+        desc: "পুরনো বই কেনো অথবা সাথে সাথে ডিজিটাল কপি ডাউনলোড করো।",
+    },
+    {
+        icon: ShieldCheck,
+        title: "নিরাপদ লেনদেন",
+        desc: "প্রতিটি অর্ডারে প্ল্যাটফর্ম-নিয়ন্ত্রিত শিপিং ও নিরাপদ পেমেন্ট।",
+    },
+    {
+        icon: Zap,
+        title: "সহজ লিস্টিং",
+        desc: "২ মিনিটের মধ্যে বই লিস্ট করো, হাজারো শিক্ষার্থীর কাছে পৌঁছাও।",
+    },
+    {
+        icon: Users,
+        title: "শিক্ষার্থীদের কমিউনিটি",
+        desc: "বাংলাদেশের প্রতিটি প্রতিষ্ঠানের শিক্ষার্থীদের জন্য, শিক্ষার্থীদের তৈরি।",
+    },
 ];
 
 const categories = [
@@ -48,887 +65,1910 @@ const categories = [
 ];
 
 const spines = [
-    { title: "Atomic Habits", color: "bg-amber-400", h: 176, w: 38 },
-    { title: "Clean Code", color: "bg-sky-500", h: 204, w: 34 },
-    { title: "Calculus Vol. II", color: "bg-emerald-500", h: 150, w: 42 },
-    { title: "Physics Fundamentals", color: "bg-rose-400", h: 190, w: 38 },
-    { title: "Deep Work", color: "bg-orange-400", h: 216, w: 38 },
-    { title: "Zero to One", color: "bg-teal-500", h: 136, w: 34 },
+    {
+        title: "Atomic Habits",
+        color: "bg-amber-400",
+        height: 176,
+        width: 38,
+        rotate: -2,
+    },
+    {
+        title: "Clean Code",
+        color: "bg-sky-500",
+        height: 204,
+        width: 34,
+        rotate: 1,
+    },
+    {
+        title: "Calculus Vol. II",
+        color: "bg-emerald-500",
+        height: 150,
+        width: 42,
+        rotate: -1,
+    },
+    {
+        title: "Physics Fundamentals",
+        color: "bg-rose-400",
+        height: 190,
+        width: 38,
+        rotate: 2,
+    },
+    {
+        title: "Deep Work",
+        color: "bg-orange-400",
+        height: 216,
+        width: 38,
+        rotate: -1,
+    },
+    {
+        title: "Zero to One",
+        color: "bg-teal-500",
+        height: 136,
+        width: 34,
+        rotate: 1,
+    },
 ];
 
+/* ==========================================================================
+   CONSTANTS
+   ========================================================================== */
 
-const formatPrice = (price: number) =>
-    `৳${new Intl.NumberFormat("en-BD").format(price)}`;
+const PRICE_FORMATTER = new Intl.NumberFormat("en-BD");
 
-// ── Product-card helpers ────────────────────────────────────────────────
-const getDiscountPercent = (basePrice: number, discountPrice?: number) => {
-    if (!discountPrice || discountPrice <= 0 || discountPrice >= basePrice) return null;
-    return Math.round(((basePrice - discountPrice) / basePrice) * 100);
+const belowFoldStyle: CSSProperties = {
+    contentVisibility: "auto",
+    containIntrinsicSize: "1px 700px",
+};
+
+/* ==========================================================================
+   HELPERS
+   ========================================================================== */
+
+const formatPrice = (price: number) => {
+    return `৳${PRICE_FORMATTER.format(price)}`;
+};
+
+const getDiscountPercent = (
+    basePrice: number,
+    discountPrice?: number
+) => {
+    if (
+        !discountPrice ||
+        discountPrice <= 0 ||
+        discountPrice >= basePrice
+    ) {
+        return null;
+    }
+
+    return Math.round(
+        ((basePrice - discountPrice) / basePrice) * 100
+    );
 };
 
 const getRemainingStock = (product: IProduct) => {
     const quantity = product.inventory?.quantity ?? 0;
     const sold = product.inventory?.soldCount ?? 0;
+
     return quantity - sold;
 };
 
 const isOutOfStock = (product: IProduct) => {
-    if (product.stockStatus && product.stockStatus !== "In Stock") return true;
-    if (product.productType === "Digital") return false;
+    if (
+        product.stockStatus &&
+        product.stockStatus !== "In Stock"
+    ) {
+        return true;
+    }
+
+    if (product.productType === "Digital") {
+        return false;
+    }
+
     return getRemainingStock(product) <= 0;
 };
 
 const isLowStock = (product: IProduct) => {
-    if (product.productType === "Digital" || isOutOfStock(product)) return false;
+    if (
+        product.productType === "Digital" ||
+        isOutOfStock(product)
+    ) {
+        return false;
+    }
+
     const remaining = getRemainingStock(product);
+
     return remaining > 0 && remaining <= 3;
 };
 
+/* ==========================================================================
+   CLOUDINARY IMAGE OPTIMIZER
 
-const SectionLabel = ({ text }: { text: string }) => (
-    <p className="text-xs font-semibold tracking-wide text-amber-600 mb-2">{text}</p>
-);
+   Example:
 
-// ── Hero motion config ──────────────────────────────────────────────────
-const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const;
-// "বই কেনো, বই বেচো," → highlighted "কম দামে।" (Buy books, sell books, for less.)
-const HEADLINE_WORDS = ["বই", "কেনো,", "বই", "বেচো,"];
+   Original:
+   https://res.cloudinary.com/xxx/image/upload/book.jpg
 
-const MotionLink = motion(Link);
+   Output:
+   https://res.cloudinary.com/xxx/image/upload/f_auto,q_auto:eco,w_360,c_limit/book.jpg
+   ========================================================================== */
 
-// ── Reusable scroll-reveal variants ─────────────────────────────────────
-const revealContainer: Variants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-};
-const revealItem: Variants = {
-    hidden: { opacity: 0, y: 22 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE_EDITORIAL } },
-};
+const optimizeCloudinaryImage = (
+    url: string,
+    width = 360
+) => {
+    if (!url) {
+        return url;
+    }
 
-// ── Count-up number used in the stats strip ─────────────────────────────
-const AnimatedNumber = ({
-    target,
-    suffix = "",
-    decimals = 0,
-}: {
-    target: number;
-    suffix?: string;
-    decimals?: number;
-}) => {
-    const ref = useRef<HTMLSpanElement>(null);
-    const isInView = useInView(ref, { once: true, margin: "-40px" });
-    const shouldReduceMotion = useReducedMotion();
-    const [display, setDisplay] = useState(shouldReduceMotion ? target : 0);
+    if (
+        !url.includes("res.cloudinary.com") ||
+        !url.includes("/image/upload/")
+    ) {
+        return url;
+    }
 
-    useEffect(() => {
-        if (!isInView || shouldReduceMotion) return;
-        const controls = animate(0, target, {
-            duration: 1.3,
-            ease: EASE_EDITORIAL,
-            onUpdate: (v) => setDisplay(v),
-        });
-        return () => controls.stop();
-    }, [isInView, target, shouldReduceMotion]);
-
-    return (
-        <span ref={ref}>
-            {display.toFixed(decimals)}
-            {suffix}
-        </span>
+    return url.replace(
+        "/image/upload/",
+        `/image/upload/f_auto,q_auto:eco,w_${width},c_limit/`
     );
 };
 
-const Home = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearchFocused, setIsSearchFocused] = useState(false);
-    const navigate = useNavigate();
-    const shouldReduceMotion = useReducedMotion();
+const getProductImageSrcSet = (url: string) => {
+    if (
+        !url ||
+        !url.includes("res.cloudinary.com") ||
+        !url.includes("/image/upload/")
+    ) {
+        return undefined;
+    }
 
-    const { data: productsRes } = useGetProductsQuery({
-        limit: 6,
-        sortBy: "createdAt",
-        sortOrder: "desc",
-    });
-    const recentProducts = productsRes?.data?.data ?? [];
+    return [
+        `${optimizeCloudinaryImage(url, 240)} 240w`,
+        `${optimizeCloudinaryImage(url, 360)} 360w`,
+        `${optimizeCloudinaryImage(url, 480)} 480w`,
+    ].join(", ");
+};
 
-    const handleSearch = (e: FormEvent) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
+/* ==========================================================================
+   NEAR-VIEWPORT HOOK
+
+   Prevents Recent Listings API from competing with the hero during the
+   initial page load.
+
+   The request starts before the section actually becomes visible.
+   ========================================================================== */
+
+const useNearViewport = <T extends HTMLElement>(
+    rootMargin = "700px"
+) => {
+    const ref = useRef<T | null>(null);
+    const [shouldLoad, setShouldLoad] = useState(false);
+
+    useEffect(() => {
+        if (shouldLoad) {
+            return;
         }
-    };
 
-    // ── Mouse-parallax tilt for the hero bookshelf ──
-    const shelfContainerRef = useRef<HTMLDivElement>(null);
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const rawRotateY = useTransform(mouseX, [-0.5, 0.5], [-8, 8]);
-    const rawRotateX = useTransform(mouseY, [-0.5, 0.5], [6, -6]);
-    const shelfRotateY = useSpring(rawRotateY, { stiffness: 90, damping: 16 });
-    const shelfRotateX = useSpring(rawRotateX, { stiffness: 90, damping: 16 });
+        const element = ref.current;
 
-    const handleShelfMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (shouldReduceMotion || !shelfContainerRef.current) return;
-        const rect = shelfContainerRef.current.getBoundingClientRect();
-        mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-        mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-    };
-    const handleShelfMouseLeave = () => {
-        mouseX.set(0);
-        mouseY.set(0);
-    };
+        if (!element) {
+            return;
+        }
 
-    // ── Headline reveal choreography ──
-    const headlineContainer = {
-        hidden: {},
-        visible: {
-            transition: {
-                staggerChildren: shouldReduceMotion ? 0 : 0.08,
-                delayChildren: shouldReduceMotion ? 0 : 0.1,
+        if (
+            typeof window === "undefined" ||
+            !("IntersectionObserver" in window)
+        ) {
+            setShouldLoad(true);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+
+                if (entry?.isIntersecting) {
+                    setShouldLoad(true);
+                    observer.disconnect();
+                }
             },
-        },
+            {
+                root: null,
+                rootMargin,
+                threshold: 0,
+            }
+        );
+
+        observer.observe(element);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [rootMargin, shouldLoad]);
+
+    return {
+        ref,
+        shouldLoad,
     };
-    const wordVariant = {
-        hidden: { y: shouldReduceMotion ? 0 : "110%", opacity: shouldReduceMotion ? 0 : 1 },
-        visible: {
-            y: "0%",
-            opacity: 1,
-            transition: shouldReduceMotion
-                ? { duration: 0.2 }
-                : { duration: 0.85, ease: EASE_EDITORIAL },
-        },
+};
+
+/* ==========================================================================
+   SECTION LABEL
+   ========================================================================== */
+
+const SectionLabel = ({
+    text,
+}: {
+    text: string;
+}) => {
+    return (
+        <p className="mb-2 text-xs font-semibold tracking-wide text-amber-600">
+            {text}
+        </p>
+    );
+};
+
+/* ==========================================================================
+   SEARCH
+
+   IMPORTANT:
+   Search state lives here instead of Home.
+
+   Typing now rerenders only this component rather than the complete homepage.
+   ========================================================================== */
+
+const HeroSearch = () => {
+    const navigate = useNavigate();
+
+    const [searchQuery, setSearchQuery] =
+        useState("");
+
+    const handleSearch = (
+        event: FormEvent<HTMLFormElement>
+    ) => {
+        event.preventDefault();
+
+        const query = searchQuery.trim();
+
+        if (!query) {
+            return;
+        }
+
+        navigate(
+            `/books?search=${encodeURIComponent(query)}`
+        );
     };
-    const forLessDelay = shouldReduceMotion ? 0 : 0.1 + 0.08 * HEADLINE_WORDS.length;
-    // Time the shelf drop finishes so dependent elements (ledge, price tag) can queue after it.
-    const shelfSettleDelay = 0.4 + spines.length * 0.12;
 
     return (
-        <div className="bg-stone-50 ">
-            {/* HERO SECTION */}
-            <div className="bg-[#fdf9f4] relative flex min-h-[46rem] w-full items-center justify-center bg-white dark:bg-black overflow-hidden">
-                <div
-                    className={cn(
-                        "absolute inset-0",
-                        "[background-size:40px_40px]",
-                        "[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-                        "dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
-                    )}
+        <form
+            onSubmit={handleSearch}
+            role="search"
+            className="mb-6 flex max-w-md items-center gap-2"
+        >
+            <div className="relative flex-1">
+                <Search
+                    size={16}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"
                 />
 
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
-                <section className="min-h-screen flex items-center overflow-hidden relative">
-                    {/* ── Atmospheric ambient blobs ── */}
-                    <motion.div
-                        className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-amber-400/15 blur-[100px] pointer-events-none"
-                        animate={
-                            shouldReduceMotion
-                                ? {}
-                                : {
-                                    x: [0, 40, -20, 0],
-                                    y: [0, -30, 15, 0],
-                                    scale: [1, 1.15, 0.95, 1],
-                                    opacity: [0.15, 0.25, 0.15, 0.15],
-                                }
-                        }
-                        transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    <motion.div
-                        className="absolute top-0 left-0 w-[360px] h-[360px] rounded-full bg-stone-300/10 blur-[90px] pointer-events-none"
-                        animate={
-                            shouldReduceMotion
-                                ? {}
-                                : {
-                                    x: [0, -25, 20, 0],
-                                    y: [0, 25, -15, 0],
-                                    scale: [1, 0.9, 1.1, 1],
-                                    opacity: [0.1, 0.18, 0.1, 0.1],
-                                }
-                        }
-                        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                    />
+                <label
+                    htmlFor="home-book-search"
+                    className="sr-only"
+                >
+                    বই বা লেখক খুঁজুন
+                </label>
 
-                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-                            {/* ── Left: message ── */}
-                            <div>
-                                <motion.h1
-                                    initial="hidden"
-                                    animate="visible"
-                                    variants={headlineContainer}
-                                    className="font-display text-5xl lg:text-6xl xl:text-7xl font-bold text-stone-900 leading-[1.15] mb-6"
-                                >
-                                    {HEADLINE_WORDS.map((word, i) => (
-                                        <span key={word + i} className="inline-block overflow-hidden pb-2 align-bottom mr-[0.28em] last:mr-0">
-                                            <motion.span variants={wordVariant} className="inline-block">
-                                                {word}
-                                            </motion.span>
-                                        </span>
-                                    ))}
-                                    <span className="relative inline-block overflow-hidden pb-2 align-bottom">
-                                        <motion.span
-                                            variants={wordVariant}
-                                            className="relative inline-block text-amber-500"
-                                        >
-                                            কম দামে।
-                                            <svg
-                                                className="absolute -bottom-1 left-0 w-full"
-                                                viewBox="0 0 200 8"
-                                                fill="none"
-                                            >
-                                                <motion.path
-                                                    d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2"
-                                                    stroke="#f59e0b"
-                                                    strokeWidth="3"
-                                                    strokeLinecap="round"
-                                                    initial={{ pathLength: 0 }}
-                                                    animate={{ pathLength: 1 }}
-                                                    transition={{
-                                                        delay: forLessDelay + (shouldReduceMotion ? 0 : 0.75),
-                                                        duration: shouldReduceMotion ? 0.2 : 0.55,
-                                                        ease: "easeInOut",
-                                                    }}
-                                                />
-                                            </svg>
-                                        </motion.span>
-                                    </span>
-                                </motion.h1>
-
-                                <motion.p
-                                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: shouldReduceMotion ? 0 : 1.35, duration: 0.6, ease: EASE_EDITORIAL }}
-                                    className="text-stone-500 text-lg leading-relaxed mb-3 max-w-md"
-                                >
-                                    বাংলাদেশের পুরনো বই ও ডিজিটাল নোটের মার্কেটপ্লেস।
-                                    ইতিমধ্যে ৪,৮০০+ শিক্ষার্থী এখানে সাশ্রয় করছে।
-                                </motion.p>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: shouldReduceMotion ? 0 : 1.45, duration: 0.6, ease: EASE_EDITORIAL }}
-                                >
-                                    <Link to="/books?type=Digital" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:text-amber-800 mb-8 transition-colors">
-                                        নতুন — সাথে সাথে ডিজিটাল ডাউনলোড <ChevronRight size={12} />
-                                    </Link>
-                                </motion.div>
-
-                                <motion.form
-                                    onSubmit={handleSearch}
-                                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: shouldReduceMotion ? 0 : 1.55, duration: 0.6, ease: EASE_EDITORIAL }}
-                                    className="flex items-center gap-2 max-w-md mb-6"
-                                >
-                                    <motion.div
-                                        className="flex-1 relative rounded-xl"
-                                        animate={{
-                                            y: isSearchFocused ? -2 : 0,
-                                            boxShadow: isSearchFocused
-                                                ? "0 10px 30px rgba(245, 158, 11, 0.22)"
-                                                : "0 1px 2px rgba(28,25,23,0.04)",
-                                        }}
-                                        transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
-                                    >
-                                        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
-                                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                                            onFocus={() => setIsSearchFocused(true)}
-                                            onBlur={() => setIsSearchFocused(false)}
-                                            placeholder="বই, লেখক খুঁজুন..."
-                                            className="w-full pl-10 pr-4 py-3.5 bg-white border border-stone-200 rounded-xl text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/15 transition-all"
-                                        />
-                                    </motion.div>
-                                    <motion.button
-                                        type="submit"
-                                        whileHover={{ y: -2, scale: 1.03 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                        className="w-12 h-12 bg-stone-900 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
-                                    >
-                                        <ArrowRight size={16} />
-                                    </motion.button>
-                                </motion.form>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: shouldReduceMotion ? 0 : 1.65, duration: 0.6, ease: EASE_EDITORIAL }}
-                                    className="flex flex-wrap items-center gap-3"
-                                >
-                                    <MotionLink
-                                        to="/books"
-                                        whileHover={{ y: -4, scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-sm shadow-sm"
-                                    >
-                                        সব বই দেখো <ArrowRight size={14} />
-                                    </MotionLink>
-                                    <MotionLink
-                                        to="/user/add-product"
-                                        whileHover={{ y: -4, scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 border border-stone-300 hover:border-stone-900 text-stone-700 hover:text-stone-900 font-bold rounded-xl text-sm"
-                                    >
-                                        <Zap size={14} />বই বিক্রি করো
-                                    </MotionLink>
-                                </motion.div>
-                            </div>
-
-                            {/* ── Right: signature visual — a bookshelf that drops itself into place ── */}
-                            <div
-                                ref={shelfContainerRef}
-                                onMouseMove={handleShelfMouseMove}
-                                onMouseLeave={handleShelfMouseLeave}
-                                className="relative flex items-end justify-center min-h-[380px]"
-                                style={{ perspective: 1400 }}
-                            >
-                                <motion.div
-                                    className="absolute w-72 h-72 rounded-full bg-amber-400/20 blur-[80px] pointer-events-none"
-                                    animate={
-                                        shouldReduceMotion
-                                            ? {}
-                                            : { scale: [1, 1.08, 1], opacity: [0.2, 0.3, 0.2] }
-                                    }
-                                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                                />
-
-                                <motion.div
-                                    className="relative flex items-end"
-                                    style={{
-                                        rotateX: shouldReduceMotion ? 0 : shelfRotateX,
-                                        rotateY: shouldReduceMotion ? 0 : shelfRotateY,
-                                        transformStyle: "preserve-3d",
-                                    }}
-                                >
-                                    {/* Spines drop in with a spring bounce, then idle-sway independently */}
-                                    <div className="relative flex items-end gap-2 z-10">
-                                        {spines.map((spine, i) => (
-                                            <motion.div
-                                                key={spine.title}
-                                                animate={
-                                                    shouldReduceMotion
-                                                        ? {}
-                                                        : { y: [0, -4, 0] }
-                                                }
-                                                transition={{
-                                                    duration: 3.4 + i * 0.3,
-                                                    repeat: Infinity,
-                                                    ease: "easeInOut",
-                                                    delay: shelfSettleDelay + i * 0.15,
-                                                }}
-                                            >
-                                                <motion.div
-                                                    className={`${spine.color} rounded-t-md rounded-b-sm shadow-lg cursor-pointer relative`}
-                                                    style={{ width: spine.w, height: spine.h }}
-                                                    initial={{
-                                                        y: shouldReduceMotion ? 0 : -420,
-                                                        opacity: shouldReduceMotion ? 1 : 0,
-                                                        rotate: shouldReduceMotion ? 0 : i % 2 === 0 ? -10 : 10,
-                                                    }}
-                                                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                                                    transition={{
-                                                        type: "spring",
-                                                        stiffness: 140,
-                                                        damping: 13,
-                                                        delay: shouldReduceMotion ? 0 : 0.5 + i * 0.12,
-                                                    }}
-                                                    whileHover={
-                                                        shouldReduceMotion
-                                                            ? {}
-                                                            : {
-                                                                y: -20,
-                                                                rotate: i % 2 === 0 ? -3 : 3,
-                                                                transition: { type: "spring", stiffness: 320, damping: 14 },
-                                                            }
-                                                    }
-                                                >
-                                                    <div className="absolute inset-x-0 top-3 h-px bg-white/30" />
-                                                    <div className="absolute inset-x-0 bottom-3 h-px bg-white/30" />
-                                                    <span
-                                                        className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white/90 tracking-wide px-1 text-center select-none"
-                                                        style={{ writingMode: "vertical-rl" }}
-                                                    >
-                                                        {spine.title}
-                                                    </span>
-                                                </motion.div>
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                </motion.div>
-
-                                {/* Shelf ledge — scales in once the books have landed */}
-                                <motion.div
-                                    className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[300px] h-3 bg-stone-800 rounded-full"
-                                    style={{ boxShadow: "0 16px 28px rgba(28,25,23,0.22)" }}
-                                    initial={{ scaleX: shouldReduceMotion ? 1 : 0, opacity: shouldReduceMotion ? 1 : 0 }}
-                                    animate={{ scaleX: 1, opacity: 1 }}
-                                    transition={{ delay: shouldReduceMotion ? 0 : 0.25, duration: 0.5, ease: EASE_EDITORIAL }}
-                                />
-
-                                {/* Price tag — flips in once the shelf has settled */}
-                                <motion.div
-                                    className="absolute -top-2 right-2 bg-white border border-[#f0ede7] rounded-2xl px-3 py-2"
-                                    initial={{ opacity: 0, scale: 0.6, rotate: 14 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: -4 }}
-                                    transition={{
-                                        delay: shouldReduceMotion ? 0.2 : shelfSettleDelay + 0.35,
-                                        type: "spring",
-                                        stiffness: 220,
-                                        damping: 15,
-                                    }}
-                                    whileHover={{ scale: 1.06, rotate: 0, boxShadow: "0 14px 30px rgba(28,25,23,0.16)" }}
-                                >
-                                    <p className="text-[10px] text-stone-400 font-semibold leading-none">শুরু মাত্র</p>
-                                    <p className="text-sm font-black text-stone-900 leading-none mt-1">৳150</p>
-                                </motion.div>
-
-                                {/* Floating badge — students count */}
-                                <motion.div
-                                    className="absolute bottom-6 -left-2 flex items-center gap-2 bg-white border border-[#f0ede7] rounded-2xl px-3 py-2"
-                                    initial={{ opacity: 0, x: -14 }}
-                                    animate={{
-                                        opacity: 1,
-                                        x: 0,
-                                        y: shouldReduceMotion ? 0 : [0, 6, 0],
-                                    }}
-                                    transition={{
-                                        opacity: { delay: shouldReduceMotion ? 0.2 : shelfSettleDelay + 0.5, duration: 0.5 },
-                                        x: { delay: shouldReduceMotion ? 0.2 : shelfSettleDelay + 0.5, duration: 0.5 },
-                                        y: { duration: 5.6, repeat: Infinity, ease: "easeInOut", delay: shelfSettleDelay + 0.5 },
-                                    }}
-                                    whileHover={{ scale: 1.05, boxShadow: "0 14px 30px rgba(28,25,23,0.16)" }}
-                                >
-                                    <BookOpen size={14} className="text-stone-900" />
-                                    <div>
-                                        <p className="text-sm font-black text-stone-900 leading-none">১২,০০০+</p>
-                                        <p className="text-[10px] text-stone-400 leading-none mt-0.5">তালিকাভুক্ত বই</p>
-                                    </div>
-                                </motion.div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </section>
+                <input
+                    id="home-book-search"
+                    type="search"
+                    autoComplete="off"
+                    enterKeyHint="search"
+                    value={searchQuery}
+                    onChange={(event) =>
+                        setSearchQuery(
+                            event.target.value
+                        )
+                    }
+                    placeholder="বই, লেখক খুঁজুন..."
+                    className="
+                        w-full
+                        rounded-xl
+                        border
+                        border-stone-200
+                        bg-white
+                        py-3.5
+                        pl-10
+                        pr-4
+                        text-sm
+                        text-stone-800
+                        outline-none
+                        transition-colors
+                        duration-150
+                        placeholder:text-stone-400
+                        hover:border-stone-300
+                        focus:border-amber-400
+                        focus:ring-2
+                        focus:ring-amber-500/15
+                    "
+                />
             </div>
 
-            {/* ━━━━ STATS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            {/* <section className="bg-stone-50 py-12">
-                <motion.div
-                    className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-80px" }}
-                    variants={revealContainer}
-                >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-stone-200 rounded-2xl overflow-hidden shadow-sm">
-                        {stats.map((stat) => (
-                            <motion.div
-                                key={stat.label}
-                                variants={revealItem}
-                                className="bg-white flex flex-col items-center justify-center py-8 gap-1"
+            <button
+                type="submit"
+                aria-label="Search books"
+                className="
+                    flex
+                    h-12
+                    w-12
+                    flex-shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-stone-900
+                    text-white
+                    transition-colors
+                    duration-150
+                    hover:bg-amber-500
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-amber-500
+                    focus-visible:ring-offset-2
+                "
+            >
+                <ArrowRight
+                    size={16}
+                    aria-hidden="true"
+                />
+            </button>
+        </form>
+    );
+};
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+const HeroSection = () => {
+    return (
+        <section
+            className="
+                relative
+                isolate
+                overflow-hidden
+                bg-[#fdf9f4]
+            "
+        >
+            {/* Lightweight static background */}
+            <div
+                aria-hidden="true"
+                className="
+                    pointer-events-none
+                    absolute
+                    inset-0
+                    opacity-60
+                "
+                style={{
+                    backgroundImage:
+                        "linear-gradient(to right, rgba(231,229,228,.55) 1px, transparent 1px), linear-gradient(to bottom, rgba(231,229,228,.55) 1px, transparent 1px)",
+                    backgroundSize: "40px 40px",
+                }}
+            />
+
+            {/* Static radial gradients. No animated blur. */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                    background:
+                        "radial-gradient(circle at 82% 70%, rgba(245,158,11,.18), transparent 28%), radial-gradient(circle at 12% 5%, rgba(168,162,158,.13), transparent 24%), linear-gradient(to bottom, rgba(253,249,244,.15), #fdf9f4 95%)",
+                }}
+            />
+
+            <div
+                className="
+                    relative
+                    mx-auto
+                    grid
+                    max-w-7xl
+                    grid-cols-1
+                    items-center
+                    gap-12
+                    px-4
+                    py-14
+                    sm:px-6
+                    sm:py-16
+                    lg:grid-cols-2
+                    lg:px-8
+                    lg:py-20
+                "
+            >
+                {/* ======================================================
+                    HERO CONTENT
+                   ====================================================== */}
+
+                <div>
+                    <h1
+                        className="
+                            mb-6
+                            max-w-2xl
+                            font-display
+                            text-5xl
+                            font-bold
+                            leading-[1.12]
+                            tracking-tight
+                            text-stone-900
+                            lg:text-6xl
+                            xl:text-7xl
+                        "
+                    >
+                        বই কেনো, বই বেচো,{" "}
+                        <span className="relative inline-block text-amber-500">
+                            কম দামে।
+                            <svg
+                                aria-hidden="true"
+                                viewBox="0 0 200 8"
+                                fill="none"
+                                className="absolute -bottom-1 left-0 w-full"
                             >
-                                <span className="text-3xl font-extrabold text-stone-900 tracking-tight">
-                                    {"target" in stat ? (
-                                        <AnimatedNumber target={stat.target} suffix={stat.suffix} decimals={stat.decimals} />
-                                    ) : (
-                                        stat.value
-                                    )}
-                                </span>
-                                <span className="text-[11px] font-semibold text-stone-400 tracking-wide">{stat.label}</span>
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
-            </section> */}
+                                <path
+                                    d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2"
+                                    stroke="#f59e0b"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                />
+                            </svg>
+                        </span>
+                    </h1>
 
-        
+                    <p
+                        className="
+                            mb-3
+                            max-w-md
+                            text-lg
+                            leading-relaxed
+                            text-stone-500
+                        "
+                    >
+                        বাংলাদেশের পুরনো বই ও
+                        ডিজিটাল নোটের মার্কেটপ্লেস।
+                        ইতিমধ্যে ৪,৮০০+ শিক্ষার্থী
+                        এখানে সাশ্রয় করছে।
+                    </p>
 
-            {/* ━━━━ CATEGORIES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            <section className="py-16 bg-stone-50">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-end justify-between mb-8">
-                        <div>
-                            <SectionLabel text="অন্বেষণ করো" />
-                            <h2 className="font-display text-2xl font-bold text-stone-900">ক্যাটাগরি অনুযায়ী ব্রাউজ করো</h2>
-                        </div>
+                    <Link
+                        to="/books?type=Digital"
+                        className="
+                            mb-8
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            text-xs
+                            font-bold
+                            text-amber-700
+                            transition-colors
+                            duration-150
+                            hover:text-amber-800
+                        "
+                    >
+                        নতুন — সাথে সাথে ডিজিটাল
+                        ডাউনলোড
+
+                        <ChevronRight
+                            size={12}
+                            aria-hidden="true"
+                        />
+                    </Link>
+
+                    <HeroSearch />
+
+                    <div className="flex flex-wrap items-center gap-3">
                         <Link
                             to="/books"
-                            className="text-sm font-semibold text-stone-500 hover:text-amber-600 transition-colors flex items-center gap-1"
+                            className="
+                                inline-flex
+                                items-center
+                                gap-2
+                                rounded-xl
+                                bg-stone-900
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-bold
+                                text-white
+                                shadow-sm
+                                transition
+                                duration-150
+                                hover:-translate-y-0.5
+                                hover:bg-stone-800
+                                focus-visible:outline-none
+                                focus-visible:ring-2
+                                focus-visible:ring-stone-900
+                                focus-visible:ring-offset-2
+                            "
                         >
-                            সব দেখো <ArrowRight size={14} />
+                            সব বই দেখো
+
+                            <ArrowRight
+                                size={14}
+                                aria-hidden="true"
+                            />
+                        </Link>
+
+                        <Link
+                            to="/user/add-product"
+                            className="
+                                inline-flex
+                                items-center
+                                gap-2
+                                rounded-xl
+                                border
+                                border-stone-300
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-bold
+                                text-stone-700
+                                transition
+                                duration-150
+                                hover:-translate-y-0.5
+                                hover:border-stone-900
+                                hover:text-stone-900
+                                focus-visible:outline-none
+                                focus-visible:ring-2
+                                focus-visible:ring-stone-900
+                                focus-visible:ring-offset-2
+                            "
+                        >
+                            <Zap
+                                size={14}
+                                aria-hidden="true"
+                            />
+
+                            বই বিক্রি করো
+                        </Link>
+                    </div>
+                </div>
+
+                {/* ======================================================
+                    BOOKSHELF
+
+                    Pure CSS. No mousemove, spring or infinite animation.
+                   ====================================================== */}
+
+                <div
+                    aria-hidden="true"
+                    className="
+                        relative
+                        hidden
+                        min-h-[380px]
+                        items-end
+                        justify-center
+                        lg:flex
+                    "
+                >
+                    <div
+                        className="
+                            pointer-events-none
+                            absolute
+                            bottom-8
+                            h-80
+                            w-80
+                            rounded-full
+                        "
+                        style={{
+                            background:
+                                "radial-gradient(circle, rgba(245,158,11,.22), rgba(245,158,11,0) 68%)",
+                        }}
+                    />
+
+                    <div className="relative flex items-end">
+                        <div className="relative z-10 flex items-end gap-2">
+                            {spines.map(
+                                (spine) => (
+                                    <div
+                                        key={
+                                            spine.title
+                                        }
+                                        className={`
+                                            ${spine.color}
+                                            relative
+                                            cursor-default
+                                            rounded-b-sm
+                                            rounded-t-md
+                                            shadow-lg
+                                            transition-transform
+                                            duration-200
+                                            hover:-translate-y-3
+                                        `}
+                                        style={{
+                                            width: spine.width,
+                                            height: spine.height,
+                                            transform: `rotate(${spine.rotate}deg)`,
+                                        }}
+                                    >
+                                        <div className="absolute inset-x-0 top-3 h-px bg-white/30" />
+
+                                        <div className="absolute inset-x-0 bottom-3 h-px bg-white/30" />
+
+                                        <span
+                                            className="
+                                                absolute
+                                                inset-0
+                                                flex
+                                                select-none
+                                                items-center
+                                                justify-center
+                                                px-1
+                                                text-center
+                                                text-[9px]
+                                                font-bold
+                                                tracking-wide
+                                                text-white/90
+                                            "
+                                            style={{
+                                                writingMode:
+                                                    "vertical-rl",
+                                            }}
+                                        >
+                                            {
+                                                spine.title
+                                            }
+                                        </span>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Shelf ledge */}
+                    <div
+                        className="
+                            absolute
+                            bottom-0
+                            left-1/2
+                            h-3
+                            w-[300px]
+                            -translate-x-1/2
+                            rounded-full
+                            bg-stone-800
+                        "
+                        style={{
+                            boxShadow:
+                                "0 16px 28px rgba(28,25,23,.18)",
+                        }}
+                    />
+
+                    {/* Price card */}
+                    <div
+                        className="
+                            absolute
+                            right-4
+                            top-5
+                            rounded-2xl
+                            border
+                            border-stone-200
+                            bg-white
+                            px-3
+                            py-2
+                            shadow-sm
+                        "
+                    >
+                        <p className="text-[10px] font-semibold leading-none text-stone-400">
+                            শুরু মাত্র
+                        </p>
+
+                        <p className="mt-1 text-sm font-black leading-none text-stone-900">
+                            ৳150
+                        </p>
+                    </div>
+
+                    {/* Book count */}
+                    <div
+                        className="
+                            absolute
+                            bottom-6
+                            left-0
+                            flex
+                            items-center
+                            gap-2
+                            rounded-2xl
+                            border
+                            border-stone-200
+                            bg-white
+                            px-3
+                            py-2
+                            shadow-sm
+                        "
+                    >
+                        <BookOpen
+                            size={14}
+                            className="text-stone-900"
+                        />
+
+                        <div>
+                            <p className="text-sm font-black leading-none text-stone-900">
+                                ১২,০০০+
+                            </p>
+
+                            <p className="mt-0.5 text-[10px] leading-none text-stone-400">
+                                তালিকাভুক্ত বই
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   CATEGORIES
+   ========================================================================== */
+
+const CategoriesSection = () => {
+    return (
+        <section
+            className="bg-stone-50 py-14 sm:py-16"
+            style={belowFoldStyle}
+        >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="mb-8 flex items-end justify-between gap-4">
+                    <div>
+                        <SectionLabel text="অন্বেষণ করো" />
+
+                        <h2 className="font-display text-2xl font-bold text-stone-900">
+                            ক্যাটাগরি অনুযায়ী ব্রাউজ
+                            করো
+                        </h2>
+                    </div>
+
+                    <Link
+                        to="/books"
+                        className="
+                            flex
+                            flex-shrink-0
+                            items-center
+                            gap-1
+                            text-sm
+                            font-semibold
+                            text-stone-500
+                            transition-colors
+                            duration-150
+                            hover:text-amber-600
+                        "
+                    >
+                        সব দেখো
+
+                        <ArrowRight
+                            size={14}
+                            aria-hidden="true"
+                        />
+                    </Link>
+                </div>
+
+                <div className="grid grid-cols-4 gap-3 lg:grid-cols-8">
+                    {categories.map(
+                        ({
+                            label,
+                            emoji,
+                            slug,
+                        }) => (
+                            <Link
+                                key={slug}
+                                to={`/books?category=${encodeURIComponent(
+                                    slug
+                                )}`}
+                                className="
+                                    group
+                                    flex
+                                    h-full
+                                    flex-col
+                                    items-center
+                                    gap-2
+                                    rounded-2xl
+                                    border
+                                    border-stone-100
+                                    bg-white
+                                    px-2
+                                    py-5
+                                    transition
+                                    duration-150
+                                    hover:-translate-y-0.5
+                                    hover:border-amber-300
+                                    hover:shadow-sm
+                                    focus-visible:outline-none
+                                    focus-visible:ring-2
+                                    focus-visible:ring-amber-400
+                                "
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className="text-2xl"
+                                >
+                                    {emoji}
+                                </span>
+
+                                <span
+                                    className="
+                                        text-center
+                                        text-[11px]
+                                        font-semibold
+                                        leading-tight
+                                        text-stone-500
+                                        transition-colors
+                                        group-hover:text-amber-600
+                                    "
+                                >
+                                    {label}
+                                </span>
+                            </Link>
+                        )
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   PRODUCT CARD
+   ========================================================================== */
+
+const ProductCard = memo(
+    ({
+        product,
+    }: {
+        product: IProduct;
+    }) => {
+        const discountPercent =
+            getDiscountPercent(
+                product.price.basePrice,
+                product.price.discountPrice
+            );
+
+        const outOfStock =
+            isOutOfStock(product);
+
+        const lowStock =
+            isLowStock(product);
+
+        const remainingStock =
+            getRemainingStock(product);
+
+        const image =
+            product.images?.[0] || "";
+
+        const optimizedImage =
+            optimizeCloudinaryImage(
+                image,
+                360
+            );
+
+        const imageSrcSet =
+            getProductImageSrcSet(image);
+
+        return (
+            <article>
+                <Link
+                    to={`/products/${product.slug}`}
+                    className="
+                        group
+                        flex
+                        h-full
+                        flex-col
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-stone-100
+                        bg-stone-50
+                        transition
+                        duration-150
+                        hover:-translate-y-1
+                        hover:border-amber-200
+                        hover:shadow-md
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-amber-400
+                    "
+                >
+                    <div
+                        className="
+                            relative
+                            aspect-[3/4]
+                            overflow-hidden
+                            bg-stone-200
+                        "
+                    >
+                        {image ? (
+                            <img
+                                src={optimizedImage}
+                                srcSet={
+                                    imageSrcSet
+                                }
+                                sizes="
+                                    (max-width: 639px) 50vw,
+                                    (max-width: 767px) 33vw,
+                                    (max-width: 1023px) 25vw,
+                                    180px
+                                "
+                                width={360}
+                                height={480}
+                                loading="lazy"
+                                decoding="async"
+                                fetchPriority="low"
+                                alt={
+                                    product.title
+                                }
+                                className={`
+                                    h-full
+                                    w-full
+                                    object-cover
+                                    transition-transform
+                                    duration-200
+                                    ${outOfStock
+                                        ? "grayscale opacity-60"
+                                        : "group-hover:scale-[1.03]"
+                                    }
+                                `}
+                            />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                                <BookOpen
+                                    size={24}
+                                    aria-hidden="true"
+                                    className="text-stone-300"
+                                />
+                            </div>
+                        )}
+
+                        <span
+                            className={`
+                                absolute
+                                right-2
+                                top-2
+                                rounded-md
+                                px-1.5
+                                py-0.5
+                                text-[9px]
+                                font-bold
+                                ${product.productType ===
+                                    "Digital"
+                                    ? "bg-violet-500 text-white"
+                                    : "bg-white/90 text-stone-700"
+                                }
+                            `}
+                        >
+                            {product.productType ===
+                                "Digital"
+                                ? "⚡ ডিজিটাল"
+                                : "📦 ফিজিক্যাল"}
+                        </span>
+
+                        {discountPercent &&
+                            !outOfStock && (
+                                <span
+                                    className="
+                                        absolute
+                                        left-2
+                                        top-2
+                                        rounded-md
+                                        bg-amber-500
+                                        px-1.5
+                                        py-0.5
+                                        text-[9px]
+                                        font-bold
+                                        text-white
+                                        shadow-sm
+                                    "
+                                >
+                                    -
+                                    {
+                                        discountPercent
+                                    }
+                                    %
+                                </span>
+                            )}
+
+                        {outOfStock && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-stone-900/30">
+                                <span
+                                    className="
+                                        flex
+                                        items-center
+                                        gap-1
+                                        rounded-full
+                                        bg-stone-900/80
+                                        px-2.5
+                                        py-1
+                                        text-[10px]
+                                        font-bold
+                                        text-white
+                                    "
+                                >
+                                    <PackageX
+                                        size={11}
+                                        aria-hidden="true"
+                                    />
+
+                                    স্টক নেই
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-1 p-3">
+                        <h3
+                            className="
+                                line-clamp-2
+                                text-xs
+                                font-semibold
+                                leading-snug
+                                text-stone-800
+                                transition-colors
+                                group-hover:text-amber-600
+                            "
+                        >
+                            {product.title}
+                        </h3>
+
+                        {product.bookMetadata
+                            ?.author ? (
+                            <p className="line-clamp-1 text-[10px] text-stone-400">
+                                {
+                                    product
+                                        .bookMetadata
+                                        .author
+                                }
+                            </p>
+                        ) : product.location ? (
+                            <p
+                                className="
+                                    flex
+                                    items-center
+                                    gap-1
+                                    text-[10px]
+                                    text-stone-400
+                                "
+                            >
+                                <MapPin
+                                    size={10}
+                                    aria-hidden="true"
+                                    className="flex-shrink-0"
+                                />
+
+                                <span className="truncate">
+                                    {
+                                        product.location
+                                    }
+                                </span>
+                            </p>
+                        ) : null}
+
+                        {discountPercent &&
+                            product.price
+                                .discountPrice ? (
+                            <div className="mt-1 flex items-center gap-1.5">
+                                <p className="text-sm font-extrabold text-stone-900">
+                                    {formatPrice(
+                                        product
+                                            .price
+                                            .discountPrice
+                                    )}
+                                </p>
+
+                                <p className="text-[10px] text-stone-400 line-through">
+                                    {formatPrice(
+                                        product
+                                            .price
+                                            .basePrice
+                                    )}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="mt-1 text-sm font-extrabold text-stone-900">
+                                {formatPrice(
+                                    product
+                                        .price
+                                        .basePrice
+                                )}
+                            </p>
+                        )}
+
+                        {((product.condition &&
+                            product.condition !==
+                            "Digital Content") ||
+                            product.price
+                                .isNegotiable ||
+                            lowStock) && (
+                                <div className="mt-0.5 flex flex-wrap items-center gap-1">
+                                    {product.condition &&
+                                        product.condition !==
+                                        "Digital Content" && (
+                                            <span className="rounded-md bg-stone-100 px-1.5 py-0.5 text-[9px] font-semibold text-stone-500">
+                                                {
+                                                    product.condition
+                                                }
+                                            </span>
+                                        )}
+
+                                    {product.price
+                                        .isNegotiable && (
+                                            <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600">
+                                                দরদাম চলবে
+                                            </span>
+                                        )}
+
+                                    {lowStock && (
+                                        <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold text-red-500">
+                                            {
+                                                remainingStock
+                                            }
+                                            টি বাকি
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                    </div>
+                </Link>
+            </article>
+        );
+    }
+);
+
+ProductCard.displayName = "ProductCard";
+
+/* ==========================================================================
+   PRODUCT SKELETON
+   ========================================================================== */
+
+const ProductSkeleton = () => {
+    return (
+        <div
+            aria-hidden="true"
+            className="
+                overflow-hidden
+                rounded-2xl
+                border
+                border-stone-100
+                bg-stone-50
+            "
+        >
+            <div className="aspect-[3/4] animate-pulse bg-stone-200" />
+
+            <div className="space-y-2 p-3">
+                <div className="h-3 w-4/5 rounded bg-stone-200" />
+
+                <div className="h-2.5 w-1/2 rounded bg-stone-200" />
+
+                <div className="h-4 w-1/3 rounded bg-stone-200" />
+            </div>
+        </div>
+    );
+};
+
+/* ==========================================================================
+   RECENT LISTINGS
+
+   API is deferred until section is close to viewport.
+   ========================================================================== */
+
+const RecentListingsSection = () => {
+    const { ref, shouldLoad } =
+        useNearViewport<HTMLElement>(
+            "700px"
+        );
+
+    const {
+        data: productsRes,
+        isLoading,
+        isFetching,
+        isError,
+        refetch,
+    } = useGetProductsQuery(
+        {
+            limit: 6,
+            sortBy: "createdAt",
+            sortOrder: "desc",
+        },
+        {
+            skip: !shouldLoad,
+        }
+    );
+
+    const recentProducts =
+        productsRes?.data?.data ?? [];
+
+    const showSkeletons =
+        !shouldLoad ||
+        isLoading ||
+        (isFetching &&
+            recentProducts.length === 0);
+
+    return (
+        <section
+            ref={ref}
+            className="
+                border-y
+                border-stone-100
+                bg-white
+                py-14
+                sm:py-16
+            "
+            style={belowFoldStyle}
+        >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="mb-8 flex items-end justify-between gap-4">
+                    <div>
+                        <SectionLabel text="নতুন সংযোজন" />
+
+                        <h2
+                            className="
+                                flex
+                                items-center
+                                gap-2
+                                font-display
+                                text-2xl
+                                font-bold
+                                text-stone-900
+                            "
+                        >
+                            <TrendingUp
+                                size={20}
+                                aria-hidden="true"
+                                className="text-amber-500"
+                            />
+
+                            সদ্য তালিকাভুক্ত
+                        </h2>
+                    </div>
+
+                    <Link
+                        to="/books"
+                        className="
+                            flex
+                            flex-shrink-0
+                            items-center
+                            gap-1
+                            text-sm
+                            font-semibold
+                            text-stone-500
+                            transition-colors
+                            duration-150
+                            hover:text-amber-600
+                        "
+                    >
+                        সব দেখো
+
+                        <ArrowRight
+                            size={14}
+                            aria-hidden="true"
+                        />
+                    </Link>
+                </div>
+
+                {isError ? (
+                    <div
+                        className="
+                            rounded-2xl
+                            border
+                            border-stone-200
+                            bg-stone-50
+                            px-5
+                            py-8
+                            text-center
+                        "
+                    >
+                        <p className="mb-4 text-sm text-stone-600">
+                            নতুন বইগুলো এখন লোড
+                            করা যাচ্ছে না।
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                refetch()
+                            }
+                            className="
+                                rounded-lg
+                                bg-stone-900
+                                px-4
+                                py-2
+                                text-sm
+                                font-semibold
+                                text-white
+                                transition-colors
+                                hover:bg-amber-500
+                            "
+                        >
+                            আবার চেষ্টা করুন
+                        </button>
+                    </div>
+                ) : showSkeletons ? (
+                    <div
+                        aria-label="Loading recent books"
+                        className="
+                            grid
+                            grid-cols-2
+                            gap-4
+                            sm:grid-cols-3
+                            md:grid-cols-4
+                            lg:grid-cols-6
+                        "
+                    >
+                        {Array.from({
+                            length: 6,
+                        }).map((_, index) => (
+                            <ProductSkeleton
+                                key={index}
+                            />
+                        ))}
+                    </div>
+                ) : recentProducts.length >
+                    0 ? (
+                    <div
+                        className="
+                            grid
+                            grid-cols-2
+                            gap-4
+                            sm:grid-cols-3
+                            md:grid-cols-4
+                            lg:grid-cols-6
+                        "
+                    >
+                        {recentProducts.map(
+                            (
+                                product: IProduct
+                            ) => (
+                                <ProductCard
+                                    key={
+                                        product._id
+                                    }
+                                    product={
+                                        product
+                                    }
+                                />
+                            )
+                        )}
+                    </div>
+                ) : (
+                    <div
+                        className="
+                            rounded-2xl
+                            border
+                            border-stone-200
+                            bg-stone-50
+                            px-5
+                            py-8
+                            text-center
+                        "
+                    >
+                        <BookOpen
+                            size={24}
+                            aria-hidden="true"
+                            className="mx-auto mb-3 text-stone-300"
+                        />
+
+                        <p className="text-sm text-stone-500">
+                            এখনো কোনো নতুন বই
+                            পাওয়া যায়নি।
+                        </p>
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   FEATURES
+   ========================================================================== */
+
+const FeaturesSection = () => {
+    return (
+        <section
+            className="bg-stone-50 py-14 sm:py-16"
+            style={belowFoldStyle}
+        >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="mb-10 text-center sm:mb-12">
+                    <SectionLabel text="কেন আমরা" />
+
+                    <h2 className="font-display text-2xl font-bold text-stone-900">
+                        বই কেনাবেচার জন্য যা যা
+                        দরকার
+                    </h2>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {features.map(
+                        ({
+                            icon: Icon,
+                            title,
+                            desc,
+                        }) => (
+                            <article
+                                key={title}
+                                className="
+                                    group
+                                    rounded-2xl
+                                    border
+                                    border-stone-100
+                                    bg-white
+                                    p-6
+                                    transition
+                                    duration-200
+                                    hover:-translate-y-1
+                                    hover:border-stone-900
+                                    hover:bg-stone-900
+                                "
+                            >
+                                <div
+                                    className="
+                                        mb-4
+                                        flex
+                                        h-10
+                                        w-10
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        bg-stone-50
+                                        shadow-sm
+                                        transition-colors
+                                        duration-200
+                                        group-hover:bg-amber-500
+                                    "
+                                >
+                                    <Icon
+                                        size={
+                                            18
+                                        }
+                                        aria-hidden="true"
+                                        className="
+                                            text-stone-600
+                                            transition-colors
+                                            duration-200
+                                            group-hover:text-white
+                                        "
+                                    />
+                                </div>
+
+                                <h3
+                                    className="
+                                        mb-1.5
+                                        text-sm
+                                        font-bold
+                                        text-stone-800
+                                        transition-colors
+                                        group-hover:text-white
+                                    "
+                                >
+                                    {title}
+                                </h3>
+
+                                <p
+                                    className="
+                                        text-xs
+                                        leading-relaxed
+                                        text-stone-500
+                                        transition-colors
+                                        group-hover:text-stone-400
+                                    "
+                                >
+                                    {desc}
+                                </p>
+                            </article>
+                        )
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   SELL CTA
+   ========================================================================== */
+
+const SellCTASection = () => {
+    return (
+        <section
+            className="
+                border-t
+                border-stone-100
+                bg-white
+                py-14
+                sm:py-16
+            "
+            style={belowFoldStyle}
+        >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+                    <div>
+                        <div
+                            className="
+                                mb-5
+                                inline-block
+                                rounded-full
+                                bg-amber-100
+                                px-3
+                                py-1.5
+                                text-xs
+                                font-semibold
+                                text-amber-700
+                            "
+                        >
+                            তোমার বই বিক্রি করো
+                        </div>
+
+                        <h2
+                            className="
+                                mb-4
+                                font-display
+                                text-3xl
+                                font-bold
+                                leading-tight
+                                text-stone-900
+                                lg:text-4xl
+                            "
+                        >
+                            পুরনো বইকে বানাও{" "}
+                            <span className="text-amber-500">
+                                নগদ টাকা
+                            </span>
+                            , আজই।
+                        </h2>
+
+                        <p
+                            className="
+                                mb-8
+                                max-w-md
+                                text-base
+                                leading-relaxed
+                                text-stone-500
+                            "
+                        >
+                            আগের সেমিস্টারের বই
+                            ফেলে না রেখে, মিনিটেই
+                            লিস্ট করো। জুনিয়রদের
+                            সাশ্রয়ী রিসোর্স খুঁজে
+                            পেতে সাহায্য করো, আর
+                            পরের বইয়ের জন্য আয়
+                            করো। ডিজিটাল নোটও চলবে।
+                        </p>
+
+                        <ul className="mb-8 space-y-2.5">
+                            {[
+                                "লিস্ট করা সম্পূর্ণ ফ্রি — কোনো লুকানো ফি নেই",
+                                "শিপিং ও পেমেন্ট প্ল্যাটফর্মই সামলায়",
+                                "সারাদেশের হাজারো শিক্ষার্থীর কাছে পৌঁছাও",
+                            ].map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-center gap-2.5 text-sm text-stone-600"
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className="
+                                            flex
+                                            h-5
+                                            w-5
+                                            flex-shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-full
+                                            bg-amber-100
+                                        "
+                                    >
+                                        <Star
+                                            size={
+                                                10
+                                            }
+                                            className="fill-amber-600 text-amber-600"
+                                        />
+                                    </span>
+
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <Link
+                            to="/user/add-product"
+                            className="
+                                inline-flex
+                                items-center
+                                gap-2
+                                rounded-2xl
+                                bg-stone-900
+                                px-7
+                                py-3.5
+                                text-sm
+                                font-bold
+                                text-white
+                                transition
+                                duration-150
+                                hover:-translate-y-0.5
+                                hover:bg-amber-500
+                                hover:text-stone-900
+                                hover:shadow-lg
+                            "
+                        >
+                            <Package
+                                size={16}
+                                aria-hidden="true"
+                            />
+
+                            ফ্রিতে বিক্রি শুরু করো
+
+                            <ArrowRight
+                                size={15}
+                                aria-hidden="true"
+                            />
                         </Link>
                     </div>
 
-                    <motion.div
-                        className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3"
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: "-60px" }}
-                        variants={revealContainer}
-                    >
-                        {categories.map(({ label, emoji, slug }) => (
-                            <motion.div key={slug} variants={revealItem}>
-                                <Link
-                                    to={`/books?category=${slug}`}
-                                    className="flex flex-col items-center gap-2 py-5 px-2 bg-white rounded-2xl border border-stone-100 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group h-full"
-                                >
-                                    <span className="text-2xl">{emoji}</span>
-                                    <span className="text-[11px] font-semibold text-stone-500 group-hover:text-amber-600 transition-colors text-center leading-tight">
-                                        {label}
-                                    </span>
-                                </Link>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
+                    <div className="relative">
+                        <div
+                            className="
+                                overflow-hidden
+                                rounded-3xl
+                                border
+                                border-stone-100
+                                bg-stone-50
+                                p-3
+                                shadow-lg
+                            "
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=720"
+                                srcSet="
+                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=480 480w,
+                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=720 720w,
+                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=900 900w
+                                "
+                                sizes="
+                                    (max-width: 1023px) 100vw,
+                                    50vw
+                                "
+                                width={720}
+                                height={480}
+                                loading="lazy"
+                                decoding="async"
+                                fetchPriority="low"
+                                alt="বই হাতে একজন শিক্ষার্থী"
+                                className="
+                                    h-72
+                                    w-full
+                                    rounded-2xl
+                                    object-cover
+                                "
+                            />
+                        </div>
 
-            {/* ━━━━ RECENT LISTINGS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            {recentProducts.length > 0 && (
-                <section className="py-16 bg-white border-y border-stone-100">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-end justify-between mb-8">
-                            <div>
-                                <SectionLabel text="নতুন সংযোজন" />
-                                <h2 className="font-display text-2xl font-bold text-stone-900 flex items-center gap-2">
-                                    <TrendingUp size={20} className="text-amber-500" />
-                                    সদ্য তালিকাভুক্ত
-                                </h2>
+                        <div
+                            className="
+                                absolute
+                                -bottom-4
+                                left-2
+                                flex
+                                items-center
+                                gap-3
+                                rounded-2xl
+                                border
+                                border-stone-100
+                                bg-white
+                                px-5
+                                py-3
+                                shadow-lg
+                                sm:-left-4
+                            "
+                        >
+                            <div
+                                className="
+                                    flex
+                                    h-10
+                                    w-10
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-amber-100
+                                "
+                            >
+                                <TrendingUp
+                                    size={18}
+                                    aria-hidden="true"
+                                    className="text-amber-600"
+                                />
                             </div>
+
+                            <div>
+                                <p className="text-[10px] font-semibold text-stone-400">
+                                    এই সপ্তাহে
+                                </p>
+
+                                <p className="text-sm font-extrabold text-stone-900">
+                                    ২৪৮টি নতুন
+                                    লিস্টিং
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   BOTTOM CTA
+   ========================================================================== */
+
+const BottomCTASection = () => {
+    return (
+        <section
+            className="bg-stone-50 py-14 sm:py-16"
+            style={belowFoldStyle}
+        >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div
+                    className="
+                        relative
+                        overflow-hidden
+                        rounded-3xl
+                        bg-amber-500
+                        px-6
+                        py-14
+                        text-center
+                        sm:px-8
+                        sm:py-16
+                    "
+                >
+                    <div
+                        aria-hidden="true"
+                        className="
+                            absolute
+                            -left-12
+                            -top-12
+                            h-48
+                            w-48
+                            rounded-full
+                            bg-amber-400/40
+                        "
+                    />
+
+                    <div
+                        aria-hidden="true"
+                        className="
+                            absolute
+                            -bottom-10
+                            -right-10
+                            h-60
+                            w-60
+                            rounded-full
+                            bg-amber-600/25
+                        "
+                    />
+
+                    <div className="relative">
+                        <p className="mb-3 text-xs font-bold text-stone-700/70">
+                            Grontho Bilash
+                        </p>
+
+                        <h2
+                            className="
+                                mb-3
+                                font-display
+                                text-3xl
+                                font-bold
+                                leading-tight
+                                text-stone-900
+                                lg:text-4xl
+                            "
+                        >
+                            প্রতিটি শিক্ষার্থীর
+                            জন্য{" "}
+                            <br className="hidden sm:block" />
+                            সাশ্রয়ী পড়াশোনা।
+                        </h2>
+
+                        <p
+                            className="
+                                mx-auto
+                                mb-8
+                                max-w-md
+                                text-sm
+                                leading-relaxed
+                                text-stone-800/65
+                            "
+                        >
+                            বাংলাদেশের হাজারো
+                            শিক্ষার্থী ইতিমধ্যে
+                            স্মার্টভাবে বই
+                            কেনাবেচা করছে, তুমিও
+                            যোগ দাও।
+                        </p>
+
+                        <div className="flex flex-wrap justify-center gap-3">
                             <Link
                                 to="/books"
-                                className="text-sm font-semibold text-stone-500 hover:text-amber-600 transition-colors flex items-center gap-1"
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    rounded-2xl
+                                    bg-stone-900
+                                    px-7
+                                    py-3.5
+                                    text-sm
+                                    font-bold
+                                    text-white
+                                    transition
+                                    duration-150
+                                    hover:-translate-y-0.5
+                                    hover:bg-stone-800
+                                    hover:shadow-lg
+                                "
                             >
-                                সব দেখো <ArrowRight size={14} />
+                                সব বই দেখো
+
+                                <ArrowRight
+                                    size={15}
+                                    aria-hidden="true"
+                                />
+                            </Link>
+
+                            <Link
+                                to="/signup"
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    rounded-2xl
+                                    bg-white/85
+                                    px-7
+                                    py-3.5
+                                    text-sm
+                                    font-bold
+                                    text-stone-800
+                                    transition
+                                    duration-150
+                                    hover:-translate-y-0.5
+                                    hover:bg-white
+                                "
+                            >
+                                ফ্রিতে যোগ দাও
                             </Link>
                         </div>
-
-                        <motion.div
-                            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: "-60px" }}
-                            variants={revealContainer}
-                        >
-                            {recentProducts.map((product: IProduct) => {
-                                const discountPercent = getDiscountPercent(product.price.basePrice, product.price.discountPrice);
-                                const outOfStock = isOutOfStock(product);
-                                const lowStock = isLowStock(product);
-                                const remainingStock = getRemainingStock(product);
-
-                                return (
-                                    <motion.div key={product._id} variants={revealItem} whileHover={outOfStock ? {} : { y: -4 }}>
-                                        <Link
-                                            to={`/products/${product.slug}`}
-                                            className={`group flex flex-col bg-stone-50 rounded-2xl border border-stone-100 hover:border-amber-200 hover:shadow-md transition-all duration-200 overflow-hidden ${outOfStock ? "pointer-events-none" : ""
-                                                }`}
-                                            aria-disabled={outOfStock}
-                                        >
-                                            {/* Image */}
-                                            <div className="relative aspect-[3/4] bg-stone-200 overflow-hidden">
-                                                {product.images?.[0] ? (
-                                                    <img
-                                                        src={product.images[0]}
-                                                        alt={product.title}
-                                                        className={`w-full h-full object-cover transition-transform duration-500 ${outOfStock ? "grayscale opacity-60" : "group-hover:scale-105"
-                                                            }`}
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <BookOpen size={24} className="text-stone-300" />
-                                                    </div>
-                                                )}
-
-                                                {/* Type badge */}
-                                                <span
-                                                    className={`absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${product.productType === "Digital"
-                                                        ? "bg-violet-500 text-white"
-                                                        : "bg-white/90 text-stone-700"
-                                                        }`}
-                                                >
-                                                    {product.productType === "Digital" ? "⚡ ডিজিটাল" : "📦 ফিজিক্যাল"}
-                                                </span>
-
-                                                {/* Discount badge */}
-                                                {discountPercent && !outOfStock && (
-                                                    <span className="absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500 text-white shadow-sm">
-                                                        -{discountPercent}%
-                                                    </span>
-                                                )}
-
-                                                {/* Out of stock overlay */}
-                                                {outOfStock && (
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-stone-900/30">
-                                                        <span className="flex items-center gap-1 text-[10px] font-bold text-white bg-stone-900/80 px-2.5 py-1 rounded-full">
-                                                            <PackageX size={11} />
-                                                            স্টক নেই
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Info */}
-                                            <div className="p-3 flex flex-col gap-1">
-                                                <p className="text-xs font-semibold text-stone-800 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors">
-                                                    {product.title}
-                                                </p>
-
-                                                {product.bookMetadata?.author ? (
-                                                    <p className="text-[10px] text-stone-400 line-clamp-1">{product.bookMetadata.author}</p>
-                                                ) : product.location ? (
-                                                    <p className="text-[10px] text-stone-400 line-clamp-1 flex items-center gap-1">
-                                                        <MapPin size={10} className="flex-shrink-0" />
-                                                        <span className="truncate">{product.location}</span>
-                                                    </p>
-                                                ) : null}
-
-                                                {/* Price */}
-                                                {discountPercent ? (
-                                                    <div className="flex items-center gap-1.5 mt-1">
-                                                        <p className="text-sm font-extrabold text-stone-900">
-                                                            {formatPrice(product.price.discountPrice as number)}
-                                                        </p>
-                                                        <p className="text-[10px] text-stone-400 line-through">
-                                                            {formatPrice(product.price.basePrice)}
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-sm font-extrabold text-stone-900 mt-1">
-                                                        {formatPrice(product.price.basePrice)}
-                                                    </p>
-                                                )}
-
-                                                {/* Condition / negotiable / low-stock chips */}
-                                                {(product.condition && product.condition !== "Digital Content") ||
-                                                    product.price.isNegotiable ||
-                                                    lowStock ? (
-                                                    <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                                                        {product.condition && product.condition !== "Digital Content" && (
-                                                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-500">
-                                                                {product.condition}
-                                                            </span>
-                                                        )}
-                                                        {product.price.isNegotiable && (
-                                                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600">
-                                                                দরদাম চলবে
-                                                            </span>
-                                                        )}
-                                                        {lowStock && (
-                                                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-red-50 text-red-500">
-                                                                {remainingStock}টি বাকি
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        </Link>
-                                    </motion.div>
-                                );
-                            })}
-                        </motion.div>
-                    </div>
-                </section>
-            )}
-
-            {/* ━━━━ FEATURES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            <section className="py-16 bg-stone-50">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <SectionLabel text="কেন আমরা" />
-                        <h2 className="font-display text-2xl font-bold text-stone-900">বই কেনাবেচার জন্য যা যা দরকার</h2>
-                    </div>
-                    <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: "-60px" }}
-                        variants={revealContainer}
-                    >
-                        {features.map(({ icon: Icon, title, desc }) => (
-                            <motion.div
-                                key={title}
-                                variants={revealItem}
-                                whileHover={{ y: -4 }}
-                                className="group p-6 rounded-2xl bg-white hover:bg-stone-900 border border-stone-100 hover:border-stone-900 transition-colors duration-300 cursor-default"
-                            >
-                                <motion.div
-                                    whileHover={{ rotate: -8, scale: 1.08 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 12 }}
-                                    className="w-10 h-10 rounded-xl bg-stone-50 group-hover:bg-amber-500 shadow-sm flex items-center justify-center mb-4 transition-colors duration-300"
-                                >
-                                    <Icon size={18} className="text-stone-600 group-hover:text-white transition-colors duration-300" />
-                                </motion.div>
-                                <h3 className="text-sm font-bold text-stone-800 group-hover:text-white mb-1.5 transition-colors duration-300">
-                                    {title}
-                                </h3>
-                                <p className="text-xs text-stone-500 group-hover:text-stone-400 leading-relaxed transition-colors duration-300">
-                                    {desc}
-                                </p>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* ━━━━ SELL CTA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            <section className="py-16 bg-white border-t border-stone-100">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-
-                        {/* Copy */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -24 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-80px" }}
-                            transition={{ duration: 0.6, ease: EASE_EDITORIAL }}
-                        >
-                            <div className="inline-block px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 font-semibold text-xs mb-5">
-                                তোমার বই বিক্রি করো
-                            </div>
-                            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900 leading-tight mb-4">
-                                পুরনো বইকে বানাও{" "}
-                                <span className="text-amber-500">নগদ টাকা</span>, আজই।
-                            </h2>
-                            <p className="text-stone-500 text-base leading-relaxed mb-8 max-w-md">
-                                আগের সেমিস্টারের বই ফেলে না রেখে, মিনিটেই লিস্ট করো।
-                                জুনিয়রদের সাশ্রয়ী রিসোর্স খুঁজে পেতে সাহায্য করো, আর পরের বইয়ের জন্য আয় করো।
-                                ডিজিটাল নোটও চলবে।
-                            </p>
-
-                            {/* Mini checklist */}
-                            <motion.ul
-                                className="space-y-2.5 mb-8"
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, margin: "-80px" }}
-                                variants={revealContainer}
-                            >
-                                {["লিস্ট করা সম্পূর্ণ ফ্রি — কোনো লুকানো ফি নেই", "শিপিং ও পেমেন্ট প্ল্যাটফর্মই সামলায়", "সারাদেশের হাজারো শিক্ষার্থীর কাছে পৌঁছাও"].map(item => (
-                                    <motion.li key={item} variants={revealItem} className="flex items-center gap-2.5 text-sm text-stone-600">
-                                        <span className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                            <Star size={10} className="text-amber-600 fill-amber-600" />
-                                        </span>
-                                        {item}
-                                    </motion.li>
-                                ))}
-                            </motion.ul>
-
-                            <MotionLink
-                                to="/user/add-product"
-                                whileHover={{ y: -3, scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                className="inline-flex items-center gap-2 px-7 py-3.5 bg-stone-900 hover:bg-amber-500 text-white hover:text-stone-900 font-bold rounded-2xl hover:shadow-xl text-sm"
-                            >
-                                <Package size={16} />
-                                ফ্রিতে বিক্রি শুরু করো
-                                <ArrowRight size={15} />
-                            </MotionLink>
-                        </motion.div>
-
-                        {/* Visual */}
-                        <motion.div
-                            className="relative"
-                            initial={{ opacity: 0, x: 24 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-80px" }}
-                            transition={{ duration: 0.6, ease: EASE_EDITORIAL, delay: 0.1 }}
-                        >
-                            <motion.div
-                                className="bg-stone-50 border border-stone-100 rounded-3xl p-3 shadow-xl"
-                                initial={{ rotate: 1 }}
-                                whileHover={{ rotate: 0 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                <img
-                                    src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=900"
-                                    alt="বই হাতে একজন শিক্ষার্থী"
-                                    className="w-full h-72 object-cover rounded-2xl"
-                                />
-                            </motion.div>
-                            {/* Floating stat badge */}
-                            <motion.div
-                                className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl border border-stone-100 px-5 py-3 flex items-center gap-3"
-                                initial={{ opacity: 0, scale: 0.7, y: 12 }}
-                                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-80px" }}
-                                transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 16 }}
-                            >
-                                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                                    <TrendingUp size={18} className="text-amber-600" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-stone-400 font-semibold">এই সপ্তাহে</p>
-                                    <p className="text-sm font-extrabold text-stone-900">২৪৮টি নতুন লিস্টিং</p>
-                                </div>
-                            </motion.div>
-                        </motion.div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
+    );
+};
 
-            {/* ━━━━ BOTTOM CTA BANNER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-            <section className="py-16 bg-stone-50">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        className="relative overflow-hidden bg-amber-500 rounded-3xl px-8 py-16 text-center"
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true, margin: "-80px" }}
-                        transition={{ duration: 0.6, ease: EASE_EDITORIAL }}
-                    >
-                        <motion.div
-                            className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-amber-400/40"
-                            animate={shouldReduceMotion ? {} : { scale: [1, 1.1, 1] }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                        <motion.div
-                            className="absolute -bottom-10 -right-10 w-60 h-60 rounded-full bg-amber-600/25"
-                            animate={shouldReduceMotion ? {} : { scale: [1, 1.12, 1] }}
-                            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        />
-                        <div className="absolute top-4 right-20 w-16 h-16 rounded-full bg-amber-300/30" />
-                        <div className="relative">
-                            <p className="text-xs font-bold text-stone-700/70 mb-3">Grontho Bilash</p>
-                            <h2 className="font-display text-3xl lg:text-4xl font-bold text-stone-900 mb-3 leading-tight">
-                                প্রতিটি শিক্ষার্থীর জন্য <br className="hidden sm:block" /> সাশ্রয়ী পড়াশোনা।
-                            </h2>
-                            <p className="text-stone-800/65 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-                                বাংলাদেশের হাজারো শিক্ষার্থী ইতিমধ্যে স্মার্টভাবে বই কেনাবেচা করছে,
-                                তুমিও যোগ দাও।
-                            </p>
-                            <div className="flex flex-wrap justify-center gap-3">
-                                <MotionLink
-                                    to="/books"
-                                    whileHover={{ y: -3, scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl hover:shadow-xl text-sm"
-                                >
-                                    সব বই দেখো
-                                    <ArrowRight size={15} />
-                                </MotionLink>
-                                <MotionLink
-                                    to="/signup"
-                                    whileHover={{ y: -3, scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-white/80 hover:bg-white text-stone-800 font-bold rounded-2xl text-sm"
-                                >
-                                    ফ্রিতে যোগ দাও
-                                </MotionLink>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
-        </div>
+/* ==========================================================================
+   HOME
 
+   IMPORTANT:
+   Home itself contains no local state.
+   ========================================================================== */
+
+const Home = () => {
+    return (
+        <main className="bg-stone-50">
+            <HeroSection />
+
+            <CategoriesSection />
+
+            <RecentListingsSection />
+
+            <FeaturesSection />
+
+            <SellCTASection />
+
+            <BottomCTASection />
+        </main>
     );
 };
 

@@ -8,7 +8,7 @@ import { orderValidations } from "./order.validation";
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const validatedPayload = orderValidations.createOrderSchema.parse(req.body);
   const result = await orderServices.createOrder(validatedPayload);
- 
+
   sendResponse(res, {
     statusCode: 201,
     message:
@@ -19,11 +19,11 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
- 
+
 
 const getOrder = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.orderId;
-  console.log("order id___",orderId);
+  //console.log("order id___",orderId);
   const result = await orderServices.getOrderById(orderId);
   sendResponse(res, {
     statusCode: 200,
@@ -71,7 +71,7 @@ const updateOrder = catchAsync(async (req: Request, res: Response) => {
 
 const getOrdersByUserId = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.userid;
-  console.log(userId, "get orders by user id");
+  //console.log(userId, "get orders by user id");
   const result = await orderServices.getOrdersByUserId(userId);
   sendResponse(res, {
     statusCode: 200,

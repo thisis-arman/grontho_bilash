@@ -11,7 +11,7 @@ interface RouteGenerator {
 }
 
 export const routeGenerator: RouteGenerator = (items) => {
-    console.log(items);
+    //console.log(items);
 
     const routes = items.reduce((acc: RouteItem[], item: RouteItem) => {
         if (item.path && item.element) {

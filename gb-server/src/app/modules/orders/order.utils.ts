@@ -216,7 +216,7 @@ color:#78716c;
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("Order notification email sent:", info.response);
+    //console.log("Order notification email sent:", info.response);
   } catch (error) {
     console.error("Failed to send order notification:", error);
   }

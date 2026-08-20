@@ -56,7 +56,7 @@ const MyOrders = () => {
     };
 
     const handleEditSubmit = async (values: any) => {
-        console.log("check--", editingOrder, values);
+        //console.log("check--", editingOrder, values);
         const isOrderEditable = () => {
             const orderStatus = editingOrder?.orderStatus?.toLowerCase();
             const paymentStatus = editingOrder?.paymentStatus?.toLowerCase();

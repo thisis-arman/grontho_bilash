@@ -2,12 +2,12 @@ import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import multer from "multer";
 import os from "os";
-    // Configuration
-    cloudinary.config({
-      cloud_name: "dshjcmrd0",
-      api_key: "722988628732479",
-      api_secret: "fkZhOLsiO7tuzvHA6MbzGOMEXto", 
-    });
+// Configuration
+cloudinary.config({
+  cloud_name: "dshjcmrd0",
+  api_key: "722988628732479",
+  api_secret: "fkZhOLsiO7tuzvHA6MbzGOMEXto",
+});
 
 
 export const imageUploader = (imageName: string, path: string) => {
@@ -18,8 +18,8 @@ export const imageUploader = (imageName: string, path: string) => {
       function (error, result) {
         if (error) {
           reject(error);
-          }
-          console.log(result?.secure_url);
+        }
+        //console.log(result?.secure_url);
         resolve(result);
         //delete a file asynchronously
         fs.unlink(path, (err) => {

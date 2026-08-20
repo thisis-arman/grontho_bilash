@@ -238,7 +238,7 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
     const allAdmins = await User.find({ role: { $in: [USER_ROLE.admin, USER_ROLE.superAdmin] } });
 
     const adminEmails = allAdmins.map((admin) => admin.email);
-    console.log({ adminEmails })
+    //console.log({ adminEmails })
 
     // Send email for each created order (one email per order)
     for (const order of createdOrders) {
@@ -263,7 +263,7 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
 
 // Service to get an order by ID
 const getOrderById = async (orderId: string) => {
-  console.log("order id", { orderId });
+  //console.log("order id", { orderId });
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
@@ -339,7 +339,7 @@ const updateOrderById = async (
   updateData: Partial<TOrder>
 ) => {
 
-  console.log({ orderId, updateData });
+  //console.log({ orderId, updateData });
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }

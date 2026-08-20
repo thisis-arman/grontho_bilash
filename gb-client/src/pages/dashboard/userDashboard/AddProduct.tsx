@@ -58,7 +58,7 @@ const AddProduct = () => {
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
     const [imageURL, setImageURL] = useState(null);
     const [productImages, setProductImages] = useState<string[]>([]);
-    console.log({ selectedDeliveryOption });
+    //console.log({ selectedDeliveryOption });
     // const [categoryId, setCategoryId] = useState(null);
     // const { data, isLoading } = useGetSingleCategoryQuery(categoryId);
 
@@ -100,7 +100,7 @@ const AddProduct = () => {
 
     const handleFacultyChange = (facultyId: string) => {
         setSelectedFaculty(facultyId);
-       
+
 
     };
     const handleDepartmentChange = (departmentId: string) => {
@@ -165,7 +165,7 @@ const AddProduct = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-           
+
             setImageURL(response.data.url);
             productImages.push(response.data.url)
         } catch (error) {
@@ -194,7 +194,7 @@ const AddProduct = () => {
         const isNegotiable = false;
         const location = `${target?.village?.value}, ${target?.upazila?.value}, ${target?.district?.value}, ${target?.division?.value}`
 
-        console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactHidden, publicationYear, description, images, deliveryOption });
+        //console.log({ user, bookTitle, price, level, condition, isNegotiable, location, isContactHidden, publicationYear, description, images, deliveryOption });
         try {
             const response = await createBook({ user, bookTitle, price, level, faculty, department, condition, isNegotiable, location, isContactHidden, publicationYear, description, images, deliveryOption })
             if (response?.success) {
@@ -202,7 +202,7 @@ const AddProduct = () => {
             }
         } catch (error) {
             toast.error("Error listing product")
-            console.log(error);
+            //console.log(error);
         }
     }
 

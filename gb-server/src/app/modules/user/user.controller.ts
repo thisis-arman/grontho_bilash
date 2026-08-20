@@ -4,9 +4,9 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 
 const createUser = catchAsync(async (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   const result = await userServices.createUserIntoDB(req.body);
-  console.log(result);
+  //console.log(result);
   if (result) {
     sendResponse(res, {
       success: true,
@@ -24,11 +24,11 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 const getMe = catchAsync(async (req, res) => {
-  const email= req.params.email;
-  console.log("req______",req.params.email)
+  const email = req.params.email;
+  //console.log("req______",req.params.email)
   const result = await userServices.getLoggedInUserFromDB(email);
 
-  console.log("result---",result);
+  //console.log("result---",result);
 
   sendResponse(res, {
     success: true,
@@ -39,10 +39,10 @@ const getMe = catchAsync(async (req, res) => {
 });
 
 const getUsers = catchAsync(async (req, res) => {
-  console.log("req______",req.body)
+  //console.log("req______",req.body)
   const result = await userServices.getUsersFromDB();
 
-  console.log("result---",result);
+  //console.log("result---",result);
 
   sendResponse(res, {
     success: true,

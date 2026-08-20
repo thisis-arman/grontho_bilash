@@ -89,7 +89,7 @@ const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
   const [form] = Form.useForm();
 
-  console.log("productsData", productsData)
+  //console.log("productsData", productsData)
   // Delete modal
   const [pendingDelete, setPendingDelete] = useState<IProduct | null>(null);
 
@@ -104,7 +104,7 @@ const ProductManagement = () => {
   const [pageSize, setPageSize] = useState(10);
 
   const allProducts: IProduct[] = productsData?.data ?? [];
-  console.log("allProducts", allProducts);
+  //console.log("allProducts", allProducts);
   // ── Derived ──────────────────────────────────────────────────────────────────
 
   const handleEditClick = (product: IProduct) => {
@@ -125,7 +125,7 @@ const ProductManagement = () => {
     try {
       const values = await form.validateFields();
 
-      console.log("Updated Values", values);
+      //console.log("Updated Values", values);
 
       /**
        * Later:

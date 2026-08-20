@@ -57,7 +57,7 @@ const createProductIntoDB = async (payload: IProduct) => {
 };
 
 const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
-  console.log(bookInfo);
+  //console.log(bookInfo);
   // find the recent documents
   const findLatestProduct = async () => {
     const latestProduct = await BookModel.aggregate([
@@ -70,16 +70,16 @@ const listABookIntoDb = async (bookInfo: TBook): Promise<Document> => {
   };
   const generateProductId = async () => {
     const latestProduct = await findLatestProduct();
-    // console.log(latestProduct[0]["bookId"]);
+    // //console.log(latestProduct[0]["bookId"]);
     const recentProductId = latestProduct[0]["bookId"];
     const newProductId = recentProductId.substring(4);
     let productId = `book${parseInt(newProductId) + 1}`;
     return productId;
   };
   const bookId = await generateProductId();
-  console.log({ bookId });
+  //console.log({ bookId });
   // Log the bookId and other book information
-  // console.log({ bookId, ...bookInfo });
+  // //console.log({ bookId, ...bookInfo });
 
   // Create and save the new book record
   const book = await BookModel.create({ bookId, ...bookInfo });
@@ -201,7 +201,7 @@ const getBooksFromDb = async () => {
     // isPublished: true,
   });
 
-  console.log(allBooks); // Logs only non-deleted and published books
+  //console.log(allBooks); // Logs only non-deleted and published books
   return allBooks;
 
 
@@ -236,9 +236,9 @@ const searchBooksByTitle = async (searchTerm: string): Promise<Document[]> => {
 
 
 const getBooksByEmailFromDB = async (email: string) => {
-  console.log(email);
+  //console.log(email);
   const user = await User.isUserExistsByEmail(email);
-  console.log(user);
+  //console.log(user);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "user is not found");
@@ -249,7 +249,7 @@ const getBooksByEmailFromDB = async (email: string) => {
 
   // Correct the query format here
   const books = await ProductModel.find({ seller: user?._id, isDeleted: false, }).populate("seller", "name email contactNo ");
-  console.log("booooooks_____", books);
+  //console.log("booooooks_____", books);
 
   return books;
 };
@@ -284,7 +284,7 @@ const updateProductIntoDb = async (
   payload: Partial<TBook>
 ) => {
   const modifiedData: Record<string, unknown> = {};
-  console.log("payload", payload);
+  //console.log("payload", payload);
 
   if (payload.bookMetadata) {
     Object.entries(payload.bookMetadata).forEach(
@@ -301,7 +301,7 @@ const updateProductIntoDb = async (
       }
     );
   }
-  console.log(modifiedData, 'md')
+  //console.log(modifiedData, 'md')
   Object.entries(payload).forEach(
     ([key, value]) => {
       if (
@@ -313,7 +313,7 @@ const updateProductIntoDb = async (
     }
   );
 
-  console.log("modifiedData", modifiedData, bookId);
+  //console.log("modifiedData", modifiedData, bookId);
 
   const result = await ProductModel.findByIdAndUpdate(
     bookId,
@@ -323,7 +323,7 @@ const updateProductIntoDb = async (
       runValidators: true,
     }
   );
-  console.log("result", result);
+  //console.log("result", result);
 
   return result;
 };

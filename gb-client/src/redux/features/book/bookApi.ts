@@ -43,7 +43,7 @@ export const bookApi = baseApi.injectEndpoints({
     // Get all books
     getBooksByEmail: builder.query({
       query: (email) => (
-        console.log(email, "get books by email"),
+        //console.log(email, "get books by email"),
         {
           url: `/books/${email}`,
           method: "GET",
@@ -76,7 +76,7 @@ export const bookApi = baseApi.injectEndpoints({
 
     deleteBook: builder.mutation({
       query: (id) => {
-        console.log(id, "delete book");
+        //console.log(id, "delete book");
         return {
           url: `/books/${id}`,
           method: "PATCH",

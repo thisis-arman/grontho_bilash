@@ -1,4 +1,4 @@
-import { TDepartment, TEducationCategory, TFaculty,  } from "./category.interface";
+import { TDepartment, TEducationCategory, TFaculty, } from "./category.interface";
 import { Department, EducationCategory, Faculty } from "./category.model";
 
 const createLevelIntoDB = async (level: TEducationCategory) => {
@@ -27,14 +27,14 @@ const createFacultyIntoDB = async (faculty: TFaculty) => {
   const data = await Faculty.create(faculty);
   return data;
 };
-const getFacultiesFromDB= async () => {
+const getFacultiesFromDB = async () => {
   const data = await Faculty.find();
   return data;
 };
 const getFacultyFromDB = async (_id: string) => {
-  console.log({_id});
+  //console.log({_id});
   const data = await Faculty.findOne({ _id }).populate({
-    path:'departments'
+    path: 'departments'
   });
   return data;
 };
@@ -47,8 +47,8 @@ const getDepartmentsFromDB = async () => {
   const departments = await Department.find();
   return departments;
 };
-const getDepartmentFromDB = async (_id:string) => {
-  const departments = await Department.findOne({_id});
+const getDepartmentFromDB = async (_id: string) => {
+  const departments = await Department.findOne({ _id });
   return departments;
 };
 

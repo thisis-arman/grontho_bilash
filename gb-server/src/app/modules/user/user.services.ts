@@ -39,7 +39,7 @@ const updateUserInfo = async (
 
   const allowedFields = loggedInUserRole === "user" ? ["name", "contactNo"] : ["name", "status", "role", "contactNo"];
   const dataToUpdate = pick(payload, allowedFields);
-  console.log({ dataToUpdate })
+  //console.log({ dataToUpdate })
 
   if (Object.keys(dataToUpdate).length === 0) {
     throw new Error("No valid fields to update");
@@ -50,7 +50,7 @@ const updateUserInfo = async (
     { $set: dataToUpdate },
     { new: true, runValidators: true }
   );
-  console.log({ updatedUser })
+  //console.log({ updatedUser })
   if (!updatedUser) {
     throw new Error("User not found or deleted");
   }

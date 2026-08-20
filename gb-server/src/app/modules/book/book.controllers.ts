@@ -44,7 +44,7 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
 
 const getBooksByEmail = catchAsync(async (req, res) => {
   const email = req.params.email;
-  console.log(email);
+  //console.log(email);
   const result = await bookServices.getBooksByEmailFromDB(email);
   sendResponse(res, {
     statusCode: 200,
@@ -73,9 +73,9 @@ const getProductsByCategories = catchAsync(async (req, res) => {
 
 // Controller to get a single book by its ID
 const getBook = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.params);
+  //console.log(req.params);
   const bookId = req.params.id;
-  console.log({ bookId });
+  //console.log({ bookId });
   const result = await bookServices.getBookFromDb(bookId);
   sendResponse(res, {
     statusCode: 200,

@@ -5,7 +5,7 @@ import { ShieldCheck, Lock, Loader2, CreditCard } from "lucide-react"; // Modern
 const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
   const stripe = useStripe();
   const elements = useElements();
-  
+
   const [errorMessage, setErrorMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -20,7 +20,7 @@ const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/success`, 
+        return_url: `${window.location.origin}/success`,
       },
     });
 
@@ -28,7 +28,7 @@ const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
     if (error) {
       setErrorMessage(error.message ?? "An unexpected error occurred.");
     } else {
-      console.log("Payment initiated for:", paymentIntent);
+      //console.log("Payment initiated for:", paymentIntent);
     }
 
     setIsProcessing(false);
@@ -50,11 +50,11 @@ const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
       <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="min-h-[250px]">
-             <PaymentElement 
-                options={{
-                    layout: "tabs",
-                }}
-             />
+            <PaymentElement
+              options={{
+                layout: "tabs",
+              }}
+            />
           </div>
 
           {errorMessage && (
@@ -66,11 +66,10 @@ const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
           <button
             type="submit"
             disabled={!stripe || isProcessing}
-            className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-200 flex items-center justify-center gap-2 shadow-md ${
-              isProcessing || !stripe
+            className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-200 flex items-center justify-center gap-2 shadow-md ${isProcessing || !stripe
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-yellow-600 hover:bg-yellow-700 active:scale-[0.98]"
-            }`}
+              }`}
           >
             {isProcessing ? (
               <>
@@ -88,7 +87,7 @@ const CheckoutForm = ({ paymentIntent }: { paymentIntent: string }) => {
 
         {/* Footer info */}
         <p className="mt-6 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
-            Powered by <span className="font-bold text-indigo-500 italic">Stripe</span>
+          Powered by <span className="font-bold text-indigo-500 italic">Stripe</span>
         </p>
       </div>
     </div>

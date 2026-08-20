@@ -18,7 +18,7 @@ const DashboardTopNav = ({ onMenuToggle, mobileMenuOpen }: Props) => {
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-console.log({user});
+  // //console.log({user});
   const ROLE = { ADMIN: 'admin', USER: 'user' };
   const navPaths = role === ROLE.ADMIN ? adminPaths : userPaths;
   const rolePrefix = role === ROLE.ADMIN ? '/admin' : '/user';
@@ -59,10 +59,9 @@ console.log({user});
                 key={item.path}
                 to={`${rolePrefix}/${item.path}`}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-amber-50 text-amber-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                    ? 'bg-amber-50 text-amber-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`
                 }
               >

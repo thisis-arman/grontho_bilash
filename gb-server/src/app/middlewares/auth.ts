@@ -9,24 +9,24 @@ import { TUserRoles } from "../modules/user/user.interface";
 import catchAsync from "../utils/catchAsync";
 
 export const Auth = (...requiredRoles: TUserRoles[]) => {
-  console.log('roles__',requiredRoles);
+  //console.log('roles__',requiredRoles);
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
-    console.log("token",token)
+    //console.log("token",token)
 
     if (!token) {
       throw new AppError(httpStatus.NOT_FOUND, "token is not found.");
     }
-    console.log("18", token);
+    //console.log("18", token);
 
     const decoded = jwt.verify(token, config.jwt_access_secret as string);
-    console.log({decoded});
+    //console.log({decoded});
 
     if (!decoded) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token");
     }
 
-    console.log("decoded => ", decoded);
+    //console.log("decoded => ", decoded);
     const { email, role, iat, exp } = decoded as JwtPayload;
     const user = await User.isUserExistsByEmail(email);
     if (!user) {
@@ -36,7 +36,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     if (user?.isDeleted) {
       throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
     }
-    console.log("user----",user)
+    //console.log("user----",user)
     if (user.status == "blocked") {
       throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
     }
