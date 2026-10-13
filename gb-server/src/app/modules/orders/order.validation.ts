@@ -10,9 +10,19 @@ const bookItemSchema = z.object({
   bookTitle: z.string().min(1, "Title required"),
   productImage: z.string().url("Invalid image URL"),
   seller: ObjectIdSchema,
-  price: z.number().positive(), // unit price; line total = price * quantity
+  price: z.number().nonnegative(), // unit price; line total = price * quantity
   quantity: z.number().int().positive(),
 });
+
+// What the cart sends per line. Only the product id and quantity are
+// trusted; title, image, seller and price are re-read from the database
+// when the order is created, so a tampered cart cannot change them.
+const checkoutItemSchema = z
+  .object({
+    book: ObjectIdSchema,
+    quantity: z.number().int().positive().max(100),
+  })
+  .passthrough();
 
 // ─────────────────────────────────────────────────────────────
 // Checkout payload — this is what the controller receives from
@@ -27,8 +37,7 @@ const bookItemSchema = z.object({
 // ─────────────────────────────────────────────────────────────
 
 const createOrderSchema = z.object({
-  books: z.array(bookItemSchema).min(1, "Cart cannot be empty"),
-  buyer: ObjectIdSchema,
+  books: z.array(checkoutItemSchema).min(1, "Cart cannot be empty"),
   phoneNumber: z.string().min(11, "Valid BD phone number required"),
   email: z.string().email("Invalid email address"),
   deliveryAddress: z.string().min(5, "Full address is required"),
@@ -71,7 +80,7 @@ const internalOrderDocumentSchema = z.object({
   deliveryAddress: z.string().min(5),
   shippingArea: z.enum(["inside", "outside"]),
   shippingCost: z.number().nonnegative(),
-  totalAmount: z.number().positive(),
+  totalAmount: z.number().nonnegative(),
   paymentMethod: z.enum(["cod", "bkash"]),
   transactionId: z.string(),
   comment: z.string().optional(),

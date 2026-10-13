@@ -9,6 +9,12 @@ export const orderApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["Orders"],
+    }),
+    // Orders that include the logged-in seller's listings.
+    getMySales: builder.query({
+      query: () => ({ url: `/orders/my-sales`, method: "GET" }),
+      providesTags: ["Orders"],
     }),
     getOrderByUserId: builder.query({
       query: (userId) => (
@@ -50,6 +56,7 @@ export const orderApi = baseApi.injectEndpoints({
 
 export const {
   useGetOrdersQuery,
+  useGetMySalesQuery,
   useCreateOrderMutation,
   useGetOrderByUserIdQuery,
   useUpdateOrderMutation,

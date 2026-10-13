@@ -7,7 +7,7 @@ import { orderValidations } from "./order.validation";
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const validatedPayload = orderValidations.createOrderSchema.parse(req.body);
-  const result = await orderServices.createOrder(validatedPayload);
+  const result = await orderServices.createOrder(validatedPayload, req.user);
 
   sendResponse(res, {
     statusCode: 201,
@@ -24,7 +24,7 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
 const getOrder = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.orderId;
   //console.log("order id___",orderId);
-  const result = await orderServices.getOrderById(orderId);
+  const result = await orderServices.getOrderById(orderId, req.user);
   sendResponse(res, {
     statusCode: 200,
     message: "Order fetched successfully",
@@ -46,11 +46,11 @@ const getOrders = catchAsync(async (req: Request, res: Response) => {
 
 // Controller to delete an order by ID
 const deleteOrder = catchAsync(async (req: Request, res: Response) => {
-  const orderId = req.params.id;
-  const result = await orderServices.deleteOrderById(orderId);
+  const orderId = req.params.orderId;
+  const result = await orderServices.deleteOrderById(orderId, req.user);
   sendResponse(res, {
     statusCode: 200,
-    message: "Order deleted successfully",
+    message: "Order cancelled successfully",
     success: true,
     data: result,
   });
@@ -60,7 +60,11 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
 const updateOrder = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.orderId;
   const updateData = req.body;
-  const result = await orderServices.updateOrderById(orderId, updateData);
+  const result = await orderServices.updateOrderById(
+    orderId,
+    updateData,
+    req.user
+  );
   sendResponse(res, {
     statusCode: 200,
     message: "Order updated successfully",
@@ -72,7 +76,7 @@ const updateOrder = catchAsync(async (req: Request, res: Response) => {
 const getOrdersByUserId = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.userid;
   //console.log(userId, "get orders by user id");
-  const result = await orderServices.getOrdersByUserId(userId);
+  const result = await orderServices.getOrdersByUserId(userId, req.user);
   sendResponse(res, {
     statusCode: 200,
     message: "Orders fetched successfully",
@@ -81,7 +85,18 @@ const getOrdersByUserId = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMySales = catchAsync(async (req: Request, res: Response) => {
+  const result = await orderServices.getSalesBySeller(req.user.id);
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Sales fetched successfully",
+    success: true,
+    data: result,
+  });
+});
+
 export const orderController = {
+  getMySales,
   createOrder,
   getOrder,
   getOrders,

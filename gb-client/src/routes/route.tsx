@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "../components/layouts/MainLayout";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
@@ -12,10 +12,14 @@ import Blogs from "../pages/blog/blogs";
 import Products from "../pages/books/new_products";
 import BookDetails from "../pages/books/ProductDetails";
 import ShoppingCart from "../pages/cart/ShoppingCart";
-import Checkout from "../pages/payment/Checkout";
-import PaymentMain from "../pages/payment/PaymentMain";
+import ForgotPassword from "../pages/login/ForgotPassword";
 import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
 import CgpaCalculator from "../pages/tools/cgpa-calculator/CgpaCalculator";
+import ToolsLayout from "../pages/tools/ToolsLayout";
+import ToolsHub from "../pages/tools/ToolsHub";
+import TargetCgpa from "../pages/tools/TargetCgpa";
+import AttendanceCalculator from "../pages/tools/AttendanceCalculator";
+import FocusTimer from "../pages/tools/FocusTimer";
 import FAQ from "../pages/faq/FAQ";
 import ContactUs from "../pages/contact/ContactUs";
 import AboutUs from "../pages/about/AboutUs";
@@ -76,28 +80,29 @@ const router = createBrowserRouter([
                     <ShoppingCart />
                 </PrivateRoute>
             },
+            // Checkout happens on the cart page; these old URLs just forward there.
             {
                 path: '/checkout',
-                element: <PrivateRoute>
-                    <Checkout />
-                </PrivateRoute>
+                element: <Navigate to="/cart" replace />
             },
             {
                 path: '/checkout/payment',
-                element: <PrivateRoute>
-                    <PaymentMain />
-                </PrivateRoute>
-            }, {
-                path: '/success',
-                element: <h1 className="mt-24 py-4 bg-green-600"> Payment successful</h1>
+                element: <Navigate to="/cart" replace />
             },
             {
                 path: '/exam-suggestions',
                 element: <ExamSuggestions />
             },
             {
-                path: '/tools/cgpa-calculator',
-                element: <CgpaCalculator />
+                path: '/tools',
+                element: <ToolsLayout />,
+                children: [
+                    { index: true, element: <ToolsHub /> },
+                    { path: 'cgpa-calculator', element: <CgpaCalculator /> },
+                    { path: 'target-cgpa', element: <TargetCgpa /> },
+                    { path: 'attendance', element: <AttendanceCalculator /> },
+                    { path: 'focus-timer', element: <FocusTimer /> },
+                ]
             }
         ]
     },
@@ -110,18 +115,30 @@ const router = createBrowserRouter([
         element: <PrivateRoute>
             <Dashboard />
         </PrivateRoute>,
-        children: routeGenerator(userPaths)
+        children: [
+            { index: true, element: <Navigate to="/user/dashboard" replace /> },
+            ...routeGenerator(userPaths),
+            // "History" was replaced by the Sales page.
+            { path: 'history', element: <Navigate to="/user/sales" replace /> },
+        ]
     },
     {
         path: '/admin',
-        element: <PrivateRoute>
+        element: <PrivateRoute roles={["admin", "superAdmin"]}>
             <Dashboard />
         </PrivateRoute>,
-        children: routeGenerator(adminPaths)
+        children: [
+            { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+            ...routeGenerator(adminPaths),
+        ]
     },
     {
         path: '/login',
         element: <Login />
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPassword />
     },
     {
         path: '/signup',

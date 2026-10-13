@@ -52,7 +52,8 @@
 
 @font-face {
   font-family: "Apercu Bold";
-  src: url("../src/assets/fonts/Apercu\ Pro\ Bold.otf") format("opentype");
+  src: url("/fonts/ApercuPro-Bold.otf") format("opentype");
+  font-display: swap;
   font-weight: 900;
   font-style: normal;
 }
@@ -60,6 +61,7 @@
 @font-face {
   font-family: "Apercu Medium";
   src: url("/fonts/ApercuPro-Medium.otf") format("opentype");
+  font-display: swap;
   font-weight: 500;
   font-style: normal;
 }
@@ -67,6 +69,7 @@
 @font-face {
   font-family: "Apercu Regular";
   src: url("/fonts/ApercuPro-Regular.otf") format("opentype");
+  font-display: swap;
   font-weight: normal;
   font-style: normal;
 }
@@ -159,5 +162,35 @@
 
   .custom-scrollbar:hover::-webkit-scrollbar-thumb {
     background-color: #d1d5db;
+  }
+}
+/* Home page category ticker. The track is rendered twice, so sliding it by
+   exactly its own width loops seamlessly. */
+@keyframes gb-marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.gb-marquee__track {
+  animation: gb-marquee 40s linear infinite;
+}
+
+.gb-marquee:hover .gb-marquee__track,
+.gb-marquee:focus-within .gb-marquee__track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-marquee {
+    overflow-x: auto;
+  }
+
+  .gb-marquee__track {
+    animation: none;
+  }
+
+  .gb-marquee__track[aria-hidden="true"] {
+    display: none;
   }
 }

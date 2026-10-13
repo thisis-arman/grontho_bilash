@@ -1,4 +1,7 @@
+import httpStatus from "http-status";
 import config from "../../config";
+import AppError from "../../errors/AppError";
+import { otpServices } from "../otp/otp.services";
 import { User } from "../user/user.model";
 import { TLoginUser } from "./auth.interface";
 import { createToken, verifyToken } from "./auth.utils";
@@ -7,8 +10,10 @@ const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist
   const user = await User.isUserExistsByEmail(payload.email);
 
+  // Same message for "no such user" and "wrong password" so the login form
+  // cannot be used to discover registered emails.
   if (!user) {
-    throw new Error("This user is not found !");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
   }
   // checking if the user is already deleted
 
@@ -29,7 +34,7 @@ const loginUser = async (payload: TLoginUser) => {
   //checking if the password is correct
 
   if (!(await User.isPasswordMatched(payload?.password, user?.password)))
-    throw new Error("Password do not matched");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
 
   //create token and sent to the  client
 
@@ -59,7 +64,15 @@ const loginUser = async (payload: TLoginUser) => {
 };
 
 const refreshToken =async (token: string) => {
-  const decoded = verifyToken(token, config.jwt_refresh_secret as string);
+  let decoded;
+  try {
+    decoded = verifyToken(token, config.jwt_refresh_secret as string);
+  } catch {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Your session has expired. Please log in again."
+    );
+  }
   const { email, iat } = decoded;
 
   // checking if the user is exist
@@ -86,7 +99,8 @@ const refreshToken =async (token: string) => {
     const jwtPayload = {
       email: user.email,
       role: user.role,
-      id:user._id
+      id: user._id,
+      name: user.name,
     };
 
     const accessToken = createToken(
@@ -124,8 +138,40 @@ const changePassword = async (email: string, oldPassword: string, newPassword: s
   await (user as any).save();
 };
 
+const forgotPassword = async (email: string) => {
+  const user = await User.isUserExistsByEmail(email);
+  if (!user || user.isDeleted || user.status === "blocked") return;
+
+  await otpServices.createAndSendOtp(email);
+};
+
+const resetPassword = async (
+  email: string,
+  otp: string | number,
+  newPassword: string
+) => {
+  const user = await User.isUserExistsByEmail(email);
+  const result =
+    user && !user.isDeleted && user.status !== "blocked"
+      ? await otpServices.verifyOtp(email, otp)
+      : null;
+
+  if (!user || !result?.verified) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired code");
+  }
+
+  // The code is single-use.
+  await otpServices.consumeVerifiedEmail(email);
+
+  (user as any).password = newPassword;
+  (user as any).passwordChangedAt = new Date();
+  await (user as any).save();
+};
+
 export const authServices = {
   loginUser,
   refreshToken,
-  changePassword
+  changePassword,
+  forgotPassword,
+  resetPassword,
 };

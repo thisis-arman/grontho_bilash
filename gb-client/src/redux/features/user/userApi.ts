@@ -9,6 +9,7 @@ export const userApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["Users"],
     }),
     getUsers: builder.query({
       query: () => {

@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "../../lib/utils";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+import { IconChevronDown, IconMenu2, IconX } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 import {
   motion,
   AnimatePresence,
@@ -26,6 +27,8 @@ interface NavItemsProps {
   items: {
     name: string;
     link: string;
+    // Optional sub-links shown in a dropdown under the item.
+    children?: { name: string; link: string; icon?: React.ReactNode }[];
   }[];
   className?: string;
   onItemClick?: () => void;
@@ -125,21 +128,57 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
       )}
     >
       {items.map((item, idx) => (
-        <a
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+        // "group" drives the dropdown: it opens on hover and on keyboard focus.
+        <div
           key={`link-${idx}`}
-          href={item.link}
+          className="group relative"
+          onMouseEnter={() => setHovered(idx)}
         >
-          {hovered === idx && (
-            <motion.div
-              layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-md border bg-gray-100 dark:bg-neutral-800"
-            />
+          <Link
+            onClick={onItemClick}
+            className="relative flex items-center gap-1 px-4 py-2 text-neutral-600 dark:text-neutral-300"
+            to={item.link}
+            aria-haspopup={item.children ? "true" : undefined}
+          >
+            {hovered === idx && (
+              <motion.div
+                layoutId="hovered"
+                className="absolute inset-0 h-full w-full rounded-md border bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800"
+              />
+            )}
+            <span className="relative z-20">{item.name}</span>
+            {item.children && (
+              <IconChevronDown
+                size={14}
+                aria-hidden="true"
+                className="relative z-20 transition-transform duration-200 group-hover:rotate-180"
+              />
+            )}
+          </Link>
+
+          {item.children && (
+            <div className="invisible absolute left-1/2 top-full z-[70] w-72 -translate-x-1/2 pt-3 opacity-0 transition duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+              <ul className="rounded-2xl border border-neutral-200 bg-white p-2 shadow-xl dark:border-neutral-800 dark:bg-neutral-950">
+                {item.children.map((child) => (
+                  <li key={child.link}>
+                    <Link
+                      to={child.link}
+                      onClick={onItemClick}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
+                    >
+                      {child.icon && (
+                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400">
+                          {child.icon}
+                        </span>
+                      )}
+                      {child.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
-          <span className="relative z-20">{item.name}</span>
-        </a>
+        </div>
       ))}
     </motion.div>
   );

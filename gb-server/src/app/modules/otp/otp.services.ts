@@ -1,80 +1,106 @@
-import { Otp } from "./otp.interface";
-import { OtpModel } from "./otp.model";
+import httpStatus from "http-status";
 import crypto from "crypto"; // For generating random OTP
+import AppError from "../../errors/AppError";
+import { OtpModel } from "./otp.model";
 import { sendEmail } from "./otp.utils";
+
+const MAX_OTP_REQUESTS_PER_HOUR = 10;
+const OTP_VALIDITY_MINUTES = 5;
+const MAX_VERIFY_ATTEMPTS = 5;
+// How long a verified email stays usable for the follow-up step (sign-up form).
+const VERIFIED_WINDOW_MINUTES = 30;
 
 // Function to generate a random OTP
 export const generateOtp = (): number => {
-  return crypto.randomInt(100000, 999999); // A 6-digit OTP
+  return crypto.randomInt(100000, 1000000); // A 6-digit OTP
 };
 
 // OTP creation and sending logic with request limits
 const createAndSendOtp = async (email: string) => {
-  const maxOtpRequests = 10; // Maximum OTP requests per hour
-  const otpValidityDuration = 5; // OTP validity in minutes
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-  // Calculate the timestamp for one hour ago to find recent OTPs
-  const oneHourAgo = new Date();
-  oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-
-  // Find recent OTPs for this email within the last hour
-  const recentOtps = await OtpModel.find({
+  const recentCount = await OtpModel.countDocuments({
     email,
     createdAt: { $gte: oneHourAgo },
   });
 
-  // Check if the request limit is reached
-  if (recentOtps.length >= maxOtpRequests) {
-    throw new Error(
+  if (recentCount >= MAX_OTP_REQUESTS_PER_HOUR) {
+    throw new AppError(
+      httpStatus.TOO_MANY_REQUESTS,
       "You have reached the maximum OTP request limit. Please try again later."
     );
   }
 
-  // Invalidate previous OTPs by marking them as verified (or you can delete them)
-  await OtpModel.updateMany({ email, verified: false }, { verified: true });
+  // Invalidate previous unused codes. They are expired rather than deleted
+  // so they still count toward the hourly limit above.
+  await OtpModel.updateMany(
+    { email, verified: false },
+    { expiresAt: new Date(0) }
+  );
 
-  // Generate a new OTP
   const otp = generateOtp();
+  const expiresAt = new Date(Date.now() + OTP_VALIDITY_MINUTES * 60 * 1000);
 
-  // Set expiry time for the new OTP (e.g., 5 minutes from now)
-  const expiresAt = new Date();
-  expiresAt.setMinutes(expiresAt.getMinutes() + otpValidityDuration);
+  await OtpModel.create({ email, otp, expiresAt, verified: false });
 
-  // Send OTP via email
+  // Throws if the mail could not be sent, so the client never shows
+  // "code sent" for a code that will not arrive.
   await sendEmail(email, otp);
 
-  // Save the new OTP to the database
-  const otpCreated = await OtpModel.create({
-    email,
-    otp,
-    expiresAt,
-    verified: false,
-  });
-
-  return otpCreated;
+  // The code itself must never leave the server except by email.
+  return { email, expiresAt };
 };
 
 // OTP verification logic with latest OTP validation
-const verifyOtp = async (email: string, otp: number): Promise<Otp | null> => {
-  // Find the most recent OTP entry for the email
-  //console.log({email,otp},"services");
+const verifyOtp = async (email: string, otp: number | string) => {
   const otpEntry = await OtpModel.findOne({ email, verified: false }).sort({
     createdAt: -1,
   });
-  //console.log({otpEntry});
 
-  if (!otpEntry || otpEntry.otp !== otp || otpEntry.expiresAt < new Date()) {
-    return null; // Invalid OTP
+  if (!otpEntry || otpEntry.expiresAt < new Date()) {
+    return null;
   }
 
-  // Mark OTP as verified
+  if (otpEntry.attempts >= MAX_VERIFY_ATTEMPTS) {
+    throw new AppError(
+      httpStatus.TOO_MANY_REQUESTS,
+      "Too many wrong attempts. Please request a new code."
+    );
+  }
+
+  if (otpEntry.otp !== Number(otp)) {
+    otpEntry.attempts += 1;
+    await otpEntry.save();
+    return null;
+  }
+
   otpEntry.verified = true;
+  otpEntry.verifiedAt = new Date();
   await otpEntry.save();
 
-  return otpEntry;
+  return { email, verified: true };
+};
+
+// Used by sign-up: the email must have been verified recently. The proof is
+// single-use, so it is removed once consumed.
+const consumeVerifiedEmail = async (email: string) => {
+  const since = new Date(Date.now() - VERIFIED_WINDOW_MINUTES * 60 * 1000);
+  const entry = await OtpModel.findOneAndDelete({
+    email,
+    verified: true,
+    verifiedAt: { $gte: since },
+  });
+
+  if (!entry) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Please verify your email with the code we sent before continuing."
+    );
+  }
 };
 
 export const otpServices = {
   createAndSendOtp,
   verifyOtp,
+  consumeVerifiedEmail,
 };

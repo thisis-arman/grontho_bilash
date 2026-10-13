@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import config from "../../config";
+import AppError from "../../errors/AppError";
 
 export const sendEmail = async (email: string, otp: number) => {
   // Configure the mailer
@@ -45,9 +46,12 @@ export const sendEmail = async (email: string, otp: number) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    //console.log("Email sent: " + info.response);
+    await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending email:", error);
+    throw new AppError(
+      502,
+      "We could not send the verification email. Please try again in a moment."
+    );
   }
 };

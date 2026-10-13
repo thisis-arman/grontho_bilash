@@ -1,15 +1,26 @@
 // otp.controllers.ts
-import { Request, Response } from "express";
-import { otpServices } from "./otp.services";
+import httpStatus from "http-status";
+import { z } from "zod";
+import AppError from "../../errors/AppError";
+import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
+import { User } from "../user/user.model";
+import { otpServices } from "./otp.services";
 
-// Controller for creating OTP
-const createOtp = async (req: Request, res: Response) => {
-  const { email } = req.body;
+const emailSchema = z.string().trim().email("Please enter a valid email address");
 
-  //console.log({ email });
+// Controller for creating OTP (sign-up email verification)
+const createOtp = catchAsync(async (req, res) => {
+  const email = emailSchema.parse(req.body?.email);
+
+  if (await User.isUserExistsByEmail(email)) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "An account with this email already exists. Please log in."
+    );
+  }
+
   const result = await otpServices.createAndSendOtp(email);
-  //console.log({ result });
 
   sendResponse(res, {
     statusCode: 200,
@@ -17,32 +28,24 @@ const createOtp = async (req: Request, res: Response) => {
     message: "OTP sent Successful ",
     data: result,
   });
-};
+});
 
 // Controller for verifying OTP
-const verifyOtp = async (req: Request, res: Response) => {
-  const { email, otp } = req.body;
-  //console.log({email,otp});
+const verifyOtp = catchAsync(async (req, res) => {
+  const email = emailSchema.parse(req.body?.email);
+  const result = await otpServices.verifyOtp(email, req.body?.otp);
 
-  // Call the service to verify the OTP
-  const result = await otpServices.verifyOtp(email, otp);
-
-  //console.log(result ,'controllers');
   if (!result?.verified) {
-    sendResponse(res, {
-      statusCode: 401,
-      success: false,
-      message: "invalid OTP ",
-      data: result,
-    });
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired OTP");
   }
+
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: "OTP Verified Successfully ",
     data: result,
   });
-};
+});
 
 export const otpControllers = {
   createOtp,

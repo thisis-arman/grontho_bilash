@@ -12,18 +12,22 @@ router.post(
   validateRequest(authValidationsSchema.loginValidationSchema),
   authControllers.loginUser
 );
-router.post(
-  "/refresh-token",
-  validateRequest(authValidationsSchema.refreshTokenValidationSchema),
-  authControllers.refreshToken
-);
+// The refresh token travels in an httpOnly cookie, not the body.
+router.post("/refresh-token", authControllers.refreshToken);
 router.post(
   "/forgot-password",
-  authControllers.refreshToken
+  validateRequest(authValidationsSchema.forgotPasswordValidationSchema),
+  authControllers.forgotPassword
+);
+router.post(
+  "/reset-password",
+  validateRequest(authValidationsSchema.resetPasswordValidationSchema),
+  authControllers.resetPassword
 );
 router.post(
   "/change-password",
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  validateRequest(authValidationsSchema.changePasswordValidationSchema),
   authControllers.changePassword
 );
 

@@ -1,12 +1,11 @@
 import express from "express";
-import validateRequest from "../../middlewares/validateRequest";
 import { orderController } from "./order.controllers";
-import { zodValidationSchema } from "../book/book.validation";
-import { orderValidations } from "./order.validation";
 import { Auth } from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.interface";
 
 const router = express.Router();
+
+const anyUser = Auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin);
 
 router.get(
   "/",
@@ -14,19 +13,19 @@ router.get(
   orderController.getOrders
 );
 
-router.post(
-  "/create-order",
-  validateRequest(orderValidations.createOrderSchema),
-  orderController.createOrder
-);
+// Payload is validated in the controller (the schema uses .refine(), which
+// validateRequest's AnyZodObject signature does not accept).
+router.post("/create-order", anyUser, orderController.createOrder);
 
-router.patch("/:orderId", orderController.updateOrder);
+router.get("/my-sales", anyUser, orderController.getMySales);
 
-router.get("/:orderId", orderController.getOrder);
+// Ownership is enforced in the service for everything below.
+router.get("/orderbyuserid/:userid", anyUser, orderController.getOrdersByUserId);
 
-router.get("/orderbyuserid/:userid", orderController.getOrdersByUserId);
+router.get("/:orderId", anyUser, orderController.getOrder);
 
-router.delete("/:orderId", orderController.deleteOrder);
+router.patch("/:orderId", anyUser, orderController.updateOrder);
 
+router.delete("/:orderId", anyUser, orderController.deleteOrder);
 
 export const orderRoutes = router;

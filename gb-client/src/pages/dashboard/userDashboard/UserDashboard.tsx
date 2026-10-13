@@ -1,184 +1,167 @@
-import React from 'react';
+import { Link } from "react-router-dom";
+import { BookOpen, HandCoins, Plus, ShoppingBag, Truck, Wallet } from "lucide-react";
 import { useGetBooksByEmailQuery } from "../../../redux/features/book/bookApi";
 import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
-import { useGetOrderByUserIdQuery } from "../../../redux/features/order/orderApi";
+import { useGetMySalesQuery, useGetOrderByUserIdQuery } from "../../../redux/features/order/orderApi";
 import { useAppSelector } from "../../../redux/hooks";
-import ReuseableCard from "./components/ReuseableCard";
-import { Link } from "react-router-dom";
 import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from 'recharts';
-import { BookOpen, Wallet, ShoppingBag, Clock } from 'lucide-react';
+    btn,
+    EmptyState,
+    formatDate,
+    LoadingRows,
+    money,
+    OrderStatusBadge,
+    PageHeader,
+    Panel,
+    StatCard,
+    StatGrid,
+} from "../../../components/dashboard/ui";
+
+const ACTIVE_ORDER = ["pending", "confirmed", "shipped"];
+
+interface LineItem { bookTitle: string }
+interface OrderSummary { _id: string; orderId: string; createdAt: string; orderStatus: string; totalAmount: number; books: LineItem[] }
+interface SaleSummary { _id: string; orderId: string; createdAt: string; orderStatus: string; itemsTotal: number; items: LineItem[] }
+interface ListingSummary { isPublished: boolean; stockStatus: string }
+
+const viewAll = "text-sm font-semibold text-amber-600 hover:text-amber-700";
 
 const UserDashboard = () => {
     const { id, email, name } = useAppSelector(selectCurrentUser) as TUser;
 
-    const { data: orderData, isLoading: isLoadingOrders } = useGetOrderByUserIdQuery(id);
-    const { data: bookData, isLoading: isLoadingBooks } = useGetBooksByEmailQuery(email);
+    const { data: orderData, isLoading: ordersLoading } = useGetOrderByUserIdQuery(id);
+    const { data: bookData, isLoading: booksLoading } = useGetBooksByEmailQuery(email);
+    const { data: salesData, isLoading: salesLoading } = useGetMySalesQuery(undefined);
 
-    const orders = orderData?.data || [];
-    const books = bookData?.data || [];
+    const orders: OrderSummary[] = orderData?.data ?? [];
+    const listings: ListingSummary[] = bookData?.data ?? [];
+    const sales: SaleSummary[] = salesData?.data ?? [];
 
-    const totalSpentAmount = orders.reduce((acc: number, data: any) => acc + data.totalAmount, 0).toFixed(2);
-    const pendingOrders = orders.filter((order: any) => order.orderStatus === 'Pending' || order.orderStatus === 'Processing');
+    // Cancelled orders were never paid for or earned from, so they are left
+    // out of the money figures.
+    const spent = orders
+        .filter((order) => order.orderStatus !== "cancelled")
+        .reduce((sum, order) => sum + (order.totalAmount ?? 0), 0);
+    const earned = sales
+        .filter((sale) => sale.orderStatus !== "cancelled")
+        .reduce((sum, sale) => sum + (sale.itemsTotal ?? 0), 0);
+    const activeOrders = orders.filter((order) => ACTIVE_ORDER.includes(order.orderStatus)).length;
+    const liveListings = listings.filter(
+        (listing) => listing.isPublished && listing.stockStatus !== "Out of Stock"
+    ).length;
 
-    // Chart Data Preparation (Group by Date or use Sequence)
-    const chartData = orders.map((order: any, idx: number) => ({
-        name: `Order ${idx + 1}`,
-        amount: order.totalAmount,
-    }));
-
-    if (isLoadingOrders || isLoadingBooks) {
-        return (
-            <div className="flex justify-center items-center h-[50vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
+    const loadingValue = "…";
 
     return (
-        <div className="min-h-screen bg-gray-50/50 ">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <>
+            <PageHeader
+                title={`Hello, ${name?.split(" ")[0] || "there"}`}
+                desc="Your buying and selling at a glance."
+                action={
+                    <Link to="/user/add-product" className={btn.primary}>
+                        <Plus size={16} aria-hidden="true" /> Sell a book
+                    </Link>
+                }
+            />
 
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h1 className="text-xl md:text-3xl font-bold tracking-tight text-gray-900">
-                            Welcome back, {name || 'User'}! 👋
-                        </h1>
-                        <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-500">
-                            Here is what's happening with your bookstore account today.
-                        </p>
-                    </div>
-                </div>
-                {/* KPI Cards */}
-                <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                    <ReuseableCard
-                        title="Total Spent"
-                        amount={`৳ ${totalSpentAmount}`}
-                        icon={<Wallet className="w-full h-full" />}
-                        stat={totalSpentAmount > 0 ? `৳ ${totalSpentAmount}` : 'No spending yet'}
-                        trend={totalSpentAmount > 0 ? 'up' : 'neutral'}
-                    />
-                    <ReuseableCard
-                        title="Total Orders"
-                        amount={orders.length}
-                        icon={<ShoppingBag className="w-full h-full" />}
-                        stat={orders.length > 0 ? `${orders.length} placed` : 'No orders yet'}
-                        trend={orders.length > 0 ? 'up' : 'neutral'}
-                    />
-                    <ReuseableCard
-                        title="In Progress"
-                        amount={pendingOrders.length}
-                        icon={<Clock className="w-full h-full" />}
-                        stat={pendingOrders.length > 0 ? 'Action needed' : 'All clear'}
-                        trend={pendingOrders.length > 0 ? 'down' : 'up'}
-                    />
-                    <ReuseableCard
-                        title="Books Owned"
-                        amount={books.length}
-                        icon={<BookOpen className="w-full h-full" />}
-                        stat={books.length > 0 ? `${books.length} listed` : 'No books yet'}
-                        trend={books.length > 0 ? 'up' : 'neutral'}
-                    />
-                </section>
+            <StatGrid>
+                <StatCard
+                    label="Orders on the way"
+                    value={ordersLoading ? loadingValue : activeOrders}
+                    icon={Truck}
+                    hint={`${orders.length} placed in total`}
+                />
+                <StatCard label="Total spent" value={ordersLoading ? loadingValue : money(spent)} icon={Wallet} hint="Excludes cancelled orders" />
+                <StatCard
+                    label="Live listings"
+                    value={booksLoading ? loadingValue : liveListings}
+                    icon={BookOpen}
+                    hint={`${listings.length} listed in total`}
+                />
+                <StatCard
+                    label="Sales value"
+                    value={salesLoading ? loadingValue : money(earned)}
+                    icon={HandCoins}
+                    hint={`${sales.length} order${sales.length === 1 ? "" : "s"} received`}
+                />
+            </StatGrid>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
-                    {/* Main Chart */}
-                    <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-                        <div className="mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Spending Overview</h2>
-                            <p className="text-sm text-gray-500">Your total spending across recent orders.</p>
-                        </div>
-                        <div className="h-[300px] w-full">
-                            {chartData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart
-                                        data={chartData}
-                                        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                                    >
-                                        <defs>
-                                            <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#e5c046ff" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#e5e546ff" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dx={-10} tickFormatter={(value) => `৳ ${value}`} />
-                                        <Tooltip
-                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                            formatter={(value: any) => [`৳ ${value}`, 'Amount']}
-                                        />
-                                        <Area type="monotone" dataKey="amount" stroke="#e59346ff" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-gray-400">
-                                    No order data available yet to display graph.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Recent Orders List Component */}
-                    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col">
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-                                <p className="text-sm text-gray-500">Your last 5 transactions</p>
-                            </div>
-                            <Link to="/user/my-orders" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
-                                View all
-                            </Link>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                            <div className="space-y-4">
-                                {orders.slice(0, 5).map((order: any, idx: number) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-50">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-semibold">
-                                                #{order.orderId ? order.orderId.substring(0, 3) : idx}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                                                    {order.books?.[0]?.bookTitle || 'Book Order'} {order.books?.length > 1 ? `+${order.books.length - 1} more` : ''}
-                                                </p>
-                                                <p className="text-xs text-gray-500 mt-0.5">
-                                                    {new Date(order.createdAt || Date.now()).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-semibold text-gray-900">৳ {order.totalAmount}</p>
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-1
-                                                ${order.orderStatus === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
-                                                    order.orderStatus === 'Pending' ? 'bg-amber-100 text-amber-800' :
-                                                        'bg-blue-100 text-blue-800'}`}>
-                                                {order.orderStatus || 'Pending'}
-                                            </span>
-                                        </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+                <Panel
+                    title="Recent orders"
+                    flush
+                    action={<Link to="/user/my-orders" className={viewAll}>View all</Link>}
+                >
+                    {ordersLoading ? (
+                        <LoadingRows rows={3} />
+                    ) : orders.length === 0 ? (
+                        <EmptyState
+                            icon={ShoppingBag}
+                            title="No orders yet"
+                            desc="Books you order will show up here."
+                            action={<Link to="/books" className={btn.secondary}>Browse books</Link>}
+                        />
+                    ) : (
+                        <ul className="divide-y divide-stone-100">
+                            {orders.slice(0, 5).map((order) => (
+                                <li key={order._id} className="flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-stone-900">
+                                            {order.books?.[0]?.bookTitle || "Order"}
+                                            {order.books?.length > 1 && ` +${order.books.length - 1} more`}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-stone-500">
+                                            {order.orderId} · {formatDate(order.createdAt)}
+                                        </p>
                                     </div>
-                                ))}
-                                {orders.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 text-sm">
-                                        You haven't placed any orders yet.
+                                    <div className="flex flex-shrink-0 flex-col items-end gap-1">
+                                        <span className="text-sm font-bold text-stone-900">{money(order.totalAmount)}</span>
+                                        <OrderStatusBadge status={order.orderStatus} />
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Panel>
 
+                <Panel
+                    title="Recent sales"
+                    flush
+                    action={<Link to="/user/sales" className={viewAll}>View all</Link>}
+                >
+                    {salesLoading ? (
+                        <LoadingRows rows={3} />
+                    ) : sales.length === 0 ? (
+                        <EmptyState
+                            icon={HandCoins}
+                            title="No sales yet"
+                            desc="When someone orders one of your listings, it will appear here."
+                            action={<Link to="/user/add-product" className={btn.secondary}>List a book</Link>}
+                        />
+                    ) : (
+                        <ul className="divide-y divide-stone-100">
+                            {sales.slice(0, 5).map((sale) => (
+                                <li key={sale._id} className="flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-stone-900">
+                                            {sale.items?.[0]?.bookTitle || "Sale"}
+                                            {sale.items?.length > 1 && ` +${sale.items.length - 1} more`}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-stone-500">
+                                            {sale.orderId} · {formatDate(sale.createdAt)}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-shrink-0 flex-col items-end gap-1">
+                                        <span className="text-sm font-bold text-stone-900">{money(sale.itemsTotal)}</span>
+                                        <OrderStatusBadge status={sale.orderStatus} />
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Panel>
             </div>
-        </div>
+        </>
     );
 };
 

@@ -29,7 +29,11 @@ const CheckoutPage = () => {
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "bkash">("cod");
 
     // Dynamic Constants
-    const SHIPPING_COST = shippingArea === "inside" ? 70 : 130;
+    // Each seller ships their own parcel, so delivery is charged once per
+    // seller. This mirrors how the server prices the order.
+    const SHIPPING_RATE = shippingArea === "inside" ? 70 : 130;
+    const parcelCount = new Set(cartItems.map((item) => item.seller ?? item.book)).size;
+    const SHIPPING_COST = SHIPPING_RATE * parcelCount;
     const BKASH_MARCHENT_NUMBER = "01883-350118";
 
     // Calculations
@@ -65,7 +69,7 @@ const CheckoutPage = () => {
             if (response.success) {
                 toast.success("Order Placed Successfully!");
                 dispatch(clearCart());
-                //     navigate('/order-confirmation');
+                if (user?.role === "user") navigate('/user/my-orders');
             } else {
                 toast.error(response.message);
             }
@@ -222,7 +226,7 @@ const CheckoutPage = () => {
                                     <span>৳{subtotal}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-600 text-sm">
-                                    <span>Shipping ({shippingArea})</span>
+                                    <span>Shipping ({shippingArea}{parcelCount > 1 ? `, ${parcelCount} sellers` : ""})</span>
                                     <span>৳{SHIPPING_COST}</span>
                                 </div>
                                 <div className="pt-4 border-t flex justify-between items-center">

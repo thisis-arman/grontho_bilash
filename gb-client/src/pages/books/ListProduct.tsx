@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppSelector } from '../../redux/hooks';
+import type { RootState } from '../../redux/store';
+import { API_BASE_URL } from '../../config/api';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { useGetCategoriesQuery } from '../../redux/features/category/categoryApi';
 import { useCreateProductMutation } from '../../redux/features/book/bookApi';
@@ -54,6 +56,7 @@ const selectCls = `${inputCls} appearance-none cursor-pointer`;
 
 const AddProduct = () => {
   const { id } = useAppSelector(selectCurrentUser) as TUser;
+  const token = useAppSelector((state: RootState) => state.auth.token);
 
   // ── Step Navigation State ──────────────────────────────────────────────────
   const [step, setStep] = useState<number>(1);
@@ -194,7 +197,7 @@ const AddProduct = () => {
       setFaculties([]);
       return;
     }
-    fetch(`https://grontho-bilash-server.vercel.app/api/v1/level?level=${selectedLevel}`)
+    fetch(`${API_BASE_URL}/level?level=${selectedLevel}`)
       .then(r => r.json())
       .then(d => setFaculties(d?.data?.faculties || []))
       .catch(console.error);
@@ -205,7 +208,7 @@ const AddProduct = () => {
       setDepartments([]);
       return;
     }
-    fetch(`https://grontho-bilash-server.vercel.app/api/v1/faculty?facultyId=${selectedFaculty}`)
+    fetch(`${API_BASE_URL}/faculty?facultyId=${selectedFaculty}`)
       .then(r => r.json())
       .then(d => setDepartments(d?.data?.departments || []))
       .catch(console.error);
@@ -256,10 +259,12 @@ const AddProduct = () => {
     const uploadData = new FormData();
     uploadData.append("image", file);
     try {
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^(192\.168\.|10\.|172\.)/.test(window.location.hostname);
-      const uploadUrl = isLocal ? `http://${window.location.hostname}:5000/api/v1/books/upload` : 'https://grontho-bilash-server.vercel.app/api/v1/books/upload';
-      const response = await axios.post(uploadUrl, uploadData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      if (file.size > 4 * 1024 * 1024) {
+        toast.error("Image is too large. Please choose one under 4 MB.");
+        return;
+      }
+      const response = await axios.post(`${API_BASE_URL}/books/upload`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data", Authorization: token ?? "" },
       });
       const updated = [...productImages];
       updated[slotIndex] = response.data.url;
@@ -536,7 +541,7 @@ const AddProduct = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 py-2 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-stone-50 py-2">
       <div className="max-w-4xl mx-auto">
 
         {/* ── Page Header & Step Tracker ── */}

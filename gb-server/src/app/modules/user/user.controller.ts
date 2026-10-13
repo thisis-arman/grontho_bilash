@@ -7,26 +7,21 @@ const createUser = catchAsync(async (req, res) => {
   //console.log(req.body);
   const result = await userServices.createUserIntoDB(req.body);
   //console.log(result);
-  if (result) {
-    sendResponse(res, {
-      success: true,
-      statusCode: 200,
-      message: "User created successfully",
-      data: result,
-    });
-  }
-
   sendResponse(res, {
-    success: false,
-    statusCode: 500,
-    message: "Failed to create User",
+    success: true,
+    statusCode: 200,
+    message: "User created successfully",
     data: result,
   });
 });
 const getMe = catchAsync(async (req, res) => {
   const email = req.params.email;
   //console.log("req______",req.params.email)
-  const result = await userServices.getLoggedInUserFromDB(email);
+  const result = await userServices.getLoggedInUserFromDB(
+    email,
+    req.user.email,
+    req.user.role
+  );
 
   //console.log("result---",result);
 

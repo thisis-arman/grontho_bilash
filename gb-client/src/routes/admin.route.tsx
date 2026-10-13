@@ -1,47 +1,58 @@
-
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  ShoppingBag, 
-  UserCircle 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  ShoppingBag,
+  UserCircle
 } from "lucide-react";
-import AdminDashboard from "../pages/dashboard/adminDashboard/AdminDashboard";
-import AdminProfile from "../pages/dashboard/adminDashboard/AdminProfile";
-import OrderManagement from "../pages/dashboard/adminDashboard/OrderManagement";
-import ProductManagement from "../pages/dashboard/adminDashboard/ProductManagement";
-import UserManagement from "../pages/dashboard/adminDashboard/UserManagement";
+import { lazy } from "react";
 
-export const adminPaths = [
+// Loaded on demand; see user.route.tsx.
+const AdminDashboard = lazy(() => import("../pages/dashboard/adminDashboard/AdminDashboard"));
+const OrderManagement = lazy(() => import("../pages/dashboard/adminDashboard/OrderManagement"));
+const ProductManagement = lazy(() => import("../pages/dashboard/adminDashboard/ProductManagement"));
+const UserManagement = lazy(() => import("../pages/dashboard/adminDashboard/UserManagement"));
+const ProfilePage = lazy(() => import("../pages/dashboard/ProfilePage"));
+
+export interface DashboardPath {
+  name: string;
+  // Shorter label for the phone tab bar.
+  shortName?: string;
+  path: string;
+  icon: JSX.Element;
+  element: JSX.Element;
+}
+
+// The first four entries are the ones shown in the phone tab bar.
+export const adminPaths: DashboardPath[] = [
   {
-    name: "Dashboard",
+    name: "Overview",
     path: "dashboard",
     icon: <LayoutDashboard size={18} />,
     element: <AdminDashboard />,
   },
   {
-    name: "User Management",
-    path: "user-management",
-    icon: <Users size={18} />,
-    element: <UserManagement />,
-  },
-  {
-    name: "Product Management",
-    path: "product-management",
-    icon: <BookOpen size={18} />,
-    element: <ProductManagement />,
-  },
-  {
-    name: "Order Management",
+    name: "Orders",
     path: "order-management",
     icon: <ShoppingBag size={18} />,
     element: <OrderManagement />,
   },
   {
+    name: "Products",
+    path: "product-management",
+    icon: <BookOpen size={18} />,
+    element: <ProductManagement />,
+  },
+  {
+    name: "Users",
+    path: "user-management",
+    icon: <Users size={18} />,
+    element: <UserManagement />,
+  },
+  {
     name: "Profile",
     path: "admin-profile",
     icon: <UserCircle size={18} />,
-    element: <AdminProfile />,
+    element: <ProfilePage />,
   },
 ];
-

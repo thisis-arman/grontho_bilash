@@ -10,6 +10,11 @@ import { z } from 'zod';
 import { ProductModel } from '../book/product.model';
 import { sendEmailAboutOrderDetailtoSystemAdmin } from './order.utils';
 import { USER_ROLE } from '../user/user.interface';
+import { isAdminRole } from '../../middlewares/auth';
+
+type TRequester = { id?: string; email?: string; role?: string };
+
+const SAFE_USER_FIELDS = "name email contactNo";
 
 
 
@@ -20,6 +25,16 @@ import { USER_ROLE } from '../user/user.interface';
 type CheckoutBookItem = z.infer<
   typeof orderValidations.createOrderSchema
 >["books"][number];
+
+// A line item after it has been re-read from the database.
+type TrustedLineItem = {
+  book: string;
+  bookTitle: string;
+  productImage: string;
+  seller: string;
+  price: number;
+  quantity: number;
+};
 
 // ─────────────────────────────────────────────────────────────
 // Shipping rate table.
@@ -86,17 +101,33 @@ const generateOrderId = async (
 
 const decrementStockForItem = async (
   item: CheckoutBookItem,
+  buyerId: string,
   session: mongoose.ClientSession
-) => {
+): Promise<TrustedLineItem> => {
   const product = await ProductModel.findById(item.book).session(session);
   if (!product) {
-    throw new AppError(404, `Product "${item.bookTitle}" no longer exists`);
+    throw new AppError(404, "A product in your cart no longer exists");
   }
   if (product.isDeleted || !product.isPublished) {
-    throw new AppError(400, `"${item.bookTitle}" is no longer available`);
+    throw new AppError(400, `"${product.title}" is no longer available`);
   }
+  if (String(product.seller) === String(buyerId)) {
+    throw new AppError(400, `You cannot order your own listing "${product.title}"`);
+  }
+
+  // Everything that affects money or routing comes from the database,
+  // never from the cart the browser sent.
+  const lineItem: TrustedLineItem = {
+    book: String(product._id),
+    bookTitle: product.title,
+    productImage: product.images[0],
+    seller: String(product.seller),
+    price: product.price.basePrice,
+    quantity: item.quantity,
+  };
+
   if (product.productType === "Digital") {
-    return; // not quantity-limited
+    return lineItem; // not quantity-limited
   }
 
 
@@ -115,14 +146,44 @@ const decrementStockForItem = async (
   );
 
   if (!updated) {
-    throw new Error("Insufficient stock");
+    throw new AppError(400, `"${product.title}" does not have enough stock left`);
   }
 
   if (updated.inventory.quantity === 0) {
     updated.stockStatus = "Out of Stock";
     await updated.save({ session });
   }
+
+  return lineItem;
 }
+
+// Puts a cancelled order's copies back on the shelf.
+const restockOrderItems = async (
+  order: Pick<TOrder, "books">,
+  session?: mongoose.ClientSession
+) => {
+  for (const item of order.books) {
+    await ProductModel.updateOne(
+      { _id: item.book, productType: "Physical" },
+      [
+        {
+          $set: {
+            "inventory.quantity": { $add: ["$inventory.quantity", item.quantity] },
+            "inventory.soldCount": {
+              $max: [0, { $subtract: ["$inventory.soldCount", item.quantity] }],
+            },
+            stockStatus: {
+              $cond: [{ $eq: ["$stockStatus", "Out of Stock"] }, "In Stock", "$stockStatus"],
+            },
+          },
+        },
+      ],
+      { session }
+    );
+  }
+};
+
+const ACTIVE_ORDER_STATUSES = ["pending", "confirmed"];
 // ─────────────────────────────────────────────────────────────
 // Group cart items by seller. Map key is the seller's ObjectId
 // as a string (Mongo ObjectIds aren't directly usable as Map
@@ -130,9 +191,9 @@ const decrementStockForItem = async (
 // ─────────────────────────────────────────────────────────────
 
 const groupBooksBySeller = (
-  books: CheckoutBookItem[]
-): Map<string, CheckoutBookItem[]> => {
-  const groups = new Map<string, CheckoutBookItem[]>();
+  books: TrustedLineItem[]
+): Map<string, TrustedLineItem[]> => {
+  const groups = new Map<string, TrustedLineItem[]>();
   for (const item of books) {
     const sellerKey = item.seller.toString();
     const existing = groups.get(sellerKey);
@@ -161,9 +222,21 @@ const groupBooksBySeller = (
 // you're on standalone Mongo.
 // ─────────────────────────────────────────────────────────────
 
-const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
-  const sellerGroups = groupBooksBySeller(payload.books);
+const createOrder = async (
+  payload: CheckoutPayload,
+  requester: TRequester
+): Promise<TOrder[]> => {
+  const buyerId = String(requester.id);
   const shippingRate = SHIPPING_RATES[payload.shippingArea];
+
+  // The same product may appear on several cart lines; merge them so stock
+  // is checked against the real total.
+  const mergedCart = new Map<string, CheckoutBookItem>();
+  for (const item of payload.books) {
+    const existing = mergedCart.get(item.book);
+    if (existing) existing.quantity += item.quantity;
+    else mergedCart.set(item.book, { ...item });
+  }
 
   const session = await mongoose.startSession();
 
@@ -175,11 +248,20 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
     //    aborts before any order document is created — so a cart
     //    with 3 sellers where only the 3rd is out of stock never
     //    creates orders 1 and 2 either.
-    for (const [, items] of sellerGroups) {
-      for (const item of items) {
-        await decrementStockForItem(item, session);
-      }
+    const trustedItems: TrustedLineItem[] = [];
+    for (const item of mergedCart.values()) {
+      trustedItems.push(await decrementStockForItem(item, buyerId, session));
     }
+    const sellerGroups = groupBooksBySeller(trustedItems);
+
+    const digitalIds = new Set(
+      (
+        await ProductModel.find(
+          { _id: { $in: trustedItems.map((i) => i.book) }, productType: "Digital" },
+          { _id: 1 }
+        ).session(session)
+      ).map((doc) => String(doc._id))
+    );
 
     // 2. Build and validate one order document per seller group.
     const createdOrders: TOrder[] = [];
@@ -189,7 +271,10 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
         (sum, item) => sum + item.price * item.quantity,
         0
       );
-      const shippingCost = shippingRate;
+      // Digital-only parcels have nothing to ship.
+      const shippingCost = items.every((i) => digitalIds.has(i.book))
+        ? 0
+        : shippingRate;
       const totalAmount = lineItemsTotal + shippingCost;
 
       const orderId = await generateOrderId(session);
@@ -200,7 +285,7 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
       const orderDocForValidation = {
         orderId,
         books: items,
-        buyer: payload.buyer,
+        buyer: buyerId,
         phoneNumber: payload.phoneNumber,
         email: payload.email,
         deliveryAddress: payload.deliveryAddress,
@@ -231,18 +316,30 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
     }
 
     // 3. Insert all orders together in this transaction.
-    const inserted = await OrderModel.create(createdOrders, { session });
+    const inserted = await OrderModel.create(createdOrders, {
+      session,
+      ordered: true,
+    });
 
     await session.commitTransaction();
 
-    const allAdmins = await User.find({ role: { $in: [USER_ROLE.admin, USER_ROLE.superAdmin] } });
+    // Notification is best-effort: the order is already committed, so a mail
+    // problem must not turn a successful checkout into an error (which would
+    // also hit abortTransaction on an already-committed session).
+    try {
+      const allAdmins = await User.find({
+        role: { $in: [USER_ROLE.admin, USER_ROLE.superAdmin] },
+        isDeleted: false,
+      });
+      const adminEmails = allAdmins.map((admin) => admin.email);
 
-    const adminEmails = allAdmins.map((admin) => admin.email);
-    //console.log({ adminEmails })
-
-    // Send email for each created order (one email per order)
-    for (const order of createdOrders) {
-      await sendEmailAboutOrderDetailtoSystemAdmin(adminEmails, order);
+      if (adminEmails.length) {
+        for (const order of createdOrders) {
+          await sendEmailAboutOrderDetailtoSystemAdmin(adminEmails, order);
+        }
+      }
+    } catch (mailError) {
+      console.error("Order notification failed:", mailError);
     }
 
 
@@ -252,7 +349,7 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
 
     return inserted;
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) await session.abortTransaction();
     throw error;
   } finally {
     await session.endSession();
@@ -261,56 +358,34 @@ const createOrder = async (payload: CheckoutPayload): Promise<TOrder[]> => {
 
 
 
-// Service to get an order by ID
-const getOrderById = async (orderId: string) => {
-  //console.log("order id", { orderId });
+// Loads an order and checks the requester may see it: the buyer, a seller
+// with a book in it, or an admin.
+const getAccessibleOrder = async (orderId: string, requester: TRequester) => {
   if (!Types.ObjectId.isValid(orderId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
   }
 
-  const order = await OrderModel.aggregate([
-    { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
-    {
-      $lookup: {
-        from: "products",
-        let: { bookIds: "$books.book" },
-        pipeline: [
-          { $match: { $expr: { $in: ["$_id", "$$bookIds"] } } },
-          { $project: { title: 1, price: 1, _id: 1, productType: 1, digitalDetails: 1 } }
-        ],
-        as: "book_details"
-      }
-    },
-    {
-      $lookup: {
-        from: "products",
-        localField: "books.book",
-        foreignField: "_id",
-        as: "product_details",
-      },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "buyer",
-        foreignField: "_id",
-        as: "bought_by",
-      },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "seller",
-        foreignField: "_id",
-        as: "sold_by",
-      },
-    },
-  ]);
-
+  const order = await OrderModel.findOne({ _id: orderId, isDeleted: false });
   if (!order) {
     throw new AppError(httpStatus.NOT_FOUND, "Order not found");
   }
 
+  const isBuyer = String(order.buyer) === String(requester.id);
+  const isSeller = order.books.some(
+    (item) => String(item.seller) === String(requester.id)
+  );
+  if (!isBuyer && !isSeller && !isAdminRole(requester.role)) {
+    throw new AppError(httpStatus.FORBIDDEN, "You cannot access this order");
+  }
+
+  return { order, isBuyer };
+};
+
+// Service to get an order by ID
+const getOrderById = async (orderId: string, requester: TRequester) => {
+  const { order } = await getAccessibleOrder(orderId, requester);
+  await order.populate("buyer", SAFE_USER_FIELDS);
+  await order.populate("books.book", "title slug images price productType");
   return order;
 };
 
@@ -321,11 +396,15 @@ const getOrdersFromDB = async () => {
         isDeleted: false,
       },
     },
+    { $sort: { createdAt: -1 } },
     {
       $lookup: {
         from: "users",
         localField: "buyer",
         foreignField: "_id",
+        // $lookup returns raw documents, so strip everything but the
+        // contact fields here (password hashes must never be sent).
+        pipeline: [{ $project: { name: 1, email: 1, contactNo: 1 } }],
         as: "bought_by",
       },
     },
@@ -336,15 +415,50 @@ const getOrdersFromDB = async () => {
 // Update an order by ID
 const updateOrderById = async (
   orderId: string,
-  updateData: Partial<TOrder>
+  updateData: Partial<TOrder>,
+  requester: TRequester
 ) => {
-
-  //console.log({ orderId, updateData });
-  if (!Types.ObjectId.isValid(orderId)) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
-  }
+  const { order, isBuyer } = await getAccessibleOrder(orderId, requester);
+  const isAdmin = isAdminRole(requester.role);
 
   const validatedData = orderValidations.updateOrderSchema.parse(updateData);
+
+  if (!isAdmin) {
+    if (!isBuyer) {
+      throw new AppError(httpStatus.FORBIDDEN, "You cannot change this order");
+    }
+    if (order.orderStatus !== "pending" || order.paymentStatus === "paid") {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "This order can no longer be changed. Please contact support."
+      );
+    }
+    // A buyer may fix delivery details or cancel; nothing else.
+    if (
+      validatedData.paymentStatus !== undefined ||
+      (validatedData.orderStatus !== undefined &&
+        validatedData.orderStatus !== "cancelled")
+    ) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not allowed to change the order or payment status"
+      );
+    }
+  }
+
+  const isCancelling =
+    validatedData.orderStatus === "cancelled" &&
+    order.orderStatus !== "cancelled";
+  const isReopening =
+    order.orderStatus === "cancelled" &&
+    validatedData.orderStatus !== undefined &&
+    validatedData.orderStatus !== "cancelled";
+  if (isReopening) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "A cancelled order cannot be reopened. Please place a new order."
+    );
+  }
 
   const updatedOrder = await OrderModel.findByIdAndUpdate(
     orderId,
@@ -355,44 +469,100 @@ const updateOrderById = async (
     }
   );
 
-  if (!updatedOrder) {
-    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  if (isCancelling) {
+    await restockOrderItems(order);
   }
 
   return updatedOrder;
 };
 
-// Service to delete an order by ID
-const deleteOrderById = async (orderId: string) => {
-  if (!Types.ObjectId.isValid(orderId)) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid order ID");
+// "Deleting" an order cancels it. A buyer can cancel their own order while
+// it is still pending; an admin can remove any order from the list.
+const deleteOrderById = async (orderId: string, requester: TRequester) => {
+  const { order, isBuyer } = await getAccessibleOrder(orderId, requester);
+  const isAdmin = isAdminRole(requester.role);
+
+  if (!isAdmin) {
+    if (!isBuyer) {
+      throw new AppError(httpStatus.FORBIDDEN, "You cannot cancel this order");
+    }
+    if (order.orderStatus !== "pending" || order.paymentStatus === "paid") {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "This order can no longer be cancelled. Please contact support."
+      );
+    }
   }
 
-  const deletedOrder = await OrderModel.findByIdAndDelete(orderId);
+  const wasActive = ACTIVE_ORDER_STATUSES.includes(order.orderStatus);
 
-  if (!deletedOrder) {
-    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  const deletedOrder = await OrderModel.findByIdAndUpdate(
+    orderId,
+    {
+      ...(wasActive ? { orderStatus: "cancelled" } : {}),
+      // Admin removal hides the order; a buyer's cancellation stays visible
+      // to both sides as "cancelled".
+      ...(isAdmin ? { isDeleted: true } : {}),
+    },
+    { new: true }
+  );
+
+  if (wasActive) {
+    await restockOrderItems(order);
   }
 
   return deletedOrder;
 };
 
-const getOrdersByUserId = async (userId: string) => {
+const getOrdersByUserId = async (userId: string, requester: TRequester) => {
   if (!Types.ObjectId.isValid(userId)) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
   }
 
-  const isValid = await User.findOne({ _id: userId });
-  if (!isValid) {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  if (String(userId) !== String(requester.id) && !isAdminRole(requester.role)) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only view your own orders"
+    );
   }
 
-  const orders = await OrderModel.find({ buyer: userId }).populate("buyer").populate("books.book");
+  const orders = await OrderModel.find({ buyer: userId, isDeleted: false })
+    .sort({ createdAt: -1 })
+    .populate("buyer", SAFE_USER_FIELDS)
+    .populate("books.book");
 
   return orders;
 };
 
+// Orders that contain the seller's listings. Only that seller's own line
+// items are returned, and no buyer contact details: delivery is handled by
+// the platform, so a seller does not need them.
+const getSalesBySeller = async (sellerId: string) => {
+  const orders = await OrderModel.find({
+    "books.seller": sellerId,
+    isDeleted: false,
+  })
+    .sort({ createdAt: -1 })
+    .lean<(TOrder & { _id: Types.ObjectId; createdAt: Date })[]>();
+
+  return orders.map((order) => {
+    const items = order.books.filter(
+      (item) => String(item.seller) === String(sellerId)
+    );
+    return {
+      _id: order._id,
+      orderId: order.orderId,
+      createdAt: order.createdAt,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      items,
+      itemsTotal: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    };
+  });
+};
+
 export const orderServices = {
+  getSalesBySeller,
   createOrder,
   getOrderById,
   updateOrderById,

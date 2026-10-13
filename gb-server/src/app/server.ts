@@ -2,7 +2,7 @@ import app from "./app";
 import config from "./config";
 import mongoose from "mongoose"; // Use import instead of require
 
-const port = process.env.PORT || 3000;
+const port = config.port || 5000;
 
 async function main() {
   try {
@@ -12,8 +12,8 @@ async function main() {
     //console.log("Connected to MongoDB!");
 
     // Start the Express app
-    app.listen(5000, () => {
-      //console.log(`Server is running on port ${5000}`);
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
     console.error("Failed to connect to MongoDB", error);

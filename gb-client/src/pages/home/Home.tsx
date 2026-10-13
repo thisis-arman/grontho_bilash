@@ -3,210 +3,115 @@ import {
     useEffect,
     useRef,
     useState,
-    type CSSProperties,
     type FormEvent,
+    type ReactNode,
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-import {
-    ArrowRight,
-    BookOpen,
-    ShieldCheck,
-    Users,
-    Zap,
-    Search,
-    ChevronRight,
-    MapPin,
-    PackageX,
-    Star,
-    TrendingUp,
-    Package,
-} from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 
 import { useGetProductsQuery } from "../../redux/features/book/bookApi";
 import { IProduct } from "../../types/interface";
+import { TOOLS } from "../tools/toolsList";
 
 /* ==========================================================================
-   STATIC DATA
+   STATIC CONTENT
    ========================================================================== */
 
-const features = [
+const heroFacts = [
+    { value: "৳০", label: "লিস্টিং ফি, কোনো লুকানো চার্জ নেই" },
+    { value: "৳৭০ থেকে", label: "ডেলিভারি চার্জ" },
+    { value: "COD ও বিকাশ", label: "পেমেন্টের উপায়" },
+    { value: "বই ও নোট", label: "ফিজিক্যাল এবং ডিজিটাল" },
+];
+
+const benefits = [
     {
-        icon: BookOpen,
-        title: "ফিজিক্যাল ও ডিজিটাল",
-        desc: "পুরনো বই কেনো অথবা সাথে সাথে ডিজিটাল কপি ডাউনলোড করো।",
+        title: "নতুন বইয়ের চেয়ে কম খরচ",
+        desc: "সিনিয়রদের ব্যবহার করা বই সরাসরি তাদের কাছ থেকে কেনো। একই বই, কম দাম।",
     },
     {
-        icon: ShieldCheck,
-        title: "নিরাপদ লেনদেন",
-        desc: "প্রতিটি অর্ডারে প্ল্যাটফর্ম-নিয়ন্ত্রিত শিপিং ও নিরাপদ পেমেন্ট।",
+        title: "শেলফের বই থেকে আয়",
+        desc: "পড়া শেষ? ছবি তুলে দাম বসিয়ে লিস্ট করো। লিস্টিং সম্পূর্ণ ফ্রি, কোনো লুকানো ফি নেই।",
     },
     {
-        icon: Zap,
-        title: "সহজ লিস্টিং",
-        desc: "২ মিনিটের মধ্যে বই লিস্ট করো, হাজারো শিক্ষার্থীর কাছে পৌঁছাও।",
+        title: "ডেলিভারি নিয়ে ভাবতে হবে না",
+        desc: "অর্ডার হলে শিপিং ও পেমেন্ট প্ল্যাটফর্মই সামলায়। ক্যাশ অন ডেলিভারি বা বিকাশ, যেটা তোমার সুবিধা।",
     },
     {
-        icon: Users,
-        title: "শিক্ষার্থীদের কমিউনিটি",
-        desc: "বাংলাদেশের প্রতিটি প্রতিষ্ঠানের শিক্ষার্থীদের জন্য, শিক্ষার্থীদের তৈরি।",
+        title: "বইয়ের সাথে নোটও",
+        desc: "ফিজিক্যাল বইয়ের পাশাপাশি ডিজিটাল নোট ও রিসোর্সও এক জায়গায় পাওয়া যায়।",
+    },
+];
+
+const journeys = [
+    {
+        label: "কিনতে চাইলে",
+        cta: { text: "বই খুঁজো", to: "/books" },
+        steps: [
+            { title: "খুঁজো", desc: "বইয়ের নাম, লেখক বা ক্যাটাগরি দিয়ে দরকারি বইটা বের করো।" },
+            { title: "অর্ডার করো", desc: "ব্যাগে যোগ করে ঠিকানা দাও, ক্যাশ অন ডেলিভারি বা বিকাশ বেছে নাও।" },
+            { title: "হাতে পাও", desc: "বই পৌঁছে যাবে তোমার ঠিকানায়। ড্যাশবোর্ড থেকে অর্ডারের অবস্থা দেখো।" },
+        ],
+    },
+    {
+        label: "বেচতে চাইলে",
+        cta: { text: "বই লিস্ট করো", to: "/user/add-product" },
+        steps: [
+            { title: "অ্যাকাউন্ট খোলো", desc: "ইমেইল যাচাই করে ফ্রি অ্যাকাউন্ট বানাও।" },
+            { title: "লিস্ট করো", desc: "বইয়ের ছবি, অবস্থা আর দাম দাও। কয়েক মিনিটের কাজ।" },
+            { title: "বিক্রি করো", desc: "অর্ডার এলে শিপিং ও পেমেন্ট প্ল্যাটফর্ম সামলায়, তুমি টাকা বুঝে নাও।" },
+        ],
     },
 ];
 
 const categories = [
-    { label: "একাডেমিক", emoji: "🎓", slug: "Academic" },
-    { label: "কল্পকাহিনী", emoji: "📖", slug: "Fiction" },
-    { label: "বিজ্ঞান", emoji: "🔬", slug: "Science" },
-    { label: "প্রযুক্তি", emoji: "💻", slug: "Technology" },
-    { label: "সেলফ-হেল্প", emoji: "🌱", slug: "Self-Help" },
-    { label: "ব্যবসা", emoji: "📊", slug: "Business" },
-    { label: "ধর্মীয়", emoji: "🕌", slug: "Religion" },
-    { label: "শিশুতোষ", emoji: "🧸", slug: "Children" },
+    { label: "একাডেমিক", slug: "Academic" },
+    { label: "কল্পকাহিনী", slug: "Fiction" },
+    { label: "বিজ্ঞান", slug: "Science" },
+    { label: "প্রযুক্তি", slug: "Technology" },
+    { label: "সেলফ-হেল্প", slug: "Self-Help" },
+    { label: "ব্যবসা", slug: "Business" },
+    { label: "ধর্মীয়", slug: "Religion" },
+    { label: "শিশুতোষ", slug: "Children" },
 ];
 
-const spines = [
-    {
-        title: "Atomic Habits",
-        color: "bg-amber-400",
-        height: 176,
-        width: 38,
-        rotate: -2,
-    },
-    {
-        title: "Clean Code",
-        color: "bg-sky-500",
-        height: 204,
-        width: 34,
-        rotate: 1,
-    },
-    {
-        title: "Calculus Vol. II",
-        color: "bg-emerald-500",
-        height: 150,
-        width: 42,
-        rotate: -1,
-    },
-    {
-        title: "Physics Fundamentals",
-        color: "bg-rose-400",
-        height: 190,
-        width: 38,
-        rotate: 2,
-    },
-    {
-        title: "Deep Work",
-        color: "bg-orange-400",
-        height: 216,
-        width: 38,
-        rotate: -1,
-    },
-    {
-        title: "Zero to One",
-        color: "bg-teal-500",
-        height: 136,
-        width: 34,
-        rotate: 1,
-    },
-];
-
-/* ==========================================================================
-   CONSTANTS
-   ========================================================================== */
-
-const PRICE_FORMATTER = new Intl.NumberFormat("en-BD");
-
-const belowFoldStyle: CSSProperties = {
-    contentVisibility: "auto",
-    containIntrinsicSize: "1px 700px",
-};
+const tools = TOOLS.map((tool) => ({
+    title: tool.title,
+    desc: tool.desc,
+    to: tool.path,
+}));
 
 /* ==========================================================================
    HELPERS
    ========================================================================== */
 
-const formatPrice = (price: number) => {
-    return `৳${PRICE_FORMATTER.format(price)}`;
-};
+const PRICE_FORMATTER = new Intl.NumberFormat("en-BD");
+const BN_NUMBER_FORMATTER = new Intl.NumberFormat("bn-BD");
 
-const getDiscountPercent = (
-    basePrice: number,
-    discountPrice?: number
-) => {
-    if (
-        !discountPrice ||
-        discountPrice <= 0 ||
-        discountPrice >= basePrice
-    ) {
-        return null;
-    }
+const formatPrice = (price: number) => `৳${PRICE_FORMATTER.format(price)}`;
 
-    return Math.round(
-        ((basePrice - discountPrice) / basePrice) * 100
-    );
-};
+// "০১", "০২" ... for section and row numbering.
+const bnIndex = (n: number) =>
+    BN_NUMBER_FORMATTER.format(n).padStart(2, "০");
 
-const getRemainingStock = (product: IProduct) => {
-    const quantity = product.inventory?.quantity ?? 0;
-    const sold = product.inventory?.soldCount ?? 0;
-
-    return quantity - sold;
+// basePrice is what the buyer pays. discountPrice holds the earlier, higher
+// price and is only worth showing (crossed out) when it really is higher.
+const getOriginalPrice = (product: IProduct) => {
+    const { basePrice, discountPrice } = product.price;
+    return discountPrice > basePrice ? discountPrice : null;
 };
 
 const isOutOfStock = (product: IProduct) => {
-    if (
-        product.stockStatus &&
-        product.stockStatus !== "In Stock"
-    ) {
-        return true;
-    }
-
-    if (product.productType === "Digital") {
-        return false;
-    }
-
-    return getRemainingStock(product) <= 0;
+    if (product.stockStatus === "Out of Stock") return true;
+    if (product.productType === "Digital") return false;
+    return (product.inventory?.quantity ?? 0) <= 0;
 };
 
-const isLowStock = (product: IProduct) => {
-    if (
-        product.productType === "Digital" ||
-        isOutOfStock(product)
-    ) {
-        return false;
-    }
-
-    const remaining = getRemainingStock(product);
-
-    return remaining > 0 && remaining <= 3;
-};
-
-/* ==========================================================================
-   CLOUDINARY IMAGE OPTIMIZER
-
-   Example:
-
-   Original:
-   https://res.cloudinary.com/xxx/image/upload/book.jpg
-
-   Output:
-   https://res.cloudinary.com/xxx/image/upload/f_auto,q_auto:eco,w_360,c_limit/book.jpg
-   ========================================================================== */
-
-const optimizeCloudinaryImage = (
-    url: string,
-    width = 360
-) => {
-    if (!url) {
+const optimizeCloudinaryImage = (url: string, width = 360) => {
+    if (!url || !url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) {
         return url;
     }
-
-    if (
-        !url.includes("res.cloudinary.com") ||
-        !url.includes("/image/upload/")
-    ) {
-        return url;
-    }
-
     return url.replace(
         "/image/upload/",
         `/image/upload/f_auto,q_auto:eco,w_${width},c_limit/`
@@ -214,590 +119,519 @@ const optimizeCloudinaryImage = (
 };
 
 const getProductImageSrcSet = (url: string) => {
-    if (
-        !url ||
-        !url.includes("res.cloudinary.com") ||
-        !url.includes("/image/upload/")
-    ) {
+    if (!url || !url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) {
         return undefined;
     }
-
-    return [
-        `${optimizeCloudinaryImage(url, 240)} 240w`,
-        `${optimizeCloudinaryImage(url, 360)} 360w`,
-        `${optimizeCloudinaryImage(url, 480)} 480w`,
-    ].join(", ");
+    return [240, 360, 480]
+        .map((w) => `${optimizeCloudinaryImage(url, w)} ${w}w`)
+        .join(", ");
 };
 
-/* ==========================================================================
-   NEAR-VIEWPORT HOOK
-
-   Prevents Recent Listings API from competing with the hero during the
-   initial page load.
-
-   The request starts before the section actually becomes visible.
-   ========================================================================== */
-
-const useNearViewport = <T extends HTMLElement>(
-    rootMargin = "700px"
-) => {
+// Defers the listings request until the section is close to the viewport,
+// so it does not compete with the hero on first load.
+const useNearViewport = <T extends HTMLElement>(rootMargin = "700px") => {
     const ref = useRef<T | null>(null);
     const [shouldLoad, setShouldLoad] = useState(false);
 
     useEffect(() => {
-        if (shouldLoad) {
-            return;
-        }
-
+        if (shouldLoad) return;
         const element = ref.current;
+        if (!element) return;
 
-        if (!element) {
-            return;
-        }
-
-        if (
-            typeof window === "undefined" ||
-            !("IntersectionObserver" in window)
-        ) {
+        if (!("IntersectionObserver" in window)) {
             setShouldLoad(true);
             return;
         }
 
         const observer = new IntersectionObserver(
             (entries) => {
-                const entry = entries[0];
-
-                if (entry?.isIntersecting) {
+                if (entries[0]?.isIntersecting) {
                     setShouldLoad(true);
                     observer.disconnect();
                 }
             },
-            {
-                root: null,
-                rootMargin,
-                threshold: 0,
-            }
+            { rootMargin, threshold: 0 }
         );
-
         observer.observe(element);
-
-        return () => {
-            observer.disconnect();
-        };
+        return () => observer.disconnect();
     }, [rootMargin, shouldLoad]);
 
-    return {
-        ref,
-        shouldLoad,
-    };
+    return { ref, shouldLoad };
 };
 
 /* ==========================================================================
-   SECTION LABEL
+   SHARED PIECES
    ========================================================================== */
 
-const SectionLabel = ({
-    text,
+const container = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+// Fade-and-rise on scroll. Renders plain markup when the visitor prefers
+// reduced motion.
+const Reveal = ({
+    children,
+    delay = 0,
+    className,
 }: {
-    text: string;
+    children: ReactNode;
+    delay?: number;
+    className?: string;
 }) => {
+    const reduceMotion = useReducedMotion();
+
+    if (reduceMotion) {
+        return <div className={className}>{children}</div>;
+    }
+
     return (
-        <p className="mb-2 text-xs font-semibold tracking-wide text-amber-600">
-            {text}
-        </p>
+        <motion.div
+            className={className}
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+            transition={{ duration: 0.7, ease: EASE, delay }}
+        >
+            {children}
+        </motion.div>
     );
 };
 
+const SectionHeader = ({
+    index,
+    eyebrow,
+    title,
+    action,
+}: {
+    index: number;
+    eyebrow: string;
+    title: ReactNode;
+    action?: ReactNode;
+}) => (
+    <Reveal className="mb-10 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p className="mb-4 flex items-center gap-3 text-sm text-stone-400">
+                <span className="font-display text-amber-400">{bnIndex(index)}</span>
+                <span className="h-px w-8 bg-white/20" aria-hidden="true" />
+                {eyebrow}
+            </p>
+            <h2 className="max-w-3xl font-display text-3xl font-bold leading-[1.25] text-stone-50 sm:text-4xl lg:text-5xl lg:leading-[1.2]">
+                {title}
+            </h2>
+        </div>
+        {action}
+    </Reveal>
+);
+
+const TextLink = ({ to, children }: { to: string; children: ReactNode }) => (
+    <Link
+        to={to}
+        className="group inline-flex flex-shrink-0 items-center gap-2 border-b border-white/20 pb-1 text-sm font-semibold text-stone-200 transition-colors duration-200 hover:border-amber-400 hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+    >
+        {children}
+        <ArrowRight
+            size={15}
+            aria-hidden="true"
+            className="transition-transform duration-200 group-hover:translate-x-1"
+        />
+    </Link>
+);
+
+const primaryButton =
+    "inline-flex items-center justify-center gap-2 rounded-full bg-amber-400 px-7 py-3.5 text-sm font-bold text-stone-950 transition duration-200 hover:bg-amber-300 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950";
+
+const ghostButton =
+    "inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-7 py-3.5 text-sm font-bold text-stone-100 transition duration-200 hover:border-amber-400 hover:text-amber-400 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400";
+
 /* ==========================================================================
-   SEARCH
-
-   IMPORTANT:
-   Search state lives here instead of Home.
-
-   Typing now rerenders only this component rather than the complete homepage.
+   HERO
    ========================================================================== */
 
 const HeroSearch = () => {
     const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const [searchQuery, setSearchQuery] =
-        useState("");
-
-    const handleSearch = (
-        event: FormEvent<HTMLFormElement>
-    ) => {
+    const handleSearch = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
         const query = searchQuery.trim();
-
-        if (!query) {
-            return;
-        }
-
-        navigate(
-            `/books?search=${encodeURIComponent(query)}`
-        );
+        if (!query) return;
+        navigate(`/books?search=${encodeURIComponent(query)}`);
     };
 
     return (
         <form
             onSubmit={handleSearch}
             role="search"
-            className="mb-6 flex max-w-md items-center gap-2"
+            className="flex w-full max-w-xl items-center gap-3 border-b border-white/25 pb-3 transition-colors duration-200 focus-within:border-amber-400"
         >
-            <div className="relative flex-1">
-                <Search
-                    size={16}
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"
-                />
-
-                <label
-                    htmlFor="home-book-search"
-                    className="sr-only"
-                >
-                    বই বা লেখক খুঁজুন
-                </label>
-
-                <input
-                    id="home-book-search"
-                    type="search"
-                    autoComplete="off"
-                    enterKeyHint="search"
-                    value={searchQuery}
-                    onChange={(event) =>
-                        setSearchQuery(
-                            event.target.value
-                        )
-                    }
-                    placeholder="বই, লেখক খুঁজুন..."
-                    className="
-                        w-full
-                        rounded-xl
-                        border
-                        border-stone-200
-                        bg-white
-                        py-3.5
-                        pl-10
-                        pr-4
-                        text-sm
-                        text-stone-800
-                        outline-none
-                        transition-colors
-                        duration-150
-                        placeholder:text-stone-400
-                        hover:border-stone-300
-                        focus:border-amber-400
-                        focus:ring-2
-                        focus:ring-amber-500/15
-                    "
-                />
-            </div>
-
+            <Search size={20} aria-hidden="true" className="flex-shrink-0 text-stone-500" />
+            <label htmlFor="hero-search" className="sr-only">
+                বই খুঁজো
+            </label>
+            <input
+                id="hero-search"
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="বই, লেখক বা বিষয় লিখে খুঁজো"
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-0 sm:text-lg"
+            />
             <button
                 type="submit"
-                aria-label="Search books"
-                className="
-                    flex
-                    h-12
-                    w-12
-                    flex-shrink-0
-                    items-center
-                    justify-center
-                    rounded-xl
-                    bg-stone-900
-                    text-white
-                    transition-colors
-                    duration-150
-                    hover:bg-amber-500
-                    focus-visible:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-amber-500
-                    focus-visible:ring-offset-2
-                "
+                aria-label="খুঁজো"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-400 text-stone-950 transition duration-200 hover:bg-amber-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
             >
-                <ArrowRight
-                    size={16}
-                    aria-hidden="true"
-                />
+                <ArrowRight size={18} aria-hidden="true" />
             </button>
         </form>
     );
 };
 
-/* ==========================================================================
-   HERO
-   ========================================================================== */
+const HeroSection = () => (
+    <section className="relative overflow-hidden">
+        {/* Soft amber glow; purely decorative. */}
+        <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-40 right-[-10%] h-[36rem] w-[36rem] rounded-full bg-amber-500/10 blur-3xl"
+        />
 
-const HeroSection = () => {
-    return (
-        <section
-            className="
-                relative
-                isolate
-                overflow-hidden
-                bg-[#fdf9f4]
-            "
-        >
-            {/* Lightweight static background */}
-            <div
-                aria-hidden="true"
-                className="
-                    pointer-events-none
-                    absolute
-                    inset-0
-                    opacity-60
-                "
-                style={{
-                    backgroundImage:
-                        "linear-gradient(to right, rgba(231,229,228,.55) 1px, transparent 1px), linear-gradient(to bottom, rgba(231,229,228,.55) 1px, transparent 1px)",
-                    backgroundSize: "40px 40px",
-                }}
-            />
+        <div className={`${container} relative pb-16 pt-14 sm:pb-24 sm:pt-20 lg:pt-28`}>
+            <Reveal>
+                <p className="mb-6 flex items-center gap-3 text-sm text-stone-400 sm:mb-8">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+                    পুরনো বই ও ডিজিটাল নোটের মার্কেটপ্লেস · বাংলাদেশ
+                </p>
+            </Reveal>
 
-            {/* Static radial gradients. No animated blur. */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{
-                    background:
-                        "radial-gradient(circle at 82% 70%, rgba(245,158,11,.18), transparent 28%), radial-gradient(circle at 12% 5%, rgba(168,162,158,.13), transparent 24%), linear-gradient(to bottom, rgba(253,249,244,.15), #fdf9f4 95%)",
-                }}
-            />
+            <Reveal delay={0.05}>
+                <h1 className="font-display text-[clamp(2.6rem,9.5vw,7.5rem)] font-extrabold leading-[1.12] tracking-tight text-stone-50">
+                    কম দামে বই কেনো।
+                    <br />
+                    পড়া শেষে{" "}
+                    <span className="text-amber-400">বেচে দাও।</span>
+                </h1>
+            </Reveal>
 
-            <div
-                className="
-                    relative
-                    mx-auto
-                    grid
-                    max-w-7xl
-                    grid-cols-1
-                    items-center
-                    gap-12
-                    px-4
-                    py-14
-                    sm:px-6
-                    sm:py-16
-                    lg:grid-cols-2
-                    lg:px-8
-                    lg:py-20
-                "
-            >
-                {/* ======================================================
-                    HERO CONTENT
-                   ====================================================== */}
-
-                <div>
-                    <h1
-                        className="
-                            mb-6
-                            max-w-2xl
-                            font-display
-                            text-5xl
-                            font-bold
-                            leading-[1.12]
-                            tracking-tight
-                            text-stone-900
-                            lg:text-6xl
-                            xl:text-7xl
-                        "
-                    >
-                        বই কেনো, বই বেচো,{" "}
-                        <span className="relative inline-block text-amber-500">
-                            কম দামে।
-                            <svg
-                                aria-hidden="true"
-                                viewBox="0 0 200 8"
-                                fill="none"
-                                className="absolute -bottom-1 left-0 w-full"
-                            >
-                                <path
-                                    d="M2 6C40 2 80 1 100 3C120 5 160 6 198 2"
-                                    stroke="#f59e0b"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                        </span>
-                    </h1>
-
-                    <p
-                        className="
-                            mb-3
-                            max-w-md
-                            text-lg
-                            leading-relaxed
-                            text-stone-500
-                        "
-                    >
-                        বাংলাদেশের পুরনো বই ও
-                        ডিজিটাল নোটের মার্কেটপ্লেস।
-                        ইতিমধ্যে ৪,৮০০+ শিক্ষার্থী
-                        এখানে সাশ্রয় করছে।
+            <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:gap-12">
+                <Reveal delay={0.12} className="lg:col-span-6">
+                    <p className="max-w-xl text-base leading-relaxed text-stone-400 sm:text-lg">
+                        গ্রন্থবিলাসে শিক্ষার্থীরা একে অপরের কাছ থেকে পুরনো বই ও নোট
+                        কেনে-বেচে। নতুন বইয়ের খরচ কমাও, আর পড়ে শেষ করা বই থেকে টাকা
+                        ফেরত আনো।
                     </p>
+                </Reveal>
 
-                    <Link
-                        to="/books?type=Digital"
-                        className="
-                            mb-8
-                            inline-flex
-                            items-center
-                            gap-1.5
-                            text-xs
-                            font-bold
-                            text-amber-700
-                            transition-colors
-                            duration-150
-                            hover:text-amber-800
-                        "
-                    >
-                        নতুন — সাথে সাথে ডিজিটাল
-                        ডাউনলোড
-
-                        <ChevronRight
-                            size={12}
-                            aria-hidden="true"
-                        />
-                    </Link>
-
+                <Reveal delay={0.18} className="flex flex-col gap-8 lg:col-span-6">
                     <HeroSearch />
-
-                    <div className="flex flex-wrap items-center gap-3">
-                        <Link
-                            to="/books"
-                            className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-xl
-                                bg-stone-900
-                                px-5
-                                py-2.5
-                                text-sm
-                                font-bold
-                                text-white
-                                shadow-sm
-                                transition
-                                duration-150
-                                hover:-translate-y-0.5
-                                hover:bg-stone-800
-                                focus-visible:outline-none
-                                focus-visible:ring-2
-                                focus-visible:ring-stone-900
-                                focus-visible:ring-offset-2
-                            "
-                        >
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                        <Link to="/books" className={primaryButton}>
                             সব বই দেখো
-
-                            <ArrowRight
-                                size={14}
-                                aria-hidden="true"
-                            />
+                            <ArrowRight size={16} aria-hidden="true" />
                         </Link>
-
-                        <Link
-                            to="/user/add-product"
-                            className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-xl
-                                border
-                                border-stone-300
-                                px-5
-                                py-2.5
-                                text-sm
-                                font-bold
-                                text-stone-700
-                                transition
-                                duration-150
-                                hover:-translate-y-0.5
-                                hover:border-stone-900
-                                hover:text-stone-900
-                                focus-visible:outline-none
-                                focus-visible:ring-2
-                                focus-visible:ring-stone-900
-                                focus-visible:ring-offset-2
-                            "
-                        >
-                            <Zap
-                                size={14}
-                                aria-hidden="true"
-                            />
-
+                        <Link to="/user/add-product" className={ghostButton}>
                             বই বিক্রি করো
                         </Link>
                     </div>
-                </div>
-
-                {/* ======================================================
-                    BOOKSHELF
-
-                    Pure CSS. No mousemove, spring or infinite animation.
-                   ====================================================== */}
-
-                <div
-                    aria-hidden="true"
-                    className="
-                        relative
-                        hidden
-                        min-h-[380px]
-                        items-end
-                        justify-center
-                        lg:flex
-                    "
-                >
-                    <div
-                        className="
-                            pointer-events-none
-                            absolute
-                            bottom-8
-                            h-80
-                            w-80
-                            rounded-full
-                        "
-                        style={{
-                            background:
-                                "radial-gradient(circle, rgba(245,158,11,.22), rgba(245,158,11,0) 68%)",
-                        }}
-                    />
-
-                    <div className="relative flex items-end">
-                        <div className="relative z-10 flex items-end gap-2">
-                            {spines.map(
-                                (spine) => (
-                                    <div
-                                        key={
-                                            spine.title
-                                        }
-                                        className={`
-                                            ${spine.color}
-                                            relative
-                                            cursor-default
-                                            rounded-b-sm
-                                            rounded-t-md
-                                            shadow-lg
-                                            transition-transform
-                                            duration-200
-                                            hover:-translate-y-3
-                                        `}
-                                        style={{
-                                            width: spine.width,
-                                            height: spine.height,
-                                            transform: `rotate(${spine.rotate}deg)`,
-                                        }}
-                                    >
-                                        <div className="absolute inset-x-0 top-3 h-px bg-white/30" />
-
-                                        <div className="absolute inset-x-0 bottom-3 h-px bg-white/30" />
-
-                                        <span
-                                            className="
-                                                absolute
-                                                inset-0
-                                                flex
-                                                select-none
-                                                items-center
-                                                justify-center
-                                                px-1
-                                                text-center
-                                                text-[9px]
-                                                font-bold
-                                                tracking-wide
-                                                text-white/90
-                                            "
-                                            style={{
-                                                writingMode:
-                                                    "vertical-rl",
-                                            }}
-                                        >
-                                            {
-                                                spine.title
-                                            }
-                                        </span>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Shelf ledge */}
-                    <div
-                        className="
-                            absolute
-                            bottom-0
-                            left-1/2
-                            h-3
-                            w-[300px]
-                            -translate-x-1/2
-                            rounded-full
-                            bg-stone-800
-                        "
-                        style={{
-                            boxShadow:
-                                "0 16px 28px rgba(28,25,23,.18)",
-                        }}
-                    />
-
-                    {/* Price card */}
-                    <div
-                        className="
-                            absolute
-                            right-4
-                            top-5
-                            rounded-2xl
-                            border
-                            border-stone-200
-                            bg-white
-                            px-3
-                            py-2
-                            shadow-sm
-                        "
-                    >
-                        <p className="text-[10px] font-semibold leading-none text-stone-400">
-                            শুরু মাত্র
-                        </p>
-
-                        <p className="mt-1 text-sm font-black leading-none text-stone-900">
-                            ৳150
-                        </p>
-                    </div>
-
-                    {/* Book count */}
-                    <div
-                        className="
-                            absolute
-                            bottom-6
-                            left-0
-                            flex
-                            items-center
-                            gap-2
-                            rounded-2xl
-                            border
-                            border-stone-200
-                            bg-white
-                            px-3
-                            py-2
-                            shadow-sm
-                        "
-                    >
-                        <BookOpen
-                            size={14}
-                            className="text-stone-900"
-                        />
-
-                        <div>
-                            <p className="text-sm font-black leading-none text-stone-900">
-                                ১২,০০০+
-                            </p>
-
-                            <p className="mt-0.5 text-[10px] leading-none text-stone-400">
-                                তালিকাভুক্ত বই
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                </Reveal>
             </div>
+
+            <Reveal delay={0.24}>
+                {/* 1px gaps over a tinted background draw the hairlines, so the
+                    dividers stay correct at every column count. */}
+                <dl className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:mt-24 lg:grid-cols-4">
+                    {heroFacts.map((fact) => (
+                        <div
+                            key={fact.label}
+                            className="flex flex-col-reverse justify-end gap-1 bg-stone-950 p-5 sm:p-7"
+                        >
+                            <dt className="text-sm leading-snug text-stone-500">{fact.label}</dt>
+                            <dd className="font-display text-xl font-bold text-stone-50 sm:text-2xl">
+                                {fact.value}
+                            </dd>
+                        </div>
+                    ))}
+                </dl>
+            </Reveal>
+        </div>
+    </section>
+);
+
+/* ==========================================================================
+   CATEGORY TICKER
+   ========================================================================== */
+
+const CategoryTicker = () => {
+    // Rendered twice so the CSS loop is seamless; the copy is hidden from
+    // assistive tech.
+    const row = (hidden: boolean) => (
+        <ul
+            aria-hidden={hidden || undefined}
+            className="gb-marquee__track flex flex-shrink-0 items-center"
+        >
+            {categories.map((category) => (
+                <li key={category.slug} className="flex items-center">
+                    <Link
+                        to={`/books?category=${encodeURIComponent(category.slug)}`}
+                        tabIndex={hidden ? -1 : undefined}
+                        className="px-6 font-display text-3xl font-bold text-stone-700 transition-colors duration-200 hover:text-amber-400 sm:px-10 sm:text-5xl"
+                    >
+                        {category.label}
+                    </Link>
+                    <span className="h-2 w-2 rounded-full bg-amber-400/70" aria-hidden="true" />
+                </li>
+            ))}
+        </ul>
+    );
+
+    return (
+        <div className="gb-marquee flex overflow-hidden border-y border-white/10 py-6 sm:py-8">
+            {row(false)}
+            {row(true)}
+        </div>
+    );
+};
+
+/* ==========================================================================
+   BENEFITS
+   ========================================================================== */
+
+const BenefitsSection = () => (
+    <section className={`${container} py-20 sm:py-28`}>
+        <SectionHeader
+            index={1}
+            eyebrow="কেন গ্রন্থবিলাস"
+            title={
+                <>
+                    বই কেনাবেচায় তোমার{" "}
+                    <span className="text-amber-400">চারটা সুবিধা</span>
+                </>
+            }
+        />
+
+        <div className="grid border-t border-white/10 md:grid-cols-2">
+            {benefits.map((benefit, i) => (
+                <Reveal
+                    key={benefit.title}
+                    delay={(i % 2) * 0.08}
+                    className={`group border-b border-white/10 py-9 sm:py-12 ${
+                        i % 2 === 0 ? "md:border-r md:pr-12" : "md:pl-12"
+                    }`}
+                >
+                    <span className="font-display text-sm text-stone-600 transition-colors duration-300 group-hover:text-amber-400">
+                        {bnIndex(i + 1)}
+                    </span>
+                    <h3 className="mt-4 font-display text-2xl font-bold leading-snug text-stone-50 sm:text-3xl">
+                        {benefit.title}
+                    </h3>
+                    <p className="mt-3 max-w-md leading-relaxed text-stone-400">
+                        {benefit.desc}
+                    </p>
+                </Reveal>
+            ))}
+        </div>
+    </section>
+);
+
+/* ==========================================================================
+   HOW IT WORKS
+   ========================================================================== */
+
+const HowItWorksSection = () => (
+    <section className="border-y border-white/10 bg-stone-900/40">
+        <div className={`${container} py-20 sm:py-28`}>
+            <SectionHeader
+                index={2}
+                eyebrow="কীভাবে কাজ করে"
+                title="তিন ধাপে কেনা, তিন ধাপে বেচা"
+            />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+                {journeys.map((journey, j) => (
+                    <Reveal
+                        key={journey.label}
+                        delay={j * 0.1}
+                        className="flex flex-col rounded-3xl border border-white/10 bg-stone-950 p-7 sm:p-10"
+                    >
+                        <p className="mb-8 inline-flex w-fit items-center rounded-full border border-amber-400/30 px-4 py-1.5 text-sm font-semibold text-amber-400">
+                            {journey.label}
+                        </p>
+
+                        <ol className="flex-1">
+                            {journey.steps.map((step, i) => (
+                                <li
+                                    key={step.title}
+                                    className="flex gap-5 border-t border-white/10 py-6 first:border-t-0 first:pt-0"
+                                >
+                                    <span className="font-display text-sm text-stone-600">
+                                        {bnIndex(i + 1)}
+                                    </span>
+                                    <div>
+                                        <h3 className="font-display text-xl font-bold text-stone-50">
+                                            {step.title}
+                                        </h3>
+                                        <p className="mt-1.5 leading-relaxed text-stone-400">
+                                            {step.desc}
+                                        </p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+
+                        <div className="mt-4">
+                            <TextLink to={journey.cta.to}>{journey.cta.text}</TextLink>
+                        </div>
+                    </Reveal>
+                ))}
+            </div>
+        </div>
+    </section>
+);
+
+/* ==========================================================================
+   RECENT LISTINGS
+   ========================================================================== */
+
+const ProductCard = memo(({ product }: { product: IProduct }) => {
+    const image = product.images?.[0] || "";
+    const originalPrice = getOriginalPrice(product);
+    const outOfStock = isOutOfStock(product);
+    // Some listings point at images that no longer exist; show the plain
+    // tile instead of the browser's broken-image icon.
+    const [imageFailed, setImageFailed] = useState(false);
+
+    return (
+        <article>
+            <Link
+                to={`/products/${product.slug}`}
+                className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-4 focus-visible:ring-offset-stone-950"
+            >
+                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-stone-900">
+                    {image && !imageFailed && (
+                        <img
+                            onError={() => setImageFailed(true)}
+                            src={optimizeCloudinaryImage(image, 360)}
+                            srcSet={getProductImageSrcSet(image)}
+                            sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 200px"
+                            width={360}
+                            height={480}
+                            loading="lazy"
+                            decoding="async"
+                            alt={product.title}
+                            className={`h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04] ${
+                                outOfStock ? "opacity-40 grayscale" : ""
+                            }`}
+                        />
+                    )}
+
+                    <span className="absolute left-3 top-3 rounded-full bg-stone-950/80 px-2.5 py-1 text-[11px] font-semibold text-stone-200 backdrop-blur">
+                        {outOfStock
+                            ? "স্টক শেষ"
+                            : product.productType === "Digital"
+                              ? "ডিজিটাল"
+                              : product.condition}
+                    </span>
+                </div>
+
+                <h3 className="mt-4 line-clamp-2 text-sm font-semibold leading-snug text-stone-100 transition-colors duration-200 group-hover:text-amber-400">
+                    {product.title}
+                </h3>
+
+                {product.bookMetadata?.author && (
+                    <p className="mt-1 line-clamp-1 text-xs text-stone-500">
+                        {product.bookMetadata.author}
+                    </p>
+                )}
+
+                <p className="mt-2 flex items-baseline gap-2 font-display text-base font-bold text-stone-50">
+                    {formatPrice(product.price.basePrice)}
+                    {originalPrice !== null && (
+                        <span className="text-xs font-normal text-stone-500 line-through">
+                            {formatPrice(originalPrice)}
+                        </span>
+                    )}
+                </p>
+            </Link>
+        </article>
+    );
+});
+
+ProductCard.displayName = "ProductCard";
+
+const listingsGrid = "grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-6";
+
+const RecentListingsSection = () => {
+    const { ref, shouldLoad } = useNearViewport<HTMLElement>();
+
+    const { data: productsRes, isLoading, isFetching, isError, refetch } =
+        useGetProductsQuery(
+            { limit: 6, sortBy: "createdAt", sortOrder: "desc" },
+            { skip: !shouldLoad }
+        );
+
+    const recentProducts: IProduct[] = productsRes?.data?.data ?? [];
+    const total: number | undefined = productsRes?.data?.meta?.total;
+
+    const showSkeletons =
+        !shouldLoad || isLoading || (isFetching && recentProducts.length === 0);
+
+    return (
+        <section ref={ref} className={`${container} py-20 sm:py-28`}>
+            <SectionHeader
+                index={3}
+                eyebrow="নতুন সংযোজন"
+                title={
+                    total && total > 6 ? (
+                        <>
+                            এখন তালিকায় আছে{" "}
+                            <span className="text-amber-400">
+                                {BN_NUMBER_FORMATTER.format(total)}টি
+                            </span>{" "}
+                            বই
+                        </>
+                    ) : (
+                        "সদ্য তালিকাভুক্ত বই"
+                    )
+                }
+                action={<TextLink to="/books">সব বই দেখো</TextLink>}
+            />
+
+            {isError ? (
+                <div className="rounded-3xl border border-white/10 px-6 py-12 text-center">
+                    <p className="mb-5 text-stone-400">
+                        নতুন বইগুলো এখন লোড করা যাচ্ছে না।
+                    </p>
+                    <button type="button" onClick={() => refetch()} className={ghostButton}>
+                        আবার চেষ্টা করো
+                    </button>
+                </div>
+            ) : showSkeletons ? (
+                <div aria-label="বই লোড হচ্ছে" className={listingsGrid}>
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} aria-hidden="true">
+                            <div className="aspect-[3/4] animate-pulse rounded-2xl bg-stone-900" />
+                            <div className="mt-4 h-3 w-4/5 rounded bg-stone-900" />
+                            <div className="mt-2 h-3 w-1/3 rounded bg-stone-900" />
+                        </div>
+                    ))}
+                </div>
+            ) : recentProducts.length > 0 ? (
+                <div className={listingsGrid}>
+                    {recentProducts.map((product, i) => (
+                        <Reveal key={product._id} delay={i * 0.05}>
+                            <ProductCard product={product} />
+                        </Reveal>
+                    ))}
+                </div>
+            ) : (
+                <div className="rounded-3xl border border-white/10 px-6 py-12 text-center">
+                    <p className="mb-5 text-stone-400">
+                        এখনো কোনো বই তালিকাভুক্ত হয়নি। প্রথম বইটা তুমিই লিস্ট করো।
+                    </p>
+                    <Link to="/user/add-product" className={primaryButton}>
+                        বই লিস্ট করো
+                    </Link>
+                </div>
+            )}
         </section>
     );
 };
@@ -806,1170 +640,141 @@ const HeroSection = () => {
    CATEGORIES
    ========================================================================== */
 
-const CategoriesSection = () => {
-    return (
-        <section
-            className="bg-stone-50 py-14 sm:py-16"
-            style={belowFoldStyle}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-8 flex items-end justify-between gap-4">
-                    <div>
-                        <SectionLabel text="অন্বেষণ করো" />
+const CategoriesSection = () => (
+    <section className="border-t border-white/10">
+        <div className={`${container} py-20 sm:py-28`}>
+            <SectionHeader
+                index={4}
+                eyebrow="অন্বেষণ করো"
+                title="যে ধরনের বই খুঁজছ"
+            />
 
-                        <h2 className="font-display text-2xl font-bold text-stone-900">
-                            ক্যাটাগরি অনুযায়ী ব্রাউজ
-                            করো
-                        </h2>
-                    </div>
-
-                    <Link
-                        to="/books"
-                        className="
-                            flex
-                            flex-shrink-0
-                            items-center
-                            gap-1
-                            text-sm
-                            font-semibold
-                            text-stone-500
-                            transition-colors
-                            duration-150
-                            hover:text-amber-600
-                        "
-                    >
-                        সব দেখো
-
-                        <ArrowRight
-                            size={14}
-                            aria-hidden="true"
-                        />
-                    </Link>
-                </div>
-
-                <div className="grid grid-cols-4 gap-3 lg:grid-cols-8">
-                    {categories.map(
-                        ({
-                            label,
-                            emoji,
-                            slug,
-                        }) => (
-                            <Link
-                                key={slug}
-                                to={`/books?category=${encodeURIComponent(
-                                    slug
-                                )}`}
-                                className="
-                                    group
-                                    flex
-                                    h-full
-                                    flex-col
-                                    items-center
-                                    gap-2
-                                    rounded-2xl
-                                    border
-                                    border-stone-100
-                                    bg-white
-                                    px-2
-                                    py-5
-                                    transition
-                                    duration-150
-                                    hover:-translate-y-0.5
-                                    hover:border-amber-300
-                                    hover:shadow-sm
-                                    focus-visible:outline-none
-                                    focus-visible:ring-2
-                                    focus-visible:ring-amber-400
-                                "
-                            >
-                                <span
-                                    aria-hidden="true"
-                                    className="text-2xl"
-                                >
-                                    {emoji}
-                                </span>
-
-                                <span
-                                    className="
-                                        text-center
-                                        text-[11px]
-                                        font-semibold
-                                        leading-tight
-                                        text-stone-500
-                                        transition-colors
-                                        group-hover:text-amber-600
-                                    "
-                                >
-                                    {label}
-                                </span>
-                            </Link>
-                        )
-                    )}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-/* ==========================================================================
-   PRODUCT CARD
-   ========================================================================== */
-
-const ProductCard = memo(
-    ({
-        product,
-    }: {
-        product: IProduct;
-    }) => {
-        const discountPercent =
-            getDiscountPercent(
-                product.price.basePrice,
-                product.price.discountPrice
-            );
-
-        const outOfStock =
-            isOutOfStock(product);
-
-        const lowStock =
-            isLowStock(product);
-
-        const remainingStock =
-            getRemainingStock(product);
-
-        const image =
-            product.images?.[0] || "";
-
-        const optimizedImage =
-            optimizeCloudinaryImage(
-                image,
-                360
-            );
-
-        const imageSrcSet =
-            getProductImageSrcSet(image);
-
-        return (
-            <article>
-                <Link
-                    to={`/products/${product.slug}`}
-                    className="
-                        group
-                        flex
-                        h-full
-                        flex-col
-                        overflow-hidden
-                        rounded-2xl
-                        border
-                        border-stone-100
-                        bg-stone-50
-                        transition
-                        duration-150
-                        hover:-translate-y-1
-                        hover:border-amber-200
-                        hover:shadow-md
-                        focus-visible:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-amber-400
-                    "
-                >
-                    <div
-                        className="
-                            relative
-                            aspect-[3/4]
-                            overflow-hidden
-                            bg-stone-200
-                        "
-                    >
-                        {image ? (
-                            <img
-                                src={optimizedImage}
-                                srcSet={
-                                    imageSrcSet
-                                }
-                                sizes="
-                                    (max-width: 639px) 50vw,
-                                    (max-width: 767px) 33vw,
-                                    (max-width: 1023px) 25vw,
-                                    180px
-                                "
-                                width={360}
-                                height={480}
-                                loading="lazy"
-                                decoding="async"
-                                fetchPriority="low"
-                                alt={
-                                    product.title
-                                }
-                                className={`
-                                    h-full
-                                    w-full
-                                    object-cover
-                                    transition-transform
-                                    duration-200
-                                    ${outOfStock
-                                        ? "grayscale opacity-60"
-                                        : "group-hover:scale-[1.03]"
-                                    }
-                                `}
-                            />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center">
-                                <BookOpen
-                                    size={24}
-                                    aria-hidden="true"
-                                    className="text-stone-300"
-                                />
-                            </div>
-                        )}
-
-                        <span
-                            className={`
-                                absolute
-                                right-2
-                                top-2
-                                rounded-md
-                                px-1.5
-                                py-0.5
-                                text-[9px]
-                                font-bold
-                                ${product.productType ===
-                                    "Digital"
-                                    ? "bg-violet-500 text-white"
-                                    : "bg-white/90 text-stone-700"
-                                }
-                            `}
-                        >
-                            {product.productType ===
-                                "Digital"
-                                ? "⚡ ডিজিটাল"
-                                : "📦 ফিজিক্যাল"}
-                        </span>
-
-                        {discountPercent &&
-                            !outOfStock && (
-                                <span
-                                    className="
-                                        absolute
-                                        left-2
-                                        top-2
-                                        rounded-md
-                                        bg-amber-500
-                                        px-1.5
-                                        py-0.5
-                                        text-[9px]
-                                        font-bold
-                                        text-white
-                                        shadow-sm
-                                    "
-                                >
-                                    -
-                                    {
-                                        discountPercent
-                                    }
-                                    %
-                                </span>
-                            )}
-
-                        {outOfStock && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-stone-900/30">
-                                <span
-                                    className="
-                                        flex
-                                        items-center
-                                        gap-1
-                                        rounded-full
-                                        bg-stone-900/80
-                                        px-2.5
-                                        py-1
-                                        text-[10px]
-                                        font-bold
-                                        text-white
-                                    "
-                                >
-                                    <PackageX
-                                        size={11}
-                                        aria-hidden="true"
-                                    />
-
-                                    স্টক নেই
-                                </span>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex flex-1 flex-col gap-1 p-3">
-                        <h3
-                            className="
-                                line-clamp-2
-                                text-xs
-                                font-semibold
-                                leading-snug
-                                text-stone-800
-                                transition-colors
-                                group-hover:text-amber-600
-                            "
-                        >
-                            {product.title}
-                        </h3>
-
-                        {product.bookMetadata
-                            ?.author ? (
-                            <p className="line-clamp-1 text-[10px] text-stone-400">
-                                {
-                                    product
-                                        .bookMetadata
-                                        .author
-                                }
-                            </p>
-                        ) : product.location ? (
-                            <p
-                                className="
-                                    flex
-                                    items-center
-                                    gap-1
-                                    text-[10px]
-                                    text-stone-400
-                                "
-                            >
-                                <MapPin
-                                    size={10}
-                                    aria-hidden="true"
-                                    className="flex-shrink-0"
-                                />
-
-                                <span className="truncate">
-                                    {
-                                        product.location
-                                    }
-                                </span>
-                            </p>
-                        ) : null}
-
-                        {discountPercent &&
-                            product.price
-                                .discountPrice ? (
-                            <div className="mt-1 flex items-center gap-1.5">
-                                <p className="text-sm font-extrabold text-stone-900">
-                                    {formatPrice(
-                                        product
-                                            .price
-                                            .discountPrice
-                                    )}
-                                </p>
-
-                                <p className="text-[10px] text-stone-400 line-through">
-                                    {formatPrice(
-                                        product
-                                            .price
-                                            .basePrice
-                                    )}
-                                </p>
-                            </div>
-                        ) : (
-                            <p className="mt-1 text-sm font-extrabold text-stone-900">
-                                {formatPrice(
-                                    product
-                                        .price
-                                        .basePrice
-                                )}
-                            </p>
-                        )}
-
-                        {((product.condition &&
-                            product.condition !==
-                            "Digital Content") ||
-                            product.price
-                                .isNegotiable ||
-                            lowStock) && (
-                                <div className="mt-0.5 flex flex-wrap items-center gap-1">
-                                    {product.condition &&
-                                        product.condition !==
-                                        "Digital Content" && (
-                                            <span className="rounded-md bg-stone-100 px-1.5 py-0.5 text-[9px] font-semibold text-stone-500">
-                                                {
-                                                    product.condition
-                                                }
-                                            </span>
-                                        )}
-
-                                    {product.price
-                                        .isNegotiable && (
-                                            <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600">
-                                                দরদাম চলবে
-                                            </span>
-                                        )}
-
-                                    {lowStock && (
-                                        <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold text-red-500">
-                                            {
-                                                remainingStock
-                                            }
-                                            টি বাকি
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                    </div>
-                </Link>
-            </article>
-        );
-    }
-);
-
-ProductCard.displayName = "ProductCard";
-
-/* ==========================================================================
-   PRODUCT SKELETON
-   ========================================================================== */
-
-const ProductSkeleton = () => {
-    return (
-        <div
-            aria-hidden="true"
-            className="
-                overflow-hidden
-                rounded-2xl
-                border
-                border-stone-100
-                bg-stone-50
-            "
-        >
-            <div className="aspect-[3/4] animate-pulse bg-stone-200" />
-
-            <div className="space-y-2 p-3">
-                <div className="h-3 w-4/5 rounded bg-stone-200" />
-
-                <div className="h-2.5 w-1/2 rounded bg-stone-200" />
-
-                <div className="h-4 w-1/3 rounded bg-stone-200" />
-            </div>
-        </div>
-    );
-};
-
-/* ==========================================================================
-   RECENT LISTINGS
-
-   API is deferred until section is close to viewport.
-   ========================================================================== */
-
-const RecentListingsSection = () => {
-    const { ref, shouldLoad } =
-        useNearViewport<HTMLElement>(
-            "700px"
-        );
-
-    const {
-        data: productsRes,
-        isLoading,
-        isFetching,
-        isError,
-        refetch,
-    } = useGetProductsQuery(
-        {
-            limit: 6,
-            sortBy: "createdAt",
-            sortOrder: "desc",
-        },
-        {
-            skip: !shouldLoad,
-        }
-    );
-
-    const recentProducts =
-        productsRes?.data?.data ?? [];
-
-    const showSkeletons =
-        !shouldLoad ||
-        isLoading ||
-        (isFetching &&
-            recentProducts.length === 0);
-
-    return (
-        <section
-            ref={ref}
-            className="
-                border-y
-                border-stone-100
-                bg-white
-                py-14
-                sm:py-16
-            "
-            style={belowFoldStyle}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-8 flex items-end justify-between gap-4">
-                    <div>
-                        <SectionLabel text="নতুন সংযোজন" />
-
-                        <h2
-                            className="
-                                flex
-                                items-center
-                                gap-2
-                                font-display
-                                text-2xl
-                                font-bold
-                                text-stone-900
-                            "
-                        >
-                            <TrendingUp
-                                size={20}
-                                aria-hidden="true"
-                                className="text-amber-500"
-                            />
-
-                            সদ্য তালিকাভুক্ত
-                        </h2>
-                    </div>
-
-                    <Link
-                        to="/books"
-                        className="
-                            flex
-                            flex-shrink-0
-                            items-center
-                            gap-1
-                            text-sm
-                            font-semibold
-                            text-stone-500
-                            transition-colors
-                            duration-150
-                            hover:text-amber-600
-                        "
-                    >
-                        সব দেখো
-
-                        <ArrowRight
-                            size={14}
-                            aria-hidden="true"
-                        />
-                    </Link>
-                </div>
-
-                {isError ? (
-                    <div
-                        className="
-                            rounded-2xl
-                            border
-                            border-stone-200
-                            bg-stone-50
-                            px-5
-                            py-8
-                            text-center
-                        "
-                    >
-                        <p className="mb-4 text-sm text-stone-600">
-                            নতুন বইগুলো এখন লোড
-                            করা যাচ্ছে না।
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={() =>
-                                refetch()
-                            }
-                            className="
-                                rounded-lg
-                                bg-stone-900
-                                px-4
-                                py-2
-                                text-sm
-                                font-semibold
-                                text-white
-                                transition-colors
-                                hover:bg-amber-500
-                            "
-                        >
-                            আবার চেষ্টা করুন
-                        </button>
-                    </div>
-                ) : showSkeletons ? (
-                    <div
-                        aria-label="Loading recent books"
-                        className="
-                            grid
-                            grid-cols-2
-                            gap-4
-                            sm:grid-cols-3
-                            md:grid-cols-4
-                            lg:grid-cols-6
-                        "
-                    >
-                        {Array.from({
-                            length: 6,
-                        }).map((_, index) => (
-                            <ProductSkeleton
-                                key={index}
-                            />
-                        ))}
-                    </div>
-                ) : recentProducts.length >
-                    0 ? (
-                    <div
-                        className="
-                            grid
-                            grid-cols-2
-                            gap-4
-                            sm:grid-cols-3
-                            md:grid-cols-4
-                            lg:grid-cols-6
-                        "
-                    >
-                        {recentProducts.map(
-                            (
-                                product: IProduct
-                            ) => (
-                                <ProductCard
-                                    key={
-                                        product._id
-                                    }
-                                    product={
-                                        product
-                                    }
-                                />
-                            )
-                        )}
-                    </div>
-                ) : (
-                    <div
-                        className="
-                            rounded-2xl
-                            border
-                            border-stone-200
-                            bg-stone-50
-                            px-5
-                            py-8
-                            text-center
-                        "
-                    >
-                        <BookOpen
-                            size={24}
-                            aria-hidden="true"
-                            className="mx-auto mb-3 text-stone-300"
-                        />
-
-                        <p className="text-sm text-stone-500">
-                            এখনো কোনো নতুন বই
-                            পাওয়া যায়নি।
-                        </p>
-                    </div>
-                )}
-            </div>
-        </section>
-    );
-};
-
-/* ==========================================================================
-   FEATURES
-   ========================================================================== */
-
-const FeaturesSection = () => {
-    return (
-        <section
-            className="bg-stone-50 py-14 sm:py-16"
-            style={belowFoldStyle}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-10 text-center sm:mb-12">
-                    <SectionLabel text="কেন আমরা" />
-
-                    <h2 className="font-display text-2xl font-bold text-stone-900">
-                        বই কেনাবেচার জন্য যা যা
-                        দরকার
-                    </h2>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {features.map(
-                        ({
-                            icon: Icon,
-                            title,
-                            desc,
-                        }) => (
-                            <article
-                                key={title}
-                                className="
-                                    group
-                                    rounded-2xl
-                                    border
-                                    border-stone-100
-                                    bg-white
-                                    p-6
-                                    transition
-                                    duration-200
-                                    hover:-translate-y-1
-                                    hover:border-stone-900
-                                    hover:bg-stone-900
-                                "
-                            >
-                                <div
-                                    className="
-                                        mb-4
-                                        flex
-                                        h-10
-                                        w-10
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        bg-stone-50
-                                        shadow-sm
-                                        transition-colors
-                                        duration-200
-                                        group-hover:bg-amber-500
-                                    "
-                                >
-                                    <Icon
-                                        size={
-                                            18
-                                        }
-                                        aria-hidden="true"
-                                        className="
-                                            text-stone-600
-                                            transition-colors
-                                            duration-200
-                                            group-hover:text-white
-                                        "
-                                    />
-                                </div>
-
-                                <h3
-                                    className="
-                                        mb-1.5
-                                        text-sm
-                                        font-bold
-                                        text-stone-800
-                                        transition-colors
-                                        group-hover:text-white
-                                    "
-                                >
-                                    {title}
-                                </h3>
-
-                                <p
-                                    className="
-                                        text-xs
-                                        leading-relaxed
-                                        text-stone-500
-                                        transition-colors
-                                        group-hover:text-stone-400
-                                    "
-                                >
-                                    {desc}
-                                </p>
-                            </article>
-                        )
-                    )}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-/* ==========================================================================
-   SELL CTA
-   ========================================================================== */
-
-const SellCTASection = () => {
-    return (
-        <section
-            className="
-                border-t
-                border-stone-100
-                bg-white
-                py-14
-                sm:py-16
-            "
-            style={belowFoldStyle}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-                    <div>
-                        <div
-                            className="
-                                mb-5
-                                inline-block
-                                rounded-full
-                                bg-amber-100
-                                px-3
-                                py-1.5
-                                text-xs
-                                font-semibold
-                                text-amber-700
-                            "
-                        >
-                            তোমার বই বিক্রি করো
-                        </div>
-
-                        <h2
-                            className="
-                                mb-4
-                                font-display
-                                text-3xl
-                                font-bold
-                                leading-tight
-                                text-stone-900
-                                lg:text-4xl
-                            "
-                        >
-                            পুরনো বইকে বানাও{" "}
-                            <span className="text-amber-500">
-                                নগদ টাকা
-                            </span>
-                            , আজই।
-                        </h2>
-
-                        <p
-                            className="
-                                mb-8
-                                max-w-md
-                                text-base
-                                leading-relaxed
-                                text-stone-500
-                            "
-                        >
-                            আগের সেমিস্টারের বই
-                            ফেলে না রেখে, মিনিটেই
-                            লিস্ট করো। জুনিয়রদের
-                            সাশ্রয়ী রিসোর্স খুঁজে
-                            পেতে সাহায্য করো, আর
-                            পরের বইয়ের জন্য আয়
-                            করো। ডিজিটাল নোটও চলবে।
-                        </p>
-
-                        <ul className="mb-8 space-y-2.5">
-                            {[
-                                "লিস্ট করা সম্পূর্ণ ফ্রি — কোনো লুকানো ফি নেই",
-                                "শিপিং ও পেমেন্ট প্ল্যাটফর্মই সামলায়",
-                                "সারাদেশের হাজারো শিক্ষার্থীর কাছে পৌঁছাও",
-                            ].map((item) => (
-                                <li
-                                    key={item}
-                                    className="flex items-center gap-2.5 text-sm text-stone-600"
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className="
-                                            flex
-                                            h-5
-                                            w-5
-                                            flex-shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-full
-                                            bg-amber-100
-                                        "
-                                    >
-                                        <Star
-                                            size={
-                                                10
-                                            }
-                                            className="fill-amber-600 text-amber-600"
-                                        />
-                                    </span>
-
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-
+            <ul className="grid border-t border-white/10 md:grid-cols-2 md:gap-x-12">
+                {categories.map((category, i) => (
+                    <li key={category.slug}>
                         <Link
-                            to="/user/add-product"
-                            className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-2xl
-                                bg-stone-900
-                                px-7
-                                py-3.5
-                                text-sm
-                                font-bold
-                                text-white
-                                transition
-                                duration-150
-                                hover:-translate-y-0.5
-                                hover:bg-amber-500
-                                hover:text-stone-900
-                                hover:shadow-lg
-                            "
+                            to={`/books?category=${encodeURIComponent(category.slug)}`}
+                            className="group flex items-center gap-5 border-b border-white/10 py-5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:py-6"
                         >
-                            <Package
-                                size={16}
+                            <span className="font-display text-sm text-stone-600">
+                                {bnIndex(i + 1)}
+                            </span>
+                            <span className="flex-1 font-display text-2xl font-bold text-stone-200 transition duration-300 ease-out group-hover:translate-x-2 group-hover:text-amber-400 sm:text-3xl">
+                                {category.label}
+                            </span>
+                            <ArrowUpRight
+                                size={22}
                                 aria-hidden="true"
-                            />
-
-                            ফ্রিতে বিক্রি শুরু করো
-
-                            <ArrowRight
-                                size={15}
-                                aria-hidden="true"
+                                className="text-stone-600 transition duration-300 group-hover:rotate-45 group-hover:text-amber-400"
                             />
                         </Link>
-                    </div>
-
-                    <div className="relative">
-                        <div
-                            className="
-                                overflow-hidden
-                                rounded-3xl
-                                border
-                                border-stone-100
-                                bg-stone-50
-                                p-3
-                                shadow-lg
-                            "
-                        >
-                            <img
-                                src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=720"
-                                srcSet="
-                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=480 480w,
-                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=720 720w,
-                                    https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=70&w=900 900w
-                                "
-                                sizes="
-                                    (max-width: 1023px) 100vw,
-                                    50vw
-                                "
-                                width={720}
-                                height={480}
-                                loading="lazy"
-                                decoding="async"
-                                fetchPriority="low"
-                                alt="বই হাতে একজন শিক্ষার্থী"
-                                className="
-                                    h-72
-                                    w-full
-                                    rounded-2xl
-                                    object-cover
-                                "
-                            />
-                        </div>
-
-                        <div
-                            className="
-                                absolute
-                                -bottom-4
-                                left-2
-                                flex
-                                items-center
-                                gap-3
-                                rounded-2xl
-                                border
-                                border-stone-100
-                                bg-white
-                                px-5
-                                py-3
-                                shadow-lg
-                                sm:-left-4
-                            "
-                        >
-                            <div
-                                className="
-                                    flex
-                                    h-10
-                                    w-10
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    bg-amber-100
-                                "
-                            >
-                                <TrendingUp
-                                    size={18}
-                                    aria-hidden="true"
-                                    className="text-amber-600"
-                                />
-                            </div>
-
-                            <div>
-                                <p className="text-[10px] font-semibold text-stone-400">
-                                    এই সপ্তাহে
-                                </p>
-
-                                <p className="text-sm font-extrabold text-stone-900">
-                                    ২৪৮টি নতুন
-                                    লিস্টিং
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </section>
+);
 
 /* ==========================================================================
-   BOTTOM CTA
+   FREE TOOLS
    ========================================================================== */
 
-const BottomCTASection = () => {
-    return (
-        <section
-            className="bg-stone-50 py-14 sm:py-16"
-            style={belowFoldStyle}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div
-                    className="
-                        relative
-                        overflow-hidden
-                        rounded-3xl
-                        bg-amber-500
-                        px-6
-                        py-14
-                        text-center
-                        sm:px-8
-                        sm:py-16
-                    "
-                >
-                    <div
-                        aria-hidden="true"
-                        className="
-                            absolute
-                            -left-12
-                            -top-12
-                            h-48
-                            w-48
-                            rounded-full
-                            bg-amber-400/40
-                        "
-                    />
+const ToolsSection = () => (
+    <section className="border-t border-white/10 bg-stone-900/40">
+        <div className={`${container} py-20 sm:py-28`}>
+            <SectionHeader
+                index={5}
+                eyebrow="ফ্রি টুলস"
+                title="শুধু বই না, পড়াশোনার কাজের জিনিসও"
+                action={<TextLink to="/tools">সব টুলস দেখো</TextLink>}
+            />
 
-                    <div
-                        aria-hidden="true"
-                        className="
-                            absolute
-                            -bottom-10
-                            -right-10
-                            h-60
-                            w-60
-                            rounded-full
-                            bg-amber-600/25
-                        "
-                    />
-
-                    <div className="relative">
-                        <p className="mb-3 text-xs font-bold text-stone-700/70">
-                            Grontho Bilash
-                        </p>
-
-                        <h2
-                            className="
-                                mb-3
-                                font-display
-                                text-3xl
-                                font-bold
-                                leading-tight
-                                text-stone-900
-                                lg:text-4xl
-                            "
+            <div className="grid gap-6 md:grid-cols-2">
+                {tools.map((tool, i) => (
+                    <Reveal key={tool.to} delay={(i % 2) * 0.1}>
+                        <Link
+                            to={tool.to}
+                            className="group flex h-full flex-col justify-between gap-10 rounded-3xl border border-white/10 bg-stone-950 p-7 transition-colors duration-300 hover:border-amber-400/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:p-10"
                         >
-                            প্রতিটি শিক্ষার্থীর
-                            জন্য{" "}
-                            <br className="hidden sm:block" />
-                            সাশ্রয়ী পড়াশোনা।
-                        </h2>
-
-                        <p
-                            className="
-                                mx-auto
-                                mb-8
-                                max-w-md
-                                text-sm
-                                leading-relaxed
-                                text-stone-800/65
-                            "
-                        >
-                            বাংলাদেশের হাজারো
-                            শিক্ষার্থী ইতিমধ্যে
-                            স্মার্টভাবে বই
-                            কেনাবেচা করছে, তুমিও
-                            যোগ দাও।
-                        </p>
-
-                        <div className="flex flex-wrap justify-center gap-3">
-                            <Link
-                                to="/books"
-                                className="
-                                    inline-flex
-                                    items-center
-                                    gap-2
-                                    rounded-2xl
-                                    bg-stone-900
-                                    px-7
-                                    py-3.5
-                                    text-sm
-                                    font-bold
-                                    text-white
-                                    transition
-                                    duration-150
-                                    hover:-translate-y-0.5
-                                    hover:bg-stone-800
-                                    hover:shadow-lg
-                                "
-                            >
-                                সব বই দেখো
-
-                                <ArrowRight
-                                    size={15}
+                            <div>
+                                <h3 className="font-display text-2xl font-bold text-stone-50 sm:text-3xl">
+                                    {tool.title}
+                                </h3>
+                                <p className="mt-3 max-w-md leading-relaxed text-stone-400">
+                                    {tool.desc}
+                                </p>
+                            </div>
+                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-stone-300 transition-colors duration-200 group-hover:text-amber-400">
+                                খুলে দেখো
+                                <ArrowUpRight
+                                    size={16}
                                     aria-hidden="true"
+                                    className="transition-transform duration-300 group-hover:rotate-45"
                                 />
-                            </Link>
-
-                            <Link
-                                to="/signup"
-                                className="
-                                    inline-flex
-                                    items-center
-                                    gap-2
-                                    rounded-2xl
-                                    bg-white/85
-                                    px-7
-                                    py-3.5
-                                    text-sm
-                                    font-bold
-                                    text-stone-800
-                                    transition
-                                    duration-150
-                                    hover:-translate-y-0.5
-                                    hover:bg-white
-                                "
-                            >
-                                ফ্রিতে যোগ দাও
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+                            </span>
+                        </Link>
+                    </Reveal>
+                ))}
             </div>
-        </section>
-    );
-};
+        </div>
+    </section>
+);
+
+/* ==========================================================================
+   CLOSING CTA
+   ========================================================================== */
+
+const ClosingSection = () => (
+    <section className="relative overflow-hidden border-t border-white/10">
+        <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-48 left-1/2 h-[30rem] w-[50rem] max-w-none -translate-x-1/2 rounded-full bg-amber-500/10 blur-3xl"
+        />
+
+        <div className={`${container} relative py-24 text-center sm:py-36`}>
+            <Reveal>
+                <h2 className="mx-auto max-w-5xl font-display text-[clamp(2rem,6.5vw,5rem)] font-extrabold leading-[1.2] tracking-tight text-stone-50">
+                    তোমার পড়া শেষ বইটা,
+                    <br />
+                    <span className="text-amber-400">কারও পরের সেমিস্টার।</span>
+                </h2>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+                <p className="mx-auto mt-6 max-w-xl leading-relaxed text-stone-400 sm:text-lg">
+                    ফ্রি অ্যাকাউন্ট খুলে আজই প্রথম বইটা লিস্ট করো, অথবা দরকারি বইটা
+                    কম দামে খুঁজে নাও।
+                </p>
+            </Reveal>
+
+            <Reveal delay={0.16} className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link to="/user/add-product" className={primaryButton}>
+                    ফ্রিতে বিক্রি শুরু করো
+                    <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+                <Link to="/books" className={ghostButton}>
+                    বই দেখো
+                </Link>
+            </Reveal>
+        </div>
+    </section>
+);
 
 /* ==========================================================================
    HOME
-
-   IMPORTANT:
-   Home itself contains no local state.
    ========================================================================== */
 
-const Home = () => {
-    return (
-        <main className="bg-stone-50">
-            <HeroSection />
-
-            <CategoriesSection />
-
-            <RecentListingsSection />
-
-            <FeaturesSection />
-
-            <SellCTASection />
-
-            <BottomCTASection />
-        </main>
-    );
-};
+const Home = () => (
+    <main className="bg-stone-950 font-sans text-stone-100 antialiased">
+        <HeroSection />
+        <CategoryTicker />
+        <BenefitsSection />
+        <HowItWorksSection />
+        <RecentListingsSection />
+        <CategoriesSection />
+        <ToolsSection />
+        <ClosingSection />
+    </main>
+);
 
 export default Home;

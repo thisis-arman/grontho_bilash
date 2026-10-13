@@ -10,6 +10,9 @@ import rateLimit from "express-rate-limit";
 
 const app: Application = express();
 
+// Behind Vercel's proxy: without this every visitor shares one rate-limit bucket.
+app.set("trust proxy", 1);
+
 // Security Middlewares
 app.use(helmet());
 
@@ -18,11 +21,26 @@ const limiter = rateLimit({
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: {
+    success: false,
+    message: "Too many requests from this IP, please try again after 15 minutes",
+  },
 });
 app.use(limiter);
 
-app.use(express.json());
+// Tighter limit on endpoints that can be brute-forced or used to spam email.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many attempts, please try again after 15 minutes",
+  },
+});
+
+app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
 const allowedOrigins = [
@@ -31,7 +49,6 @@ const allowedOrigins = [
   "https://gronthobilash.com",
   "https://www.gronthobilash.com",
   "https://gronthobilash.vercel.app",
-
 ];
 
 const corsOptions = {
@@ -53,6 +70,10 @@ app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions));
 
+app.use("/api/v1/auth", authLimiter);
+app.use("/api/v1/otp", authLimiter);
+app.use("/api/v1/users/register", authLimiter);
+
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
@@ -62,8 +83,6 @@ app.get("/", (req: Request, res: Response) => {
     data: {
       name: "Grontho Bilash API",
       version: "1.0.0",
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV,
     },
     timestamp: new Date().toISOString(),
   });

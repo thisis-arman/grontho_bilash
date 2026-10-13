@@ -50,7 +50,10 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         message: err?.message,
       },
     ];
-  } else if (err instanceof Error) {
+  } else if (err instanceof Error && err.constructor === Error) {
+    // Services throw bare Errors for expected failures ("Password do not
+    // matched", "Insufficient stock", ...), so these are client errors.
+    statusCode = 400;
     message = err.message;
     errorSources = [
       {
@@ -58,15 +61,24 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         message: err?.message,
       },
     ];
+  } else if (err instanceof Error) {
+    // Anything else (driver errors, TypeErrors, ...) is unexpected: log it,
+    // and don't leak internals to the client in production.
+    console.error(err);
+    if (!config.is_production) {
+      message = err.message;
+      errorSources = [{ path: "", message: err.message }];
+    }
   }
+
+  if (res.headersSent) return next(err);
 
   // ultimate return
   res.status(statusCode).json({
     success: false,
     message,
     errorSources,
-    err,
-    stack: config.node_env === "development" ? err?.stack : null,
+    stack: config.is_production ? null : err?.stack,
   });
 };
 

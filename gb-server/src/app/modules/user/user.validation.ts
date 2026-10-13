@@ -7,7 +7,9 @@ export const userZodSchema = z.object({
   name: z.string().nonempty({ message: "name is required" }),
   email: z.string().email(),
   contactNo: z.string().nonempty({ message: "Contact number is required" }),
-  password: z.string().nonempty({ message: "Password is required" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export const userValidationSchema = {

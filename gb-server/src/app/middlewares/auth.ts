@@ -5,38 +5,43 @@ import AppError from "../errors/AppError";
 
 import config from "../config";
 import { User } from "../modules/user/user.model";
-import { TUserRoles } from "../modules/user/user.interface";
+import { TUserRoles, USER_ROLE } from "../modules/user/user.interface";
 import catchAsync from "../utils/catchAsync";
 
+export const isAdminRole = (role?: string) =>
+  role === USER_ROLE.admin || role === USER_ROLE.superAdmin;
+
 export const Auth = (...requiredRoles: TUserRoles[]) => {
-  //console.log('roles__',requiredRoles);
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
-    //console.log("token",token)
+    // Accept both "<token>" (what the client sends) and "Bearer <token>".
+    const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
 
     if (!token) {
-      throw new AppError(httpStatus.NOT_FOUND, "token is not found.");
-    }
-    //console.log("18", token);
-
-    const decoded = jwt.verify(token, config.jwt_access_secret as string);
-    //console.log({decoded});
-
-    if (!decoded) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token");
+      throw new AppError(httpStatus.UNAUTHORIZED, "You are not logged in.");
     }
 
-    //console.log("decoded => ", decoded);
-    const { email, role, iat, exp } = decoded as JwtPayload;
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(
+        token,
+        config.jwt_access_secret as string
+      ) as JwtPayload;
+    } catch {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Your session has expired. Please log in again."
+      );
+    }
+
+    const { email, iat } = decoded;
     const user = await User.isUserExistsByEmail(email);
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
+      throw new AppError(httpStatus.UNAUTHORIZED, "This user is not found !");
     }
 
     if (user?.isDeleted) {
       throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
     }
-    //console.log("user----",user)
     if (user.status == "blocked") {
       throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
     }
@@ -48,14 +53,20 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
         iat as number
       )
     ) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized !");
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Your session has expired. Please log in again."
+      );
     }
 
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized !");
+    // Role comes from the database, not the token, so a demoted or
+    // promoted user takes effect immediately.
+    const role = user.role as TUserRoles;
+    if (requiredRoles.length && !requiredRoles.includes(role)) {
+      throw new AppError(httpStatus.FORBIDDEN, "You are not authorized !");
     }
 
-    req.user = decoded as JwtPayload & { role: string };
+    req.user = { ...decoded, id: String(user._id), email: user.email, role };
     next();
   });
 };

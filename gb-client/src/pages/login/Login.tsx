@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../redux/features/auth/authApi";
 import { verifyToken } from "../../utils/verifyToken";
 import { useAppDispatch } from "../../redux/hooks";
@@ -10,11 +10,12 @@ const Login = () => {
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    const toastId = toast.loading("Logging in...");
     e.preventDefault();
+    const toastId = toast.loading("Logging in...");
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
@@ -24,9 +25,11 @@ const Login = () => {
       const user = verifyToken(response.data.accessToken) as TUser;
       dispatch(setUser({ user, token: response.data.accessToken }));
       toast.success("Login successful", { id: toastId, duration: 2000 });
-      if (response.success) navigate(`/${user.role}/dashboard`);
-    } catch {
-      toast.error("Something went wrong", { id: toastId, duration: 2000 });
+      // Go back to the page that asked for a login (e.g. the cart), if any.
+      const from = (location.state as { from?: string } | null)?.from;
+      navigate(from || `/${user.role === "user" ? "user" : "admin"}/dashboard`, { replace: true });
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Could not log in. Please check your connection and try again.", { id: toastId, duration: 3000 });
     }
   };
 
@@ -74,7 +77,7 @@ const Login = () => {
               }}
             >
               <img
-                src="/src/assets/logo/grontho-bilash-transparent.png"
+                src="/logo.png"
                 className="h-7 w-7 object-contain"
                 alt="Grontho Bilash"
               />
@@ -123,7 +126,7 @@ const Login = () => {
           {/* Mobile logo */}
           <div className="flex md:hidden justify-center mb-6">
             <img
-              src="/src/assets/logo/grontho-bilash-transparent.png"
+              src="/logo.png"
               className="h-12 w-12"
               alt="Grontho Bilash"
             />
@@ -207,11 +210,12 @@ const Login = () => {
                 <span className="text-sm text-gray-500">Remember me</span>
               </label>
               
-               <a href="#"
+              <Link
+                to="/forgot-password"
                 className="text-sm font-medium text-yellow-600 hover:text-yellow-700 transition-colors"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit */}
@@ -230,27 +234,6 @@ const Login = () => {
               {isLoading ? "Signing in…" : "Sign in"}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-4">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-xs text-gray-400">or</span>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
-
-          {/* Google */}
-          <button className="w-full flex items-center justify-center gap-2.5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white hover:bg-gray-50 active:bg-gray-100 transition-colors">
-            <svg width="16" height="16" viewBox="0 0 48 48">
-              <g clipPath="url(#clip0_17_40)">
-                <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.9181H37.4434C36.9055 31.8988 35.177 34.5356 32.6461 36.2111V42.2078H40.3801C44.9217 38.0278 47.532 31.8547 47.532 24.5528Z" fill="#4285F4"/>
-                <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.3888 42.2078L32.6549 36.2111C30.5031 37.675 27.7252 38.5039 24.4888 38.5039C18.2275 38.5039 12.9187 34.2798 11.0139 28.6006H3.03296V34.7825C7.10718 42.8868 15.4056 48.0016 24.48 48.0016Z" fill="#34A853"/>
-                <path d="M11.0051 28.6006C9.99973 25.6199 9.99973 22.3922 11.0051 19.4115V13.2296H3.03298C-0.371021 20.0112 -0.371021 28.0009 3.03298 34.7825L11.0051 28.6006Z" fill="#FBBC04"/>
-                <path d="M24.48 9.49932C27.9016 9.44641 31.2086 10.7339 33.6866 13.0973L40.5387 6.24523C36.2 2.17101 30.4414 -.068932 24.48 .00161733C15.4055 .00161733 7.10718 5.11644 3.03296 13.2296L11.005 19.4115C12.901 13.7235 18.2187 9.49932 24.48 9.49932Z" fill="#EA4335"/>
-              </g>
-              <defs><clipPath id="clip0_17_40"><rect width="48" height="48" fill="white"/></clipPath></defs>
-            </svg>
-            Continue with Google
-          </button>
 
           <p className="text-center text-sm text-gray-500 mt-5">
             Don't have an account?{" "}

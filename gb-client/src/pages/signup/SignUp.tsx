@@ -79,7 +79,7 @@ const SignUp = () => {
         setCurrentStep(2);
         startResendCooldown();
       } else {
-        setEmailError("Failed to send OTP. Please try again.");
+        setEmailError((response.error as any)?.data?.message || "Failed to send OTP. Please try again.");
       }
     } catch {
       setEmailError("Something went wrong. Please try again.");
@@ -102,7 +102,7 @@ const SignUp = () => {
         setIsVerified(true);
         setCurrentStep(3);
       } else {
-        setOtpError("Invalid OTP. Please check and try again.");
+        setOtpError((response.error as any)?.data?.message || "Invalid OTP. Please check and try again.");
         setOtp(Array(6).fill(""));
         (fieldsRef.current!.children[0] as HTMLElement).focus();
       }
@@ -120,10 +120,12 @@ const SignUp = () => {
     if (!email) return;
     setOtp(Array(6).fill(""));
     setOtpError("");
-    try {
-      await createOtp({ email });
+    const response = await createOtp({ email });
+    if (response.data?.success) {
       startResendCooldown();
-    } catch { /* silent */ }
+    } else {
+      setOtpError((response.error as any)?.data?.message || "Could not resend the code. Please try again.");
+    }
   };
 
   return (

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import countryData from '../../assets/db/country_dial_info.json';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCreateUserMutation } from '../../redux/features/user/userApi';
+import { toast } from 'sonner';
 
 interface SignUpFormProps {
   isVerified: boolean;
@@ -65,6 +66,10 @@ const SignUpForm = ({ isVerified }: SignUpFormProps) => {
       setPasswordMismatch(true);
       return;
     }
+    if (formData.password.length < 6) {
+      setApiError("Password must be at least 6 characters.");
+      return;
+    }
     const contactNoWithCountryCode = `${selectedCountry.dial_code}${formData.contactNo}`;
     const name = `${formData.firstName} ${formData.lastName}`;
     try {
@@ -75,7 +80,9 @@ const SignUpForm = ({ isVerified }: SignUpFormProps) => {
         email,
       }).unwrap();
       if (response.success) {
-        navigate('/');
+        localStorage.removeItem('otpInfo');
+        toast.success("Account created! Please log in.");
+        navigate('/login');
       }
     } catch (error: any) {
       setApiError(error?.data?.message || "Account creation failed. Please try again.");

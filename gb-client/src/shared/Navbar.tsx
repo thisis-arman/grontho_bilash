@@ -30,13 +30,23 @@ import {
 import { logout, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getProductsFromCart } from "../redux/features/cart/cartSlice";
+import { TOOLS } from "../pages/tools/toolsList";
 
 // ─── Public nav links (rendered via the resizable-navbar's NavItems) ───────
 const publicNav = [
   { name: "হোম", link: "/", icon: <Home size={18} /> },
   { name: "বই", link: "/books", icon: <BookOpen size={18} /> },
   { name: "সাজেশন", link: "/exam-suggestions", icon: <Lightbulb size={18} /> },
-  { name: "টুলস", link: "/tools/cgpa-calculator", icon: <Calculator size={18} /> },
+  {
+    name: "টুলস",
+    link: "/tools",
+    icon: <Calculator size={18} />,
+    children: TOOLS.map((tool) => ({
+      name: tool.title,
+      link: tool.path,
+      icon: <tool.icon size={16} />,
+    })),
+  },
 ];
 
 export function Nav() {
@@ -65,18 +75,23 @@ export function Nav() {
   };
 
   // Ant Design avatar dropdown items (desktop only)
+  // Admins have their own area; the buying and selling pages live under
+  // /user for everyone.
+  const dashboardHome = user?.role === "user" ? "/user/dashboard" : "/admin/dashboard";
+  const profilePath = user?.role === "user" ? "/user/user-profile" : "/admin/admin-profile";
+
   const dropdownItems: MenuProps["items"] = [
     {
       key: "dashboard",
-      label: <Link to={`/${user?.role}/dashboard`}>ড্যাশবোর্ড</Link>,
+      label: <Link to={dashboardHome}>ড্যাশবোর্ড</Link>,
     },
     {
       key: "profile",
-      label: <Link to={`/${user?.role}/user-profile`}>প্রোফাইল</Link>,
+      label: <Link to={profilePath}>প্রোফাইল</Link>,
     },
     {
       key: "orders",
-      label: <Link to={`/${user?.role}/my-orders`}>আমার অর্ডার</Link>,
+      label: <Link to="/user/my-orders">আমার অর্ডার</Link>,
     },
     { type: "divider" },
     {
@@ -128,7 +143,7 @@ export function Nav() {
                     <Avatar icon={<UserOutlined />} className="cursor-pointer hover:opacity-80 transition-opacity" />
                   </Dropdown>
                 </Space>
-                <NavbarButton href={`/${user.role}/add-product`} variant="primary">
+                <NavbarButton href="/user/add-product" variant="primary">
                   বিক্রি করো
                 </NavbarButton>
               </>
@@ -162,25 +177,46 @@ export function Nav() {
 
           <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
             {publicNav.map((item) => (
-              <Link
-                key={item.link}
-                to={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 w-full px-2 py-2 rounded-xl text-base font-semibold transition-colors ${isActive(item.link)
-                  ? "text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10"
-                  : "text-neutral-700 dark:text-neutral-300"
-                  }`}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
+              <div key={item.link} className="w-full">
+                <Link
+                  to={item.link}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 w-full px-2 py-2 rounded-xl text-base font-semibold transition-colors ${isActive(item.link)
+                    ? "text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10"
+                    : "text-neutral-700 dark:text-neutral-300"
+                    }`}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+
+                {/* Sub-links (the individual tools), indented under the parent. */}
+                {"children" in item && item.children && (
+                  <div className="mt-1 ml-4 border-l border-neutral-200 pl-3 dark:border-neutral-800">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.link}
+                        to={child.link}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === child.link
+                          ? "text-yellow-600"
+                          : "text-neutral-600 dark:text-neutral-400"
+                          }`}
+                      >
+                        {child.icon}
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
 
             {user && (
               <Link
-                to={`/${user.role}/dashboard`}
+                to={dashboardHome}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 w-full px-2 py-2 rounded-xl text-base font-semibold transition-colors ${location.pathname.startsWith(`/${user.role}`)
+                className={`flex items-center gap-3 w-full px-2 py-2 rounded-xl text-base font-semibold transition-colors ${(location.pathname.startsWith('/user') || location.pathname.startsWith('/admin'))
                   ? "text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10"
                   : "text-neutral-700 dark:text-neutral-300"
                   }`}
@@ -194,7 +230,7 @@ export function Nav() {
               {user ? (
                 <>
                   <NavbarButton
-                    href={`/${user.role}/add-product`}
+                    href="/user/add-product"
                     onClick={() => setIsMobileMenuOpen(false)}
                     variant="primary"
                     className="w-full"

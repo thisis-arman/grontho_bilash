@@ -3,7 +3,8 @@ import AppError from "../../errors/AppError";
 import { User } from "../user/user.model";
 import { TBook } from "./book.interface";
 import { BookModel } from "./book.model";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+import { isAdminRole } from "../../middlewares/auth";
 import { ObjectId } from "mongodb";
 import { ProductModel } from "./product.model";
 import slugify from "slugify";
@@ -22,11 +23,49 @@ export interface ProductQuery {
   maxPrice?: number | string;
 }
 
+type TRequester = { id?: string; email?: string; role?: string };
+
+// Loads a product and makes sure the requester owns it (or is an admin).
+const getOwnedProduct = async (productId: string, requester: TRequester) => {
+  if (!Types.ObjectId.isValid(productId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid product ID");
+  }
+  const product = await ProductModel.findOne({
+    _id: productId,
+    isDeleted: false,
+  });
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+  if (
+    !isAdminRole(requester.role) &&
+    String(product.seller) !== String(requester.id)
+  ) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You can only manage your own listings"
+    );
+  }
+  return product;
+};
+
 const createProductIntoDB = async (payload: IProduct) => {
-  // 1. Check if the product already exists (by Title or SKU)
-  const isProductExist = await ProductModel.findOne({ title: payload.title });
+  if (!payload.title || !payload.productType || !payload.category) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Title, product type and category are required"
+    );
+  }
+
+  // 1. Different sellers routinely list the same textbook, so only block a
+  //    seller from double-posting their own active listing.
+  const isProductExist = await ProductModel.findOne({
+    title: payload.title,
+    seller: payload.seller,
+    isDeleted: false,
+  });
   if (isProductExist) {
-    throw new AppError(httpStatus.CONFLICT, "A product with this title already exists!");
+    throw new AppError(httpStatus.CONFLICT, "You have already listed a product with this title!");
   }
 
   // 2. Generate SEO-friendly Slug
@@ -165,7 +204,7 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
 
   const [data, total] = await Promise.all([
     ProductModel.find(filter)
-      .populate("seller", "name email contactNo")
+      .populate("seller", "name")
       .sort(sort)
       .skip(skip)
       .limit(limitNum),
@@ -185,14 +224,70 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
 
 export { getAllProductsFromDb };
 
+// Admin view of the catalogue: unlike the public list it includes drafts
+// and out-of-stock listings, so they can be moderated.
+const getProductsForAdminFromDb = async (query: Record<string, unknown>) => {
+  const filter: Record<string, unknown> = { isDeleted: false };
+
+  if (query.productType === "Physical" || query.productType === "Digital") {
+    filter.productType = query.productType;
+  }
+  if (query.status === "published") filter.isPublished = true;
+  if (query.status === "draft") filter.isPublished = false;
+
+  const search = String(query.search ?? "").trim();
+  if (search) {
+    const pattern = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    filter.$or = [
+      { title: { $regex: pattern, $options: "i" } },
+      { sku: { $regex: pattern, $options: "i" } },
+      { category: { $regex: pattern, $options: "i" } },
+    ];
+  }
+
+  const pageNum = Math.max(1, Number(query.page) || 1);
+  const limitNum = Math.min(MAX_LIMIT, Math.max(1, Number(query.limit) || DEFAULT_LIMIT));
+
+  const [data, total, published, physical] = await Promise.all([
+    ProductModel.find(filter)
+      .populate("seller", "name email contactNo")
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum),
+    ProductModel.countDocuments(filter),
+    ProductModel.countDocuments({ isDeleted: false, isPublished: true }),
+    ProductModel.countDocuments({ isDeleted: false, productType: "Physical" }),
+  ]);
+  const all = await ProductModel.countDocuments({ isDeleted: false });
+
+  return {
+    data,
+    meta: {
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.max(1, Math.ceil(total / limitNum)),
+    },
+    // Catalogue-wide counts for the summary cards (not affected by filters).
+    summary: { all, published, drafts: all - published, physical, digital: all - physical },
+  };
+};
+
 const getProductBySlugFromDb = async (slug: string): Promise<Document> => {
   const product = await ProductModel.findOneAndUpdate(
     { slug, isDeleted: false, isPublished: true },
     { $inc: { viewCount: 1 } },              // auto-increment views on fetch
     { new: true }
-  ).populate("seller", "name email contactNo ");
+  );
 
   if (!product) throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+
+  // A seller who ticked "hide my contact" must not have their phone number
+  // sent to the browser at all; hiding it in the UI is not enough.
+  await product.populate(
+    "seller",
+    product.isContactHidden ? "name" : "name contactNo"
+  );
   return product;
 };
 const getBooksFromDb = async () => {
@@ -212,7 +307,11 @@ const searchBooksByTitle = async (searchTerm: string): Promise<Document[]> => {
     const books = await BookModel.aggregate([
       {
         $match: {
-          bookTitle: { $regex: searchTerm, $options: "i" }, // Case-insensitive regex match
+          // Escaped: user input must not be interpreted as a regex.
+          bookTitle: {
+            $regex: searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+            $options: "i",
+          },
         },
       },
       {
@@ -254,7 +353,11 @@ const getBooksByEmailFromDB = async (email: string) => {
   return books;
 };
 
-const deleteBookFromDb = async (bookId: string): Promise<Document | null> => {
+const deleteBookFromDb = async (
+  bookId: string,
+  requester: TRequester
+): Promise<Document | null> => {
+  await getOwnedProduct(bookId, requester);
   const book = await ProductModel.findByIdAndUpdate(
     bookId,
     { isDeleted: true },
@@ -279,41 +382,67 @@ const getProductsByCategoriesFromDB = async () => {
   return books;
 };
 
+// Top-level fields a seller may edit. Nested objects are flattened to
+// dotted paths below so a partial update never wipes sibling fields.
+const UPDATABLE_PRODUCT_FIELDS = [
+  "title",
+  "category",
+  "subcategory",
+  "productType",
+  "condition",
+  "description",
+  "images",
+  "location",
+  "stockStatus",
+  "isPublished",
+  "isContactHidden",
+];
+const UPDATABLE_NESTED_FIELDS: Record<string, string[]> = {
+  price: ["basePrice", "discountPrice", "isNegotiable"],
+  bookMetadata: [
+    "author",
+    "publisher",
+    "publicationYear",
+    "isbn",
+    "edition",
+    "language",
+  ],
+  inventory: ["quantity"],
+  fulfillmentOptions: ["allowPickup", "allowShipping"],
+  academicMetadata: ["level", "faculty", "department"],
+  digitalDetails: ["downloadUrl", "fileType", "fileSize"],
+};
+
 const updateProductIntoDb = async (
   bookId: string,
-  payload: Partial<TBook>
+  payload: Record<string, any>,
+  requester: TRequester
 ) => {
+  await getOwnedProduct(bookId, requester);
+
   const modifiedData: Record<string, unknown> = {};
-  //console.log("payload", payload);
 
-  if (payload.bookMetadata) {
-    Object.entries(payload.bookMetadata).forEach(
-      ([key, value]) => {
-        modifiedData[`bookMetadata.${key}`] = value;
-      }
-    );
+  for (const key of UPDATABLE_PRODUCT_FIELDS) {
+    if (payload[key] !== undefined) modifiedData[key] = payload[key];
   }
-
-  if (payload.price) {
-    Object.entries(payload.price).forEach(
-      ([key, value]) => {
-        modifiedData[`price.${key}`] = value;
-      }
-    );
-  }
-  //console.log(modifiedData, 'md')
-  Object.entries(payload).forEach(
-    ([key, value]) => {
-      if (
-        key !== "bookMetadata" &&
-        key !== "price"
-      ) {
-        modifiedData[key] = value;
-      }
+  for (const [parent, children] of Object.entries(UPDATABLE_NESTED_FIELDS)) {
+    for (const child of children) {
+      // Accept both { price: { basePrice } } and { "price.basePrice": ... }.
+      const value = payload[parent]?.[child] ?? payload[`${parent}.${child}`];
+      if (value !== undefined) modifiedData[`${parent}.${child}`] = value;
     }
-  );
+  }
 
-  //console.log("modifiedData", modifiedData, bookId);
+  if (Object.keys(modifiedData).length === 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "No valid fields to update");
+  }
+
+  // findByIdAndUpdate skips the pre("save") hook that keeps stockStatus in
+  // step with quantity, so mirror it here.
+  const quantity = modifiedData["inventory.quantity"];
+  if (quantity !== undefined && modifiedData.stockStatus === undefined) {
+    modifiedData.stockStatus = Number(quantity) > 0 ? "In Stock" : "Out of Stock";
+  }
 
   const result = await ProductModel.findByIdAndUpdate(
     bookId,
@@ -323,7 +452,6 @@ const updateProductIntoDb = async (
       runValidators: true,
     }
   );
-  //console.log("result", result);
 
   return result;
 };
@@ -338,5 +466,6 @@ export const bookServices = {
   searchBooksByTitle,
   createProductIntoDB,
   getAllProductsFromDb,
+  getProductsForAdminFromDb,
   getProductBySlugFromDb
 };

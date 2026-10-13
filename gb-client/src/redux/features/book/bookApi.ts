@@ -10,6 +10,16 @@ export const bookApi = baseApi.injectEndpoints({
         method: "POST",
         body: newProduct,
       }),
+      invalidatesTags: ["Books"],
+    }),
+    // Admin catalogue: includes drafts and out-of-stock listings.
+    getAdminProducts: builder.query({
+      query: (params) => ({
+        url: "/books/admin/all-products",
+        method: "GET",
+        params: params ?? {},
+      }),
+      providesTags: ["Books"],
     }),
     getProducts: builder.query({
       query: (params) => ({
@@ -17,7 +27,7 @@ export const bookApi = baseApi.injectEndpoints({
         method: "GET",
         params: params ?? {},
       }),
-      // providesTags: ["Product"],
+      providesTags: ["Books"],
     }),
     getProductBySlug: builder.query({
       query: (slug) => ({ url: `/books/products/${slug}`, method: "GET" }),
@@ -97,5 +107,6 @@ export const {
   useGetBooksByEmailQuery,
   useCreateProductMutation,
   useGetProductsQuery,
+  useGetAdminProductsQuery,
   useGetProductBySlugQuery
 } = bookApi;

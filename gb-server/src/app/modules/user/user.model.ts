@@ -52,11 +52,19 @@ export const userSchema = new Schema<TUser, UserModel>(
   },
   {
     timestamps: true,
+    toJSON: {
+      // Never serialise the password hash into an API response.
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret.password;
+        return ret;
+      },
+    },
   }
 );
 
 userSchema.pre("save", async function (next) {
   const user = this;
+  if (!user.isModified("password")) return next();
   user.password = await bcrypt.hash(user.password, Number(config.salt_rounds));
   next();
 });
@@ -77,12 +85,14 @@ userSchema.statics.isPasswordMatched = async function (
   return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
-userSchema.statics.isJWTIssuedBeforePasswordChanged = async function (
+// Must stay synchronous: the auth middleware uses the result directly in a
+// condition, and a Promise there is always truthy.
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   passwordChangedTimestamp: Date,
   jwtIssuedTimestamp: number
 ) {
   const passwordChangedTime =
-    new Date(passwordChangedTimestamp).getTime() / 1000;
+    Math.floor(new Date(passwordChangedTimestamp).getTime() / 1000);
   return passwordChangedTime > jwtIssuedTimestamp;
 };
 

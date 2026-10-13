@@ -2,31 +2,32 @@ import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import multer from "multer";
 import os from "os";
+import config from "../config";
+
 // Configuration
 cloudinary.config({
-  cloud_name: "dshjcmrd0",
-  api_key: "722988628732479",
-  api_secret: "fkZhOLsiO7tuzvHA6MbzGOMEXto",
+  cloud_name: config.cloudinary_cloud_name,
+  api_key: config.cloudinary_api_key,
+  api_secret: config.cloudinary_api_secret,
 });
 
-
-export const imageUploader = (imageName: string, path: string) => {
+export const imageUploader = (path: string) => {
   return new Promise((resolve, reject) => {
+    // No public_id: Cloudinary generates a unique one. Using the original
+    // filename made two sellers' "image.jpg" overwrite each other.
     cloudinary.uploader.upload(
       path,
-      { public_id: imageName },
+      { folder: "grontho-bilash/products", resource_type: "image" },
       function (error, result) {
-        if (error) {
-          reject(error);
-        }
-        //console.log(result?.secure_url);
-        resolve(result);
-        //delete a file asynchronously
         fs.unlink(path, (err) => {
           if (err) {
             console.error("Error deleting local file after upload:", err);
           }
         });
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
       }
     );
   });
@@ -42,4 +43,17 @@ const storage = multer.diskStorage({
   },
 });
 
-export const upload = multer({ storage: storage });
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export const upload = multer({
+  storage: storage,
+  // Vercel rejects request bodies over ~4.5MB before they reach us.
+  limits: { fileSize: 4 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only JPG, PNG or WebP images are allowed"));
+    }
+  },
+});
