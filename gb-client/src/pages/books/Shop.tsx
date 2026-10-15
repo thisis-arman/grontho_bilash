@@ -5,6 +5,7 @@ import ProductCard, { ProductCardSkeleton } from './ProductCard';
 import Pagination from '../../utils/Pagination';
 import { useGetProductsQuery, useGetShopFacetsQuery } from '../../redux/features/book/bookApi';
 import { IProduct } from '../../types/interface';
+import { usePageMeta } from '../../utils/usePageMeta';
 
 const PAGE_SIZE = 12;
 
@@ -63,6 +64,14 @@ const Shop = () => {
   const sort = params.get('sort') ?? 'newest';
   const page = Math.max(1, Number(params.get('page')) || 1);
   const activeSort = SORT_OPTIONS.find((o) => o.value === sort) ?? SORT_OPTIONS[0];
+
+  usePageMeta(
+    // "Academic Books" should not become "Academic Books books".
+    category ? (/books?$/i.test(category) ? category : `${category} books`) : "Buy used books online",
+    category
+      ? `Buy used ${category.toLowerCase()} books at student prices from sellers across Bangladesh.`
+      : "Browse used textbooks, novels and digital notes from students across Bangladesh. Search, filter by category and price, and order with delivery."
+  );
 
   const [searchInput, setSearchInput] = useState(search);
   const [priceInput, setPriceInput] = useState({ min, max });

@@ -771,10 +771,10 @@ const Home = () => (
     // night and in its light mirror by day.
     <main className="scheme-flip bg-stone-950 font-sans text-stone-100 antialiased">
         <HeroSection />
+        <RecentListingsSection />
         <CategoryTicker />
         <BenefitsSection />
         <HowItWorksSection />
-        <RecentListingsSection />
         <CategoriesSection />
         <ToolsSection />
         <ClosingSection />

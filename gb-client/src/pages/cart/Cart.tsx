@@ -94,7 +94,7 @@ const useDebounced = <T,>(value: T, ms = 300) => {
 };
 
 const Cart = () => {
-  usePageMeta("Your bag");
+  usePageMeta("Your bag", undefined, undefined, { noindex: true });
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const user = useAppSelector(selectCurrentUser) as TUser | null;

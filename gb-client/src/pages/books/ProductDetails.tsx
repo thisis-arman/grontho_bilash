@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { useGetProductBySlugQuery } from '../../redux/features/book/bookApi';
 
 import { useAddToCart } from '../cart/useAddToCart';
+import { usePageMeta } from '../../utils/usePageMeta';
+import { productJsonLd } from '../../utils/structuredData';
 import bookLoading from "../../assets/book-loading.gif";
 
 
@@ -161,6 +163,16 @@ const ProductDetails = () => {
   const { add } = useAddToCart();
 
   const product = response?.data;
+
+  // Called before any early return: hooks must run on every render.
+  usePageMeta(
+    product?.title,
+    product
+      ? `${product.bookMetadata?.author ? `by ${product.bookMetadata.author}. ` : ""}${product.condition ?? ""} · ৳${product.price?.basePrice}. ${product.description ?? ""}`
+      : undefined,
+    product?.images?.[0],
+    { type: "product", jsonLd: product ? productJsonLd(product) : null }
+  );
 
   if (isLoading) {
     return (

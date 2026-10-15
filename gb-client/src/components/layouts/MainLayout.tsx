@@ -4,9 +4,11 @@ import { Nav } from "../../shared/Navbar";
 import { useAppSelector } from "../../redux/hooks";
 import { selectCurrentUser } from "../../redux/features/auth/authSlice";
 import ScrollToTop from "../../utils/ScrollToTop";
+import { useCanonicalUrl } from "../../utils/usePageMeta";
 
 const MainLayout = () => {
     const user = useAppSelector(selectCurrentUser);
+    useCanonicalUrl();
     return (
         <div>
             <Nav />

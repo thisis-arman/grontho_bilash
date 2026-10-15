@@ -9,6 +9,7 @@ import {
   useRecordSuggestionDownloadMutation,
 } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
+import { articleJsonLd } from "../../utils/structuredData";
 import { SuggestionCard } from "./SuggestionList";
 
 // Cloudinary's fl_attachment makes the browser save the file instead of
@@ -27,7 +28,19 @@ const SuggestionDetail = () => {
 
   const item = data?.data.suggestion;
   const related = data?.data.related ?? [];
-  usePageMeta(item?.title, item?.summary);
+  usePageMeta(item?.title, item?.summary, undefined, {
+    type: "article",
+    jsonLd: item
+      ? articleJsonLd({
+          title: item.title,
+          path: `/suggestions/${item.slug}`,
+          description: item.summary,
+          authorName: item.preparedBy,
+          publishedAt: item.publishedAt,
+          updatedAt: item.updatedAt,
+        })
+      : null,
+  });
 
   if (isLoading) {
     return (

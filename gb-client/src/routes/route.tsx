@@ -28,6 +28,7 @@ import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
 import TermsOfUse from "../pages/Terms/TermsOfUse";
 import NotFound from "../pages/404/NotFound";
 import RouteError from "../pages/404/RouteError";
+import { PageMeta } from "../utils/usePageMeta";
 import Careers from "../pages/careers/Careers";
 
 // Content pages load on demand: the Markdown renderer is only needed there.
@@ -69,27 +70,27 @@ const router = createBrowserRouter([
             },
             {
                 path: '/careers',
-                element: <Careers />
+                element: <><PageMeta title="Careers" description="Work with Grontho Bilash and help students in Bangladesh get the books they need for less." /><Careers /></>
             },
             {
                 path: '/terms',
-                element: <TermsOfUse />
+                element: <><PageMeta title="Terms of use" description="The terms for buying, selling and using Grontho Bilash." /><TermsOfUse /></>
             },
             {
                 path: '/privacy',
-                element: <PrivacyPolicy />
+                element: <><PageMeta title="Privacy policy" description="How Grontho Bilash collects, uses and protects your information." /><PrivacyPolicy /></>
             },
             {
                 path: '/faq',
-                element: <FAQ />
+                element: <><PageMeta title="Frequently asked questions" description="Answers about buying and selling used books, delivery, payment and accounts on Grontho Bilash." /><FAQ /></>
             },
             {
                 path: '/about',
-                element: <AboutUs />
+                element: <><PageMeta title="About us" description="Grontho Bilash is a student marketplace for buying and selling used books, notes and exam suggestions in Bangladesh." /><AboutUs /></>
             },
             {
                 path: '/contact',
-                element: <ContactUs />
+                element: <><PageMeta title="Contact us" description="Get in touch with the Grontho Bilash team for help with orders, listings or your account." /><ContactUs /></>
             },
 
             {
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/exam-suggestions',
-                element: <ExamSuggestions />
+                element: <><PageMeta title="BBA final exam suggestions" description="Chapter-wise BBA final exam suggestions with the most important questions marked." /><ExamSuggestions /></>
             },
             {
                 path: '/tools',
@@ -139,7 +140,7 @@ const router = createBrowserRouter([
     },
     {
         path: "*",
-        element: <NotFound />
+        element: <><PageMeta title="Page not found" noindex /><NotFound /></>
     },
     {
         path: '/user',
@@ -172,15 +173,15 @@ const router = createBrowserRouter([
     },
     {
         path: '/login',
-        element: <Login />
+        element: <><PageMeta title="Log in" noindex /><Login /></>
     },
     {
         path: '/forgot-password',
-        element: <ForgotPassword />
+        element: <><PageMeta title="Reset your password" noindex /><ForgotPassword /></>
     },
     {
         path: '/signup',
-        element: <SignUp />
+        element: <><PageMeta title="Create an account" noindex /><SignUp /></>
     }
 ]);
 

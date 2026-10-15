@@ -9,6 +9,7 @@ import { categoryRoutes } from "../category/category.route";
 import { blogRoutes } from "../blogs/blog.route";
 import { suggestionRoutes } from "../suggestion/suggestion.route";
 import { uploadRoutes } from "../upload/upload.route";
+import { seoRoutes } from "../seo/seo.route";
 
 const router = Router();
 
@@ -52,6 +53,10 @@ const moduleRouter = [
   {
     path: "/uploads",
     route: uploadRoutes,
+  },
+  {
+    path: "/seo",
+    route: seoRoutes,
   },
 
 ];

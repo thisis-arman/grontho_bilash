@@ -24,7 +24,7 @@ const taka = (n = 0) => `৳${PRICE.format(n)}`;
 // come in the navigation state); anyone landing here directly is sent to
 // their orders.
 const OrderSuccess = () => {
-  usePageMeta("Order placed");
+  usePageMeta("Order placed", undefined, undefined, { noindex: true });
   const state = useLocation().state as SuccessState | null;
   if (!state?.orders?.length) return <Navigate to="/user/my-orders" replace />;
 

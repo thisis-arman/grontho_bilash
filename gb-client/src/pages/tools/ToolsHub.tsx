@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Lightbulb } from "lucide-react";
 import { TOOLS } from "./toolsList";
+import { usePageMeta } from "../../utils/usePageMeta";
 
-const ToolsHub = () => (
+const ToolsHub = () => {
+  usePageMeta("Free student tools", "CGPA calculator, target CGPA planner, attendance calculator and focus timer. Free, no account needed.");
+  return (
   <>
     <header className="mb-10">
       <p className="mb-3 text-sm font-semibold text-amber-600">ফ্রি স্টুডেন্ট টুলস</p>
@@ -56,6 +59,7 @@ const ToolsHub = () => (
       </span>
     </Link>
   </>
-);
+  );
+};
 
 export default ToolsHub;

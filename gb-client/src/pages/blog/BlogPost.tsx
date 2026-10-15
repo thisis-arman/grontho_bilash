@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import Markdown from "../../components/content/Markdown";
 import { useGetBlogPostQuery } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
+import { articleJsonLd } from "../../utils/structuredData";
 import { authorName, formatPostDate, PostCard } from "./BlogList";
 
 const shareClass =
@@ -43,7 +44,21 @@ const BlogPost = () => {
   const post = data?.data.post;
   const related = data?.data.related ?? [];
 
-  usePageMeta(post?.title, post?.excerpt, post?.coverImage);
+  usePageMeta(post?.title, post?.excerpt, post?.coverImage, {
+    type: "article",
+    jsonLd: post
+      ? articleJsonLd({
+          type: "BlogPosting",
+          title: post.title,
+          path: `/blogs/${post.slug}`,
+          description: post.excerpt,
+          image: post.coverImage,
+          authorName: authorName(post),
+          publishedAt: post.publishedAt,
+          updatedAt: post.updatedAt,
+        })
+      : null,
+  });
 
   if (isLoading) {
     return (

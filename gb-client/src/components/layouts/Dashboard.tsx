@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { signOut, selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { adminPaths } from '../../routes/admin.route';
 import ThemeToggle from '../../theme/ThemeToggle';
+import { usePageMeta } from '../../utils/usePageMeta';
 import { userPaths } from '../../routes/user.route';
 
 const LOGO = 'https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png';
@@ -26,6 +27,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  usePageMeta(pathname.startsWith('/admin') ? 'Admin dashboard' : 'My account', undefined, undefined, { noindex: true });
 
   // The section comes from the URL, not the role: an admin can also use the
   // seller pages under /user.
