@@ -15,6 +15,7 @@ router.get(
 
 // Payload is validated in the controller (the schema uses .refine(), which
 // validateRequest's AnyZodObject signature does not accept).
+router.post("/quote", orderController.getQuote);
 router.post("/create-order", anyUser, orderController.createOrder);
 
 router.get("/my-sales", anyUser, orderController.getMySales);

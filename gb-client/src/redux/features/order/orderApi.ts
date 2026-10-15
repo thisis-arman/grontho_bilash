@@ -26,6 +26,16 @@ export const orderApi = baseApi.injectEndpoints({
       ),
       providesTags: ["Orders"],
     }),
+    // Server-priced bag: current prices, stock problems, delivery per
+    // parcel. A POST because the bag is sent in the body.
+    getCartQuote: builder.query({
+      query: (body: { books: { book: string; quantity: number }[]; shippingArea: "inside" | "outside" }) => ({
+        url: "/orders/quote",
+        method: "POST",
+        body,
+      }),
+      keepUnusedDataFor: 0,
+    }),
     createOrder: builder.mutation({
       query: (data) => {
         return {
@@ -34,7 +44,7 @@ export const orderApi = baseApi.injectEndpoints({
           body: data,
         };
       },
-      invalidatesTags: ["Orders"],
+      invalidatesTags: ["Orders", "Books"],
     }),
     updateOrder: builder.mutation({
       query: ({ id, data }) => ({
@@ -58,6 +68,7 @@ export const {
   useGetOrdersQuery,
   useGetMySalesQuery,
   useCreateOrderMutation,
+  useGetCartQuoteQuery,
   useGetOrderByUserIdQuery,
   useUpdateOrderMutation,
   useDeleteOrderMutation,

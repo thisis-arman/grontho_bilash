@@ -85,7 +85,7 @@ const CheckoutPage = () => {
     if (cartItems.length === 0) return <EmptyCartView navigate={navigate} />;
 
     return (
-        <div className="bg-slate-50 min-h-screen py-10 px-4">
+        <div className=" min-h-screen py-10 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -94,7 +94,7 @@ const CheckoutPage = () => {
                         <form id="checkout-form" onSubmit={handleCheckoutSubmit} className="space-y-6">
 
                             {/* 1. Shipping Information */}
-                            <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <section className=" p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                                     <Truck size={22} className="text-yellow-600" /> Shipping Details
                                 </h2>
@@ -137,7 +137,7 @@ const CheckoutPage = () => {
                             </section>
 
                             {/* 2. Payment Method */}
-                            <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <section className=" p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                                     <Wallet size={22} className="text-yellow-600" /> Payment Method *
                                 </h2>
@@ -192,7 +192,7 @@ const CheckoutPage = () => {
 
                     {/* RIGHT: Summary */}
                     <div className="lg:col-span-5">
-                        <div className="bg-white mt-8 rounded-3xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+                        <div className=" mt-8 rounded-3xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
                             <div className="p-6 bg-gray-900 text-white flex justify-between items-center">
                                 <h2 className="text-lg font-bold">Order Summary</h2>
                                 <span className="bg-yellow-600 px-2 py-1 rounded text-xs uppercase">{cartItems.length} Items</span>

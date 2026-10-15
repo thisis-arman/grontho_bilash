@@ -1,9 +1,28 @@
 import { Request, Response } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../../config";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { orderServices } from "./order.services";
 import { orderValidations } from "./order.validation";
 
+
+// Public: guests can see real totals in their bag too. A valid login, if
+// sent, lets the quote flag the buyer's own listings.
+const getQuote = catchAsync(async (req: Request, res: Response) => {
+  const payload = orderValidations.quoteSchema.parse(req.body);
+  let buyerId: string | undefined;
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
+  if (token) {
+    try {
+      buyerId = (jwt.verify(token, config.jwt_access_secret as string) as JwtPayload).id;
+    } catch {
+      // Expired or invalid: quote as a guest.
+    }
+  }
+  const result = await orderServices.getQuote(payload, buyerId);
+  sendResponse(res, { statusCode: 200, message: "Quote calculated", success: true, data: result });
+});
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const validatedPayload = orderValidations.createOrderSchema.parse(req.body);
@@ -96,6 +115,7 @@ const getMySales = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const orderController = {
+  getQuote,
   getMySales,
   createOrder,
   getOrder,

@@ -44,6 +44,7 @@ interface Order {
     orderStatus: string;
     deliveryAddress: string;
     phoneNumber: string;
+    recipientName?: string;
 }
 
 const STATUS_OPTIONS = [
@@ -190,7 +191,7 @@ const MyOrders = () => {
                                     <div className="min-w-0 space-y-1 text-xs text-stone-600">
                                         <p className="flex items-start gap-1.5">
                                             <MapPin size={14} aria-hidden="true" className="mt-0.5 flex-shrink-0 text-stone-400" />
-                                            <span className="break-words">{order.deliveryAddress}</span>
+                                            <span className="break-words">{order.recipientName ? `${order.recipientName}, ` : ""}{order.deliveryAddress}</span>
                                         </p>
                                         <p className="flex items-center gap-1.5">
                                             <Phone size={14} aria-hidden="true" className="flex-shrink-0 text-stone-400" />

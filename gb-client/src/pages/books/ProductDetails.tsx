@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductBySlugQuery } from '../../redux/features/book/bookApi';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { addToCart } from '../../redux/features/cart/cartSlice';
+
+import { useAddToCart } from '../cart/useAddToCart';
 import bookLoading from "../../assets/book-loading.gif";
-import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
-import { toast } from 'sonner';
+
+
 import {
   ShoppingBag, MapPin, Calendar, BookOpen, CheckCircle,
   Truck, Zap, Package, User, Globe, Hash, Tag,
@@ -156,10 +156,9 @@ const ImageGallery = ({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductDetails = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const currentUser = useAppSelector(selectCurrentUser) as TUser;
+  const { slug } = useParams<{ slug: string }>();
   const { data: response, isLoading } = useGetProductBySlugQuery(slug!);
-  const dispatch = useAppDispatch();
+  const { add } = useAddToCart();
 
   const product = response?.data;
 
@@ -185,26 +184,7 @@ const ProductDetails = () => {
 
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const cartInfo = {
-      quantity: 1,
-      bookTitle: product?.title,
-      book: product?._id,
-      buyer: currentUser?.id,
-      seller: product?.seller?._id,
-      price: product?.price?.basePrice,
-      shippingCost: 0,                           // platform-controlled
-      deliveryOption: product?.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
-      isNegotiable: product.price.isNegotiable,
-      productImage: product.images?.[0] ?? "/placeholder.png",
-    };
-
-    try {
-      dispatch(addToCart(cartInfo));
-      toast.success(`"${product.title}" ব্যাগে যোগ করা হয়েছে!`);
-    } catch {
-      toast.error("ব্যাগে যোগ করা যায়নি");
-    }
+    add(product);
   };
 
   const ctaLabel = isDigital ? "ডিজিটাল কপি নাও" : "কার্টে যোগ করো";

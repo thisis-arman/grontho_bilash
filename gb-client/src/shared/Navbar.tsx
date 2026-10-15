@@ -30,7 +30,7 @@ import {
 
 import { signOut, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { getProductsFromCart } from "../redux/features/cart/cartSlice";
+import { cartCount } from "../redux/features/cart/cartSlice";
 import { TOOLS } from "../pages/tools/toolsList";
 import ThemeToggle from "../theme/ThemeToggle";
 
@@ -60,7 +60,7 @@ export function Nav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const cartItems = useAppSelector(getProductsFromCart);
+  const bagCount = useAppSelector(cartCount);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close mobile menu on route change
@@ -113,9 +113,9 @@ export function Nav() {
   const CartIcon = () => (
     <Link to="/cart" className="relative p-2 text-neutral-600 hover:text-yellow-500 transition-colors dark:text-neutral-300">
       <ShoppingCart className="w-5 h-5" />
-      {cartItems.length > 0 && (
+      {bagCount > 0 && (
         <span className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full border-2 border-white dark:border-neutral-900">
-          {cartItems.length}
+          {bagCount}
         </span>
       )}
     </Link>
@@ -140,7 +140,7 @@ export function Nav() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle className={toggleClass} />
-            {user && <CartIcon />}
+            <CartIcon />
 
             {user ? (
               <>
@@ -177,7 +177,7 @@ export function Nav() {
             </a>
             <div className="flex items-center gap-2">
               <ThemeToggle className={toggleClass} />
-              {user && <CartIcon />}
+              <CartIcon />
               <MobileNavToggle isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen((v) => !v)} />
             </div>
           </MobileNavHeader>

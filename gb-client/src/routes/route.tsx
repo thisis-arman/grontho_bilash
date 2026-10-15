@@ -11,7 +11,8 @@ import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
 import Products from "../pages/books/Shop";
 import BookDetails from "../pages/books/ProductDetails";
-import ShoppingCart from "../pages/cart/ShoppingCart";
+import Cart from "../pages/cart/Cart";
+import OrderSuccess from "../pages/cart/OrderSuccess";
 import ForgotPassword from "../pages/login/ForgotPassword";
 import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
 import CgpaCalculator from "../pages/tools/cgpa-calculator/CgpaCalculator";
@@ -99,10 +100,15 @@ const router = createBrowserRouter([
                 path: '/products/:slug',
                 element: <BookDetails />
             },
+            // The bag is open to guests; placing the order asks them to log in.
             {
                 path: '/cart',
+                element: <Cart />
+            },
+            {
+                path: '/checkout/success',
                 element: <PrivateRoute>
-                    <ShoppingCart />
+                    <OrderSuccess />
                 </PrivateRoute>
             },
             // Checkout happens on the cart page; these old URLs just forward there.

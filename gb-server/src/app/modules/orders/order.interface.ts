@@ -18,6 +18,8 @@ export interface TOrder {
   orderId: string;
   books: TOrderBookItem[];
   buyer: Types.ObjectId;
+  recipientName?: string;
+  checkoutId?: string;
   phoneNumber: string;
   email: string;
   totalAmount: number;

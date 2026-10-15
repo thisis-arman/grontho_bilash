@@ -221,3 +221,53 @@ color:#78716c;
     console.error("Failed to send order notification:", error);
   }
 };
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+
+// Receipt for the buyer. One email per checkout, even when the cart was
+// split into several orders (one per seller).
+export const sendOrderConfirmationToBuyer = async (email: string, orders: TOrder[]) => {
+  if (!orders.length) return;
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: config.email, pass: config.password },
+  });
+
+  const total = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const first = orders[0];
+  const rows = orders
+    .flatMap((order) =>
+      order.books.map(
+        (item) => `<tr>
+          <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;">${escapeHtml(item.bookTitle)} × ${item.quantity}</td>
+          <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;text-align:right;">৳${item.price * item.quantity}</td>
+        </tr>`
+      )
+    )
+    .join("");
+  const delivery = orders.reduce((sum, order) => sum + order.shippingCost, 0);
+  const ids = orders.map((order) => order.orderId).join(", ");
+
+  try {
+    await transporter.sendMail({
+      from: `"Grontho Bilash" <${config.email}>`,
+      to: email,
+      subject: `Order received | ${ids}`,
+      text: `Thank you for your order (${ids}). Total: ৳${total}. We will confirm it shortly. Track it any time under My Orders.`,
+      html: `<div style="font-family:Helvetica,Arial,sans-serif;background:#f5f5f4;padding:32px 16px;">
+        <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;padding:32px;border-top:4px solid #f59e0b;">
+          <h2 style="margin:0 0 8px;color:#1c1917;">Thanks, ${escapeHtml(first.recipientName ?? "")}! We got your order.</h2>
+          <p style="color:#57534e;margin:0 0 24px;">Order ${escapeHtml(ids)} is waiting for confirmation. We'll check your payment and let the seller${orders.length > 1 ? "s" : ""} know.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1c1917;">${rows}
+            <tr><td style="padding:8px 0;color:#57534e;">Delivery</td><td style="padding:8px 0;text-align:right;">৳${delivery}</td></tr>
+            <tr><td style="padding:8px 0;font-weight:bold;">Total</td><td style="padding:8px 0;text-align:right;font-weight:bold;">৳${total}</td></tr>
+          </table>
+          <p style="color:#57534e;margin:24px 0 0;font-size:14px;">Delivering to: ${escapeHtml(first.deliveryAddress)} · ${escapeHtml(first.phoneNumber)}</p>
+          <p style="color:#a8a29e;margin:24px 0 0;font-size:12px;">You can follow your order under My Orders on gronthobilash.com.</p>
+        </div>
+      </div>`,
+    });
+  } catch (error) {
+    console.error("Failed to send order confirmation to buyer:", error);
+  }
+};

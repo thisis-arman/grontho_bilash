@@ -36,20 +36,35 @@ const checkoutItemSchema = z
 // order, never trusted from the client.
 // ─────────────────────────────────────────────────────────────
 
+// 01XXXXXXXXX, also accepting +880 / 880 prefixes, spaces and dashes.
+const bdPhone = z
+  .string({ required_error: "Phone number is required" })
+  .transform((v) => v.replace(/[\s-]/g, "").replace(/^\+?88/, ""))
+  .refine((v) => /^01[3-9]\d{8}$/.test(v), "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)");
+
+// bKash transaction IDs are 10 letters/digits; allow a little slack.
+const bkashTrxId = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z0-9]{8,12}$/, "Enter the bKash transaction ID exactly as in the confirmation SMS");
+
 const createOrderSchema = z.object({
-  books: z.array(checkoutItemSchema).min(1, "Cart cannot be empty"),
-  phoneNumber: z.string().min(11, "Valid BD phone number required"),
-  email: z.string().email("Invalid email address"),
-  deliveryAddress: z.string().min(5, "Full address is required"),
+  books: z.array(checkoutItemSchema).min(1, "Cart cannot be empty").max(50),
+  recipientName: z.string().trim().min(2, "Enter the recipient's name").max(80),
+  phoneNumber: bdPhone,
+  email: z.string().trim().toLowerCase().email("Invalid email address"),
+  deliveryAddress: z.string().trim().min(10, "Write the full address: house, road, area, district").max(300),
   shippingArea: z.enum(["inside", "outside"], {
     errorMap: () => ({ message: "Select either Inside or Outside Chattogram" }),
   }),
   paymentMethod: z.enum(["cod", "bkash"], {
     errorMap: () => ({ message: "Select a valid payment method" }),
   }),
-  // Optional for COD; checked against paymentMethod below.
-  transactionId: z.string().optional(),
-  comment: z.string().optional(),
+  // Required for bKash here; for cash on delivery the service decides,
+  // because it depends on whether anything ships.
+  transactionId: z.preprocess((v) => (v === "" || v === null ? undefined : v), bkashTrxId.optional()),
+  comment: z.string().trim().max(500).optional(),
 }).refine((data) => {
   if (data.paymentMethod === "bkash") {
     // Reject missing AND reject the model's own "N/A" placeholder —
@@ -73,8 +88,10 @@ const createOrderSchema = z.object({
 
 const internalOrderDocumentSchema = z.object({
   orderId: z.string().min(1),
+  checkoutId: z.string().min(1),
   books: z.array(bookItemSchema).min(1),
   buyer: ObjectIdSchema,
+  recipientName: z.string().min(2),
   phoneNumber: z.string().min(11),
   email: z.string().email(),
   deliveryAddress: z.string().min(5),
@@ -101,7 +118,15 @@ const updateOrderSchema = z.object({
   message: "At least one field must be provided to update",
 });
 
+const quoteSchema = z.object({
+  books: z
+    .array(z.object({ book: z.string().max(40), quantity: z.number().int().min(1).max(100) }))
+    .max(50),
+  shippingArea: z.enum(["inside", "outside"]).default("inside"),
+});
+
 export const orderValidations = {
+  quoteSchema,
   createOrderSchema,
   internalOrderDocumentSchema,
   updateOrderSchema,

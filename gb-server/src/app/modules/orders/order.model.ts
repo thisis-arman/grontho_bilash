@@ -49,6 +49,16 @@ const orderSchema = new Schema<TOrder>(
       ref: "User",
       required: true,
     },
+    // Optional only so orders placed before this field existed still load.
+    recipientName: {
+      type: String,
+      trim: true,
+    },
+    // Orders split by seller from one checkout share this id.
+    checkoutId: {
+      type: String,
+      index: true,
+    },
     phoneNumber: {
       type: String,
       required: true,

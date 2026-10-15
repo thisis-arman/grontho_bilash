@@ -10,6 +10,9 @@ import { z } from 'zod';
 import { ProductModel } from '../book/product.model';
 import { sendEmailAboutOrderDetailtoSystemAdmin } from './order.utils';
 import { USER_ROLE } from '../user/user.interface';
+import { randomUUID } from 'crypto';
+import { quoteCart, REQUIRE_ADVANCE_DELIVERY_CHARGE, SHIPPING_RATES } from './order.quote';
+import { sendOrderConfirmationToBuyer } from './order.utils';
 import { isAdminRole } from '../../middlewares/auth';
 
 type TRequester = { id?: string; email?: string; role?: string };
@@ -53,10 +56,8 @@ type TrustedLineItem = {
 // Update these to match your real rates if they differ.
 // ─────────────────────────────────────────────────────────────
 
-const SHIPPING_RATES: Record<ShippingArea, number> = {
-  inside: 70,
-  outside: 130,
-};
+// Rates and the advance-payment rule live in order.quote.ts so the bag
+// page's quote and the real order always agree.
 
 // ─────────────────────────────────────────────────────────────
 // Raw checkout payload shape (validated by createOrderSchema in
@@ -127,7 +128,8 @@ const decrementStockForItem = async (
   };
 
   if (product.productType === "Digital") {
-    return lineItem; // not quantity-limited
+    // No stock to reserve, and one copy per buyer is all that makes sense.
+    return { ...lineItem, quantity: 1 };
   }
 
 
@@ -238,6 +240,33 @@ const createOrder = async (
     else mergedCart.set(item.book, { ...item });
   }
 
+  // Payment rules that depend on what is being shipped.
+  const products = await ProductModel.find(
+    { _id: { $in: [...mergedCart.keys()].filter((id) => Types.ObjectId.isValid(id)) } },
+    { productType: 1 }
+  );
+  const hasPhysical = products.some((p) => p.productType === "Physical");
+  if (payload.paymentMethod === "cod" && !hasPhysical) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Digital items have no delivery, so please pay by bKash.");
+  }
+  if (payload.paymentMethod === "cod" && REQUIRE_ADVANCE_DELIVERY_CHARGE && !payload.transactionId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Send the delivery charge by bKash first and enter its transaction ID."
+    );
+  }
+  // One bKash payment can only confirm one checkout.
+  if (
+    payload.transactionId &&
+    (await OrderModel.exists({ transactionId: payload.transactionId, orderStatus: { $ne: "cancelled" } }))
+  ) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "This bKash transaction ID has already been used for another order."
+    );
+  }
+
+  const checkoutId = randomUUID();
   const session = await mongoose.startSession();
 
   try {
@@ -284,8 +313,10 @@ const createOrder = async (
       // point (still derived from the original HTTP payload).
       const orderDocForValidation = {
         orderId,
+        checkoutId,
         books: items,
         buyer: buyerId,
+        recipientName: payload.recipientName,
         phoneNumber: payload.phoneNumber,
         email: payload.email,
         deliveryAddress: payload.deliveryAddress,
@@ -293,8 +324,7 @@ const createOrder = async (
         shippingCost,
         totalAmount,
         paymentMethod: payload.paymentMethod,
-        transactionId:
-          payload.paymentMethod === "bkash" ? payload.transactionId! : "N/A",
+        transactionId: payload.transactionId ?? "N/A",
         comment: payload.comment,
       };
       const validated = orderValidations.internalOrderDocumentSchema.parse(
@@ -338,6 +368,7 @@ const createOrder = async (
           await sendEmailAboutOrderDetailtoSystemAdmin(adminEmails, order);
         }
       }
+      await sendOrderConfirmationToBuyer(payload.email, createdOrders);
     } catch (mailError) {
       console.error("Order notification failed:", mailError);
     }
@@ -561,7 +592,11 @@ const getSalesBySeller = async (sellerId: string) => {
   });
 };
 
+const getQuote = (payload: z.infer<typeof orderValidations.quoteSchema>, buyerId?: string) =>
+  quoteCart(payload.books, payload.shippingArea, buyerId);
+
 export const orderServices = {
+  getQuote,
   getSalesBySeller,
   createOrder,
   getOrderById,

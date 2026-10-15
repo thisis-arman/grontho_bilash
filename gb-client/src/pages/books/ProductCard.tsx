@@ -1,10 +1,7 @@
 import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 import { BookOpen, Check, MapPin, Plus } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
-import { addToCart, getProductsFromCart } from '../../redux/features/cart/cartSlice';
+import { useAddToCart } from '../cart/useAddToCart';
 import { IProduct } from '../../types/interface';
 
 const PRICE = new Intl.NumberFormat('en-BD');
@@ -19,46 +16,18 @@ const sized = (url: string, width: number) =>
 type ShopProduct = Omit<IProduct, 'seller'> & { seller?: { _id?: string; name?: string } | string | null };
 
 const ProductCard = ({ product }: { product: ShopProduct }) => {
-  const user = useAppSelector(selectCurrentUser) as TUser | null;
-  const cart = useAppSelector(getProductsFromCart);
-  const dispatch = useAppDispatch();
+  const { add, inCart: findInCart } = useAddToCart();
   const [imageFailed, setImageFailed] = useState(false);
 
-  const sellerId = typeof product.seller === 'object' ? product.seller?._id : product.seller;
   const isDigital = product.productType === 'Digital';
   const isOut = product.stockStatus === 'Out of Stock';
-  const inCart = cart.find((item) => item.book === product._id);
-  const stock = product.inventory?.quantity ?? 0;
+  const inCart = findInCart(product._id);
   // basePrice is what the buyer pays; discountPrice is the older, higher
   // price shown crossed out.
   const original = product.price?.discountPrice > product.price?.basePrice ? product.price.discountPrice : null;
   const image = product.images?.[0];
 
-  const handleAdd = () => {
-    if (user?.id && user.id === sellerId) {
-      toast.info('This is your own listing');
-      return;
-    }
-    if (isOut) return;
-    if (inCart && (isDigital || inCart.quantity >= stock)) {
-      toast.info(isDigital ? 'Already in your bag' : 'You already have every available copy in your bag');
-      return;
-    }
-    dispatch(
-      addToCart({
-        book: product._id,
-        seller: sellerId,
-        quantity: 1,
-        bookTitle: product.title,
-        price: product.price.basePrice,
-        productImage: image ?? '',
-        deliveryOption: product.fulfillmentOptions?.allowShipping ? 'Shipping' : 'Pickup',
-        isNegotiable: product.price.isNegotiable,
-        shippingCost: 0,
-      })
-    );
-    toast.success('Added to your bag', { description: product.title });
-  };
+  const handleAdd = () => add(product);
 
   return (
     <article className="group flex flex-col">

@@ -37,6 +37,7 @@ interface Order {
     orderId: string;
     books: { book: string; bookTitle: string; productImage: string; price: number; quantity: number }[];
     bought_by?: { name?: string; email?: string; contactNo?: string }[];
+    recipientName?: string;
     phoneNumber: string;
     email: string;
     deliveryAddress: string;
@@ -256,6 +257,7 @@ const OrderManagement = () => {
                             <dl>
                                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">Delivery</p>
                                 <Row label="Buyer">{buyerName(viewing)}</Row>
+                                {viewing.recipientName && <Row label="Deliver to">{viewing.recipientName}</Row>}
                                 <Row label="Phone">
                                     <a href={`tel:${viewing.phoneNumber}`} className="text-amber-700 hover:underline">{viewing.phoneNumber}</a>
                                 </Row>
@@ -267,7 +269,7 @@ const OrderManagement = () => {
                             <dl>
                                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">Payment</p>
                                 <Row label="Method">{viewing.paymentMethod === "bkash" ? "bKash" : "Cash on delivery"}</Row>
-                                {viewing.paymentMethod === "bkash" && (
+                                {viewing.transactionId && viewing.transactionId !== "N/A" && (
                                     <Row label="Transaction ID"><span className="font-mono">{viewing.transactionId}</span></Row>
                                 )}
                                 <Row label="Delivery charge">{money(viewing.shippingCost)}</Row>
