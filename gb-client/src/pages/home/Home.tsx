@@ -392,102 +392,6 @@ const CategoryTicker = () => {
 };
 
 /* ==========================================================================
-   BENEFITS
-   ========================================================================== */
-
-const BenefitsSection = () => (
-    <section className={`${container} py-20 sm:py-28`}>
-        <SectionHeader
-            index={1}
-            eyebrow="কেন গ্রন্থবিলাস"
-            title={
-                <>
-                    বই কেনাবেচায় তোমার{" "}
-                    <span className="text-amber-400">চারটা সুবিধা</span>
-                </>
-            }
-        />
-
-        <div className="grid border-t border-white/10 md:grid-cols-2">
-            {benefits.map((benefit, i) => (
-                <Reveal
-                    key={benefit.title}
-                    delay={(i % 2) * 0.08}
-                    className={`group border-b border-white/10 py-9 sm:py-12 ${
-                        i % 2 === 0 ? "md:border-r md:pr-12" : "md:pl-12"
-                    }`}
-                >
-                    <span className="font-display text-sm text-stone-600 transition-colors duration-300 group-hover:text-amber-400">
-                        {bnIndex(i + 1)}
-                    </span>
-                    <h3 className="mt-4 font-display text-2xl font-bold leading-snug text-stone-50 sm:text-3xl">
-                        {benefit.title}
-                    </h3>
-                    <p className="mt-3 max-w-md leading-relaxed text-stone-400">
-                        {benefit.desc}
-                    </p>
-                </Reveal>
-            ))}
-        </div>
-    </section>
-);
-
-/* ==========================================================================
-   HOW IT WORKS
-   ========================================================================== */
-
-const HowItWorksSection = () => (
-    <section className="border-y border-white/10 bg-stone-900/40">
-        <div className={`${container} py-20 sm:py-28`}>
-            <SectionHeader
-                index={2}
-                eyebrow="কীভাবে কাজ করে"
-                title="তিন ধাপে কেনা, তিন ধাপে বেচা"
-            />
-
-            <div className="grid gap-6 lg:grid-cols-2">
-                {journeys.map((journey, j) => (
-                    <Reveal
-                        key={journey.label}
-                        delay={j * 0.1}
-                        className="flex flex-col rounded-3xl border border-white/10 bg-stone-950 p-7 sm:p-10"
-                    >
-                        <p className="mb-8 inline-flex w-fit items-center rounded-full border border-amber-400/30 px-4 py-1.5 text-sm font-semibold text-amber-400">
-                            {journey.label}
-                        </p>
-
-                        <ol className="flex-1">
-                            {journey.steps.map((step, i) => (
-                                <li
-                                    key={step.title}
-                                    className="flex gap-5 border-t border-white/10 py-6 first:border-t-0 first:pt-0"
-                                >
-                                    <span className="font-display text-sm text-stone-600">
-                                        {bnIndex(i + 1)}
-                                    </span>
-                                    <div>
-                                        <h3 className="font-display text-xl font-bold text-stone-50">
-                                            {step.title}
-                                        </h3>
-                                        <p className="mt-1.5 leading-relaxed text-stone-400">
-                                            {step.desc}
-                                        </p>
-                                    </div>
-                                </li>
-                            ))}
-                        </ol>
-
-                        <div className="mt-4">
-                            <TextLink to={journey.cta.to}>{journey.cta.text}</TextLink>
-                        </div>
-                    </Reveal>
-                ))}
-            </div>
-        </div>
-    </section>
-);
-
-/* ==========================================================================
    RECENT LISTINGS
    ========================================================================== */
 
@@ -635,6 +539,104 @@ const RecentListingsSection = () => {
         </section>
     );
 };
+
+/* ==========================================================================
+   BENEFITS
+   ========================================================================== */
+
+const BenefitsSection = () => (
+    <section className={`${container} py-20 sm:py-28`}>
+        <SectionHeader
+            index={1}
+            eyebrow="কেন গ্রন্থবিলাস"
+            title={
+                <>
+                    বই কেনাবেচায় তোমার{" "}
+                    <span className="text-amber-400">চারটা সুবিধা</span>
+                </>
+            }
+        />
+
+        <div className="grid border-t border-white/10 md:grid-cols-2">
+            {benefits.map((benefit, i) => (
+                <Reveal
+                    key={benefit.title}
+                    delay={(i % 2) * 0.08}
+                    className={`group border-b border-white/10 py-9 sm:py-12 ${
+                        i % 2 === 0 ? "md:border-r md:pr-12" : "md:pl-12"
+                    }`}
+                >
+                    <span className="font-display text-sm text-stone-600 transition-colors duration-300 group-hover:text-amber-400">
+                        {bnIndex(i + 1)}
+                    </span>
+                    <h3 className="mt-4 font-display text-2xl font-bold leading-snug text-stone-50 sm:text-3xl">
+                        {benefit.title}
+                    </h3>
+                    <p className="mt-3 max-w-md leading-relaxed text-stone-400">
+                        {benefit.desc}
+                    </p>
+                </Reveal>
+            ))}
+        </div>
+    </section>
+);
+
+/* ==========================================================================
+   HOW IT WORKS
+   ========================================================================== */
+
+const HowItWorksSection = () => (
+    <section className="border-y border-white/10 bg-stone-900/40">
+        <div className={`${container} py-20 sm:py-28`}>
+            <SectionHeader
+                index={2}
+                eyebrow="কীভাবে কাজ করে"
+                title="তিন ধাপে কেনা, তিন ধাপে বেচা"
+            />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+                {journeys.map((journey, j) => (
+                    <Reveal
+                        key={journey.label}
+                        delay={j * 0.1}
+                        className="flex flex-col rounded-3xl border border-white/10 bg-stone-950 p-7 sm:p-10"
+                    >
+                        <p className="mb-8 inline-flex w-fit items-center rounded-full border border-amber-400/30 px-4 py-1.5 text-sm font-semibold text-amber-400">
+                            {journey.label}
+                        </p>
+
+                        <ol className="flex-1">
+                            {journey.steps.map((step, i) => (
+                                <li
+                                    key={step.title}
+                                    className="flex gap-5 border-t border-white/10 py-6 first:border-t-0 first:pt-0"
+                                >
+                                    <span className="font-display text-sm text-stone-600">
+                                        {bnIndex(i + 1)}
+                                    </span>
+                                    <div>
+                                        <h3 className="font-display text-xl font-bold text-stone-50">
+                                            {step.title}
+                                        </h3>
+                                        <p className="mt-1.5 leading-relaxed text-stone-400">
+                                            {step.desc}
+                                        </p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+
+                        <div className="mt-4">
+                            <TextLink to={journey.cta.to}>{journey.cta.text}</TextLink>
+                        </div>
+                    </Reveal>
+                ))}
+            </div>
+        </div>
+    </section>
+);
+
+
 
 /* ==========================================================================
    CATEGORIES
