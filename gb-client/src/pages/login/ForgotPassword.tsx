@@ -1,15 +1,17 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } from "../../redux/features/auth/authApi";
+import AuthLayout, { authButton, authInput, authLabel, authLink, FormError } from "./AuthLayout";
+import { OtpInput, PasswordField, PasswordStrength, RedirectIfSignedIn } from "./authHelpers";
 
-const inputClass =
-  "w-full px-4 py-2.5 text-sm text-gray-700 border border-gray-200 rounded-xl bg-gray-50 outline-none transition-all focus:border-yellow-500 focus:ring-2 focus:ring-yellow-100 focus:bg-white";
-const labelClass =
-  "block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide";
+const RESEND_SECONDS = 30;
+
+const apiMessage = (error: unknown, fallback: string) =>
+  (error as { data?: { message?: string } })?.data?.message || fallback;
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -18,149 +20,157 @@ const ForgotPassword = () => {
 
   const [email, setEmail] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
-  const handleSendCode = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
+  const sendCode = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
     setError("");
     try {
       await forgotPassword({ email: email.trim() }).unwrap();
       setCodeSent(true);
-    } catch (err: any) {
-      setError(err?.data?.message || "Could not send the code. Please try again.");
+      setCode("");
+      setCooldown(RESEND_SECONDS);
+    } catch (err) {
+      setError(apiMessage(err, "Could not send the code. Please try again."));
     }
   };
 
-  const handleReset = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleReset = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError("");
-    const form = e.currentTarget;
-    const otp = (form.elements.namedItem("otp") as HTMLInputElement).value.trim();
-    const newPassword = (form.elements.namedItem("newPassword") as HTMLInputElement).value;
-    const confirm = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value;
-
-    if (newPassword !== confirm) {
-      setError("Passwords do not match.");
+    if (code.length !== 6) {
+      setError("Enter the 6-digit code from the email.");
       return;
     }
-
+    if (password !== confirm) {
+      setError("The two passwords do not match.");
+      return;
+    }
     try {
-      await resetPassword({ email: email.trim(), otp, newPassword }).unwrap();
-      toast.success("Password reset. Please log in with your new password.");
-      navigate("/login");
-    } catch (err: any) {
-      setError(err?.data?.message || "Could not reset the password. Please try again.");
+      await resetPassword({ email: email.trim(), otp: code, newPassword: password }).unwrap();
+      toast.success("Password reset. Log in with your new password.");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setCode("");
+      setError(apiMessage(err, "Could not reset the password. Please try again."));
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex justify-center mb-6">
-          <Link to="/">
-            <img src="/logo.png" className="h-12 w-12" alt="Grontho Bilash" />
-          </Link>
-        </div>
-
-        <h1 className="text-2xl font-semibold text-gray-800 mb-1">Reset your password</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          {codeSent
-            ? `If an account exists for ${email}, we emailed it a 6-digit code. It expires in 5 minutes.`
-            : "Enter your account email and we will send you a reset code."}
-        </p>
-
-        {error && (
-          <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-
+    <RedirectIfSignedIn>
+      <AuthLayout
+        title={codeSent ? "Set a new password" : "Reset your password"}
+        subtitle={
+          codeSent ? (
+            <>
+              If <strong className="text-stone-900">{email}</strong> has an account, we emailed it a 6-digit code. It
+              expires in 5 minutes.
+            </>
+          ) : (
+            "Enter the email you signed up with and we will send you a reset code."
+          )
+        }
+        footer={
+          <>
+            Remembered it?{" "}
+            <Link to="/login" className={authLink}>
+              Back to login
+            </Link>
+          </>
+        }
+      >
         {!codeSent ? (
-          <form onSubmit={handleSendCode} className="space-y-4">
+          <form onSubmit={sendCode} className="space-y-5">
+            <FormError message={error} />
             <div>
-              <label htmlFor="email" className={labelClass}>Email address</label>
+              <label htmlFor="reset-email" className={authLabel}>
+                Email
+              </label>
               <input
-                id="email"
+                id="reset-email"
                 type="email"
                 required
+                autoFocus
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className={inputClass}
+                className={authInput}
               />
             </div>
-            <button
-              type="submit"
-              disabled={isSending}
-              className="w-full py-2.5 rounded-xl bg-yellow-600 text-white text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60"
-            >
+            <button type="submit" disabled={isSending} className={authButton}>
               {isSending ? "Sending..." : "Send reset code"}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleReset} className="space-y-4">
+          <form onSubmit={handleReset} className="space-y-5">
+            <FormError message={error} />
             <div>
-              <label htmlFor="otp" className={labelClass}>6-digit code</label>
-              <input
-                id="otp"
-                name="otp"
-                inputMode="numeric"
-                pattern="\d{6}"
-                maxLength={6}
-                required
-                autoComplete="one-time-code"
-                className={`${inputClass} tracking-[0.4em]`}
-              />
+              <p className={authLabel}>6-digit code</p>
+              <OtpInput value={code} onChange={setCode} disabled={isResetting} />
             </div>
             <div>
-              <label htmlFor="newPassword" className={labelClass}>New password</label>
-              <input
-                id="newPassword"
+              <label htmlFor="new-password" className={authLabel}>
+                New password
+              </label>
+              <PasswordField
+                id="new-password"
                 name="newPassword"
-                type="password"
-                minLength={6}
-                required
                 autoComplete="new-password"
-                className={inputClass}
+                minLength={6}
+                value={password}
+                onChange={setPassword}
+                placeholder="At least 6 characters"
               />
+              <PasswordStrength password={password} />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className={labelClass}>Confirm new password</label>
-              <input
-                id="confirmPassword"
+              <label htmlFor="confirm-password" className={authLabel}>
+                Confirm new password
+              </label>
+              <PasswordField
+                id="confirm-password"
                 name="confirmPassword"
-                type="password"
-                minLength={6}
-                required
                 autoComplete="new-password"
-                className={inputClass}
+                minLength={6}
+                value={confirm}
+                onChange={setConfirm}
               />
             </div>
-            <button
-              type="submit"
-              disabled={isResetting}
-              className="w-full py-2.5 rounded-xl bg-yellow-600 text-white text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60"
-            >
+            <button type="submit" disabled={isResetting} className={authButton}>
               {isResetting ? "Resetting..." : "Reset password"}
             </button>
-            <button
-              type="button"
-              onClick={() => { setCodeSent(false); setError(""); }}
-              className="w-full text-sm text-gray-500 hover:text-yellow-700"
-            >
-              Use a different email or resend the code
-            </button>
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                onClick={() => { setCodeSent(false); setError(""); }}
+                className="font-medium text-stone-500 hover:text-stone-900"
+              >
+                Change email
+              </button>
+              <button
+                type="button"
+                onClick={() => sendCode()}
+                disabled={cooldown > 0 || isSending}
+                className="font-semibold text-amber-700 hover:underline disabled:text-stone-400 disabled:no-underline"
+              >
+                {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+              </button>
+            </div>
           </form>
         )}
-
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Remembered it?{" "}
-          <Link to="/login" className="font-medium text-yellow-600 hover:text-yellow-700">
-            Back to login
-          </Link>
-        </p>
-      </div>
-    </main>
+      </AuthLayout>
+    </RedirectIfSignedIn>
   );
 };
 

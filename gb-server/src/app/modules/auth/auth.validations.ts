@@ -1,14 +1,20 @@
 import { z } from "zod";
 
+const email = z
+  .string({ required_error: "Email is required" })
+  .trim()
+  .toLowerCase()
+  .email("Please enter a valid email address");
+
 const loginValidationSchema = z.object({
-  email: z.string({ required_error: "email is required." }),
-  password: z.string({ required_error: "Password is required" }),
+  email,
+  password: z.string({ required_error: "Password is required" }).min(1).max(128),
 });
 const forgotPasswordValidationSchema = z.object({
-  email: z.string().trim().email("Please enter a valid email address"),
+  email,
 });
 const resetPasswordValidationSchema = z.object({
-  email: z.string().trim().email("Please enter a valid email address"),
+  email,
   otp: z.union([z.string(), z.number()]),
   newPassword: z
     .string()

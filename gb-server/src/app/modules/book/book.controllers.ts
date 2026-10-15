@@ -68,6 +68,16 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getShopFacets = catchAsync(async (req: Request, res: Response) => {
+  const result = await bookServices.getShopFacetsFromDb();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Shop filters fetched successfully",
+    data: result
+  });
+});
+
 const getProductsForAdmin = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.getProductsForAdminFromDb({ ...req.query });
   sendResponse(res, {
@@ -190,5 +200,6 @@ export const bookController = {
   createProduct,
   getAllProducts,
   getProductsForAdmin,
+  getShopFacets,
   getProductBySlug
 };

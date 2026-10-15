@@ -7,7 +7,7 @@ import sendResponse from "../../utils/sendResponse";
 import { User } from "../user/user.model";
 import { otpServices } from "./otp.services";
 
-const emailSchema = z.string().trim().email("Please enter a valid email address");
+const emailSchema = z.string().trim().toLowerCase().email("Please enter a valid email address");
 
 // Controller for creating OTP (sign-up email verification)
 const createOtp = catchAsync(async (req, res) => {

@@ -12,6 +12,11 @@ export const bookApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Books"],
     }),
+    // Category counts and price range for the shop filters.
+    getShopFacets: builder.query({
+      query: () => ({ url: "/books/shop-facets", method: "GET" }),
+      providesTags: ["Books"],
+    }),
     // Admin catalogue: includes drafts and out-of-stock listings.
     getAdminProducts: builder.query({
       query: (params) => ({
@@ -108,5 +113,6 @@ export const {
   useCreateProductMutation,
   useGetProductsQuery,
   useGetAdminProductsQuery,
+  useGetShopFacetsQuery,
   useGetProductBySlugQuery
 } = bookApi;

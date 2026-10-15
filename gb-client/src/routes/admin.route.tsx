@@ -3,7 +3,9 @@ import {
   Users,
   BookOpen,
   ShoppingBag,
-  UserCircle
+  UserCircle,
+  Newspaper,
+  NotebookPen
 } from "lucide-react";
 import { lazy } from "react";
 
@@ -13,6 +15,8 @@ const OrderManagement = lazy(() => import("../pages/dashboard/adminDashboard/Ord
 const ProductManagement = lazy(() => import("../pages/dashboard/adminDashboard/ProductManagement"));
 const UserManagement = lazy(() => import("../pages/dashboard/adminDashboard/UserManagement"));
 const ProfilePage = lazy(() => import("../pages/dashboard/ProfilePage"));
+const BlogAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/BlogAdmin"));
+const SuggestionAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/SuggestionAdmin"));
 
 export interface DashboardPath {
   name: string;
@@ -48,6 +52,18 @@ export const adminPaths: DashboardPath[] = [
     path: "user-management",
     icon: <Users size={18} />,
     element: <UserManagement />,
+  },
+  {
+    name: "Suggestions",
+    path: "suggestions",
+    icon: <NotebookPen size={18} />,
+    element: <SuggestionAdmin />,
+  },
+  {
+    name: "Blog",
+    path: "blogs",
+    icon: <Newspaper size={18} />,
+    element: <BlogAdmin />,
   },
   {
     name: "Profile",

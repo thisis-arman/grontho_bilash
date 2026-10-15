@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useChangePasswordMutation } from "../../redux/features/auth/authApi";
-import { logout, selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
+import { signOut, selectCurrentUser, TUser } from "../../redux/features/auth/authSlice";
 import {
     useDeleteUserMutation,
     useGetMeQuery,
@@ -96,7 +96,7 @@ const ProfilePage = () => {
             await changePassword({ oldPassword: String(form.get("oldPassword")), newPassword }).unwrap();
             // The old session is no longer valid once the password changes.
             toast.success("Password changed. Please log in again.");
-            dispatch(logout());
+            dispatch(signOut());
             navigate("/login");
         } catch (error) {
             toast.error(errorMessage(error, "Could not change your password"));
@@ -107,7 +107,7 @@ const ProfilePage = () => {
         try {
             await deleteUser(profile._id).unwrap();
             toast.success("Your account has been deactivated");
-            dispatch(logout());
+            dispatch(signOut());
             navigate("/");
         } catch (error) {
             toast.error(errorMessage(error, "Could not deactivate your account"));

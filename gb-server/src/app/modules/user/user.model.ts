@@ -74,8 +74,13 @@ userSchema.post("save", async function (doc, next) {
   next();
 });
 
+// Case-insensitive, so "Name@Mail.com" and "name@mail.com" are the same
+// account (older accounts may have been saved with capitals).
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
-  return await User.findOne({ email });
+  return await User.findOne({ email: email?.trim() }).collation({
+    locale: "en",
+    strength: 2,
+  });
 };
 
 userSchema.statics.isPasswordMatched = async function (

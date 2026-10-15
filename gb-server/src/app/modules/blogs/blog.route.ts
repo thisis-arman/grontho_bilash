@@ -1,119 +1,67 @@
-import express from "express";
-import fs from "fs";
-import { blogController } from "./blog.controller";
-import { USER_ROLE } from "../user/user.interface";
-import { imageUploader, upload } from "../../utils/imageUploader";
+import { Router } from "express";
 import { Auth } from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { createBlogSchema, updateBlogSchema } from "./blog.validation";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import { USER_ROLE } from "../user/user.interface";
+import { BLOG_CATEGORIES } from "./blog.model";
+import { blogService } from "./blog.service";
+import { blogValidations } from "./blog.validation";
 
+const router = Router();
+const adminOnly = Auth(USER_ROLE.admin, USER_ROLE.superAdmin);
 
-const router = express.Router();
+const ok = (res: Parameters<typeof sendResponse>[0], data: unknown, message: string, statusCode = 200) =>
+  sendResponse(res, { statusCode, success: true, message, data });
 
-// ── Public Routes ─────────────────────────────────────────────────────────────
+// ── Public ───────────────────────────────────────────────────────────────
 
-// Get all published blogs (with filters, search, pagination)
-router.get("/", blogController.getAllBlogs);
-
-// Get a blog by slug (SEO-friendly public URL)
-router.get("/slug/:slug", blogController.getBlogBySlug);
-
-// Get all blogs by a specific author
-router.get("/author/:authorId", blogController.getBlogsByAuthor);
-
-// ── Image Upload ──────────────────────────────────────────────────────────────
-
-router.post(
-  "/upload",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  upload.single("image"),
-  async (req, res): Promise<void> => {
-    try {
-      const imageName = req.file?.originalname;
-      const path = req.file?.path;
-
-      if (!imageName || !path) {
-        res.status(400).json({ error: "Image file is required." });
-        return;
-      }
-
-      const result = (await imageUploader(imageName, path)) as { secure_url: string };
-
-      fs.unlink(path, (err) => {
-        if (err) console.error("Failed to delete local file:", err);
-      });
-
-      res.status(200).json({ url: result?.secure_url });
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      res.status(500).json({ error: "Failed to upload image" });
-    }
-  }
-);
-
-// ── Protected Routes (Admin / SuperAdmin) ─────────────────────────────────────
-
-// Create a new blog post
-router.post(
-  "/create-blog",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  validateRequest(createBlogSchema),
-  blogController.createBlog
-);
-
-// Get single blog by ID (admin/editor)
 router.get(
-  "/:id",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.getBlogById
+  "/",
+  catchAsync(async (req, res) => ok(res, await blogService.listPublished(req.query), "Posts fetched"))
 );
 
-// Update blog
+router.get("/categories", (_req, res) => ok(res, BLOG_CATEGORIES, "Categories fetched"));
+
+router.get(
+  "/slug/:slug",
+  catchAsync(async (req, res) => ok(res, await blogService.getPublishedBySlug(req.params.slug), "Post fetched"))
+);
+
+// ── Admin ────────────────────────────────────────────────────────────────
+
+router.get(
+  "/admin/all",
+  adminOnly,
+  catchAsync(async (req, res) => ok(res, await blogService.listForAdmin(req.query), "Posts fetched"))
+);
+
+router.get(
+  "/admin/:id",
+  adminOnly,
+  catchAsync(async (req, res) => ok(res, await blogService.getForAdmin(req.params.id), "Post fetched"))
+);
+
+router.post(
+  "/",
+  adminOnly,
+  validateRequest(blogValidations.createBlogSchema),
+  catchAsync(async (req, res) =>
+    ok(res, await blogService.createBlog(req.body, req.user.id), "Post created", 201)
+  )
+);
+
 router.patch(
   "/:id",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  validateRequest(updateBlogSchema),
-  blogController.updateBlog
+  adminOnly,
+  validateRequest(blogValidations.updateBlogSchema),
+  catchAsync(async (req, res) => ok(res, await blogService.updateBlog(req.params.id, req.body), "Post updated"))
 );
 
-// Publish a blog
-router.patch(
-  "/:id/publish",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.publishBlog
-);
-
-// Archive a blog
-router.patch(
-  "/:id/archive",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.archiveBlog
-);
-
-// Soft delete a blog
 router.delete(
   "/:id",
-  Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.deleteBlog
-);
-
-// ── Engagement Routes (Authenticated Users) ───────────────────────────────────
-
-// Increment view count
-router.patch("/:id/views", blogController.incrementViews);
-
-// Toggle like
-router.patch(
-  "/:id/like",
-  Auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.toggleLike
-);
-
-// Toggle save/bookmark
-router.patch(
-  "/:id/save",
-  Auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
-  blogController.toggleSave
+  adminOnly,
+  catchAsync(async (req, res) => ok(res, await blogService.deleteBlog(req.params.id), "Post deleted"))
 );
 
 export const blogRoutes = router;

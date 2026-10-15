@@ -12,6 +12,7 @@ const anyUser = Auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin);
 router.get("/", bookController.getBooks);
 
 router.get("/all-products", bookController.getAllProducts);
+router.get("/shop-facets", bookController.getShopFacets);
 router.get(
   "/admin/all-products",
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin),

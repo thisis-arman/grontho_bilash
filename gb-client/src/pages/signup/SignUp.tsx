@@ -1,375 +1,322 @@
-'use client'
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import SignUpForm from "./SignUpForm";
+import { FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Check, MailCheck } from "lucide-react";
+import { toast } from "sonner";
+import countryData from "../../assets/db/country_dial_info.json";
 import { useCreateOtpMutation, useVerifyOtpMutation } from "../../redux/features/otp/otpApi";
-import { Link } from "react-router-dom";
+import { useCreateUserMutation } from "../../redux/features/user/userApi";
+import { setUser, TUser } from "../../redux/features/auth/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
+import { verifyToken } from "../../utils/verifyToken";
+import AuthLayout, { authButton, authInput, authLabel, authLink, FormError } from "../login/AuthLayout";
+import { OtpInput, PasswordField, PasswordStrength, RedirectIfSignedIn, useReturnPath } from "../login/authHelpers";
 
-const STEPS = [
-  { id: 1, label: "Email" },
-  { id: 2, label: "Verify" },
-  { id: 3, label: "Account" },
-];
+const STEPS = ["Email", "Verify", "Details"];
+const RESEND_SECONDS = 30;
+// Survives a page refresh during sign-up; cleared once the account exists.
+const PROGRESS_KEY = "gb_signup";
+
+const DEFAULT_COUNTRY = countryData.find((c) => c.code === "BD") ?? countryData[0];
+
+const apiMessage = (error: unknown, fallback: string) =>
+  (error as { data?: { message?: string } })?.data?.message || fallback;
+
+const loadProgress = (): { email: string; step: number } => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(PROGRESS_KEY) ?? "null");
+    if (saved?.email && (saved.step === 1 || saved.step === 2)) return saved;
+  } catch {
+    // ignore
+  }
+  return { email: "", step: 0 };
+};
+
+const Stepper = ({ step }: { step: number }) => (
+  <ol className="mb-8 flex items-center gap-2" aria-label="Sign-up progress">
+    {STEPS.map((label, i) => (
+      <li key={label} className="flex flex-1 items-center gap-2">
+        <span
+          className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+            i < step ? "bg-emerald-500 text-white" : i === step ? "bg-stone-900 text-white" : "bg-stone-200 text-stone-500"
+          }`}
+          aria-current={i === step ? "step" : undefined}
+        >
+          {i < step ? <Check size={14} aria-hidden="true" /> : i + 1}
+        </span>
+        <span className={`text-sm font-semibold ${i === step ? "text-stone-900" : "text-stone-400"}`}>{label}</span>
+        {i < STEPS.length - 1 && <span className="ml-1 h-px flex-1 bg-stone-200" aria-hidden="true" />}
+      </li>
+    ))}
+  </ol>
+);
 
 const SignUp = () => {
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const returnPath = useReturnPath();
 
-  const [createOtp] = useCreateOtpMutation();
-  const [verifyOtp] = useVerifyOtpMutation();
+  const [createOtp, { isLoading: isSending }] = useCreateOtpMutation();
+  const [verifyOtp, { isLoading: isVerifying }] = useVerifyOtpMutation();
+  const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const initial = loadProgress();
+  const [step, setStep] = useState(initial.step);
+  const [email, setEmail] = useState(initial.email);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
-  const fieldsRef = useRef<HTMLDivElement>(null);
-  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [name, setName] = useState("");
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY.code);
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
 
-  const startResendCooldown = () => {
-    setResendCooldown(30);
-    const interval = setInterval(() => {
-      setResendCooldown((prev) => {
-        if (prev <= 1) { clearInterval(interval); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
+  useEffect(() => {
+    if (step > 0) sessionStorage.setItem(PROGRESS_KEY, JSON.stringify({ email, step }));
+  }, [email, step]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
+  const goTo = (next: number) => {
+    setError("");
+    setStep(next);
   };
 
-  const inputFocus = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    const elements = fieldsRef.current!.children;
-    if (e.key === "Delete" || e.key === "Backspace") {
-      if (index > 0) (elements[index - 1] as HTMLElement).focus();
-    } else if (e.key.length === 1 && !isNaN(Number(e.key))) {
-      if (index < 5) (elements[index + 1] as HTMLElement).focus();
-    }
-  };
-
-  const handleOtpChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    const value = e.target.value.replace(/\D/g, "").slice(-1);
-    const next = [...otp];
-    next[index] = value;
-    setOtp(next);
-    setOtpError("");
-    if (value && index < 5) {
-      const elements = fieldsRef.current!.children;
-      (elements[index + 1] as HTMLElement).focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    const next = Array(6).fill("");
-    pasted.split("").forEach((char, i) => { next[i] = char; });
-    setOtp(next);
-  };
-
-  const handleSendOtp = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setEmailError("");
-    setIsSending(true);
-    const email = (e.currentTarget as HTMLFormElement).email.value;
+  const sendCode = async () => {
+    setError("");
     try {
-      const response = await createOtp({ email });
-      if (response.data?.success) {
-        localStorage.setItem('otpInfo', JSON.stringify({ email }));
-        setIsOtpSent(true);
-        setCurrentStep(2);
-        startResendCooldown();
-      } else {
-        setEmailError((response.error as any)?.data?.message || "Failed to send OTP. Please try again.");
-      }
-    } catch {
-      setEmailError("Something went wrong. Please try again.");
-    } finally {
-      setIsSending(false);
+      await createOtp({ email: email.trim() }).unwrap();
+      setCode("");
+      setCooldown(RESEND_SECONDS);
+      return true;
+    } catch (err) {
+      setError(apiMessage(err, "Could not send the code. Please try again."));
+      return false;
     }
   };
 
-  const handleVerifyOtp = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setOtpError("");
-    const otpCode = otp.join("");
-    if (otpCode.length < 6) { setOtpError("Please enter all 6 digits."); return; }
-    setIsVerifying(true);
-    const savedData = localStorage.getItem('otpInfo');
-    const email = savedData ? JSON.parse(savedData).email : null;
+  const handleEmail = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (await sendCode()) goTo(1);
+  };
+
+  const handleVerify = async (value = code) => {
+    if (value.length !== 6 || isVerifying) return;
+    setError("");
     try {
-      const response = await verifyOtp({ email, otp: Number(otpCode) });
-      if (response.data?.data?.verified) {
-        setIsVerified(true);
-        setCurrentStep(3);
-      } else {
-        setOtpError((response.error as any)?.data?.message || "Invalid OTP. Please check and try again.");
-        setOtp(Array(6).fill(""));
-        (fieldsRef.current!.children[0] as HTMLElement).focus();
-      }
-    } catch {
-      setOtpError("Verification failed. Please try again.");
-    } finally {
-      setIsVerifying(false);
+      await verifyOtp({ email: email.trim(), otp: value }).unwrap();
+      goTo(2);
+    } catch (err) {
+      setCode("");
+      setError(apiMessage(err, "That code is not right. Please try again."));
     }
   };
 
-  const handleResend = async () => {
-    if (resendCooldown > 0) return;
-    const savedData = localStorage.getItem('otpInfo');
-    const email = savedData ? JSON.parse(savedData).email : null;
-    if (!email) return;
-    setOtp(Array(6).fill(""));
-    setOtpError("");
-    const response = await createOtp({ email });
-    if (response.data?.success) {
-      startResendCooldown();
-    } else {
-      setOtpError((response.error as any)?.data?.message || "Could not resend the code. Please try again.");
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    const dial = countryData.find((c) => c.code === countryCode)?.dial_code ?? DEFAULT_COUNTRY.dial_code;
+    // People usually type the local form (01712...); drop the trunk zero
+    // so the stored number is +8801712... rather than +88001712...
+    const localNumber = phone.replace(/\D/g, "").replace(/^0+/, "");
+
+    try {
+      const response = await createUser({
+        name: name.trim(),
+        email: email.trim(),
+        contactNo: `${dial}${localNumber}`,
+        password,
+      }).unwrap();
+      sessionStorage.removeItem(PROGRESS_KEY);
+
+      const token = response?.data?.accessToken;
+      if (token) {
+        const user = verifyToken(token) as TUser;
+        dispatch(setUser({ user, token }));
+        toast.success("Welcome to Grontho Bilash!");
+        navigate(returnPath(user.role), { replace: true });
+      } else {
+        toast.success("Account created. Please log in.");
+        navigate("/login");
+      }
+    } catch (err) {
+      setError(apiMessage(err, "Could not create your account. Please try again."));
     }
+  };
+
+  const startOver = () => {
+    sessionStorage.removeItem(PROGRESS_KEY);
+    setCode("");
+    goTo(0);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 flex flex-col">
-      {/* Header */}
-      <header className="py-6 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="">
-              <Link to="/" className="flex items-center gap-2" >
-                <img
-                  src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
-                  alt="Grontho Bilash"
-                  className="h-8 w-auto object-contain"
-                />
-                <span className="font-bold text-xl text-neutral-900 dark:text-white tracking-tight">
-                  Grontho<span className="text-yellow-500">Bilash</span>
-                </span>
-              </Link>
-            </div>
-
-          </div>
-          <a href="/login" className="text-sm font-medium text-gray-500 hover:text-yellow-600 transition-colors">
-            Already have an account? <span className="text-yellow-600 underline underline-offset-2">Log in</span>
-          </a>
-        </div>
-      </header>
-
-      {/* Main */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
-
-          {/* Step Progress */}
-          {!isVerified && (
-            <div className="mb-8">
-              <div className="flex items-center justify-center gap-0">
-                {STEPS.map((step, idx) => (
-                  <div key={step.id} className="flex items-center">
-                    <div className="flex flex-col items-center">
-                      <div className={`
-                        w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300
-                        ${currentStep > step.id
-                          ? "bg-yellow-500 text-white shadow-md shadow-yellow-200"
-                          : currentStep === step.id
-                            ? "bg-white text-yellow-600 border-2 border-yellow-500 shadow-md shadow-yellow-100"
-                            : "bg-white text-gray-300 border-2 border-gray-200"
-                        }
-                      `}>
-                        {currentStep > step.id ? (
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                        ) : step.id}
-                      </div>
-                      <span className={`mt-1.5 text-xs font-medium transition-colors duration-300 ${currentStep === step.id ? "text-yellow-600" : currentStep > step.id ? "text-yellow-500" : "text-gray-400"}`}>
-                        {step.label}
-                      </span>
-                    </div>
-                    {idx < STEPS.length - 1 && (
-                      <div className={`w-16 sm:w-24 h-0.5 mb-5 mx-1 transition-colors duration-500 ${currentStep > step.id ? "bg-yellow-400" : "bg-gray-200"}`} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Card */}
-          {isVerified ? (
-            <SignUpForm isVerified={isVerified} />
+    <RedirectIfSignedIn>
+      <AuthLayout
+        title={step === 0 ? "Create your account" : step === 1 ? "Check your email" : "Almost done"}
+        subtitle={
+          step === 0 ? (
+            "Free to join. We will send a code to confirm your email."
+          ) : step === 1 ? (
+            <>
+              We sent a 6-digit code to <strong className="text-stone-900">{email}</strong>. It expires in 5 minutes.
+            </>
           ) : (
-            <div className="bg-white rounded-2xl shadow-xl shadow-gray-100 border border-gray-100/80 overflow-hidden">
-              {/* Card Top Accent */}
-              <div className="h-1 w-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-400" />
+            "Tell us a little about you and choose a password."
+          )
+        }
+        footer={
+          <>
+            Already have an account?{" "}
+            <Link to="/login" className={authLink}>
+              Log in
+            </Link>
+          </>
+        }
+      >
+        <Stepper step={step} />
 
-              <div className="p-6 sm:p-8">
-                {!isOtpSent ? (
-                  /* ── Step 1: Email ── */
-                  <div>
-                    <div className="mb-7">
-                      <div className="w-12 h-12 rounded-2xl bg-yellow-50 flex items-center justify-center mb-4 border border-yellow-100">
-                        <svg className="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                        </svg>
-                      </div>
-                      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Get started</h1>
-                      <p className="mt-1 text-sm text-gray-500">Enter your email to receive a verification code.</p>
-                    </div>
+        {step === 0 && (
+          <form onSubmit={handleEmail} className="space-y-5">
+            <FormError message={error} />
+            <div>
+              <label htmlFor="signup-email" className={authLabel}>
+                Email
+              </label>
+              <input
+                id="signup-email"
+                type="email"
+                required
+                autoFocus
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className={authInput}
+              />
+            </div>
+            <button type="submit" disabled={isSending} className={authButton}>
+              {isSending ? "Sending code..." : "Continue"}
+            </button>
+          </form>
+        )}
 
-                    <form onSubmit={handleSendOtp} className="space-y-4">
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Email address
-                        </label>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          required
-                          placeholder="you@example.com"
-                          onChange={() => setEmailError("")}
-                          className={`w-full rounded-xl border py-3 px-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all duration-200
-                            bg-gray-50 hover:bg-white focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 focus:border-transparent
-                            ${emailError ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"}`}
-                        />
-                        {emailError && (
-                          <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {emailError}
-                          </p>
-                        )}
-                      </div>
+        {step === 1 && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleVerify();
+            }}
+            className="space-y-5"
+          >
+            <FormError message={error} />
+            <OtpInput value={code} onChange={setCode} onComplete={handleVerify} disabled={isVerifying} />
+            <button type="submit" disabled={code.length !== 6 || isVerifying} className={authButton}>
+              <MailCheck size={18} aria-hidden="true" />
+              {isVerifying ? "Checking..." : "Verify email"}
+            </button>
+            <div className="flex items-center justify-between text-sm">
+              <button type="button" onClick={startOver} className="font-medium text-stone-500 hover:text-stone-900">
+                Change email
+              </button>
+              <button
+                type="button"
+                onClick={sendCode}
+                disabled={cooldown > 0 || isSending}
+                className="font-semibold text-amber-700 hover:underline disabled:text-stone-400 disabled:no-underline"
+              >
+                {cooldown > 0 ? `Resend in ${cooldown}s` : isSending ? "Sending..." : "Resend code"}
+              </button>
+            </div>
+          </form>
+        )}
 
-                      <button
-                        type="submit"
-                        disabled={isSending}
-                        className="w-full py-3 rounded-xl bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 text-white text-sm font-semibold shadow-md shadow-yellow-200 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        {isSending ? (
-                          <>
-                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                            Sending code…
-                          </>
-                        ) : (
-                          <>
-                            Send verification code
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  </div>
-                ) : (
-                  /* ── Step 2: OTP ── */
-                  <div>
-                    <div className="mb-7">
-                      <div className="w-12 h-12 rounded-2xl bg-yellow-50 flex items-center justify-center mb-4 border border-yellow-100">
-                        <svg className="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                        </svg>
-                      </div>
-                      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Check your inbox</h1>
-                      <p className="mt-1 text-sm text-gray-500">
-                        We sent a 6-digit code to{" "}
-                        <span className="font-medium text-gray-700">
-                          {JSON.parse(localStorage.getItem('otpInfo') || '{}')?.email || "your email"}
-                        </span>
-                      </p>
-                    </div>
+        {step === 2 && (
+          <form onSubmit={handleCreate} className="space-y-5">
+            <FormError message={error} />
+            <div>
+              <label htmlFor="signup-name" className={authLabel}>
+                Full name
+              </label>
+              <input
+                id="signup-name"
+                required
+                minLength={2}
+                maxLength={80}
+                autoFocus
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className={authInput}
+              />
+            </div>
 
-                    <form onSubmit={handleVerifyOtp} className="space-y-5">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">Verification code</label>
-                        <div ref={fieldsRef} className="flex items-center gap-2 justify-between" onPaste={handlePaste}>
-                          {otp.map((digit, index) => (
-                            <input
-                              key={index}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={digit}
-                              data-index={index}
-                              onChange={(e) => handleOtpChange(e, index)}
-                              onKeyUp={(e) => inputFocus(e, index)}
-                              className={`
-                                w-full max-w-[48px] h-12 sm:h-14 rounded-xl border-2 text-center text-xl font-bold text-gray-900
-                                outline-none transition-all duration-200 bg-gray-50 hover:bg-white
-                                focus:bg-white focus:border-yellow-500 focus:shadow-md focus:shadow-yellow-100
-                                ${otpError ? "border-red-400 bg-red-50" : digit ? "border-yellow-400 bg-white" : "border-gray-200"}
-                              `}
-                            />
-                          ))}
-                        </div>
-                        {otpError && (
-                          <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
-                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {otpError}
-                          </p>
-                        )}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isVerifying || otp.join("").length < 6}
-                        className="w-full py-3 rounded-xl bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 text-white text-sm font-semibold shadow-md shadow-yellow-200 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        {isVerifying ? (
-                          <>
-                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                            Verifying…
-                          </>
-                        ) : "Verify & continue"}
-                      </button>
-
-                      <div className="flex items-center justify-between text-sm pt-1">
-                        <button
-                          type="button"
-                          onClick={() => { setIsOtpSent(false); setCurrentStep(1); setOtp(Array(6).fill("")); setOtpError(""); }}
-                          className="text-gray-400 hover:text-gray-600 flex items-center gap-1 transition-colors"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                          </svg>
-                          Change email
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleResend}
-                          disabled={resendCooldown > 0}
-                          className="text-yellow-600 hover:text-yellow-500 font-medium disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-                        >
-                          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
+            <div>
+              <label htmlFor="signup-phone" className={authLabel}>
+                Phone number
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  aria-label="Country code"
+                  className={`${authInput} w-28 flex-shrink-0 cursor-pointer px-2.5`}
+                >
+                  {countryData.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.dial_code}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  id="signup-phone"
+                  type="tel"
+                  inputMode="tel"
+                  required
+                  pattern="[0-9\s-]{8,16}"
+                  title="Digits only, e.g. 01712345678"
+                  autoComplete="tel-national"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01712345678"
+                  className={authInput}
+                />
               </div>
             </div>
-          )}
 
-          {/* Footer note */}
-          {!isVerified && (
-            <p className="mt-6 text-center text-xs text-gray-400">
-              By signing up, you agree to our{" "}
-              <a href="#" className="text-yellow-600 hover:underline">Terms of Service</a> and{" "}
-              <a href="#" className="text-yellow-600 hover:underline">Privacy Policy</a>.
+            <div>
+              <label htmlFor="signup-password" className={authLabel}>
+                Password
+              </label>
+              <PasswordField
+                id="signup-password"
+                name="password"
+                autoComplete="new-password"
+                minLength={6}
+                value={password}
+                onChange={setPassword}
+                placeholder="At least 6 characters"
+              />
+              <PasswordStrength password={password} />
+            </div>
+
+            <button type="submit" disabled={isCreating} className={authButton}>
+              {isCreating ? "Creating account..." : "Create account"}
+            </button>
+            <p className="text-center text-xs leading-relaxed text-stone-500">
+              By creating an account you agree to our{" "}
+              <Link to="/terms" className="underline">Terms</Link> and{" "}
+              <Link to="/privacy" className="underline">Privacy Policy</Link>.
             </p>
-          )}
-        </div>
-      </main>
-    </div>
+          </form>
+        )}
+      </AuthLayout>
+    </RedirectIfSignedIn>
   );
 };
 

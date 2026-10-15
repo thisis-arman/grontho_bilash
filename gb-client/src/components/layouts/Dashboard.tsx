@@ -2,7 +2,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftRight, Home, LogOut, Menu, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { logout, selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
+import { signOut, selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { adminPaths } from '../../routes/admin.route';
 import { userPaths } from '../../routes/user.route';
 
@@ -36,7 +36,7 @@ const Dashboard = () => {
   useEffect(() => setDrawerOpen(false), [pathname]);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(signOut());
     navigate('/login');
   };
 

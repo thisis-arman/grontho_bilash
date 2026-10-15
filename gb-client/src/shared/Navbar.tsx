@@ -11,6 +11,7 @@ import {
   Home,
   BookOpen,
   Lightbulb,
+  Newspaper,
   Calculator,
   LayoutDashboard,
 } from "lucide-react";
@@ -27,7 +28,7 @@ import {
   MobileNavMenu,
 } from "../components/ui/resizable-navbar";
 
-import { logout, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
+import { signOut, selectCurrentUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getProductsFromCart } from "../redux/features/cart/cartSlice";
 import { TOOLS } from "../pages/tools/toolsList";
@@ -36,7 +37,8 @@ import { TOOLS } from "../pages/tools/toolsList";
 const publicNav = [
   { name: "হোম", link: "/", icon: <Home size={18} /> },
   { name: "বই", link: "/books", icon: <BookOpen size={18} /> },
-  { name: "সাজেশন", link: "/exam-suggestions", icon: <Lightbulb size={18} /> },
+  { name: "সাজেশন", link: "/suggestions", icon: <Lightbulb size={18} /> },
+  { name: "ব্লগ", link: "/blogs", icon: <Newspaper size={18} /> },
   {
     name: "টুলস",
     link: "/tools",
@@ -64,7 +66,7 @@ export function Nav() {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(signOut());
     setIsMobileMenuOpen(false);
     navigate("/");
   };

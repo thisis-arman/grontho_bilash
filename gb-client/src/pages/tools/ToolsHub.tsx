@@ -40,7 +40,7 @@ const ToolsHub = () => (
     </ul>
 
     <Link
-      to="/exam-suggestions"
+      to="/suggestions"
       className="group mt-4 flex items-center gap-4 rounded-2xl border border-dashed border-stone-300 p-5 transition hover:border-amber-400 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
     >
       <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-stone-200 text-stone-600 transition group-hover:bg-amber-100 group-hover:text-amber-600">
@@ -51,7 +51,7 @@ const ToolsHub = () => (
           পরীক্ষার সাজেশন
         </span>
         <span className="text-sm text-stone-600">
-          BBA ফাইনাল পরীক্ষার বিষয়ভিত্তিক সাজেশন দেখো।
+          বিষয়ভিত্তিক সাজেশন, নোট আর PDF এক জায়গায়।
         </span>
       </span>
     </Link>

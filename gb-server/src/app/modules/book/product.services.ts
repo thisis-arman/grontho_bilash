@@ -172,8 +172,8 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
   };
 
   if (productType) filter.productType = productType;
-  if (category) filter.category = category;
-  if (condition) filter.condition = condition;
+  if (category) filter.category = String(category);
+  if (condition) filter.condition = String(condition);
 
   if (minPrice || maxPrice) {
     filter["price.basePrice"] = {
@@ -182,11 +182,17 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
     };
   }
 
-  // Requires a text index on the Product schema, e.g.:
-  //   productSchema.index({ title: "text", description: "text", tags: "text" });
-  // Without it, $text will throw. Run this once in Mongo / add via schema.
-  if (search) {
-    filter.$text = { $search: search };
+  // Partial, case-insensitive matching ("acc" finds "Accounting"), which a
+  // $text index cannot do. Input is escaped so it is never run as a regex.
+  const term = String(search ?? "").trim().slice(0, 100);
+  if (term) {
+    const pattern = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    filter.$or = [
+      { title: { $regex: pattern, $options: "i" } },
+      { "bookMetadata.author": { $regex: pattern, $options: "i" } },
+      { "bookMetadata.isbn": { $regex: pattern, $options: "i" } },
+      { category: { $regex: pattern, $options: "i" } },
+    ];
   }
 
   const pageNum = Math.max(1, Number(page) || 1);
@@ -223,6 +229,34 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
 };
 
 export { getAllProductsFromDb };
+
+// What the shop's filters can offer: categories with live counts and the
+// price range of everything currently for sale.
+const getShopFacetsFromDb = async () => {
+  const forSale = { isDeleted: false, isPublished: true, stockStatus: { $ne: "Out of Stock" } };
+  const [categories, prices, types] = await Promise.all([
+    ProductModel.aggregate([
+      { $match: forSale },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $sort: { count: -1, _id: 1 } },
+    ]),
+    ProductModel.aggregate([
+      { $match: forSale },
+      { $group: { _id: null, min: { $min: "$price.basePrice" }, max: { $max: "$price.basePrice" } } },
+    ]),
+    ProductModel.aggregate([
+      { $match: forSale },
+      { $group: { _id: "$productType", count: { $sum: 1 } } },
+    ]),
+  ]);
+
+  return {
+    categories: categories.map((c) => ({ name: c._id, count: c.count })),
+    types: types.map((t) => ({ name: t._id, count: t.count })),
+    minPrice: prices[0]?.min ?? 0,
+    maxPrice: prices[0]?.max ?? 0,
+  };
+};
 
 // Admin view of the catalogue: unlike the public list it includes drafts
 // and out-of-stock listings, so they can be moderated.
@@ -466,6 +500,7 @@ export const bookServices = {
   searchBooksByTitle,
   createProductIntoDB,
   getAllProductsFromDb,
+  getShopFacetsFromDb,
   getProductsForAdminFromDb,
   getProductBySlugFromDb
 };

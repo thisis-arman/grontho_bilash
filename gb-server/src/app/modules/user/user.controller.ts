@@ -2,16 +2,25 @@ import { Request, Response } from "express";
 import { userServices } from "./user.services";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
+import { authServices } from "../auth/auth.services";
+import { setRefreshCookie } from "../auth/auth.controllers";
 
 const createUser = catchAsync(async (req, res) => {
-  //console.log(req.body);
-  const result = await userServices.createUserIntoDB(req.body);
-  //console.log(result);
+  await userServices.createUserIntoDB(req.body);
+
+  // Sign the new member in right away instead of sending them to the login
+  // form to type the password they just chose.
+  const { accessToken, refreshToken } = await authServices.loginUser({
+    email: req.body.email,
+    password: req.body.password,
+  });
+  setRefreshCookie(res, refreshToken);
+
   sendResponse(res, {
     success: true,
-    statusCode: 200,
-    message: "User created successfully",
-    data: result,
+    statusCode: 201,
+    message: "Account created",
+    data: { accessToken },
   });
 });
 const getMe = catchAsync(async (req, res) => {

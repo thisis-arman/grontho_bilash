@@ -7,7 +7,8 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { toast } from "sonner";
 import type { RootState } from "../store";
-import { logout } from "../features/auth/authSlice";
+import { logout, setUser } from "../features/auth/authSlice";
+import { jwtDecode } from "jwt-decode";
 import { API_BASE_URL } from "../../config/api";
 
 
@@ -34,10 +35,25 @@ const baseQueryWithSessionCheck: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
     const hadToken = !!(api.getState() as RootState).auth.token;
-    const result = await baseQuery(args, api, extraOptions);
+    let result = await baseQuery(args, api, extraOptions);
+
     if (hadToken && result.error?.status === 401) {
-        api.dispatch(logout());
-        toast.error("Your session has expired. Please log in again.", { id: "session-expired" });
+        // The access token has expired: try once to get a new one with the
+        // refresh cookie, then repeat the original request.
+        const refreshed = await fetchBaseQuery({ baseUrl: API_BASE_URL, credentials: "include" })(
+            { url: "/auth/refresh-token", method: "POST" },
+            api,
+            extraOptions
+        );
+        const accessToken = (refreshed.data as { data?: { accessToken?: string } } | undefined)?.data?.accessToken;
+
+        if (accessToken) {
+            api.dispatch(setUser({ user: jwtDecode(accessToken), token: accessToken }));
+            result = await baseQuery(args, api, extraOptions);
+        } else {
+            api.dispatch(logout());
+            toast.error("Your session has expired. Please log in again.", { id: "session-expired" });
+        }
     }
     return result;
 }
@@ -46,6 +62,6 @@ const baseQueryWithSessionCheck: BaseQueryFn<
 export const baseApi = createApi({
     reducerPath: "baseApi",
     baseQuery: baseQueryWithSessionCheck,
-    tagTypes: ["Books", "Users", "Orders"],
+    tagTypes: ["Books", "Users", "Orders", "Blogs", "Suggestions"],
     endpoints: () => ({})
 });

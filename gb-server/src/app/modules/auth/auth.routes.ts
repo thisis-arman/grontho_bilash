@@ -12,6 +12,8 @@ router.post(
   validateRequest(authValidationsSchema.loginValidationSchema),
   authControllers.loginUser
 );
+router.post("/logout", authControllers.logoutUser);
+
 // The refresh token travels in an httpOnly cookie, not the body.
 router.post("/refresh-token", authControllers.refreshToken);
 router.post(

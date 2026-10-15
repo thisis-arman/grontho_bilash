@@ -1,218 +1,146 @@
-'use client'
-
+import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { BookOpen, Check, MapPin, Plus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
-import { toast } from 'sonner';
-import { addToCart } from '../../redux/features/cart/cartSlice';
-import { ShoppingCart, Eye, MapPin, Zap, Package, BookOpen } from 'lucide-react';
+import { addToCart, getProductsFromCart } from '../../redux/features/cart/cartSlice';
 import { IProduct } from '../../types/interface';
 
+const PRICE = new Intl.NumberFormat('en-BD');
+const formatPrice = (price: number) => `৳${PRICE.format(price)}`;
 
-const conditionColors: Record<string, string> = {
-  "New":        "bg-emerald-100 text-emerald-700",
-  "Like New":   "bg-sky-100 text-sky-700",
-  "Good":       "bg-amber-100 text-amber-700",
-  "Acceptable": "bg-stone-100 text-stone-600",
-};
+// Serves Cloudinary images at the size the card actually needs.
+const sized = (url: string, width: number) =>
+  url?.includes('res.cloudinary.com') && url.includes('/image/upload/')
+    ? url.replace('/image/upload/', `/image/upload/f_auto,q_auto,w_${width},c_limit/`)
+    : url;
 
-const formatPrice = (price: number) =>
-  `৳${new Intl.NumberFormat("en-BD").format(price)}`;
+type ShopProduct = Omit<IProduct, 'seller'> & { seller?: { _id?: string; name?: string } | string | null };
 
-
-const TypeBadge = ({ type }: { type: "Physical" | "Digital" }) => (
-  <span className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm ${
-    type === "Digital" ? "bg-yellow-500/90 text-white" : "bg-white/90 text-stone-700"
-  }`}>
-    {type === "Digital" ? <Zap size={10} /> : <Package size={10} />}
-    {type}
-  </span>
-);
-
-const ConditionBadge = ({ condition }: { condition?: string }) => {
-  if (!condition || condition === "Digital Content") return null;
-  return (
-    <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${conditionColors[condition] ?? "bg-stone-100 text-stone-600"}`}>
-      {condition}
-    </span>
-  );
-};
-
-
-const ProductCard = ({ products }: { products: IProduct[] }) => {
-  const user     = useAppSelector(selectCurrentUser) as TUser;
+const ProductCard = ({ product }: { product: ShopProduct }) => {
+  const user = useAppSelector(selectCurrentUser) as TUser | null;
+  const cart = useAppSelector(getProductsFromCart);
   const dispatch = useAppDispatch();
+  const [imageFailed, setImageFailed] = useState(false);
 
-  const handleAddToCart = (product: IProduct) => {
-    if (product.productType === "Digital") {
-      toast.info("Proceed to checkout for digital products");
+  const sellerId = typeof product.seller === 'object' ? product.seller?._id : product.seller;
+  const isDigital = product.productType === 'Digital';
+  const isOut = product.stockStatus === 'Out of Stock';
+  const inCart = cart.find((item) => item.book === product._id);
+  const stock = product.inventory?.quantity ?? 0;
+  // basePrice is what the buyer pays; discountPrice is the older, higher
+  // price shown crossed out.
+  const original = product.price?.discountPrice > product.price?.basePrice ? product.price.discountPrice : null;
+  const image = product.images?.[0];
+
+  const handleAdd = () => {
+    if (user?.id && user.id === sellerId) {
+      toast.info('This is your own listing');
       return;
     }
-
-    const cartInfo = {
-      quantity:       1,
-      bookTitle:      product?.title,
-      book:           product?._id,
-      buyer:          user?.id,
-      seller:         product?.seller?._id as string,
-      price:          product?.price?.basePrice,
-      shippingCost:   0,                         
-      deliveryOption: product?.fulfillmentOptions?.allowShipping ? "Shipping" : "Pickup",
-      isNegotiable:   product?.price?.isNegotiable,
-      productImage:   product?.images?.[0] ?? "/placeholder.png",
-    };
-
-    try {
-      dispatch(addToCart(cartInfo));
-      toast.success(`"${product?.title}" added to bag`);
-    } catch {
-      toast.error("Failed to add to cart");
+    if (isOut) return;
+    if (inCart && (isDigital || inCart.quantity >= stock)) {
+      toast.info(isDigital ? 'Already in your bag' : 'You already have every available copy in your bag');
+      return;
     }
+    dispatch(
+      addToCart({
+        book: product._id,
+        seller: sellerId,
+        quantity: 1,
+        bookTitle: product.title,
+        price: product.price.basePrice,
+        productImage: image ?? '',
+        deliveryOption: product.fulfillmentOptions?.allowShipping ? 'Shipping' : 'Pickup',
+        isNegotiable: product.price.isNegotiable,
+        shippingCost: 0,
+      })
+    );
+    toast.success('Added to your bag', { description: product.title });
   };
 
   return (
-    <>
-      {products?.map((product : IProduct) => (
-        <article
-          key={product._id}
-          className="group relative flex flex-col bg-white rounded-2xl border border-stone-100 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+    <article className="group flex flex-col">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100">
+        <Link
+          to={`/products/${product.slug}`}
+          className="block h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400"
+          aria-label={product.title}
         >
-          {/* ── Image ──
-              Whole image is a tap target, not just the hover overlay:
-              the hover-revealed Eye button is unreachable on touch
-              devices since there's no hover state, so mobile users
-              need the image itself to be clickable through to the
-              product page. */}
-          <Link to={`/products/${product.slug}`} className="relative aspect-square overflow-hidden bg-stone-100 block">
-            {product.images?.[0] ? (
-              <img
-                alt={product.title}
-                src={product.images[0]}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="h-full w-full flex flex-col items-center justify-center gap-2 text-stone-300">
-                <BookOpen size={32} />
-                <span className="text-xs">No image</span>
-              </div>
-            )}
+          {image && !imageFailed ? (
+            <img
+              src={sized(image, 400)}
+              srcSet={image.includes('res.cloudinary.com') ? `${sized(image, 300)} 300w, ${sized(image, 450)} 450w, ${sized(image, 600)} 600w` : undefined}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onError={() => setImageFailed(true)}
+              className={`h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04] ${isOut ? 'opacity-50 grayscale' : ''}`}
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-stone-300">
+              <BookOpen size={36} aria-hidden="true" />
+            </span>
+          )}
+        </Link>
 
-            {/* Hover overlay — desktop polish only, image itself is already tappable on mobile */}
-            <div className="absolute inset-0 bg-stone-900/30 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex items-center justify-center">
-              <span
-                className="p-3 bg-white rounded-full text-stone-900 group-hover:bg-amber-500 group-hover:text-white transition-colors shadow-lg"
-                title="View Details"
-              >
-                <Eye size={18} />
-              </span>
-            </div>
+        <span className="pointer-events-none absolute left-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-stone-700 shadow-sm backdrop-blur">
+          {isOut ? 'Sold out' : isDigital ? 'Digital' : product.condition}
+        </span>
 
-            <ConditionBadge condition={product.condition} />
-            <TypeBadge type={product.productType} />
+        {!isOut && (
+          <button
+            type="button"
+            onClick={handleAdd}
+            aria-label={inCart ? `${product.title} is in your bag` : `Add ${product.title} to bag`}
+            className={`absolute bottom-2.5 right-2.5 flex h-10 w-10 items-center justify-center rounded-full shadow-md transition duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 ${
+              inCart ? 'bg-emerald-500 text-white' : 'bg-white text-stone-900 hover:bg-amber-400'
+            }`}
+          >
+            {inCart ? <Check size={18} aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}
+          </button>
+        )}
+      </div>
 
-            {/* Out of Stock overlay */}
-            {product.stockStatus === "Out of Stock" && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                <span className="px-3 py-1.5 bg-stone-800 text-white text-xs font-bold rounded-lg tracking-widest uppercase">
-                  Sold Out
-                </span>
-              </div>
-            )}
+      <div className="mt-3 flex flex-1 flex-col px-0.5">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-stone-900">
+          <Link to={`/products/${product.slug}`} className="transition-colors hover:text-amber-700">
+            {product.title}
           </Link>
+        </h3>
+        {product.bookMetadata?.author && (
+          <p className="mt-0.5 truncate text-xs text-stone-500">{product.bookMetadata.author}</p>
+        )}
 
-          {/* ── Content ── */}
-          <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2 sm:gap-2.5">
-
-            {/* Title + Price */}
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-xs sm:text-sm font-semibold text-stone-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors flex-1">
-                <Link to={`/products/${product?.slug}`}>{product?.title}</Link>
-              </h3>
-              <div className="text-right flex-shrink-0">
-                <p className="text-sm sm:text-base font-bold text-stone-900">
-                  {formatPrice(product?.price?.basePrice!)}
-                </p>
-                {(product?.price?.discountPrice ?? 0) > 0 && (
-                  <p className="text-xs text-stone-400 line-through">
-                    {formatPrice(product?.price?.discountPrice!)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Author / edition */}
-            {product?.bookMetadata?.author && (
-              <p className="text-xs text-stone-400">
-                by{" "}
-                <span className="text-stone-600 font-medium">
-                  {product?.bookMetadata?.author}
-                </span>
-                {product?.bookMetadata?.edition && (
-                  <span> · {product?.bookMetadata?.edition}</span>
-                )}
-              </p>
-            )}
-
-            {/* Tags */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              {product?.price?.isNegotiable && (
-                <span className="px-2 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold border border-amber-100">
-                  Negotiable
-                </span>
-              )}
-              {product?.category && (
-                <span className="px-2 rounded-md bg-stone-100 text-stone-500 text-[10px] font-semibold">
-                  {product?.category}
-                </span>
-              )}
-              {product?.productType === "Digital" && product?.digitalDetails?.fileType && (
-                <span className="px-2 rounded-md bg-yellow-50 text-yellow-500 text-[10px] font-semibold border border-yellow-100">
-                  {product?.digitalDetails?.fileType}
-                </span>
-              )}
-            </div>
-
-            {/* Location — physical only */}
-            {product?.productType === "Physical" && product?.location && (
-              <div className="flex items-center gap-1 text-stone-400 text-xs">
-                <MapPin size={11} className="flex-shrink-0" />
-                <span className="line-clamp-1">{product?.location}</span>
-              </div>
-            )}
-
-            {/* ── CTA ── */}
-            <div className="mt-auto pt-1">
-              {product.stockStatus === "Out of Stock" ? (
-                <button
-                  disabled
-                  className="w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-100 text-stone-400 cursor-not-allowed"
-                >
-                  Unavailable
-                </button>
-              ) : product?.productType === "Digital" ? (
-                <Link
-                  to={`/products/${product?.slug}`}
-                  className="w-full py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <Zap size={15} />
-                  Get Digital Copy
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="w-full py-2 sm:py-2.5 bg-yellow-50 hover:bg-yellow-600 text-stone-800 hover:text-white rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart size={15} />
-                  Add to Cart
-                </button>
-              )}
-            </div>
-
-          </div>
-        </article>
-      ))}
-    </>
+        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+          <p className="flex items-baseline gap-1.5">
+            <span className="font-display text-base font-bold text-stone-900">{formatPrice(product.price.basePrice)}</span>
+            {original && <span className="text-xs text-stone-400 line-through">{formatPrice(original)}</span>}
+          </p>
+          {product.price.isNegotiable && (
+            <span className="flex-shrink-0 text-[11px] font-medium text-emerald-700">Negotiable</span>
+          )}
+        </div>
+        {product.location && !isDigital && (
+          <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-stone-400">
+            <MapPin size={11} aria-hidden="true" className="flex-shrink-0" />
+            <span className="truncate">{product.location}</span>
+          </p>
+        )}
+      </div>
+    </article>
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);
+
+export const ProductCardSkeleton = () => (
+  <div aria-hidden="true">
+    <div className="aspect-[3/4] animate-pulse rounded-2xl bg-stone-200/70" />
+    <div className="mt-3 h-3.5 w-4/5 animate-pulse rounded bg-stone-200/70" />
+    <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-stone-200/70" />
+    <div className="mt-3 h-4 w-1/3 animate-pulse rounded bg-stone-200/70" />
+  </div>
+);

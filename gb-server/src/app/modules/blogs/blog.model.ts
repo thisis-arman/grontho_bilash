@@ -1,64 +1,67 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
-const blogSchema = new Schema(
+export const BLOG_CATEGORIES = [
+  "Book Review",
+  "Study Tips",
+  "Exam Preparation",
+  "Career",
+  "Student Life",
+  "Guides",
+  "Platform News",
+] as const;
+
+export type TBlogCategory = (typeof BLOG_CATEGORIES)[number];
+export type TContentStatus = "draft" | "published";
+
+export interface TBlog {
+  title: string;
+  slug: string;
+  excerpt: string;
+  // Markdown source. Rendered (and sanitised) by the client; raw HTML in it
+  // is never rendered.
+  content: string;
+  coverImage?: string;
+  category: TBlogCategory;
+  tags: string[];
+  // Only for book reviews.
+  bookReview?: {
+    bookTitle?: string;
+    bookAuthor?: string;
+    rating?: number;
+  };
+  author: Types.ObjectId;
+  status: TContentStatus;
+  publishedAt?: Date;
+  readingTime: number;
+  views: number;
+  isDeleted: boolean;
+}
+
+const blogSchema = new Schema<TBlog>(
   {
-    title:         { type: String, required: true, trim: true },
-    slug:          { type: String, required: true, unique: true, lowercase: true, trim: true },
-    excerpt:       { type: String, required: true, maxlength: 300 }, // for cards & SEO
-    content:       { type: String, required: true },
-    contentFormat: { type: String, enum: ["html", "markdown"], default: "html" },
-    featuredImage: { type: String, required: true },
-
-    author:        { type: Schema.Types.ObjectId, ref: "User", required: true },
-    authorName:    { type: String }, 
-
-    category: {
-      type: String,
-      enum: ["Book Review", "Academic Tips", "Platform News", "User Story"],
-      required: true,
+    title: { type: String, required: true, trim: true, maxlength: 160 },
+    slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    excerpt: { type: String, trim: true, maxlength: 300, default: "" },
+    content: { type: String, default: "" },
+    coverImage: { type: String },
+    category: { type: String, enum: BLOG_CATEGORIES, required: true },
+    tags: { type: [String], default: [] },
+    bookReview: {
+      bookTitle: { type: String, trim: true },
+      bookAuthor: { type: String, trim: true },
+      rating: { type: Number, min: 1, max: 5 },
     },
-    tags: [{ type: String }],
-
-    seo: {
-      metaTitle:       { type: String, maxlength: 60 },
-      metaDescription: { type: String, maxlength: 160 },
-      keywords:        [{ type: String }],
-      canonicalUrl:    { type: String },
-      ogImage:         { type: String },
-    },
-
-    // Engagement
-    views:        { type: Number, default: 0 },
-    likes:        [{ type: Schema.Types.ObjectId, ref: "User" }],
-    savedBy:      [{ type: Schema.Types.ObjectId, ref: "User" }],
-    commentCount: { type: Number, default: 0 }, // denormalized
-    relatedBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-    relatedPosts: [{ type: Schema.Types.ObjectId, ref: "Blog" }],
-
-    readingTime: { type: Number },
-
-    status:      { type: String, enum: ["Draft", "Published", "Archived"], default: "Draft" },
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    status: { type: String, enum: ["draft", "published"], default: "draft" },
     publishedAt: { type: Date },
-    isDeleted:   { type: Boolean, default: false },
+    readingTime: { type: Number, default: 1 },
+    views: { type: Number, default: 0 },
+    isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { timestamps: true }
 );
 
-blogSchema.pre("save", function (next) {
-  if (this.isModified("content")) {
-    const wordsPerMinute = 200;
-    const wordCount = this.content.split(/\s+/g).length;
-    this.readingTime = Math.ceil(wordCount / wordsPerMinute);
-  }
-  next();
-});
+blogSchema.index({ status: 1, isDeleted: 1, publishedAt: -1 });
+blogSchema.index({ category: 1, status: 1 });
 
-// Indexes
-// blogSchema.index({ slug: 1 });
-// blogSchema.index({ status: 1, publishedAt: -1 });
-// blogSchema.index({ category: 1, status: 1 });
-// blogSchema.index({ tags: 1 });
-// blogSchema.index({ author: 1 });
-// blogSchema.index({ views: -1 });
-
-export const BlogModel = model("Blog", blogSchema);
+export const BlogModel = model<TBlog>("Blog", blogSchema);

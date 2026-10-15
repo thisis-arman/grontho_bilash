@@ -6,6 +6,9 @@ import { bookRoutes } from "../book/product.route";
 import { orderRoutes } from "../orders/order.route";
 import { paymentRoutes } from "../payments/payment.routes";
 import { categoryRoutes } from "../category/category.route";
+import { blogRoutes } from "../blogs/blog.route";
+import { suggestionRoutes } from "../suggestion/suggestion.route";
+import { uploadRoutes } from "../upload/upload.route";
 
 const router = Router();
 
@@ -37,6 +40,18 @@ const moduleRouter = [
   {
     path: "/payments",
     route: paymentRoutes,
+  },
+  {
+    path: "/blogs",
+    route: blogRoutes,
+  },
+  {
+    path: "/suggestions",
+    route: suggestionRoutes,
+  },
+  {
+    path: "/uploads",
+    route: uploadRoutes,
   },
 
 ];

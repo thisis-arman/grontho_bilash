@@ -6,13 +6,19 @@ import { User } from "../user/user.model";
 import { TLoginUser } from "./auth.interface";
 import { createToken, verifyToken } from "./auth.utils";
 
+// bcrypt hash of a random string; only used to spend the same time as a
+// real password check when the email is unknown.
+const DUMMY_HASH = "$2b$12$ml.7sLgGADrNBiRz4ANAEuJ7ofFizOrriMOHm1uB82L3e3rDuTEky";
+
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist
   const user = await User.isUserExistsByEmail(payload.email);
 
   // Same message for "no such user" and "wrong password" so the login form
-  // cannot be used to discover registered emails.
+  // cannot be used to discover registered emails. The dummy comparison keeps
+  // the response time the same in both cases.
   if (!user) {
+    await User.isPasswordMatched(payload.password, DUMMY_HASH);
     throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
   }
   // checking if the user is already deleted
@@ -75,26 +81,20 @@ const refreshToken =async (token: string) => {
   }
   const { email, iat } = decoded;
 
-  // checking if the user is exist
   const user = await User.isUserExistsByEmail(email);
 
-  if (!user) {
-    throw new Error("This user is not found !");
-  }
-  // checking if the user is already deleted
-
-  const isDeleted = user?.isDeleted;
-
-  if (isDeleted) {
-    throw new Error("This user is deleted !");
-  }
-
-  // checking if the user is blocked
-
-  const userStatus = user?.status;
-
-  if (userStatus === "blocked") {
-    throw new Error("This user is blocked ! !");
+  // Any of these means the session must end, so they are all 401s.
+  if (
+    !user ||
+    user.isDeleted ||
+    user.status === "blocked" ||
+    (user.passwordChangedAt &&
+      User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat as number))
+  ) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Your session has expired. Please log in again."
+    );
   }
     const jwtPayload = {
       email: user.email,

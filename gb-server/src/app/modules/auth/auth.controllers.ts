@@ -1,3 +1,4 @@
+import { Response } from "express";
 import httpStatus from "http-status";
 import config from "../../config";
 import AppError from "../../errors/AppError";
@@ -5,19 +6,26 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { authServices } from "./auth.services";
 
+// The API and the site live on different domains in production, so the
+// cookie has to be SameSite=None (which in turn requires Secure).
+const refreshCookieOptions = {
+  secure: config.is_production,
+  sameSite: (config.is_production ? "none" : "lax") as "none" | "lax",
+  httpOnly: true,
+  path: "/",
+};
+
+export const setRefreshCookie = (res: Response, token: string) =>
+  res.cookie("refreshToken", token, {
+    ...refreshCookieOptions,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+
 const loginUser = catchAsync(async (req, res) => {
   const result = await authServices.loginUser(req.body);
   const { refreshToken, accessToken, needsUpdateProfile } = result;
 
-  //console.log(result);
-  // The API and the site live on different domains in production, so the
-  // cookie has to be SameSite=None (which in turn requires Secure).
-  res.cookie("refreshToken", refreshToken, {
-    secure: config.is_production,
-    sameSite: config.is_production ? "none" : "lax",
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-  });
+  setRefreshCookie(res, refreshToken);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -83,7 +91,18 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const logoutUser = catchAsync(async (req, res) => {
+  res.clearCookie("refreshToken", refreshCookieOptions);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Logged out",
+    data: null,
+  });
+});
+
 export const authControllers = {
+  logoutUser,
   loginUser,
   refreshToken,
   changePassword,

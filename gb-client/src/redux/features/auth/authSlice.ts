@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../../store";
+import type { AppDispatch, RootState } from "../../store";
+import { API_BASE_URL } from "../../../config/api";
+import { clearCart } from "../cart/cartSlice";
 
 export type TUser = {
   id: string;
@@ -38,6 +40,15 @@ const authSlice = createSlice({
 
 export const { setUser,logout } = authSlice.actions;
 export default authSlice.reducer;
+
+// Full sign-out: tells the API to drop the refresh cookie (best effort), then
+// clears the session and the cart so the next person on this device starts
+// clean.
+export const signOut = () => (dispatch: AppDispatch) => {
+  fetch(`${API_BASE_URL}/auth/logout`, { method: "POST", credentials: "include" }).catch(() => {});
+  dispatch(logout());
+  dispatch(clearCart());
+};
 
 export const useCurrentToken = (state: RootState) => state.auth.token;
 export const selectCurrentUser = (state: RootState) => state.auth.user;
