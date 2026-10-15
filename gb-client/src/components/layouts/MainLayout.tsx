@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Footer from "../../shared/Footer";
 import { Nav } from "../../shared/Navbar";
 import { useAppSelector } from "../../redux/hooks";
@@ -7,14 +7,8 @@ import ScrollToTop from "../../utils/ScrollToTop";
 
 const MainLayout = () => {
     const user = useAppSelector(selectCurrentUser);
-    const { pathname } = useLocation();
-
-    // The home page is dark; "dark" switches the navbar to its dark variant
-    // there so it does not sit as a white strip above the hero.
-    const isHome = pathname === "/";
-
     return (
-        <div className={isHome ? "dark bg-stone-950" : ""}>
+        <div>
             <Nav />
             <ScrollToTop />
             <div className={`[-pt-16] ${user ? "pb-16 md:pb-0" : ""}`}>

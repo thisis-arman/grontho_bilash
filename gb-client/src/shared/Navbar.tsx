@@ -32,6 +32,9 @@ import { signOut, selectCurrentUser, TUser } from "../redux/features/auth/authSl
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getProductsFromCart } from "../redux/features/cart/cartSlice";
 import { TOOLS } from "../pages/tools/toolsList";
+import ThemeToggle from "../theme/ThemeToggle";
+
+const toggleClass = "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800";
 
 // ─── Public nav links (rendered via the resizable-navbar's NavItems) ───────
 const publicNav = [
@@ -128,7 +131,7 @@ export function Nav() {
               alt="Grontho Bilash"
               className="h-8 w-auto object-contain"
             />
-            <span className="font-bold text-xl text-neutral-900 dark:text-white tracking-tight">
+            <span className="font-bold text-xl text-neutral-900 dark:text-neutral-50 tracking-tight">
               গ্রন্থ<span className="text-yellow-500">বিলাস</span>
             </span>
           </Link>
@@ -136,6 +139,7 @@ export function Nav() {
           <NavItems items={publicNav} />
 
           <div className="flex items-center gap-4">
+            <ThemeToggle className={toggleClass} />
             {user && <CartIcon />}
 
             {user ? (
@@ -167,11 +171,12 @@ export function Nav() {
                 alt="Grontho Bilash"
                 className="h-7 w-auto object-contain"
               />
-              <span className="font-bold text-lg text-neutral-900 dark:text-white tracking-tight">
+              <span className="font-bold text-lg text-neutral-900 dark:text-neutral-50 tracking-tight">
                 Grontho<span className="text-yellow-500">Bilash</span>
               </span>
             </a>
             <div className="flex items-center gap-2">
+              <ThemeToggle className={toggleClass} />
               {user && <CartIcon />}
               <MobileNavToggle isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen((v) => !v)} />
             </div>

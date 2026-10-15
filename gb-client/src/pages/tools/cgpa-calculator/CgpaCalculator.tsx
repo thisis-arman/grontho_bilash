@@ -226,7 +226,7 @@ export default function CgpaCalculator() {
       </div>
 
       {/* Live result, pinned while scrolling through terms */}
-      <div className="sticky top-20 z-30 mb-6 rounded-2xl bg-stone-900 p-4 text-white shadow-lg sm:p-5" aria-live="polite">
+      <div className="scheme-fixed sticky top-20 z-30 mb-6 rounded-2xl bg-stone-900 p-4 text-white shadow-lg ring-1 ring-white/10 sm:p-5" aria-live="polite">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold text-stone-400">মোট CGPA</p>

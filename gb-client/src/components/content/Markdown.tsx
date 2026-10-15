@@ -41,7 +41,7 @@ const components: Components = {
       <code className="rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[0.9em] text-stone-800">{children}</code>
     ),
   pre: ({ children }) => (
-    <pre className="my-6 overflow-x-auto rounded-2xl bg-stone-950 p-5 text-sm leading-relaxed text-stone-100">{children}</pre>
+    <pre className="scheme-fixed my-6 overflow-x-auto rounded-2xl bg-stone-950 p-5 text-sm leading-relaxed text-stone-100">{children}</pre>
   ),
   table: ({ children }) => (
     <div className="my-6 overflow-x-auto rounded-xl border border-stone-200">

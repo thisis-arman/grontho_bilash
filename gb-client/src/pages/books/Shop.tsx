@@ -424,7 +424,7 @@ const Shop = () => {
       {/* Phone / tablet filter sheet */}
       {filtersOpen && (
         <div className="fixed inset-0 z-[100] lg:hidden">
-          <div className="absolute inset-0 bg-stone-950/50 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} aria-hidden="true" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} aria-hidden="true" />
           <div
             role="dialog"
             aria-modal="true"

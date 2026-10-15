@@ -1,3 +1,7 @@
+// Themed palettes resolve to CSS variables so they switch between day and
+// night; see scripts/generate-theme.cjs.
+import palette from "./src/theme/palette.tailwind.json";
+
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: ["class"],
@@ -14,6 +18,7 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			...palette,
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

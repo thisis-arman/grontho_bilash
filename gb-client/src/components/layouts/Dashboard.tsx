@@ -4,6 +4,7 @@ import { ArrowLeftRight, Home, LogOut, Menu, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { signOut, selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { adminPaths } from '../../routes/admin.route';
+import ThemeToggle from '../../theme/ThemeToggle';
 import { userPaths } from '../../routes/user.route';
 
 const LOGO = 'https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png';
@@ -96,14 +97,19 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-stone-50 font-sans text-stone-900">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-stone-950 lg:flex">
-        <div className="flex h-16 items-center border-b border-white/10 px-5">{brand}</div>
+      <aside className="scheme-fixed fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/10 bg-stone-950 lg:flex">
+        <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
+          {brand}
+          <ThemeToggle className="text-stone-300 hover:bg-white/10 hover:text-white" />
+        </div>
         {navigation}
       </aside>
 
       {/* Phone / tablet top bar */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-stone-950 px-4 lg:hidden">
+      <header className="scheme-fixed sticky top-0 z-40 flex h-14 items-center justify-between bg-stone-950 px-4 lg:hidden">
         {brand}
+        <div className="flex items-center gap-1">
+        <ThemeToggle className="text-stone-300 hover:bg-white/10 hover:text-white" />
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
@@ -113,6 +119,7 @@ const Dashboard = () => {
         >
           <Menu size={22} aria-hidden="true" />
         </button>
+        </div>
       </header>
 
       {/* Phone / tablet drawer */}
@@ -122,10 +129,10 @@ const Dashboard = () => {
       >
         <div
           onClick={() => setDrawerOpen(false)}
-          className={`absolute inset-0 bg-stone-950/60 transition-opacity duration-200 ${drawerOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black/60 transition-opacity duration-200 ${drawerOpen ? 'opacity-100' : 'opacity-0'}`}
         />
         <aside
-          className={`absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-stone-950 shadow-2xl transition-transform duration-200 ease-out ${
+          className={`scheme-fixed absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-stone-950 shadow-2xl transition-transform duration-200 ease-out ${
             drawerOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
           // Keeps hidden links out of the tab order while the drawer is closed.

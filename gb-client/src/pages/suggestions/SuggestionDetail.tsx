@@ -199,7 +199,7 @@ const SuggestionDetail = () => {
           role="dialog"
           aria-modal="true"
           aria-label={lightbox.name}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-950/90 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
           onClick={() => setLightbox(null)}
           onKeyDown={(e) => e.key === "Escape" && setLightbox(null)}
         >

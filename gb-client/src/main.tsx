@@ -6,16 +6,17 @@ import { persistor, store } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import router from './routes/route';
 import { RouterProvider } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import ThemeProvider from './theme/ThemeProvider';
 import { Analytics } from '@vercel/analytics/react';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider router={router} />
-      </PersistGate>
-      <Toaster position="top-center" />
+      <ThemeProvider>
+        <PersistGate loading={null} persistor={persistor}>
+          <RouterProvider router={router} />
+        </PersistGate>
+      </ThemeProvider>
       <Analytics />
     </Provider>
   </React.StrictMode>

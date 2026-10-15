@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, ShieldCheck, Truck } from "lucide-react";
+import ThemeToggle from "../../theme/ThemeToggle";
 
 const LOGO = "https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png";
 
@@ -41,7 +42,7 @@ const AuthLayout = ({
   footer?: ReactNode;
 }) => (
   <div className="flex min-h-screen bg-stone-50 font-sans">
-    <aside className="relative hidden w-[44%] max-w-xl flex-col justify-between overflow-hidden bg-stone-950 p-12 text-white lg:flex">
+    <aside className="scheme-fixed relative hidden w-[44%] max-w-xl flex-col justify-between overflow-hidden bg-stone-950 p-12 text-white lg:flex">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl"
@@ -82,9 +83,12 @@ const AuthLayout = ({
             Grontho<span className="text-amber-500">Bilash</span>
           </span>
         </Link>
-        <Link to="/" className="text-sm font-medium text-stone-500 hover:text-stone-900">
-          ← Back to site
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="text-stone-500 hover:bg-stone-200 hover:text-stone-900" />
+          <Link to="/" className="text-sm font-medium text-stone-500 hover:text-stone-900">
+            ← Back to site
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-1 items-start justify-center px-5 pb-12 pt-4 sm:items-center sm:px-8">

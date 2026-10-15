@@ -765,7 +765,9 @@ const ClosingSection = () => (
    ========================================================================== */
 
 const Home = () => (
-    <main className="bg-stone-950 font-sans text-stone-100 antialiased">
+    // scheme-flip: this page is designed dark, so it shows as designed at
+    // night and in its light mirror by day.
+    <main className="scheme-flip bg-stone-950 font-sans text-stone-100 antialiased">
         <HeroSection />
         <CategoryTicker />
         <BenefitsSection />
