@@ -305,7 +305,7 @@ const HeroSection = () => (
 
             <Reveal delay={0.05}>
                 <h1 className="font-display text-[clamp(2.6rem,9.5vw,7.5rem)] font-extrabold leading-[1.12] tracking-tight text-stone-50">
-                    কম দামে বই কেনো।
+                    কম দামে বই কিনো।
                     <br />
                     পড়া শেষে{" "}
                     <span className="text-amber-400">বেচে দাও।</span>
