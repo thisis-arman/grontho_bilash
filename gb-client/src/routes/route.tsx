@@ -89,11 +89,11 @@ const router = createBrowserRouter([
             },
             {
                 path: '/about',
-                element: <><PageMeta title="About us" description="Grontho Bilash is a student marketplace for buying and selling used books, notes and exam suggestions in Bangladesh." /><AboutUs /></>
+                element: <AboutUs />
             },
             {
                 path: '/contact',
-                element: <><PageMeta title="Contact us" description="Get in touch with the Grontho Bilash team for help with orders, listings or your account." /><ContactUs /></>
+                element: <ContactUs />
             },
 
             {

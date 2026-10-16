@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { whatsappLink } from "../components/WhatsAppButton";
 
 
 const footerNavs = [
@@ -160,6 +161,12 @@ const Footer = () => {
                 <Phone size={14} className="text-amber-500 flex-shrink-0" />
                 <a href="tel:+8801883350118" className="hover:text-amber-400 transition-colors">
                   +8801883350118
+                </a>
+              </li>
+              <li className="flex items-center gap-2.5 text-stone-500">
+                <MessageCircle size={14} className="text-[#25D366] flex-shrink-0" />
+                <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors">
+                  WhatsApp সাপোর্ট
                 </a>
               </li>
             </ul>
