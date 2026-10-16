@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BookOpen, ShieldCheck, Truck } from "lucide-react";
 import ThemeToggle from "../../theme/ThemeToggle";
 
-const LOGO = "https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png";
+const LOGO = "/logo-96.png";
 
 const points = [
   { icon: BookOpen, text: "Buy used books and notes for less" },

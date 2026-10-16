@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Avatar, Dropdown, Space, MenuProps } from "antd";
-import { UserOutlined } from "@ant-design/icons";
 import {
   ShoppingCart,
   LogOut,
@@ -14,6 +12,7 @@ import {
   Newspaper,
   Calculator,
   LayoutDashboard,
+  User,
 } from "lucide-react";
 
 import {
@@ -79,35 +78,16 @@ export function Nav() {
     return location.pathname.startsWith(path);
   };
 
-  // Ant Design avatar dropdown items (desktop only)
+  // Account menu items (desktop only).
   // Admins have their own area; the buying and selling pages live under
   // /user for everyone.
   const dashboardHome = user?.role === "user" ? "/user/dashboard" : "/admin/dashboard";
   const profilePath = user?.role === "user" ? "/user/user-profile" : "/admin/admin-profile";
 
-  const dropdownItems: MenuProps["items"] = [
-    {
-      key: "dashboard",
-      label: <Link to={dashboardHome}>ড্যাশবোর্ড</Link>,
-    },
-    {
-      key: "profile",
-      label: <Link to={profilePath}>প্রোফাইল</Link>,
-    },
-    {
-      key: "orders",
-      label: <Link to="/user/my-orders">আমার অর্ডার</Link>,
-    },
-    { type: "divider" },
-    {
-      key: "logout",
-      label: (
-        <button onClick={handleLogout} className="flex items-center gap-2 w-full text-red-600">
-          <LogOut size={14} />
-          সাইন আউট
-        </button>
-      ),
-    },
+  const accountLinks = [
+    { to: dashboardHome, label: "ড্যাশবোর্ড" },
+    { to: profilePath, label: "প্রোফাইল" },
+    { to: "/user/my-orders", label: "আমার অর্ডার" },
   ];
 
   const CartIcon = () => (
@@ -127,7 +107,9 @@ export function Nav() {
         <NavBody>
           <Link to="/" className="flex items-center gap-2 cursor-pointer">
             <img
-              src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
+              src="/logo-96.png"
+              width={32}
+              height={32}
               alt="Grontho Bilash"
               className="h-8 w-auto object-contain"
             />
@@ -144,11 +126,7 @@ export function Nav() {
 
             {user ? (
               <>
-                <Space>
-                  <Dropdown menu={{ items: dropdownItems }} placement="bottomRight">
-                    <Avatar icon={<UserOutlined />} className="cursor-pointer hover:opacity-80 transition-opacity" />
-                  </Dropdown>
-                </Space>
+                <AccountMenu links={accountLinks} onLogout={handleLogout} />
                 <NavbarButton href="/user/add-product" variant="primary">
                   বিক্রি করো
                 </NavbarButton>
@@ -167,7 +145,9 @@ export function Nav() {
           <MobileNavHeader>
             <a href="/" className="flex items-center gap-2 cursor-pointer">
               <img
-                src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png"
+                src="/logo-96.png"
+              width={32}
+              height={32}
                 alt="Grontho Bilash"
                 className="h-7 w-auto object-contain"
               />
@@ -269,3 +249,60 @@ export function Nav() {
 }
 
 export default Nav;
+// Small replacement for antd's Dropdown + Avatar, which pulled the whole antd
+// library into the first download for one menu.
+function AccountMenu({ links, onLogout }: { links: { to: string; label: string }[]; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+
+  useEffect(() => setOpen(false), [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [open]);
+
+  const itemClass =
+    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-neutral-700 transition hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800";
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account menu"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-200 text-neutral-600 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:bg-neutral-700 dark:text-neutral-200"
+      >
+        <User size={16} aria-hidden="true" />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          {links.map((l) => (
+            <Link key={l.to} to={l.to} role="menuitem" className={itemClass}>
+              {l.label}
+            </Link>
+          ))}
+          <div className="my-1 h-px bg-neutral-200 dark:bg-neutral-800" />
+          <button type="button" role="menuitem" onClick={onLogout} className={`${itemClass} text-red-600 dark:text-red-400`}>
+            <LogOut size={14} aria-hidden="true" />
+            সাইন আউট
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { LayoutGrid } from "lucide-react";
 import { TOOLS } from "./toolsList";
@@ -32,7 +33,9 @@ const ToolsLayout = () => (
     </nav>
 
     <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 sm:pt-12">
-      <Outlet />
+      <Suspense fallback={<div className="min-h-[40vh]" aria-busy="true" />}>
+        <Outlet />
+      </Suspense>
     </div>
   </div>
 );

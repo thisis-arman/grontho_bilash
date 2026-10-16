@@ -1,4 +1,6 @@
 const productionUrl = 'https://grontho-bilash-server.vercel.app';
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^(192\.168\.|10\.|172\.)/.test(window.location.hostname);
+// `window` is missing while the home page is pre-rendered at build time.
+const hostname = typeof window === 'undefined' ? '' : window.location.hostname;
+const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || /^(192\.168\.|10\.|172\.)/.test(hostname);
 
-export const API_BASE_URL = isLocal ? `http://${window.location.hostname}:5000/api/v1` : `${productionUrl}/api/v1`;
+export const API_BASE_URL = isLocal ? `http://${hostname}:5000/api/v1` : `${productionUrl}/api/v1`;

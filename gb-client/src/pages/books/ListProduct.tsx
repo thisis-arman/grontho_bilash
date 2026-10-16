@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useAppSelector } from '../../redux/hooks';
 import type { RootState } from '../../redux/store';
 import { API_BASE_URL } from '../../config/api';
+import { compressImage } from '../../utils/compressImage';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import { useGetCategoriesQuery } from '../../redux/features/category/categoryApi';
 import { useCreateProductMutation } from '../../redux/features/book/bookApi';
@@ -253,16 +254,21 @@ const AddProduct = () => {
   // ── Image Upload ───────────────────────────────────────────────────────────
   const handleFileUpload = async (event: FormEvent<HTMLInputElement>, slotIndex: number) => {
     event.preventDefault();
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+    const input = event.target as HTMLInputElement;
+    const original = input.files?.[0];
+    input.value = ""; // lets the same photo be picked again after an error
+    if (!original) return;
     setUploadingIndex(slotIndex);
-    const uploadData = new FormData();
-    uploadData.append("image", file);
     try {
+      // Resize and re-encode in the browser first: phone photos drop from
+      // several MB to a few hundred KB, well under the server's 4 MB limit.
+      const file = await compressImage(original);
       if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image is too large. Please choose one under 4 MB.");
+        toast.error("Image is too large. Please choose a smaller photo.");
         return;
       }
+      const uploadData = new FormData();
+      uploadData.append("image", file);
       const response = await axios.post(`${API_BASE_URL}/books/upload`, uploadData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: token ?? "" },
       });
@@ -1228,7 +1234,7 @@ const AddProduct = () => {
                   ))}
                 </div>
                 {errors.images && <p className="text-xs text-rose-500 font-bold mt-2">{errors.images}</p>}
-                <p className="text-[11px] text-stone-400 text-center">Supported: PNG, JPG, JPEG · Max 5MB per upload slot</p>
+                <p className="text-[11px] text-stone-400 text-center">PNG, JPG or WebP · photos are compressed automatically before upload</p>
               </div>
 
               {/* ── Visual Review & Mock Card ── */}

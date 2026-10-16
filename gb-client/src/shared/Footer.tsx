@@ -134,7 +134,7 @@ const Footer = () => {
             <Link to="/" className="inline-flex items-center gap-2.5 mb-5">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
                 {/* <BookOpen size={16} className="text-stone-900" /> */}
-                <img src="https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png" alt="Grontho Bilash" />
+                <img src="/logo-96.png" alt="Grontho Bilash" width={48} height={48} loading="lazy" />
               </div>
               <span className="text-lg font-extrabold text-white tracking-tight">Grontho Bilash</span>
             </Link>

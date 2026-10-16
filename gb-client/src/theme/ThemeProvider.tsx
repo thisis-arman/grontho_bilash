@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ConfigProvider, theme as antdTheme } from "antd";
 import { Toaster } from "sonner";
 
 export type Theme = "dark" | "light";
@@ -47,16 +46,9 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ThemeContext.Provider value={value}>
-      {/* antd and sonner draw their own surfaces, so they need the theme too. */}
-      <ConfigProvider
-        theme={{
-          algorithm: theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-          token: { colorPrimary: "#f59e0b", borderRadius: 10 },
-        }}
-      >
-        {children}
-        <Toaster position="top-center" theme={theme} richColors closeButton />
-      </ConfigProvider>
+      {children}
+      {/* sonner draws its own surfaces, so it needs the theme too. */}
+      <Toaster position="top-center" theme={theme} richColors closeButton />
     </ThemeContext.Provider>
   );
 };

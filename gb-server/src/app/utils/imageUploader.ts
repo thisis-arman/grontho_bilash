@@ -17,7 +17,13 @@ export const imageUploader = (path: string) => {
     // filename made two sellers' "image.jpg" overwrite each other.
     cloudinary.uploader.upload(
       path,
-      { folder: "grontho-bilash/products", resource_type: "image" },
+      {
+        folder: "grontho-bilash/products",
+        resource_type: "image",
+        // The browser already compresses photos (gb-client compressImage);
+        // this caps whatever still arrives, e.g. from an old cached client.
+        transformation: [{ width: 1600, height: 1600, crop: "limit", quality: "auto:good" }],
+      },
       function (error, result) {
         fs.unlink(path, (err) => {
           if (err) {

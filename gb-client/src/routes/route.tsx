@@ -2,42 +2,45 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "../components/layouts/MainLayout";
 import Home from "../pages/home/Home";
-import Login from "../pages/login/Login";
-import SignUp from "../pages/signup/SignUp";
-import Dashboard from "../components/layouts/Dashboard";
 import { routeGenerator } from "../utils/routeGenerator";
 import { userPaths } from "./user.route";
 import { adminPaths } from "./admin.route";
 import PrivateRoute from "../components/layouts/PrivateRoute";
-import Products from "../pages/books/Shop";
-import BookDetails from "../pages/books/ProductDetails";
-import Cart from "../pages/cart/Cart";
-import OrderSuccess from "../pages/cart/OrderSuccess";
-import ForgotPassword from "../pages/login/ForgotPassword";
-import ExamSuggestions from "../pages/suggestions/ExamSuggestions";
-import CgpaCalculator from "../pages/tools/cgpa-calculator/CgpaCalculator";
-import ToolsLayout from "../pages/tools/ToolsLayout";
-import ToolsHub from "../pages/tools/ToolsHub";
-import TargetCgpa from "../pages/tools/TargetCgpa";
-import AttendanceCalculator from "../pages/tools/AttendanceCalculator";
-import FocusTimer from "../pages/tools/FocusTimer";
-import FAQ from "../pages/faq/FAQ";
-import ContactUs from "../pages/contact/ContactUs";
-import AboutUs from "../pages/about/AboutUs";
-import PrivacyPolicy from "../pages/privacypolicy/PrivacyPolicy";
-import TermsOfUse from "../pages/Terms/TermsOfUse";
 import NotFound from "../pages/404/NotFound";
 import RouteError from "../pages/404/RouteError";
 import { PageMeta } from "../utils/usePageMeta";
-import Careers from "../pages/careers/Careers";
 
-// Content pages load on demand: the Markdown renderer is only needed there.
+// Only the home page and the layout are in the first download; every other
+// page loads when it is first visited, so visitors don't pay for the
+// dashboard, editors, tools and checkout before they need them.
+const Login = lazy(() => import("../pages/login/Login"));
+const SignUp = lazy(() => import("../pages/signup/SignUp"));
+const Dashboard = lazy(() => import("../components/layouts/Dashboard"));
+const Products = lazy(() => import("../pages/books/Shop"));
+const BookDetails = lazy(() => import("../pages/books/ProductDetails"));
+const Cart = lazy(() => import("../pages/cart/Cart"));
+const OrderSuccess = lazy(() => import("../pages/cart/OrderSuccess"));
+const ForgotPassword = lazy(() => import("../pages/login/ForgotPassword"));
+const ExamSuggestions = lazy(() => import("../pages/suggestions/ExamSuggestions"));
+const CgpaCalculator = lazy(() => import("../pages/tools/cgpa-calculator/CgpaCalculator"));
+const ToolsLayout = lazy(() => import("../pages/tools/ToolsLayout"));
+const ToolsHub = lazy(() => import("../pages/tools/ToolsHub"));
+const TargetCgpa = lazy(() => import("../pages/tools/TargetCgpa"));
+const AttendanceCalculator = lazy(() => import("../pages/tools/AttendanceCalculator"));
+const FocusTimer = lazy(() => import("../pages/tools/FocusTimer"));
+const FAQ = lazy(() => import("../pages/faq/FAQ"));
+const ContactUs = lazy(() => import("../pages/contact/ContactUs"));
+const AboutUs = lazy(() => import("../pages/about/AboutUs"));
+const PrivacyPolicy = lazy(() => import("../pages/privacypolicy/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("../pages/Terms/TermsOfUse"));
+const Careers = lazy(() => import("../pages/careers/Careers"));
 const BlogList = lazy(() => import("../pages/blog/BlogList"));
 const BlogPost = lazy(() => import("../pages/blog/BlogPost"));
 const SuggestionList = lazy(() => import("../pages/suggestions/SuggestionList"));
 const SuggestionDetail = lazy(() => import("../pages/suggestions/SuggestionDetail"));
 const BlogEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/BlogEditor"));
 const SuggestionEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/SuggestionEditor"));
+
 
 const pageFallback = <div className="min-h-[60vh]" aria-busy="true" />;
 const lazyPage = (page: JSX.Element) => <Suspense fallback={pageFallback}>{page}</Suspense>;
@@ -54,19 +57,19 @@ const router = createBrowserRouter([
             },
             {
                 path: '/blogs',
-                element: lazyPage(<BlogList />)
+                element: <BlogList />
             },
             {
                 path: '/blogs/:slug',
-                element: lazyPage(<BlogPost />)
+                element: <BlogPost />
             },
             {
                 path: '/suggestions',
-                element: lazyPage(<SuggestionList />)
+                element: <SuggestionList />
             },
             {
                 path: '/suggestions/:slug',
-                element: lazyPage(<SuggestionDetail />)
+                element: <SuggestionDetail />
             },
             {
                 path: '/careers',
@@ -146,7 +149,7 @@ const router = createBrowserRouter([
         path: '/user',
         errorElement: <RouteError />,
         element: <PrivateRoute>
-            <Dashboard />
+            {lazyPage(<Dashboard />)}
         </PrivateRoute>,
         children: [
             { index: true, element: <Navigate to="/user/dashboard" replace /> },
@@ -159,7 +162,7 @@ const router = createBrowserRouter([
         path: '/admin',
         errorElement: <RouteError />,
         element: <PrivateRoute roles={["admin", "superAdmin"]}>
-            <Dashboard />
+            {lazyPage(<Dashboard />)}
         </PrivateRoute>,
         children: [
             { index: true, element: <Navigate to="/admin/dashboard" replace /> },
@@ -173,15 +176,15 @@ const router = createBrowserRouter([
     },
     {
         path: '/login',
-        element: <><PageMeta title="Log in" noindex /><Login /></>
+        element: <><PageMeta title="Log in" noindex />{lazyPage(<Login />)}</>
     },
     {
         path: '/forgot-password',
-        element: <><PageMeta title="Reset your password" noindex /><ForgotPassword /></>
+        element: <><PageMeta title="Reset your password" noindex />{lazyPage(<ForgotPassword />)}</>
     },
     {
         path: '/signup',
-        element: <><PageMeta title="Create an account" noindex /><SignUp /></>
+        element: <><PageMeta title="Create an account" noindex />{lazyPage(<SignUp />)}</>
     }
 ]);
 

@@ -8,7 +8,7 @@ import ThemeToggle from '../../theme/ThemeToggle';
 import { usePageMeta } from '../../utils/usePageMeta';
 import { userPaths } from '../../routes/user.route';
 
-const LOGO = 'https://res.cloudinary.com/dshjcmrd0/image/upload/v1771834927/grontho-bilash-transparent.png.png';
+const LOGO = '/logo-96.png';
 
 // How many destinations fit in the phone tab bar next to "More".
 const TAB_BAR_ITEMS = 4;

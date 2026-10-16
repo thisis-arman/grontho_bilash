@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGetUploadSignatureMutation } from "../../redux/features/content/contentApi";
+import { compressImage } from "../../utils/compressImage";
 
 export interface UploadedFile {
   url: string;
@@ -31,9 +32,11 @@ export const useUpload = (purpose: "blog" | "suggestion") => {
   const [getSignature] = useGetUploadSignatureMutation();
   const [progress, setProgress] = useState<number | null>(null);
 
-  const upload = async (file: File): Promise<UploadedFile> => {
-    const kind = ACCEPTED[file.type];
-    if (!kind) throw new Error(`"${file.name}" is not a PDF or image.`);
+  const upload = async (original: File): Promise<UploadedFile> => {
+    const kind = ACCEPTED[original.type];
+    if (!kind) throw new Error(`"${original.name}" is not a PDF or image.`);
+    // Images are resized and re-encoded first; PDFs go up as they are.
+    const file = kind === "image" ? await compressImage(original) : original;
     if (file.size > MAX_UPLOAD_BYTES) throw new Error(`"${file.name}" is larger than ${formatBytes(MAX_UPLOAD_BYTES)}.`);
 
     const { data } = await getSignature(purpose).unwrap();
@@ -61,7 +64,7 @@ export const useUpload = (purpose: "blog" | "suggestion") => {
         xhr.onerror = () => reject(new Error("Upload failed. Check your connection."));
         xhr.send(form);
       });
-      return { url: result.secure_url, name: file.name.replace(/\.[^.]+$/, ""), kind, size: result.bytes };
+      return { url: result.secure_url, name: original.name.replace(/\.[^.]+$/, ""), kind, size: result.bytes };
     } finally {
       setProgress(null);
     }

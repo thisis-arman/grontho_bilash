@@ -3,6 +3,7 @@ import { bookController } from "./book.controllers";
 import { imageUploader, upload } from "../../utils/imageUploader";
 import { Auth } from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.interface";
+import config from "../../config";
 
 const router = express.Router();
 
@@ -37,6 +38,10 @@ router.post(
 
       if (!path) {
         res.status(400).json({ error: "Image file is required." });
+        return;
+      }
+      if (!config.cloudinary_cloud_name || !config.cloudinary_api_key || !config.cloudinary_api_secret) {
+        res.status(503).json({ error: "File uploads are not configured on the server" });
         return;
       }
 

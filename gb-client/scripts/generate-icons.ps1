@@ -29,6 +29,9 @@ function Save-Icon([string]$name, [int]$size, [bool]$background, [double]$paddin
 
 Save-Icon "favicon-32.png" 32 $false 0
 Save-Icon "favicon-48.png" 48 $false 0
+# Small transparent logo for the navbar, footer and dashboard (logo.png is
+# 1.4 MB and should never be shown on a page).
+Save-Icon "logo-96.png" 96 $false 0
 Save-Icon "apple-touch-icon.png" 180 $true 0.12
 Save-Icon "icon-192.png" 192 $true 0.12
 Save-Icon "icon-512.png" 512 $true 0.12

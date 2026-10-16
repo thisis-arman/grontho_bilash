@@ -197,6 +197,23 @@ const Reveal = ({
     );
 };
 
+// The hero is the largest thing on the first screen, so it must be visible
+// in the very first paint: it only slides up a little with CSS (no fade, no
+// waiting for JavaScript), which keeps Largest Contentful Paint early.
+const HeroIn = ({
+    children,
+    delay = 0,
+    className,
+}: {
+    children: ReactNode;
+    delay?: number;
+    className?: string;
+}) => (
+    <div className={`gb-hero-in ${className ?? ""}`} style={{ animationDelay: `${delay}s` }}>
+        {children}
+    </div>
+);
+
 const SectionHeader = ({
     index,
     eyebrow,
@@ -296,32 +313,32 @@ const HeroSection = () => (
         />
 
         <div className={`${container} relative pb-16 pt-14 sm:pb-24 sm:pt-20 lg:pt-28`}>
-            <Reveal>
+            <HeroIn>
                 <p className="mb-6 flex items-center gap-3 text-sm text-stone-400 sm:mb-8">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
                     পুরনো বই ও ডিজিটাল নোটের মার্কেটপ্লেস · বাংলাদেশ
                 </p>
-            </Reveal>
+            </HeroIn>
 
-            <Reveal delay={0.05}>
+            <HeroIn delay={0.05}>
                 <h1 className="font-display text-[clamp(2.6rem,9.5vw,7.5rem)] font-extrabold leading-[1.12] tracking-tight text-stone-50">
                     কম দামে বই কিনো।
                     <br />
                     পড়া শেষে{" "}
                     <span className="text-amber-400">বেচে দাও।</span>
                 </h1>
-            </Reveal>
+            </HeroIn>
 
             <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:gap-12">
-                <Reveal delay={0.12} className="lg:col-span-6">
+                <HeroIn delay={0.12} className="lg:col-span-6">
                     <p className="max-w-xl text-base leading-relaxed text-stone-400 sm:text-lg">
                         গ্রন্থবিলাসে শিক্ষার্থীরা একে অপরের কাছ থেকে পুরনো বই ও নোট
                         কেনে-বেচে। নতুন বইয়ের খরচ কমাও, আর পড়ে শেষ করা বই থেকে টাকা
                         ফেরত আনো।
                     </p>
-                </Reveal>
+                </HeroIn>
 
-                <Reveal delay={0.18} className="flex flex-col gap-8 lg:col-span-6">
+                <HeroIn delay={0.18} className="flex flex-col gap-8 lg:col-span-6">
                     <HeroSearch />
                     <div className="flex flex-col gap-3 sm:flex-row">
                         <Link to="/books" className={primaryButton}>
@@ -332,10 +349,10 @@ const HeroSection = () => (
                             বই বিক্রি করো
                         </Link>
                     </div>
-                </Reveal>
+                </HeroIn>
             </div>
 
-            <Reveal delay={0.24}>
+            <HeroIn delay={0.24}>
                 {/* 1px gaps over a tinted background draw the hairlines, so the
                     dividers stay correct at every column count. */}
                 <dl className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:mt-24 lg:grid-cols-4">
@@ -351,7 +368,7 @@ const HeroSection = () => (
                         </div>
                     ))}
                 </dl>
-            </Reveal>
+            </HeroIn>
         </div>
     </section>
 );

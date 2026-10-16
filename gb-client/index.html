@@ -65,14 +65,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- Start connecting early to the hosts every page needs. -->
+  <!-- Start connecting early to the hosts every page needs. Fonts are
+       self-hosted (see src/index.css), so there is no Google Fonts request. -->
   <link rel="preconnect" href="https://grontho-bilash-server.vercel.app" crossorigin />
   <link rel="preconnect" href="https://res.cloudinary.com" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"
-    rel="stylesheet" />
 
   <!-- Structured data: who we are, and site search (lets Google show a
        search box for the site in results). -->

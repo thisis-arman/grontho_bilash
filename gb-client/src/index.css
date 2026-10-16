@@ -1,4 +1,15 @@
 @import "./theme/palette.css";
+/* Self-hosted Bengali + Latin fonts (were loaded from Google Fonts, which
+   blocked the first paint). Each file only downloads when a character in its
+   unicode-range is on the page. */
+@import "@fontsource/hind-siliguri/400.css";
+@import "@fontsource/hind-siliguri/500.css";
+@import "@fontsource/hind-siliguri/600.css";
+@import "@fontsource/hind-siliguri/700.css";
+@import "@fontsource/baloo-da-2/500.css";
+@import "@fontsource/baloo-da-2/600.css";
+@import "@fontsource/baloo-da-2/700.css";
+@import "@fontsource/baloo-da-2/800.css";
 
 @tailwind base;
 @tailwind components;
@@ -52,9 +63,12 @@
   font-style: italic;
 }
 
+/* Apercu, subset to Latin and converted to WOFF2 (17 KB each instead of
+   60-420 KB OTF files). */
 @font-face {
   font-family: "Apercu Bold";
-  src: url("/fonts/ApercuPro-Bold.otf") format("opentype");
+  src: url("/fonts/ApercuPro-Bold.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2000-206F, U+2190-2193, U+20AC, U+2122;
   font-display: swap;
   font-weight: 900;
   font-style: normal;
@@ -62,7 +76,8 @@
 
 @font-face {
   font-family: "Apercu Medium";
-  src: url("/fonts/ApercuPro-Medium.otf") format("opentype");
+  src: url("/fonts/ApercuPro-Medium.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2000-206F, U+2190-2193, U+20AC, U+2122;
   font-display: swap;
   font-weight: 500;
   font-style: normal;
@@ -70,7 +85,8 @@
 
 @font-face {
   font-family: "Apercu Regular";
-  src: url("/fonts/ApercuPro-Regular.otf") format("opentype");
+  src: url("/fonts/ApercuPro-Regular.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2000-206F, U+2190-2193, U+20AC, U+2122;
   font-display: swap;
   font-weight: normal;
   font-style: normal;
@@ -168,6 +184,31 @@
 }
 /* Home page category ticker. The track is rendered twice, so sliding it by
    exactly its own width loops seamlessly. */
+/* Home hero entrance: movement only, never opacity, so the text counts as
+   painted straight away. */
+@keyframes gb-hero-in {
+  from {
+    transform: translateY(18px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.gb-hero-in {
+  animation: gb-hero-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.gb-live .gb-hero-in {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-hero-in {
+    animation: none;
+  }
+}
+
 @keyframes gb-marquee {
   to {
     transform: translateX(-100%);

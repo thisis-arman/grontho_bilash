@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "../../shared/Footer";
 import { Nav } from "../../shared/Navbar";
@@ -14,8 +15,10 @@ const MainLayout = () => {
             <Nav />
             <ScrollToTop />
             <div className={`[-pt-16] ${user ? "pb-16 md:pb-0" : ""}`}>
-
-                <Outlet />
+                {/* Pages are loaded on demand (see routes/route.tsx). */}
+                <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+                    <Outlet />
+                </Suspense>
             </div>
             <Footer />
         </div>

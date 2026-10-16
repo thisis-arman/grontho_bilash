@@ -54,7 +54,9 @@ const setCanonical = (href: string) => {
 };
 
 // The values index.html starts with, captured once so they can be restored.
+// (No document while the home page is pre-rendered at build time.)
 const DEFAULTS = (() => {
+  if (typeof document === "undefined") return { title: "", description: "", robots: "index, follow" };
   const read = (selector: string) => document.head.querySelector(selector)?.getAttribute("content") ?? "";
   return {
     title: document.title,
