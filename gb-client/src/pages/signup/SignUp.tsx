@@ -256,38 +256,42 @@ const SignUp = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="signup-phone" className={authLabel}>
-                Phone number
-              </label>
-              <div className="flex gap-2">
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  aria-label="Country code"
-                  className={`${authInput} w-28 flex-shrink-0 cursor-pointer px-2.5`}
-                >
-                  {countryData.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.flag} {country.dial_code}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  id="signup-phone"
-                  type="tel"
-                  inputMode="tel"
-                  required
-                  pattern="[0-9\s-]{8,16}"
-                  title="Digits only, e.g. 01712345678"
-                  autoComplete="tel-national"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="01712345678"
-                  className={authInput}
-                />
-              </div>
-            </div>
+            
+<div>
+  <label htmlFor="signup-phone" className={authLabel}>
+    Phone number
+  </label>
+
+  <div className="flex w-full items-stretch gap-2">
+    <select
+      value={countryCode}
+      onChange={(e) => setCountryCode(e.target.value)}
+      aria-label="Country code"
+      className={`${authInput} !w-[120px] !min-w-[120px] flex-none cursor-pointer px-3`}
+    >
+      {countryData.map((country) => (
+        <option key={country.code} value={country.code}>
+          {country.flag} {country.dial_code}
+        </option>
+      ))}
+    </select>
+
+    <input
+      id="signup-phone"
+      type="tel"
+      inputMode="tel"
+      required
+      pattern="[0-9\s-]{8,16}"
+      title="Digits only, e.g. 01712345678"
+      autoComplete="tel-national"
+      value={phone}
+      onChange={(e) => setPhone(e.target.value)}
+      placeholder="01712345678"
+      className={`${authInput} min-w-0 flex-1`}
+    />
+  </div>
+</div>
+
 
             <div>
               <label htmlFor="signup-password" className={authLabel}>
