@@ -13,11 +13,11 @@ import { TErrorSources } from "../interface/error";
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
   let statusCode = 500;
-  let message = "Something went wrong!";
+  let message = "কিছু একটা সমস্যা হয়েছে! অনুগ্রহ করে আবার চেষ্টা করো।";
   let errorSources: TErrorSources = [
     {
       path: "",
-      message: "Something went wrong",
+      message: "কিছু একটা সমস্যা হয়েছে",
     },
   ];
 

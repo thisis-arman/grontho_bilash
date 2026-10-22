@@ -5,7 +5,7 @@ import { useTheme } from "./ThemeProvider";
 const ThemeToggle = ({ className = "" }: { className?: string }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
-  const label = isDark ? "Switch to day mode" : "Switch to night mode";
+  const label = isDark ? "দিনের থিমে যাও" : "রাতের থিমে যাও";
 
   return (
     <button

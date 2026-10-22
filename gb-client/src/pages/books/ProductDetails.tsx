@@ -7,11 +7,12 @@ import { useAddToCart } from '../cart/useAddToCart';
 import { usePageMeta } from '../../utils/usePageMeta';
 import { productJsonLd } from '../../utils/structuredData';
 import bookLoading from "../../assets/book-loading.gif";
+import { conditionLabel, productTypeLabel } from '../../i18n/labels';
 
 
 import {
   ShoppingBag, MapPin, Calendar, BookOpen, CheckCircle,
-  Truck, Zap, Package, User, Globe, Hash, Tag,
+  Truck, Zap, Package, User, Tag,
   Eye, Download, Shield,
   Phone, ChevronLeft, ChevronRight
 } from 'lucide-react';
@@ -113,7 +114,7 @@ const ImageGallery = ({
         <span className={`absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold backdrop-blur-md shadow ${isDigital ? "bg-violet-500/90 text-white" : "bg-white/90 text-stone-700"
           }`}>
           {isDigital ? <Zap size={12} /> : <Package size={12} />}
-          {isDigital ? "ডিজিটাল" : "ফিজিক্যাল"}
+          {productTypeLabel(isDigital ? "Digital" : "Physical")}
         </span>
 
         {!isDigital && condition && (
@@ -158,7 +159,7 @@ const ImageGallery = ({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const ProductDetails = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { data: response, isLoading } = useGetProductBySlugQuery(slug!);
   const { add } = useAddToCart();
 
@@ -168,7 +169,7 @@ const ProductDetails = () => {
   usePageMeta(
     product?.title,
     product
-      ? `${product.bookMetadata?.author ? `by ${product.bookMetadata.author}. ` : ""}${product.condition ?? ""} · ৳${product.price?.basePrice}. ${product.description ?? ""}`
+      ? `${product.bookMetadata?.author ? `লেখক: ${product.bookMetadata.author}। ` : ""}${conditionLabel(product.condition)} · ৳${product.price?.basePrice}। ${product.description ?? ""}`
       : undefined,
     product?.images?.[0],
     { type: "product", jsonLd: product ? productJsonLd(product) : null }
@@ -186,7 +187,7 @@ const ProductDetails = () => {
     return (
       <div className="w-full h-screen flex flex-col justify-center items-center bg-stone-50 gap-3">
         <BookOpen className="w-12 h-12 text-stone-300" />
-        <p className="text-stone-500 font-medium">পণ্যটি খুঁজে পাওয়া যায়নি</p>
+        <p className="text-stone-500 font-medium">বইটি খুঁজে পাওয়া যায়নি</p>
       </div>
     );
   }
@@ -199,7 +200,7 @@ const ProductDetails = () => {
     add(product);
   };
 
-  const ctaLabel = isDigital ? "ডিজিটাল কপি নাও" : "কার্টে যোগ করো";
+  const ctaLabel = isDigital ? "ডিজিটাল কপি নাও" : "ব্যাগে যোগ করো";
   const CtaIcon = isDigital ? Zap : ShoppingBag;
 
   return (
@@ -440,7 +441,7 @@ const ProductDetails = () => {
       {/* ── Sticky mobile CTA bar ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.04)] z-20">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold tracking-wide text-stone-400">মূল্য</p>
+          <p className="text-[10px] font-semibold tracking-wide text-stone-400">দাম</p>
           <p className="text-lg font-bold text-stone-900 truncate">{formatPrice(product?.price?.basePrice)}</p>
         </div>
         {isOutOfStock ? (

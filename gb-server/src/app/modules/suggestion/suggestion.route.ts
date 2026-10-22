@@ -27,14 +27,14 @@ router.get(
 
 router.get(
   "/filters",
-  catchAsync(async (_req, res) =>
-    ok(res, { ...(await suggestionService.getFilters()), allLevels: EXAM_LEVELS }, "Filters fetched")
+  catchAsync(async (req, res) =>
+    ok(res, { ...(await suggestionService.getFilters(req.query.kind)), allLevels: EXAM_LEVELS }, "Filters fetched")
   )
 );
 
 router.get(
   "/slug/:slug",
-  catchAsync(async (req, res) => ok(res, await suggestionService.getPublishedBySlug(req.params.slug), "Suggestion fetched"))
+  catchAsync(async (req, res) => ok(res, await suggestionService.getPublishedBySlug(req.params.slug, req.query.kind), "Suggestion fetched"))
 );
 
 router.post(

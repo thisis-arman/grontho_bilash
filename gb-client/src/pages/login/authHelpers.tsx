@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { authInput } from "./AuthLayout";
 import { useAppSelector } from "../../redux/hooks";
 import { useCurrentToken } from "../../redux/features/auth/authSlice";
+import { bnNumber } from "../../i18n/labels";
 
 export const dashboardFor = (role?: string) => (role === "user" ? "/user/dashboard" : "/admin/dashboard");
 
@@ -19,13 +20,16 @@ export const useReturnPath = () => {
       : dashboardFor(role);
 };
 
-// Visitors who are already signed in skip the auth pages.
+// Visitors who are already signed in skip the auth pages. This also runs the
+// instant a login succeeds (the token lands in the store before the form's
+// own redirect), so it must honour the same return path.
 export const RedirectIfSignedIn = ({ children }: { children: JSX.Element }) => {
   const token = useAppSelector(useCurrentToken);
+  const returnPath = useReturnPath();
   if (token) {
     try {
       const { exp, role } = jwtDecode<{ exp?: number; role?: string }>(token);
-      if (exp && exp * 1000 > Date.now()) return <Navigate to={dashboardFor(role)} replace />;
+      if (exp && exp * 1000 > Date.now()) return <Navigate to={returnPath(role)} replace />;
     } catch {
       // Unreadable token: show the form.
     }
@@ -68,7 +72,7 @@ export const PasswordField = ({
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? "Hide password" : "Show password"}
+        aria-label={visible ? "পাসওয়ার্ড লুকাও" : "পাসওয়ার্ড দেখাও"}
         className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-stone-400 transition hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
       >
         {visible ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
@@ -78,11 +82,11 @@ export const PasswordField = ({
 };
 
 const STRENGTH = [
-  { label: "Too short", color: "bg-red-400" },
-  { label: "Weak", color: "bg-red-400" },
-  { label: "Fair", color: "bg-amber-400" },
-  { label: "Good", color: "bg-lime-500" },
-  { label: "Strong", color: "bg-emerald-500" },
+  { label: "খুব ছোট", color: "bg-red-400" },
+  { label: "দুর্বল", color: "bg-red-400" },
+  { label: "মোটামুটি", color: "bg-amber-400" },
+  { label: "ভালো", color: "bg-lime-500" },
+  { label: "শক্তিশালী", color: "bg-emerald-500" },
 ];
 
 export const PasswordStrength = ({ password }: { password: string }) => {
@@ -149,7 +153,7 @@ export const OtpInput = ({
   };
 
   return (
-    <div className="flex justify-between gap-2" role="group" aria-label="6-digit code">
+    <div className="flex justify-between gap-2" role="group" aria-label="৬ সংখ্যার কোড">
       {digits.map((digit, index) => (
         <input
           key={index}
@@ -164,7 +168,7 @@ export const OtpInput = ({
           maxLength={1}
           disabled={disabled}
           autoFocus={index === 0}
-          aria-label={`Digit ${index + 1}`}
+          aria-label={`${bnNumber(index + 1)} নম্বর ঘর`}
           className="h-14 w-full min-w-0 rounded-xl border border-stone-200 bg-white text-center font-display text-2xl font-bold text-stone-900 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 disabled:bg-stone-50 sm:h-16"
         />
       ))}

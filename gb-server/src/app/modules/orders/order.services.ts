@@ -13,6 +13,7 @@ import { USER_ROLE } from '../user/user.interface';
 import { randomUUID } from 'crypto';
 import { quoteCart, REQUIRE_ADVANCE_DELIVERY_CHARGE, SHIPPING_RATES } from './order.quote';
 import { sendOrderConfirmationToBuyer } from './order.utils';
+import { notifyOrderStatus } from '../../utils/whatsapp';
 import { isAdminRole } from '../../middlewares/auth';
 
 type TRequester = { id?: string; email?: string; role?: string };
@@ -372,6 +373,8 @@ const createOrder = async (
     } catch (mailError) {
       console.error("Order notification failed:", mailError);
     }
+    // WhatsApp "order received" (only when the WhatsApp API is configured).
+    await Promise.allSettled(createdOrders.map((order) => notifyOrderStatus(order)));
 
 
     // Optional: trigger SMS/email here — once per resulting order,
@@ -502,6 +505,11 @@ const updateOrderById = async (
 
   if (isCancelling) {
     await restockOrderItems(order);
+  }
+
+  // Tell the buyer on WhatsApp when the status actually changed.
+  if (updatedOrder && validatedData.orderStatus && validatedData.orderStatus !== order.orderStatus) {
+    await notifyOrderStatus(updatedOrder);
   }
 
   return updatedOrder;

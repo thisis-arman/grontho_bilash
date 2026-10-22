@@ -252,18 +252,18 @@ export const sendOrderConfirmationToBuyer = async (email: string, orders: TOrder
     await transporter.sendMail({
       from: `"Grontho Bilash" <${config.email}>`,
       to: email,
-      subject: `Order received | ${ids}`,
-      text: `Thank you for your order (${ids}). Total: ৳${total}. We will confirm it shortly. Track it any time under My Orders.`,
+      subject: `তোমার অর্ডার পেয়েছি | ${ids}`,
+      text: `অর্ডার করার জন্য ধন্যবাদ (${ids})। মোট: ৳${total}। আমরা শিগগিরই অর্ডারটি কনফার্ম করব। 'আমার অর্ডার' পাতায় যেকোনো সময় অর্ডারের অবস্থা দেখতে পারবে।`,
       html: `<div style="font-family:Helvetica,Arial,sans-serif;background:#f5f5f4;padding:32px 16px;">
         <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;padding:32px;border-top:4px solid #f59e0b;">
-          <h2 style="margin:0 0 8px;color:#1c1917;">Thanks, ${escapeHtml(first.recipientName ?? "")}! We got your order.</h2>
-          <p style="color:#57534e;margin:0 0 24px;">Order ${escapeHtml(ids)} is waiting for confirmation. We'll check your payment and let the seller${orders.length > 1 ? "s" : ""} know.</p>
+          <h2 style="margin:0 0 8px;color:#1c1917;">ধন্যবাদ, ${escapeHtml(first.recipientName ?? "")}! তোমার অর্ডার আমরা পেয়েছি।</h2>
+          <p style="color:#57534e;margin:0 0 24px;">অর্ডার ${escapeHtml(ids)} কনফার্মেশনের অপেক্ষায় আছে। আমরা তোমার পেমেন্ট যাচাই করে বিক্রেতা${orders.length > 1 ? "দের" : ""}কে জানিয়ে দেব।</p>
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1c1917;">${rows}
-            <tr><td style="padding:8px 0;color:#57534e;">Delivery</td><td style="padding:8px 0;text-align:right;">৳${delivery}</td></tr>
-            <tr><td style="padding:8px 0;font-weight:bold;">Total</td><td style="padding:8px 0;text-align:right;font-weight:bold;">৳${total}</td></tr>
+            <tr><td style="padding:8px 0;color:#57534e;">ডেলিভারি চার্জ</td><td style="padding:8px 0;text-align:right;">৳${delivery}</td></tr>
+            <tr><td style="padding:8px 0;font-weight:bold;">মোট</td><td style="padding:8px 0;text-align:right;font-weight:bold;">৳${total}</td></tr>
           </table>
-          <p style="color:#57534e;margin:24px 0 0;font-size:14px;">Delivering to: ${escapeHtml(first.deliveryAddress)} · ${escapeHtml(first.phoneNumber)}</p>
-          <p style="color:#a8a29e;margin:24px 0 0;font-size:12px;">You can follow your order under My Orders on gronthobilash.com.</p>
+          <p style="color:#57534e;margin:24px 0 0;font-size:14px;">ডেলিভারির ঠিকানা: ${escapeHtml(first.deliveryAddress)} · ${escapeHtml(first.phoneNumber)}</p>
+          <p style="color:#a8a29e;margin:24px 0 0;font-size:12px;">gronthobilash.com-এর 'আমার অর্ডার' পাতায় তুমি তোমার অর্ডারের খোঁজ রাখতে পারবে।</p>
         </div>
       </div>`,
     });

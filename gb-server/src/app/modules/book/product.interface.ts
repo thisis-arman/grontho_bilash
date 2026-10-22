@@ -42,9 +42,17 @@ export interface IBookMetadata {
 }
 
 export interface IAcademicMetadata {
+  // Old placeholder taxonomy (kept for existing listings).
   level?: Types.ObjectId;
   faculty?: Types.ObjectId;
   department?: Types.ObjectId;
+  // Course catalogue (curriculum module): what the book is for.
+  curriculum?: Types.ObjectId;
+  program?: string; // "BBA"
+  departmentName?: string; // "Accounting"
+  year?: number; // 1-5
+  courseCode?: string; // "212501"
+  courseTitle?: string; // "Principles of Accounting"
 }
 
 export interface IProduct  {

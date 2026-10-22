@@ -19,7 +19,7 @@ const createUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 201,
-    message: "Account created",
+    message: "অ্যাকাউন্ট খোলা হয়েছে",
     data: { accessToken },
   });
 });
@@ -37,7 +37,7 @@ const getMe = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Get me  retrieved successfully",
+    message: "তোমার তথ্য পাওয়া গেছে",
     data: result,
   });
 });
@@ -64,7 +64,7 @@ export const updateUserInfo = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Updated user successfully",
+    message: "তথ্য সফলভাবে আপডেট হয়েছে",
     data: result,
   });
 });
@@ -77,7 +77,7 @@ export const deleteMe = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "User deactivated successfully",
+    message: "অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে",
     data: result,
   });
 });

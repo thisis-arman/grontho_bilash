@@ -22,7 +22,6 @@ import {
     inputClass,
     LoadingRows,
     Modal,
-    money,
     PageHeader,
     Pagination,
     Panel,
@@ -33,28 +32,31 @@ import {
     Toolbar,
     usePaged,
 } from "../../../components/dashboard/ui";
+import { bnNumber, conditionLabel, taka } from "../../../i18n/labels";
 
 const FILTER_OPTIONS = [
-    { value: "all", label: "All listings" },
-    { value: "published", label: "Published" },
-    { value: "draft", label: "Hidden" },
-    { value: "out", label: "Out of stock" },
+    { value: "all", label: "সব লিস্টিং" },
+    { value: "published", label: "চালু" },
+    { value: "draft", label: "লুকানো" },
+    { value: "out", label: "স্টকে নেই" },
 ];
 
 const CONDITIONS = ["New", "Like New", "Used"];
 
 const isOut = (product: IProduct) => product.stockStatus === "Out of Stock";
 
-export const ListingStatus = ({ product }: { product: IProduct }) =>
+// Also used by the admin product table, which stays in English, so the
+// Bangla text is opt-in through `bn`.
+export const ListingStatus = ({ product, bn = false }: { product: IProduct; bn?: boolean }) =>
     isOut(product) ? (
-        <Badge tone="red">Out of stock</Badge>
+        <Badge tone="red">{bn ? "স্টকে নেই" : "Out of stock"}</Badge>
     ) : product.isPublished ? (
-        <Badge tone="green">Published</Badge>
+        <Badge tone="green">{bn ? "চালু" : "Published"}</Badge>
     ) : (
-        <Badge tone="stone">Hidden</Badge>
+        <Badge tone="stone">{bn ? "লুকানো" : "Hidden"}</Badge>
     );
 
-export const ListingCell = ({ product }: { product: IProduct }) => (
+export const ListingCell = ({ product, bn = false }: { product: IProduct; bn?: boolean }) => (
     <div className="flex min-w-0 items-center gap-3">
         <img
             src={product.images?.[0]}
@@ -65,7 +67,10 @@ export const ListingCell = ({ product }: { product: IProduct }) => (
         <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-stone-900">{product.title}</p>
             <p className="truncate text-xs text-stone-500">
-                {product.category} · {product.productType === "Digital" ? "Digital" : product.condition}
+                {product.category} ·{" "}
+                {product.productType === "Digital"
+                    ? bn ? "ডিজিটাল" : "Digital"
+                    : bn ? conditionLabel(product.condition) : product.condition}
             </p>
         </div>
     </div>
@@ -135,10 +140,10 @@ const MyProducts = () => {
                         : {}),
                 },
             }).unwrap();
-            toast.success("Listing updated");
+            toast.success("লিস্টিং আপডেট হয়েছে");
             setEditing(null);
         } catch (error) {
-            toast.error(errorMessage(error, "Could not update the listing"));
+            toast.error(errorMessage(error, "লিস্টিং আপডেট করা যায়নি"));
         }
     };
 
@@ -146,27 +151,27 @@ const MyProducts = () => {
         if (!deleting) return;
         try {
             await deleteBook(deleting._id).unwrap();
-            toast.success("Listing deleted");
+            toast.success("লিস্টিং মুছে ফেলা হয়েছে");
             setDeleting(null);
         } catch (error) {
-            toast.error(errorMessage(error, "Could not delete the listing"));
+            toast.error(errorMessage(error, "লিস্টিং মুছে ফেলা যায়নি"));
         }
     };
 
     const actions = (product: IProduct) => (
         <div className="flex justify-end gap-1">
             {product.isPublished && (
-                <Link to={`/products/${product.slug}`} aria-label={`View ${product.title}`} className={btn.icon}>
+                <Link to={`/products/${product.slug}`} aria-label={`${product.title} দেখো`} className={btn.icon}>
                     <ExternalLink size={16} aria-hidden="true" />
                 </Link>
             )}
-            <button type="button" onClick={() => setEditing(product)} aria-label={`Edit ${product.title}`} className={btn.icon}>
+            <button type="button" onClick={() => setEditing(product)} aria-label={`${product.title} এডিট করো`} className={btn.icon}>
                 <Pencil size={16} aria-hidden="true" />
             </button>
             <button
                 type="button"
                 onClick={() => setDeleting(product)}
-                aria-label={`Delete ${product.title}`}
+                aria-label={`${product.title} মুছে ফেলো`}
                 className={`${btn.icon} hover:!bg-red-50 hover:!text-red-600`}
             >
                 <Trash2 size={16} aria-hidden="true" />
@@ -177,25 +182,25 @@ const MyProducts = () => {
     return (
         <>
             <PageHeader
-                title="My Listings"
-                desc="Books and notes you are selling."
+                title="আমার লিস্টিং"
+                desc="তুমি যে বই আর নোট বিক্রি করছ।"
                 action={
                     <Link to="/user/add-product" className={btn.primary}>
-                        <Plus size={16} aria-hidden="true" /> New listing
+                        <Plus size={16} aria-hidden="true" /> নতুন লিস্টিং
                     </Link>
                 }
             />
 
             <StatGrid>
-                <StatCard label="Total listings" value={products.length} icon={BookOpen} />
-                <StatCard label="Published" value={products.filter((p) => p.isPublished && !isOut(p)).length} icon={Eye} />
-                <StatCard label="Out of stock" value={products.filter(isOut).length} icon={Package} />
-                <StatCard label="Total views" value={products.reduce((sum, p) => sum + (p.viewCount ?? 0), 0)} icon={FileText} />
+                <StatCard label="মোট লিস্টিং" value={bnNumber(products.length)} icon={BookOpen} />
+                <StatCard label="চালু" value={bnNumber(products.filter((p) => p.isPublished && !isOut(p)).length)} icon={Eye} />
+                <StatCard label="স্টকে নেই" value={bnNumber(products.filter(isOut).length)} icon={Package} />
+                <StatCard label="মোট দেখা হয়েছে" value={bnNumber(products.reduce((sum, p) => sum + (p.viewCount ?? 0), 0))} icon={FileText} />
             </StatGrid>
 
             <Toolbar>
-                <SearchInput value={search} onChange={setSearch} placeholder="Search by title, SKU or author" />
-                <SelectFilter value={filter} onChange={setFilter} options={FILTER_OPTIONS} label="Filter listings" />
+                <SearchInput value={search} onChange={setSearch} placeholder="নাম, SKU বা লেখক দিয়ে খুঁজো" />
+                <SelectFilter value={filter} onChange={setFilter} options={FILTER_OPTIONS} label="লিস্টিং বাছাই করো" />
             </Toolbar>
 
             <Panel flush>
@@ -206,37 +211,37 @@ const MyProducts = () => {
                 ) : products.length === 0 ? (
                     <EmptyState
                         icon={BookOpen}
-                        title="You have no listings yet"
-                        desc="List a book you have finished and it will appear here."
-                        action={<Link to="/user/add-product" className={btn.primary}>List your first book</Link>}
+                        title="তোমার এখনো কোনো লিস্টিং নেই"
+                        desc="পড়া শেষ হওয়া একটা বই লিস্ট করো, সেটা এখানে দেখাবে।"
+                        action={<Link to="/user/add-product" className={btn.primary}>প্রথম বইটা লিস্ট করো</Link>}
                     />
                 ) : filtered.length === 0 ? (
-                    <EmptyState icon={BookOpen} title="No matching listings" desc="Try a different search or filter." />
+                    <EmptyState icon={BookOpen} title="মিলে যাওয়া কোনো লিস্টিং নেই" desc="অন্য কিছু লিখে খুঁজো বা অন্য ফিল্টার বেছে নাও।" />
                 ) : (
                     <>
                         <DataList
                             rows={pageItems}
                             rowKey={(product) => product._id}
                             columns={[
-                                { header: "Listing", cell: (product) => <ListingCell product={product} /> },
-                                { header: "Price", cell: (product) => <span className="font-semibold text-stone-900">{money(product.price?.basePrice)}</span> },
+                                { header: "লিস্টিং", cell: (product) => <ListingCell product={product} bn /> },
+                                { header: "দাম", cell: (product) => <span className="font-semibold text-stone-900">{taka(product.price?.basePrice)}</span> },
                                 {
-                                    header: "Stock",
+                                    header: "স্টক",
                                     cell: (product) =>
-                                        product.productType === "Digital" ? "—" : `${product.inventory?.quantity ?? 0} left`,
+                                        product.productType === "Digital" ? "—" : `${bnNumber(product.inventory?.quantity ?? 0)}টি বাকি`,
                                 },
-                                { header: "Views", cell: (product) => product.viewCount ?? 0 },
-                                { header: "Status", cell: (product) => <ListingStatus product={product} /> },
-                                { header: "Actions", align: "right", cell: actions },
+                                { header: "দেখা হয়েছে", cell: (product) => bnNumber(product.viewCount ?? 0) },
+                                { header: "অবস্থা", cell: (product) => <ListingStatus product={product} bn /> },
+                                { header: "কাজ", align: "right", cell: actions },
                             ]}
                             renderCard={(product) => (
                                 <div className="space-y-3">
-                                    <ListingCell product={product} />
+                                    <ListingCell product={product} bn />
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
-                                            <span className="text-sm font-bold text-stone-900">{money(product.price?.basePrice)}</span>
-                                            <ListingStatus product={product} />
-                                            {product.productType !== "Digital" && <span>{product.inventory?.quantity ?? 0} left</span>}
+                                            <span className="text-sm font-bold text-stone-900">{taka(product.price?.basePrice)}</span>
+                                            <ListingStatus product={product} bn />
+                                            {product.productType !== "Digital" && <span>{bnNumber(product.inventory?.quantity ?? 0)}টি বাকি</span>}
                                         </div>
                                         {actions(product)}
                                     </div>
@@ -248,44 +253,46 @@ const MyProducts = () => {
                 )}
             </Panel>
 
-            <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit listing" wide>
+            <Modal open={!!editing} onClose={() => setEditing(null)} title="লিস্টিং এডিট করো" wide>
                 {editing && (
                     <form onSubmit={handleUpdate} className="space-y-4">
-                        <Field label="Title">
+                        <Field label="বইয়ের নাম">
                             <input name="title" required defaultValue={editing.title} className={inputClass} />
                         </Field>
 
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <Field label="Price (৳)">
+                            <Field label="দাম (৳)">
                                 <input name="basePrice" type="number" min={0} step="1" required defaultValue={editing.price?.basePrice} className={inputClass} />
                             </Field>
-                            <Field label="Original price (৳)" hint="Optional. Shown crossed out beside the price; leave 0 to hide.">
+                            <Field label="আসল দাম (৳)" hint="না দিলেও চলবে। দামের পাশে কেটে দেখানো হয়; লুকাতে ০ রাখো।">
                                 <input name="discountPrice" type="number" min={0} step="1" defaultValue={editing.price?.discountPrice ?? 0} className={inputClass} />
                             </Field>
                             {editing.productType === "Physical" && (
                                 <>
-                                    <Field label="Copies available" hint="Set to 0 to mark it out of stock.">
+                                    <Field label="কয়টা কপি আছে" hint="০ দিলে 'স্টকে নেই' দেখাবে।">
                                         <input name="quantity" type="number" min={0} step="1" required defaultValue={editing.inventory?.quantity ?? 1} className={inputClass} />
                                     </Field>
-                                    <Field label="Condition">
+                                    <Field label="বইয়ের অবস্থা">
                                         <select name="condition" defaultValue={editing.condition} className={`${inputClass} cursor-pointer`}>
                                             {CONDITIONS.map((condition) => (
-                                                <option key={condition}>{condition}</option>
+                                                <option key={condition} value={condition}>
+                                                    {conditionLabel(condition)}
+                                                </option>
                                             ))}
                                         </select>
                                     </Field>
                                 </>
                             )}
-                            <Field label="Author">
+                            <Field label="লেখক">
                                 <input name="author" defaultValue={editing.bookMetadata?.author ?? ""} className={inputClass} />
                             </Field>
-                            <Field label="Publisher">
+                            <Field label="প্রকাশক">
                                 <input name="publisher" defaultValue={editing.bookMetadata?.publisher ?? ""} className={inputClass} />
                             </Field>
-                            <Field label="Publication year">
+                            <Field label="প্রকাশের সাল">
                                 <input name="publicationYear" type="number" min={1800} max={2100} defaultValue={editing.bookMetadata?.publicationYear ?? ""} className={inputClass} />
                             </Field>
-                            <Field label="Location">
+                            <Field label="এলাকা">
                                 <input name="location" required defaultValue={editing.location} className={inputClass} />
                             </Field>
                         </div>
@@ -298,17 +305,17 @@ const MyProducts = () => {
                                 className="mt-0.5 h-4 w-4 rounded border-stone-300 text-amber-500 focus:ring-amber-400"
                             />
                             <span>
-                                <span className="block text-sm font-semibold text-stone-900">Published</span>
-                                <span className="block text-xs text-stone-500">Untick to hide this listing from buyers without deleting it.</span>
+                                <span className="block text-sm font-semibold text-stone-900">চালু রাখো</span>
+                                <span className="block text-xs text-stone-500">টিক তুলে দিলে লিস্টিংটা মুছবে না, শুধু ক্রেতাদের কাছ থেকে লুকানো থাকবে।</span>
                             </span>
                         </label>
 
                         <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                             <button type="button" onClick={() => setEditing(null)} className={btn.secondary}>
-                                Close
+                                বন্ধ করো
                             </button>
                             <button type="submit" disabled={isUpdating} className={btn.primary}>
-                                {isUpdating ? "Saving..." : "Save changes"}
+                                {isUpdating ? "সেভ হচ্ছে..." : "সেভ করো"}
                             </button>
                         </div>
                     </form>
@@ -320,9 +327,9 @@ const MyProducts = () => {
                 onClose={() => setDeleting(null)}
                 onConfirm={handleDelete}
                 loading={isDeleting}
-                title="Delete this listing?"
-                desc={`"${deleting?.title ?? ""}" will be removed from the marketplace. Existing orders for it are not affected.`}
-                confirmLabel="Delete listing"
+                title="লিস্টিংটা মুছে ফেলবে?"
+                desc={`"${deleting?.title ?? ""}" সাইট থেকে সরিয়ে ফেলা হবে। এর আগের অর্ডারগুলোতে কোনো সমস্যা হবে না।`}
+                confirmLabel="লিস্টিং মুছে ফেলো"
             />
         </>
     );

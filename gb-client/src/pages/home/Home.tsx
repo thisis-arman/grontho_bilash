@@ -3,16 +3,16 @@ import {
     useEffect,
     useRef,
     useState,
-    type FormEvent,
     type ReactNode,
 } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
-import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calculator, FileQuestion, GraduationCap, Lightbulb, ListChecks } from "lucide-react";
 
 import { useGetProductsQuery } from "../../redux/features/book/bookApi";
 import { IProduct } from "../../types/interface";
 import { TOOLS } from "../tools/toolsList";
+import SearchBox from "../../components/search/SearchBox";
 
 /* ==========================================================================
    STATIC CONTENT
@@ -76,7 +76,7 @@ const categories = [
     { label: "শিশুতোষ", slug: "Children" },
 ];
 
-const tools = TOOLS.map((tool) => ({
+const tools = TOOLS.slice(0, 4).map((tool) => ({
     title: tool.title,
     desc: tool.desc,
     to: tool.path,
@@ -264,45 +264,12 @@ const ghostButton =
    HERO
    ========================================================================== */
 
-const HeroSearch = () => {
-    const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState("");
-
-    const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const query = searchQuery.trim();
-        if (!query) return;
-        navigate(`/books?search=${encodeURIComponent(query)}`);
-    };
-
-    return (
-        <form
-            onSubmit={handleSearch}
-            role="search"
-            className="flex w-full max-w-xl items-center gap-3 border-b border-white/25 pb-3 transition-colors duration-200 focus-within:border-amber-400"
-        >
-            <Search size={20} aria-hidden="true" className="flex-shrink-0 text-stone-500" />
-            <label htmlFor="hero-search" className="sr-only">
-                বই খুঁজো
-            </label>
-            <input
-                id="hero-search"
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="বই, লেখক বা বিষয় লিখে খুঁজো"
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-0 sm:text-lg"
-            />
-            <button
-                type="submit"
-                aria-label="খুঁজো"
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-400 text-stone-950 transition duration-200 hover:bg-amber-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
-            >
-                <ArrowRight size={18} aria-hidden="true" />
-            </button>
-        </form>
-    );
-};
+// Same search box as the shop: suggestions while typing, in Bangla or English.
+const HeroSearch = () => (
+    <div className="w-full max-w-xl">
+        <SearchBox id="hero-search" variant="hero" placeholder="বই, লেখক বা বিষয় লিখে খুঁজো" />
+    </div>
+);
 
 const HeroSection = () => (
     <section className="relative overflow-hidden">
@@ -376,6 +343,49 @@ const HeroSection = () => (
 /* ==========================================================================
    CATEGORY TICKER
    ========================================================================== */
+
+/* ==========================================================================
+   STUDENT HUB: one tap to each kind of help
+   ========================================================================== */
+
+const hubLinks = [
+    { to: "/courses", title: "সিলেবাস ও কোর্স", desc: "জাতীয় বিশ্ববিদ্যালয় অনার্সের সব বিভাগের বর্ষভিত্তিক কোর্স ও সিলেবাস।", icon: GraduationCap },
+    { to: "/booklists", title: "কোন বই লাগবে?", desc: "ক্লাস বা বর্ষ বেছে নাও, পুরো বইয়ের তালিকা আর দাম দেখো।", icon: ListChecks },
+    { to: "/questions", title: "প্রশ্ন ব্যাংক", desc: "বোর্ড, বিশ্ববিদ্যালয় ও চাকরির পরীক্ষার বিগত সালের প্রশ্ন।", icon: FileQuestion },
+    { to: "/suggestions", title: "পরীক্ষার সাজেশন", desc: "বিষয়ভিত্তিক সাজেশন, নোট আর PDF, সব ফ্রি।", icon: Lightbulb },
+    { to: "/tools", title: "হিসাবের টুলস", desc: "GPA, CGPA, নম্বর থেকে গ্রেড, চাকরির বয়স হিসাব।", icon: Calculator },
+];
+
+const StudentHubSection = () => (
+    <section aria-labelledby="hub-heading" className="border-t border-white/10">
+        <div className={`${container} py-14 sm:py-20`}>
+            <h2 id="hub-heading" className="mb-6 font-display text-2xl font-bold text-stone-50 sm:mb-8 sm:text-3xl">
+                তুমি কী খুঁজছ?
+            </h2>
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {hubLinks.map(({ to, title, desc, icon: Icon }) => (
+                    <li key={to}>
+                        <Link
+                            to={to}
+                            className="group flex h-full items-start gap-4 rounded-2xl border border-white/10 bg-stone-900/60 p-5 transition-colors duration-200 hover:border-amber-400/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                        >
+                            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-amber-400/15 text-amber-400">
+                                <Icon size={24} aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0">
+                                <span className="flex items-center gap-1 font-display text-lg font-bold text-stone-50">
+                                    {title}
+                                    <ArrowUpRight size={16} aria-hidden="true" className="text-stone-500 transition group-hover:text-amber-400" />
+                                </span>
+                                <span className="mt-1 block text-sm leading-relaxed text-stone-400">{desc}</span>
+                            </span>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </section>
+);
 
 const CategoryTicker = () => {
     // Rendered twice so the CSS loop is seamless; the copy is hidden from
@@ -788,6 +798,7 @@ const Home = () => (
     // night and in its light mirror by day.
     <main className="scheme-flip bg-stone-950 font-sans text-stone-100 antialiased">
         <HeroSection />
+        <StudentHubSection />
         <RecentListingsSection />
         <CategoryTicker />
         <BenefitsSection />

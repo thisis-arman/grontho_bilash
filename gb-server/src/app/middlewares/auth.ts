@@ -17,7 +17,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
 
     if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not logged in.");
+      throw new AppError(httpStatus.UNAUTHORIZED, "তুমি লগইন করোনি। অনুগ্রহ করে আগে লগইন করো।");
     }
 
     let decoded: JwtPayload;
@@ -29,21 +29,21 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     } catch {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
-        "Your session has expired. Please log in again."
+        "তোমার সেশনের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করো।"
       );
     }
 
     const { email, iat } = decoded;
     const user = await User.isUserExistsByEmail(email);
     if (!user) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "This user is not found !");
+      throw new AppError(httpStatus.UNAUTHORIZED, "এই অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি!");
     }
 
     if (user?.isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
+      throw new AppError(httpStatus.FORBIDDEN, "এই অ্যাকাউন্টটি মুছে ফেলা হয়েছে");
     }
     if (user.status == "blocked") {
-      throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
+      throw new AppError(httpStatus.FORBIDDEN, "এই অ্যাকাউন্টটি ব্লক করা হয়েছে");
     }
 
     if (
@@ -55,7 +55,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     ) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
-        "Your session has expired. Please log in again."
+        "তোমার সেশনের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করো।"
       );
     }
 
@@ -63,7 +63,7 @@ export const Auth = (...requiredRoles: TUserRoles[]) => {
     // promoted user takes effect immediately.
     const role = user.role as TUserRoles;
     if (requiredRoles.length && !requiredRoles.includes(role)) {
-      throw new AppError(httpStatus.FORBIDDEN, "You are not authorized !");
+      throw new AppError(httpStatus.FORBIDDEN, "এই কাজটি করার অনুমতি তোমার নেই!");
     }
 
     req.user = { ...decoded, id: String(user._id), email: user.email, role };

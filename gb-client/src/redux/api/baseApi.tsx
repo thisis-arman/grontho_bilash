@@ -62,6 +62,6 @@ const baseQueryWithSessionCheck: BaseQueryFn<
 export const baseApi = createApi({
     reducerPath: "baseApi",
     baseQuery: baseQueryWithSessionCheck,
-    tagTypes: ["Books", "Users", "Orders", "Blogs", "Suggestions"],
+    tagTypes: ["Books", "Users", "Orders", "Blogs", "Suggestions", "BookLists", "Alerts", "SearchInsights", "Curriculum"],
     endpoints: () => ({})
 });

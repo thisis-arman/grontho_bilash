@@ -29,7 +29,7 @@ const loginUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "login successful",
+    message: "লগইন সফল হয়েছে",
     data: {
       accessToken,
       needsUpdateProfile,
@@ -40,14 +40,14 @@ const loginUser = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "You are not logged in.");
+    throw new AppError(httpStatus.UNAUTHORIZED, "তুমি লগইন করোনি। অনুগ্রহ করে আগে লগইন করো।");
   }
   const result = await authServices.refreshToken(refreshToken);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Access token is retrieved successfully!",
+    message: "অ্যাক্সেস টোকেন পাওয়া গেছে!",
     data: result,
   });
 });
@@ -61,7 +61,7 @@ const changePassword = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Password changed successfully!",
+    message: "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!",
     data: null,
   });
 });
@@ -74,7 +74,7 @@ const forgotPassword = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "If an account exists for this email, a reset code has been sent.",
+    message: "এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট থাকলে, পাসওয়ার্ড রিসেট করার কোড পাঠানো হয়েছে।",
     data: null,
   });
 });
@@ -86,7 +86,7 @@ const resetPassword = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Password reset successfully! Please log in.",
+    message: "পাসওয়ার্ড সফলভাবে রিসেট হয়েছে! অনুগ্রহ করে লগইন করো।",
     data: null,
   });
 });
@@ -96,7 +96,7 @@ const logoutUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Logged out",
+    message: "লগআউট হয়েছে",
     data: null,
   });
 });

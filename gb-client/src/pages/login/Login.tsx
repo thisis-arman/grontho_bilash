@@ -27,14 +27,14 @@ const Login = () => {
       }).unwrap();
       const user = verifyToken(response.data.accessToken) as TUser;
       dispatch(setUser({ user, token: response.data.accessToken }));
-      toast.success(`Welcome back, ${user.name?.split(" ")[0] ?? ""}`.trim());
+      toast.success(`আবার স্বাগতম, ${user.name?.split(" ")[0] ?? ""}`.trim());
       navigate(returnPath(user.role), { replace: true });
     } catch (err) {
       const status = (err as { status?: number | string })?.status;
       setError(
         status === "FETCH_ERROR"
-          ? "Could not reach the server. Check your connection and try again."
-          : (err as { data?: { message?: string } })?.data?.message || "Could not log in. Please try again."
+          ? "সার্ভারে পৌঁছানো যাচ্ছে না। ইন্টারনেট কানেকশন দেখে আবার চেষ্টা করো।"
+          : (err as { data?: { message?: string } })?.data?.message || "লগইন করা যায়নি। আবার চেষ্টা করো।"
       );
     }
   };
@@ -42,13 +42,13 @@ const Login = () => {
   return (
     <RedirectIfSignedIn>
       <AuthLayout
-        title="Welcome back"
-        subtitle="Log in to buy, sell and track your orders."
+        title="আবার স্বাগতম"
+        subtitle="বই কিনতে, বেচতে আর অর্ডারের খোঁজ রাখতে লগইন করো।"
         footer={
           <>
-            New to Grontho Bilash?{" "}
+            গ্রন্থ বিলাসে নতুন?{" "}
             <Link to="/signup" className={authLink}>
-              Create an account
+              অ্যাকাউন্ট খোলো
             </Link>
           </>
         }
@@ -58,7 +58,7 @@ const Login = () => {
 
           <div>
             <label htmlFor="email" className={authLabel}>
-              Email
+              ইমেইল
             </label>
             <input
               id="email"
@@ -75,17 +75,17 @@ const Login = () => {
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label htmlFor="password" className="text-sm font-semibold text-stone-700">
-                Password
+                পাসওয়ার্ড
               </label>
               <Link to="/forgot-password" className="text-sm font-medium text-amber-700 hover:underline">
-                Forgot password?
+                পাসওয়ার্ড ভুলে গেছো?
               </Link>
             </div>
             <PasswordField id="password" name="password" autoComplete="current-password" />
           </div>
 
           <button type="submit" disabled={isLoading} className={authButton}>
-            {isLoading ? "Logging in..." : "Log in"}
+            {isLoading ? "লগইন হচ্ছে..." : "লগইন"}
           </button>
         </form>
       </AuthLayout>

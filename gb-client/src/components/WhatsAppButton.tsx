@@ -31,3 +31,12 @@ const WhatsAppButton = ({
 );
 
 export default WhatsAppButton;
+
+// Chat link to someone else's Bangladeshi number (e.g. a buyer), or null if
+// the number can't be a WhatsApp number.
+export const whatsappLinkTo = (phone: string | undefined | null, message: string) => {
+  let digits = String(phone ?? "").replace(/\D/g, "");
+  if (digits.startsWith("01") && digits.length === 11) digits = `88${digits}`;
+  if (!/^8801[3-9]\d{8}$/.test(digits)) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+};

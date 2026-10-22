@@ -10,8 +10,9 @@ import { useAppDispatch } from "../../redux/hooks";
 import { verifyToken } from "../../utils/verifyToken";
 import AuthLayout, { authButton, authInput, authLabel, authLink, FormError } from "../login/AuthLayout";
 import { OtpInput, PasswordField, PasswordStrength, RedirectIfSignedIn, useReturnPath } from "../login/authHelpers";
+import { bnNumber } from "../../i18n/labels";
 
-const STEPS = ["Email", "Verify", "Details"];
+const STEPS = ["ইমেইল", "যাচাই", "তথ্য"];
 const RESEND_SECONDS = 30;
 // Survives a page refresh during sign-up; cleared once the account exists.
 const PROGRESS_KEY = "gb_signup";
@@ -32,7 +33,7 @@ const loadProgress = (): { email: string; step: number } => {
 };
 
 const Stepper = ({ step }: { step: number }) => (
-  <ol className="mb-8 flex items-center gap-2" aria-label="Sign-up progress">
+  <ol className="mb-8 flex items-center gap-2" aria-label="সাইন আপের ধাপ">
     {STEPS.map((label, i) => (
       <li key={label} className="flex flex-1 items-center gap-2">
         <span
@@ -41,7 +42,7 @@ const Stepper = ({ step }: { step: number }) => (
           }`}
           aria-current={i === step ? "step" : undefined}
         >
-          {i < step ? <Check size={14} aria-hidden="true" /> : i + 1}
+          {i < step ? <Check size={14} aria-hidden="true" /> : bnNumber(i + 1)}
         </span>
         <span className={`text-sm font-semibold ${i === step ? "text-stone-900" : "text-stone-400"}`}>{label}</span>
         {i < STEPS.length - 1 && <span className="ml-1 h-px flex-1 bg-stone-200" aria-hidden="true" />}
@@ -94,7 +95,7 @@ const SignUp = () => {
       setCooldown(RESEND_SECONDS);
       return true;
     } catch (err) {
-      setError(apiMessage(err, "Could not send the code. Please try again."));
+      setError(apiMessage(err, "কোড পাঠানো যায়নি। আবার চেষ্টা করো।"));
       return false;
     }
   };
@@ -112,7 +113,7 @@ const SignUp = () => {
       goTo(2);
     } catch (err) {
       setCode("");
-      setError(apiMessage(err, "That code is not right. Please try again."));
+      setError(apiMessage(err, "কোডটা ঠিক না। আবার চেষ্টা করো।"));
     }
   };
 
@@ -137,14 +138,14 @@ const SignUp = () => {
       if (token) {
         const user = verifyToken(token) as TUser;
         dispatch(setUser({ user, token }));
-        toast.success("Welcome to Grontho Bilash!");
+        toast.success("গ্রন্থ বিলাসে স্বাগতম!");
         navigate(returnPath(user.role), { replace: true });
       } else {
-        toast.success("Account created. Please log in.");
+        toast.success("অ্যাকাউন্ট খোলা হয়েছে। এবার লগইন করো।");
         navigate("/login");
       }
     } catch (err) {
-      setError(apiMessage(err, "Could not create your account. Please try again."));
+      setError(apiMessage(err, "অ্যাকাউন্ট খোলা যায়নি। আবার চেষ্টা করো।"));
     }
   };
 
@@ -157,23 +158,23 @@ const SignUp = () => {
   return (
     <RedirectIfSignedIn>
       <AuthLayout
-        title={step === 0 ? "Create your account" : step === 1 ? "Check your email" : "Almost done"}
+        title={step === 0 ? "অ্যাকাউন্ট খোলো" : step === 1 ? "ইমেইল চেক করো" : "প্রায় শেষ"}
         subtitle={
           step === 0 ? (
-            "Free to join. We will send a code to confirm your email."
+            "যোগ দিতে কোনো টাকা লাগে না। ইমেইল যাচাই করতে আমরা একটা কোড পাঠাব।"
           ) : step === 1 ? (
             <>
-              We sent a 6-digit code to <strong className="text-stone-900">{email}</strong>. It expires in 5 minutes.
+              <strong className="text-stone-900">{email}</strong> ঠিকানায় একটা ৬ সংখ্যার কোড পাঠিয়েছি। কোডটা ৫ মিনিট কাজ করবে।
             </>
           ) : (
-            "Tell us a little about you and choose a password."
+            "তোমার সম্পর্কে একটু জানাও আর একটা পাসওয়ার্ড বেছে নাও।"
           )
         }
         footer={
           <>
-            Already have an account?{" "}
+            আগে থেকেই অ্যাকাউন্ট আছে?{" "}
             <Link to="/login" className={authLink}>
-              Log in
+              লগইন করো
             </Link>
           </>
         }
@@ -185,7 +186,7 @@ const SignUp = () => {
             <FormError message={error} />
             <div>
               <label htmlFor="signup-email" className={authLabel}>
-                Email
+                ইমেইল
               </label>
               <input
                 id="signup-email"
@@ -200,7 +201,7 @@ const SignUp = () => {
               />
             </div>
             <button type="submit" disabled={isSending} className={authButton}>
-              {isSending ? "Sending code..." : "Continue"}
+              {isSending ? "কোড পাঠানো হচ্ছে..." : "এগিয়ে যাও"}
             </button>
           </form>
         )}
@@ -217,11 +218,11 @@ const SignUp = () => {
             <OtpInput value={code} onChange={setCode} onComplete={handleVerify} disabled={isVerifying} />
             <button type="submit" disabled={code.length !== 6 || isVerifying} className={authButton}>
               <MailCheck size={18} aria-hidden="true" />
-              {isVerifying ? "Checking..." : "Verify email"}
+              {isVerifying ? "যাচাই হচ্ছে..." : "ইমেইল যাচাই করো"}
             </button>
             <div className="flex items-center justify-between text-sm">
               <button type="button" onClick={startOver} className="font-medium text-stone-500 hover:text-stone-900">
-                Change email
+                ইমেইল বদলাও
               </button>
               <button
                 type="button"
@@ -229,7 +230,7 @@ const SignUp = () => {
                 disabled={cooldown > 0 || isSending}
                 className="font-semibold text-amber-700 hover:underline disabled:text-stone-400 disabled:no-underline"
               >
-                {cooldown > 0 ? `Resend in ${cooldown}s` : isSending ? "Sending..." : "Resend code"}
+                {cooldown > 0 ? `${bnNumber(cooldown)} সেকেন্ড পর আবার পাঠাও` : isSending ? "পাঠানো হচ্ছে..." : "আবার কোড পাঠাও"}
               </button>
             </div>
           </form>
@@ -240,7 +241,7 @@ const SignUp = () => {
             <FormError message={error} />
             <div>
               <label htmlFor="signup-name" className={authLabel}>
-                Full name
+                পুরো নাম
               </label>
               <input
                 id="signup-name"
@@ -251,7 +252,7 @@ const SignUp = () => {
                 autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="তোমার নাম"
                 className={authInput}
               />
             </div>
@@ -259,14 +260,14 @@ const SignUp = () => {
             
 <div>
   <label htmlFor="signup-phone" className={authLabel}>
-    Phone number
+    ফোন নম্বর
   </label>
 
   <div className="flex w-full items-stretch gap-2">
     <select
       value={countryCode}
       onChange={(e) => setCountryCode(e.target.value)}
-      aria-label="Country code"
+      aria-label="দেশের কোড"
       className={`${authInput} !w-[120px] !min-w-[120px] flex-none cursor-pointer px-3`}
     >
       {countryData.map((country) => (
@@ -282,7 +283,7 @@ const SignUp = () => {
       inputMode="tel"
       required
       pattern="[0-9\s-]{8,16}"
-      title="Digits only, e.g. 01712345678"
+      title="শুধু সংখ্যা, যেমন 01712345678"
       autoComplete="tel-national"
       value={phone}
       onChange={(e) => setPhone(e.target.value)}
@@ -295,7 +296,7 @@ const SignUp = () => {
 
             <div>
               <label htmlFor="signup-password" className={authLabel}>
-                Password
+                পাসওয়ার্ড
               </label>
               <PasswordField
                 id="signup-password"
@@ -304,18 +305,18 @@ const SignUp = () => {
                 minLength={6}
                 value={password}
                 onChange={setPassword}
-                placeholder="At least 6 characters"
+                placeholder="কমপক্ষে ৬ অক্ষর"
               />
               <PasswordStrength password={password} />
             </div>
 
             <button type="submit" disabled={isCreating} className={authButton}>
-              {isCreating ? "Creating account..." : "Create account"}
+              {isCreating ? "অ্যাকাউন্ট খোলা হচ্ছে..." : "অ্যাকাউন্ট খোলো"}
             </button>
             <p className="text-center text-xs leading-relaxed text-stone-500">
-              By creating an account you agree to our{" "}
-              <Link to="/terms" className="underline">Terms</Link> and{" "}
-              <Link to="/privacy" className="underline">Privacy Policy</Link>.
+              অ্যাকাউন্ট খুললে তুমি আমাদের{" "}
+              <Link to="/terms" className="underline">শর্তাবলি</Link> আর{" "}
+              <Link to="/privacy" className="underline">প্রাইভেসি পলিসি</Link> মেনে নিচ্ছ।
             </p>
           </form>
         )}

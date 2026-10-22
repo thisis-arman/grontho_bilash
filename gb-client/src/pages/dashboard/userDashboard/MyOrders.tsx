@@ -16,11 +16,10 @@ import {
     errorMessage,
     ErrorState,
     Field,
-    formatDate,
+    formatDateBn,
     inputClass,
     LoadingRows,
     Modal,
-    money,
     OrderStatusBadge,
     PageHeader,
     Pagination,
@@ -31,6 +30,7 @@ import {
     Toolbar,
     usePaged,
 } from "../../../components/dashboard/ui";
+import { bnNumber, orderStatusLabel, paymentMethodLabel, taka } from "../../../i18n/labels";
 
 interface Order {
     _id: string;
@@ -48,12 +48,11 @@ interface Order {
 }
 
 const STATUS_OPTIONS = [
-    { value: "all", label: "All statuses" },
-    { value: "pending", label: "Pending" },
-    { value: "confirmed", label: "Confirmed" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
+    { value: "all", label: "সব অবস্থা" },
+    ...["pending", "confirmed", "shipped", "delivered", "cancelled"].map((value) => ({
+        value,
+        label: orderStatusLabel(value),
+    })),
 ];
 
 // Mirrors the server rule: a buyer can change or cancel an order only while
@@ -98,10 +97,10 @@ const MyOrders = () => {
                     phoneNumber: String(form.get("phoneNumber")).trim(),
                 },
             }).unwrap();
-            toast.success("Delivery details updated");
+            toast.success("ডেলিভারির তথ্য আপডেট হয়েছে");
             setEditing(null);
         } catch (error) {
-            toast.error(errorMessage(error, "Could not update the order"));
+            toast.error(errorMessage(error, "অর্ডার আপডেট করা যায়নি"));
         }
     };
 
@@ -109,20 +108,20 @@ const MyOrders = () => {
         if (!cancelling) return;
         try {
             await cancelOrder(cancelling._id).unwrap();
-            toast.success("Order cancelled");
+            toast.success("অর্ডার বাতিল হয়েছে");
             setCancelling(null);
         } catch (error) {
-            toast.error(errorMessage(error, "Could not cancel the order"));
+            toast.error(errorMessage(error, "অর্ডার বাতিল করা যায়নি"));
         }
     };
 
     return (
         <>
-            <PageHeader title="My Orders" desc="Track what you have ordered. Pending orders can still be changed or cancelled." />
+            <PageHeader title="আমার অর্ডার" desc="তোমার অর্ডারগুলোর খোঁজ রাখো। অপেক্ষমাণ অর্ডার এখনো বদলানো বা বাতিল করা যায়।" />
 
             <Toolbar>
-                <SearchInput value={search} onChange={setSearch} placeholder="Search by order ID or book title" />
-                <SelectFilter value={status} onChange={setStatus} options={STATUS_OPTIONS} label="Filter by order status" />
+                <SearchInput value={search} onChange={setSearch} placeholder="অর্ডার আইডি বা বইয়ের নাম দিয়ে খুঁজো" />
+                <SelectFilter value={status} onChange={setStatus} options={STATUS_OPTIONS} label="অর্ডারের অবস্থা দিয়ে বাছাই করো" />
             </Toolbar>
 
             {isLoading ? (
@@ -133,14 +132,14 @@ const MyOrders = () => {
                 <Panel flush>
                     <EmptyState
                         icon={ShoppingBag}
-                        title="No orders yet"
-                        desc="Books you order will show up here."
-                        action={<Link to="/books" className={btn.primary}>Browse books</Link>}
+                        title="এখনো কোনো অর্ডার নেই"
+                        desc="তুমি যে বই অর্ডার করবে, সেগুলো এখানে দেখাবে।"
+                        action={<Link to="/books" className={btn.primary}>বই দেখো</Link>}
                     />
                 </Panel>
             ) : filtered.length === 0 ? (
                 <Panel flush>
-                    <EmptyState icon={ShoppingBag} title="No matching orders" desc="Try a different search or status." />
+                    <EmptyState icon={ShoppingBag} title="মিলে যাওয়া কোনো অর্ডার নেই" desc="অন্য কিছু লিখে খুঁজো বা অন্য অবস্থা বেছে নাও।" />
                 </Panel>
             ) : (
                 <>
@@ -150,7 +149,7 @@ const MyOrders = () => {
                                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-stone-100 px-4 py-3 sm:px-5">
                                     <p className="text-sm">
                                         <span className="font-mono font-semibold text-stone-900">{order.orderId}</span>
-                                        <span className="text-stone-500"> · {formatDate(order.createdAt)}</span>
+                                        <span className="text-stone-500"> · {formatDateBn(order.createdAt)}</span>
                                     </p>
                                     <div className="flex flex-wrap gap-1.5">
                                         <OrderStatusBadge status={order.orderStatus} />
@@ -178,10 +177,10 @@ const MyOrders = () => {
                                                         <p className="truncate text-sm font-semibold text-stone-900">{item.bookTitle}</p>
                                                     )}
                                                     <p className="text-xs text-stone-500">
-                                                        {money(item.price)} × {item.quantity}
+                                                        {taka(item.price)} × {bnNumber(item.quantity)}
                                                     </p>
                                                 </div>
-                                                <span className="text-sm font-semibold text-stone-900">{money(item.price * item.quantity)}</span>
+                                                <span className="text-sm font-semibold text-stone-900">{taka(item.price * item.quantity)}</span>
                                             </li>
                                         );
                                     })}
@@ -200,23 +199,23 @@ const MyOrders = () => {
                                     </div>
                                     <div className="flex-shrink-0 sm:text-right">
                                         <p className="text-xs text-stone-500">
-                                            Delivery {money(order.shippingCost)} · {order.paymentMethod === "bkash" ? "bKash" : "Cash on delivery"}
+                                            ডেলিভারি {taka(order.shippingCost)} · {paymentMethodLabel(order.paymentMethod)}
                                         </p>
-                                        <p className="font-display text-xl font-bold text-stone-900">{money(order.totalAmount)}</p>
+                                        <p className="font-display text-xl font-bold text-stone-900">{taka(order.totalAmount)}</p>
                                     </div>
                                 </div>
 
                                 {isEditable(order) && (
                                     <div className="flex flex-col gap-2 border-t border-stone-100 px-4 py-3 sm:flex-row sm:justify-end sm:px-5">
                                         <button type="button" onClick={() => setEditing(order)} className={btn.secondary}>
-                                            <Pencil size={15} aria-hidden="true" /> Edit delivery details
+                                            <Pencil size={15} aria-hidden="true" /> ডেলিভারির তথ্য এডিট করো
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setCancelling(order)}
                                             className={`${btn.secondary} !text-red-600 hover:!bg-red-50`}
                                         >
-                                            <XCircle size={15} aria-hidden="true" /> Cancel order
+                                            <XCircle size={15} aria-hidden="true" /> অর্ডার বাতিল করো
                                         </button>
                                     </div>
                                 )}
@@ -231,10 +230,10 @@ const MyOrders = () => {
                 </>
             )}
 
-            <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit delivery details">
+            <Modal open={!!editing} onClose={() => setEditing(null)} title="ডেলিভারির তথ্য এডিট করো">
                 {editing && (
                     <form onSubmit={handleEdit} className="space-y-4">
-                        <Field label="Delivery address">
+                        <Field label="ডেলিভারির ঠিকানা">
                             <textarea
                                 name="deliveryAddress"
                                 required
@@ -244,7 +243,7 @@ const MyOrders = () => {
                                 className={inputClass}
                             />
                         </Field>
-                        <Field label="Phone number">
+                        <Field label="ফোন নম্বর">
                             <input
                                 name="phoneNumber"
                                 type="tel"
@@ -256,10 +255,10 @@ const MyOrders = () => {
                         </Field>
                         <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                             <button type="button" onClick={() => setEditing(null)} className={btn.secondary}>
-                                Close
+                                বন্ধ করো
                             </button>
                             <button type="submit" disabled={isUpdating} className={btn.primary}>
-                                {isUpdating ? "Saving..." : "Save changes"}
+                                {isUpdating ? "সেভ হচ্ছে..." : "সেভ করো"}
                             </button>
                         </div>
                     </form>
@@ -271,9 +270,9 @@ const MyOrders = () => {
                 onClose={() => setCancelling(null)}
                 onConfirm={handleCancel}
                 loading={isCancelling}
-                title="Cancel this order?"
-                desc={`Order ${cancelling?.orderId ?? ""} will be cancelled and the books released back to the sellers. This cannot be undone.`}
-                confirmLabel="Cancel order"
+                title="অর্ডারটা বাতিল করবে?"
+                desc={`${cancelling?.orderId ?? ""} অর্ডারটা বাতিল হবে আর বইগুলো আবার বিক্রেতাদের কাছে বিক্রির জন্য ফিরে যাবে। এটা আর ফেরানো যাবে না।`}
+                confirmLabel="অর্ডার বাতিল করো"
             />
         </>
     );

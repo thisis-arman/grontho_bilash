@@ -23,4 +23,9 @@ export default {
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
+  // Optional: automatic WhatsApp order updates (see utils/whatsapp.ts).
+  whatsapp_token: process.env.WHATSAPP_TOKEN,
+  whatsapp_phone_number_id: process.env.WHATSAPP_PHONE_NUMBER_ID,
+  whatsapp_order_template: process.env.WHATSAPP_ORDER_TEMPLATE || "order_status_update",
+  whatsapp_template_lang: process.env.WHATSAPP_TEMPLATE_LANG || "bn",
 };

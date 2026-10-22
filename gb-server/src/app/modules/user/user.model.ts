@@ -13,14 +13,14 @@ export const userSchema = new Schema<TUser, UserModel>(
       type: String,
       required: true,
       unique: true,
-      match: [/.+@.+\..+/, "Please enter a valid email address"],
+      match: [/.+@.+\..+/, "অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দাও"],
     },
     contactNo: {
       type: String,
       required: true,
       match: [
         /^\+\d{1,4}\d{10,15}$/,
-        "Please enter a valid contact number with country code",
+        "কান্ট্রি কোডসহ একটি সঠিক মোবাইল নম্বর দাও",
       ],
     },
     password: {

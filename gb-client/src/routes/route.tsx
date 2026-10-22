@@ -40,6 +40,15 @@ const SuggestionList = lazy(() => import("../pages/suggestions/SuggestionList"))
 const SuggestionDetail = lazy(() => import("../pages/suggestions/SuggestionDetail"));
 const BlogEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/BlogEditor"));
 const SuggestionEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/SuggestionEditor"));
+const BookListEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/BookListEditor"));
+const BookListFinder = lazy(() => import("../pages/booklists/BookListFinder"));
+const BookListDetail = lazy(() => import("../pages/booklists/BookListDetail"));
+const CourseCatalog = lazy(() => import("../pages/courses/CourseCatalog"));
+const DepartmentCourses = lazy(() => import("../pages/courses/DepartmentCourses"));
+const CurriculumEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/CurriculumEditor"));
+const GpaCalculator = lazy(() => import("../pages/tools/GpaCalculator"));
+const GradeConverter = lazy(() => import("../pages/tools/GradeConverter"));
+const AgeCalculator = lazy(() => import("../pages/tools/AgeCalculator"));
 
 
 const pageFallback = <div className="min-h-[60vh]" aria-busy="true" />;
@@ -72,20 +81,44 @@ const router = createBrowserRouter([
                 element: <SuggestionDetail />
             },
             {
+                path: '/questions',
+                element: <SuggestionList kind="question" />
+            },
+            {
+                path: '/questions/:slug',
+                element: <SuggestionDetail kind="question" />
+            },
+            {
+                path: '/booklists',
+                element: <BookListFinder />
+            },
+            {
+                path: '/booklists/:slug',
+                element: <BookListDetail />
+            },
+            {
+                path: '/courses',
+                element: <CourseCatalog />
+            },
+            {
+                path: '/courses/:slug',
+                element: <DepartmentCourses />
+            },
+            {
                 path: '/careers',
-                element: <><PageMeta title="Careers" description="Work with Grontho Bilash and help students in Bangladesh get the books they need for less." /><Careers /></>
+                element: <><PageMeta title="ক্যারিয়ার" description="গ্রন্থবিলাসের সাথে কাজ করো, বাংলাদেশের শিক্ষার্থীদের কম খরচে দরকারি বই পেতে সাহায্য করো।" /><Careers /></>
             },
             {
                 path: '/terms',
-                element: <><PageMeta title="Terms of use" description="The terms for buying, selling and using Grontho Bilash." /><TermsOfUse /></>
+                element: <><PageMeta title="ব্যবহারের শর্তাবলি" description="গ্রন্থবিলাসে বই কেনা, বিক্রি ও সাইট ব্যবহারের শর্তাবলি।" /><TermsOfUse /></>
             },
             {
                 path: '/privacy',
-                element: <><PageMeta title="Privacy policy" description="How Grontho Bilash collects, uses and protects your information." /><PrivacyPolicy /></>
+                element: <><PageMeta title="গোপনীয়তা নীতি" description="গ্রন্থবিলাস কীভাবে তোমার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে।" /><PrivacyPolicy /></>
             },
             {
                 path: '/faq',
-                element: <><PageMeta title="Frequently asked questions" description="Answers about buying and selling used books, delivery, payment and accounts on Grontho Bilash." /><FAQ /></>
+                element: <><PageMeta title="সাধারণ জিজ্ঞাসা (FAQ)" description="পুরনো বই কেনা-বেচা, ডেলিভারি চার্জ, বিকাশ ও ক্যাশ অন ডেলিভারি পেমেন্ট আর অ্যাকাউন্ট নিয়ে সাধারণ প্রশ্নের উত্তর।" /><FAQ /></>
             },
             {
                 path: '/about',
@@ -126,7 +159,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/exam-suggestions',
-                element: <><PageMeta title="BBA final exam suggestions" description="Chapter-wise BBA final exam suggestions with the most important questions marked." /><ExamSuggestions /></>
+                element: <><PageMeta title="BBA ফাইনাল পরীক্ষার সাজেশন" description="অধ্যায়ভিত্তিক BBA ফাইনাল পরীক্ষার সাজেশন, গুরুত্বপূর্ণ প্রশ্ন চিহ্নিত করা।" /><ExamSuggestions /></>
             },
             {
                 path: '/tools',
@@ -137,13 +170,16 @@ const router = createBrowserRouter([
                     { path: 'target-cgpa', element: <TargetCgpa /> },
                     { path: 'attendance', element: <AttendanceCalculator /> },
                     { path: 'focus-timer', element: <FocusTimer /> },
+                    { path: 'gpa-calculator', element: <GpaCalculator /> },
+                    { path: 'grade-converter', element: <GradeConverter /> },
+                    { path: 'age-calculator', element: <AgeCalculator /> },
                 ]
             }
         ]
     },
     {
         path: "*",
-        element: <><PageMeta title="Page not found" noindex /><NotFound /></>
+        element: <><PageMeta title="পেজটা পাওয়া যায়নি" noindex /><NotFound /></>
     },
     {
         path: '/user',
@@ -172,19 +208,25 @@ const router = createBrowserRouter([
             { path: 'blogs/:id/edit', element: <BlogEditor /> },
             { path: 'suggestions/new', element: <SuggestionEditor /> },
             { path: 'suggestions/:id/edit', element: <SuggestionEditor /> },
+            { path: 'questions/new', element: <SuggestionEditor kind="question" /> },
+            { path: 'questions/:id/edit', element: <SuggestionEditor kind="question" /> },
+            { path: 'booklists/new', element: <BookListEditor /> },
+            { path: 'booklists/:id/edit', element: <BookListEditor /> },
+            { path: 'curriculum/new', element: <CurriculumEditor /> },
+            { path: 'curriculum/:id/edit', element: <CurriculumEditor /> },
         ]
     },
     {
         path: '/login',
-        element: <><PageMeta title="Log in" noindex />{lazyPage(<Login />)}</>
+        element: <><PageMeta title="লগইন" noindex />{lazyPage(<Login />)}</>
     },
     {
         path: '/forgot-password',
-        element: <><PageMeta title="Reset your password" noindex />{lazyPage(<ForgotPassword />)}</>
+        element: <><PageMeta title="পাসওয়ার্ড রিসেট" noindex />{lazyPage(<ForgotPassword />)}</>
     },
     {
         path: '/signup',
-        element: <><PageMeta title="Create an account" noindex />{lazyPage(<SignUp />)}</>
+        element: <><PageMeta title="অ্যাকাউন্ট খোলো" noindex />{lazyPage(<SignUp />)}</>
     }
 ]);
 

@@ -5,50 +5,50 @@ import { z } from "zod";
 const createBookSchema = z.object({
   user: z.string(),
   bookTitle: z
-    .string({ message: "Book title is required" })
-    .min(1, { message: "Book title cannot be empty" }),
+    .string({ message: "বইয়ের নাম দিতে হবে" })
+    .min(1, { message: "বইয়ের নাম খালি রাখা যাবে না" }),
   price: z
-    .number({ message: "Price is required" })
-    .positive({ message: "Price must be a positive number" }),
+    .number({ message: "দাম দিতে হবে" })
+    .positive({ message: "দাম শূন্যের চেয়ে বেশি হতে হবে" }),
   description: z
-    .string({ message: "Description is required" })
-    .min(1, { message: "Description cannot be empty" }),
+    .string({ message: "বিবরণ দিতে হবে" })
+    .min(1, { message: "বিবরণ খালি রাখা যাবে না" }),
   condition: z.enum(["Fresh", "Used"], {
-    message: "Condition must be 'fresh' or 'used'",
+    message: "বইয়ের অবস্থা 'Fresh' অথবা 'Used' হতে হবে",
   }),
   level: z.string({
-    message: "level is required"
+    message: "লেভেল দিতে হবে"
   }),
   faculty: z.string({
-    message: "faculty is required"
+    message: "ফ্যাকাল্টি দিতে হবে"
   }).optional(),
   department: z.string({
-    message: "department is required"
+    message: "ডিপার্টমেন্ট দিতে হবে"
   }).optional(),
   isContactHidden: z.boolean({
-    message: "isContactHidden must be a boolean value",
+    message: "যোগাযোগের তথ্য লুকানো থাকবে কি না, তা ঠিক করে দাও",
   }),
-  isNegotiable: z.boolean({ message: "isNegotiable must be a boolean value" }),
+  isNegotiable: z.boolean({ message: "দাম আলোচনাসাপেক্ষ কি না, তা ঠিক করে দাও" }),
   images: z
-    .array(z.string().url({ message: "Each image must be a valid URL" }), {
-      message: "Images must be an array of valid URLs",
+    .array(z.string().url({ message: "প্রতিটি ছবির লিংক সঠিক হতে হবে" }), {
+      message: "ছবিগুলোর লিংক সঠিকভাবে দিতে হবে",
     })
-    .min(1, { message: "At least one image URL is required" }),
+    .min(1, { message: "অন্তত একটি ছবি দিতে হবে" }),
   publicationYear: z
-    .number({ message: "Publication year is required" })
-    .int({ message: "Publication year must be an integer" }),
+    .number({ message: "প্রকাশের বছর দিতে হবে" })
+    .int({ message: "প্রকাশের বছর একটি পূর্ণসংখ্যা হতে হবে" }),
   transactionDate: z
-    .date({ message: "Transaction date must be a valid date" })
+    .date({ message: "লেনদেনের তারিখটি সঠিক হতে হবে" })
     .optional(),
   location: z
-    .string({ message: "Location is required" })
-    .min(1, { message: "Location cannot be empty" }),
+    .string({ message: "লোকেশন দিতে হবে" })
+    .min(1, { message: "লোকেশন খালি রাখা যাবে না" }),
   deliveryOption: z.enum(["Pickup", "Shipping"], {
-    message: "Delivery option must be 'pickup' or 'shipping'",
+    message: "ডেলিভারির ধরন 'Pickup' অথবা 'Shipping' হতে হবে",
   }),
   shippingCost: z
-    .number({ message: "Shipping cost must be a number" })
-    .positive({ message: "Shipping cost must be a positive number" })
+    .number({ message: "শিপিং খরচ একটি সংখ্যা হতে হবে" })
+    .positive({ message: "শিপিং খরচ শূন্যের চেয়ে বেশি হতে হবে" })
     .optional(),
 });
 

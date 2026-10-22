@@ -19,14 +19,14 @@ const loginUser = async (payload: TLoginUser) => {
   // the response time the same in both cases.
   if (!user) {
     await User.isPasswordMatched(payload.password, DUMMY_HASH);
-    throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
+    throw new AppError(httpStatus.UNAUTHORIZED, "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে");
   }
   // checking if the user is already deleted
 
   const isDeleted = user?.isDeleted;
 
   if (isDeleted) {
-    throw new Error("This user is deleted !");
+    throw new Error("এই অ্যাকাউন্টটি মুছে ফেলা হয়েছে!");
   }
 
   // checking if the user is blocked
@@ -34,13 +34,13 @@ const loginUser = async (payload: TLoginUser) => {
   const userStatus = user?.status;
 
   if (userStatus === "blocked") {
-    throw new Error("This user is blocked ! !");
+    throw new Error("এই অ্যাকাউন্টটি ব্লক করা হয়েছে!");
   }
 
   //checking if the password is correct
 
   if (!(await User.isPasswordMatched(payload?.password, user?.password)))
-    throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
+    throw new AppError(httpStatus.UNAUTHORIZED, "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে");
 
   //create token and sent to the  client
 
@@ -76,7 +76,7 @@ const refreshToken =async (token: string) => {
   } catch {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
-      "Your session has expired. Please log in again."
+      "তোমার সেশনের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করো।"
     );
   }
   const { email, iat } = decoded;
@@ -93,7 +93,7 @@ const refreshToken =async (token: string) => {
   ) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
-      "Your session has expired. Please log in again."
+      "তোমার সেশনের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করো।"
     );
   }
     const jwtPayload = {
@@ -117,19 +117,19 @@ const refreshToken =async (token: string) => {
 const changePassword = async (email: string, oldPassword: string, newPassword: string) => {
   const user = await User.isUserExistsByEmail(email);
   if (!user) {
-    throw new Error("This user is not found !");
+    throw new Error("এই অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি!");
   }
   if (user.isDeleted) {
-    throw new Error("This user is deleted !");
+    throw new Error("এই অ্যাকাউন্টটি মুছে ফেলা হয়েছে!");
   }
   if (user.status === "blocked") {
-    throw new Error("This user is blocked !");
+    throw new Error("এই অ্যাকাউন্টটি ব্লক করা হয়েছে!");
   }
 
   // Check if old password matches
   const isPasswordMatch = await User.isPasswordMatched(oldPassword, user.password);
   if (!isPasswordMatch) {
-    throw new Error("Old password does not match!");
+    throw new Error("পুরনো পাসওয়ার্ড মেলেনি!");
   }
 
   // Update password and passwordChangedAt (triggers the pre-save bcrypt hash middleware)
@@ -157,7 +157,7 @@ const resetPassword = async (
       : null;
 
   if (!user || !result?.verified) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired code");
+    throw new AppError(httpStatus.BAD_REQUEST, "কোডটি ভুল, অথবা এর মেয়াদ শেষ হয়ে গেছে");
   }
 
   // The code is single-use.

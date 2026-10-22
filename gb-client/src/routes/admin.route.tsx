@@ -5,7 +5,11 @@ import {
   ShoppingBag,
   UserCircle,
   Newspaper,
-  NotebookPen
+  NotebookPen,
+  FileQuestion,
+  ListChecks,
+  SearchCheck,
+  GraduationCap
 } from "lucide-react";
 import { lazy } from "react";
 
@@ -17,6 +21,10 @@ const UserManagement = lazy(() => import("../pages/dashboard/adminDashboard/User
 const ProfilePage = lazy(() => import("../pages/dashboard/ProfilePage"));
 const BlogAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/BlogAdmin"));
 const SuggestionAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/SuggestionAdmin"));
+const QuestionAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/QuestionAdmin"));
+const BookListAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/BookListAdmin"));
+const SearchInsights = lazy(() => import("../pages/dashboard/adminDashboard/SearchInsights"));
+const CurriculumAdmin = lazy(() => import("../pages/dashboard/adminDashboard/content/CurriculumAdmin"));
 
 export interface DashboardPath {
   name: string;
@@ -58,6 +66,30 @@ export const adminPaths: DashboardPath[] = [
     path: "suggestions",
     icon: <NotebookPen size={18} />,
     element: <SuggestionAdmin />,
+  },
+  {
+    name: "Question bank",
+    path: "questions",
+    icon: <FileQuestion size={18} />,
+    element: <QuestionAdmin />,
+  },
+  {
+    name: "Courses & syllabus",
+    path: "curriculum",
+    icon: <GraduationCap size={18} />,
+    element: <CurriculumAdmin />,
+  },
+  {
+    name: "Book lists",
+    path: "booklists",
+    icon: <ListChecks size={18} />,
+    element: <BookListAdmin />,
+  },
+  {
+    name: "Search insights",
+    path: "search-insights",
+    icon: <SearchCheck size={18} />,
+    element: <SearchInsights />,
   },
   {
     name: "Blog",

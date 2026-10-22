@@ -22,15 +22,15 @@ export const useAddToCart = () => {
     const existing = inCart(product._id);
 
     if (user?.id && user.id === sellerId) {
-      toast.info("This is your own listing");
+      toast.info("এটা তোমার নিজের লিস্টিং");
       return false;
     }
     if (!isDigital && (product.stockStatus === "Out of Stock" || stock <= 0)) {
-      toast.error("Sorry, this one is sold out");
+      toast.error("দুঃখিত, বইটা স্টকে নেই");
       return false;
     }
     if (existing && (isDigital || existing.quantity >= stock)) {
-      toast.info(isDigital ? "Already in your bag" : "You already have every available copy in your bag");
+      toast.info(isDigital ? "এটা আগেই তোমার ব্যাগে আছে" : "যতগুলো কপি আছে, সবই তোমার ব্যাগে আছে");
       return false;
     }
 
@@ -46,9 +46,9 @@ export const useAddToCart = () => {
         ...(isDigital ? {} : { maxQuantity: stock }),
       })
     );
-    toast.success("Added to your bag", {
+    toast.success("ব্যাগে যোগ হয়েছে", {
       description: product.title,
-      action: { label: "View bag", onClick: () => window.location.assign("/cart") },
+      action: { label: "ব্যাগ দেখো", onClick: () => window.location.assign("/cart") },
     });
     return true;
   };

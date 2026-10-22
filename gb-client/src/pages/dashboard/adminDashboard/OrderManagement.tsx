@@ -1,5 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
-import { CheckCircle2, Clock, Eye, ShoppingBag, Trash2, Wallet } from "lucide-react";
+import { CheckCircle2, Clock, Eye, MessageCircle, ShoppingBag, Trash2, Wallet } from "lucide-react";
+import { whatsappLinkTo } from "../../../components/WhatsAppButton";
+import { orderStatusLabel } from "../../../i18n/labels";
 import { toast } from "sonner";
 import {
     useDeleteOrderMutation,
@@ -261,6 +263,23 @@ const OrderManagement = () => {
                                 <Row label="Phone">
                                     <a href={`tel:${viewing.phoneNumber}`} className="text-amber-700 hover:underline">{viewing.phoneNumber}</a>
                                 </Row>
+                                {(() => {
+                                    // One-click status update to the buyer on WhatsApp, in Bangla.
+                                    const link = whatsappLinkTo(
+                                        viewing.phoneNumber,
+                                        `প্রিয় ${viewing.recipientName || "গ্রাহক"}, গ্রন্থবিলাসে আপনার অর্ডার ${viewing.orderId} এর বর্তমান অবস্থা: ${orderStatusLabel(viewing.orderStatus)}। বিস্তারিত দেখুন: https://www.gronthobilash.com/user/my-orders`
+                                    );
+                                    return link ? (
+                                        <a
+                                            href={link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#25D366] px-3 text-xs font-semibold text-[#073b1c] hover:bg-[#1ebe5a]"
+                                        >
+                                            <MessageCircle size={14} aria-hidden="true" /> Message buyer on WhatsApp
+                                        </a>
+                                    ) : null;
+                                })()}
                                 <Row label="Email">{viewing.email}</Row>
                                 <Row label="Area">{viewing.shippingArea === "inside" ? "Inside Chattogram" : "Outside Chattogram"}</Row>
                                 <Row label="Address">{viewing.deliveryAddress}</Row>

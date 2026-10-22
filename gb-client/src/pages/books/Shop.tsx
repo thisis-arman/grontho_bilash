@@ -1,26 +1,30 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PackageSearch, Search, SlidersHorizontal, X } from 'lucide-react';
+import { PackageSearch, SlidersHorizontal, X } from 'lucide-react';
 import ProductCard, { ProductCardSkeleton } from './ProductCard';
 import Pagination from '../../utils/Pagination';
 import { useGetProductsQuery, useGetShopFacetsQuery } from '../../redux/features/book/bookApi';
 import { IProduct } from '../../types/interface';
 import { usePageMeta } from '../../utils/usePageMeta';
+import SearchBox from '../../components/search/SearchBox';
+import NotifyMe from '../../components/search/NotifyMe';
+import { useLogSearchMutation } from '../../redux/features/hub/hubApi';
+import { bnNumber, categoryLabel, conditionLabel } from '../../i18n/labels';
 
 const PAGE_SIZE = 12;
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest', sortBy: 'createdAt', sortOrder: 'desc' },
-  { value: 'price_asc', label: 'Price: low to high', sortBy: 'price', sortOrder: 'asc' },
-  { value: 'price_desc', label: 'Price: high to low', sortBy: 'price', sortOrder: 'desc' },
-  { value: 'popular', label: 'Most viewed', sortBy: 'viewCount', sortOrder: 'desc' },
-  { value: 'title', label: 'Title: A to Z', sortBy: 'title', sortOrder: 'asc' },
+  { value: 'newest', label: 'নতুন আগে', sortBy: 'createdAt', sortOrder: 'desc' },
+  { value: 'price_asc', label: 'দাম: কম থেকে বেশি', sortBy: 'price', sortOrder: 'asc' },
+  { value: 'price_desc', label: 'দাম: বেশি থেকে কম', sortBy: 'price', sortOrder: 'desc' },
+  { value: 'popular', label: 'সবচেয়ে বেশি দেখা', sortBy: 'viewCount', sortOrder: 'desc' },
+  { value: 'title', label: 'নাম অনুযায়ী (A-Z)', sortBy: 'title', sortOrder: 'asc' },
 ] as const;
 
 const TYPES = [
-  { value: '', label: 'All' },
-  { value: 'Physical', label: 'Books' },
-  { value: 'Digital', label: 'Digital' },
+  { value: '', label: 'সব' },
+  { value: 'Physical', label: 'ছাপা বই' },
+  { value: 'Digital', label: 'ডিজিটাল' },
 ];
 
 // Matches the conditions sellers can choose when listing.
@@ -67,10 +71,10 @@ const Shop = () => {
 
   usePageMeta(
     // "Academic Books" should not become "Academic Books books".
-    category ? (/books?$/i.test(category) ? category : `${category} books`) : "Buy used books online",
+    category ? `${categoryLabel(category)} বই কিনুন` : "পুরনো বই কিনুন অনলাইনে – কম দামে",
     category
-      ? `Buy used ${category.toLowerCase()} books at student prices from sellers across Bangladesh.`
-      : "Browse used textbooks, novels and digital notes from students across Bangladesh. Search, filter by category and price, and order with delivery."
+      ? `কম দামে পুরনো ${categoryLabel(category)} বই কেনো, সারা বাংলাদেশের শিক্ষার্থী বিক্রেতাদের কাছ থেকে।`
+      : "সারা বাংলাদেশের শিক্ষার্থীদের কাছ থেকে কম দামে পুরনো পাঠ্যবই, উপন্যাস ও ডিজিটাল নোট কেনো। নাম, লেখক বা বিষয় দিয়ে খুঁজো, ক্যাটাগরি ও দাম দিয়ে বাছাই করো।"
   );
 
   const [searchInput, setSearchInput] = useState(search);
@@ -114,6 +118,20 @@ const Shop = () => {
   );
 
   const { data, isLoading, isFetching, isError, refetch } = useGetProductsQuery(queryArgs);
+
+  // Records each finished search once (after the shopper stops typing), so
+  // the team can see what students look for and don't find.
+  const [logSearch] = useLogSearchMutation();
+  const logged = useRef(new Set<string>());
+  useEffect(() => {
+    const term = search.trim().toLowerCase();
+    if (term.length < 2 || page !== 1 || isFetching || logged.current.has(term)) return;
+    const id = setTimeout(() => {
+      logged.current.add(term);
+      logSearch(search).catch(() => undefined);
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [search, page, isFetching, logSearch]);
   const { data: facetsData } = useGetShopFacetsQuery(undefined);
 
   const products: IProduct[] = data?.data?.data ?? [];
@@ -159,16 +177,16 @@ const Shop = () => {
   }, [filtersOpen]);
 
   const chipLabel: Record<string, string> = {
-    type: type === 'Digital' ? 'Digital' : 'Books',
-    category,
-    condition,
-    min: `From ৳${min}`,
-    max: `Up to ৳${max}`,
+    type: type === 'Digital' ? 'ডিজিটাল' : 'ছাপা বই',
+    category: categoryLabel(category),
+    condition: conditionLabel(condition),
+    min: `৳${min} থেকে`,
+    max: `৳${max} পর্যন্ত`,
   };
 
   const filters = (
     <div>
-      <FilterGroup title="Type">
+      <FilterGroup title="ধরন">
         <div className="flex flex-wrap gap-2">
           {TYPES.map((option) => (
             <button
@@ -184,7 +202,7 @@ const Shop = () => {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Category">
+      <FilterGroup title="ক্যাটাগরি">
         <ul className="space-y-0.5">
           {[{ name: '' }, ...categories].map((item) => {
             const active = category === item.name;
@@ -198,9 +216,9 @@ const Shop = () => {
                     active ? 'bg-amber-100 font-semibold text-amber-900' : 'text-stone-700 hover:bg-stone-100'
                   }`}
                 >
-                  {item.name || 'All categories'}
+                  {item.name ? categoryLabel(item.name) : 'সব ক্যাটাগরি'}
                   {'count' in item && item.count !== undefined && (
-                    <span className="text-xs text-stone-400">{item.count}</span>
+                    <span className="text-xs text-stone-400">{bnNumber(item.count)}</span>
                   )}
                 </button>
               </li>
@@ -210,10 +228,10 @@ const Shop = () => {
       </FilterGroup>
 
       {type !== 'Digital' && (
-        <FilterGroup title="Condition">
+        <FilterGroup title="বইয়ের অবস্থা">
           <div className="flex flex-wrap gap-2">
             <button type="button" aria-pressed={!condition} onClick={() => update({ condition: null })} className={chip(!condition)}>
-              Any
+              যেকোনো
             </button>
             {CONDITIONS.map((value) => (
               <button
@@ -223,14 +241,14 @@ const Shop = () => {
                 onClick={() => update({ condition: value })}
                 className={chip(condition === value)}
               >
-                {value}
+                {conditionLabel(value)}
               </button>
             ))}
           </div>
         </FilterGroup>
       )}
 
-      <FilterGroup title="Price (৳)">
+      <FilterGroup title="দাম (৳)">
         <form onSubmit={applyPrice} className="space-y-3">
           <div className="flex items-center gap-2">
             <input
@@ -239,8 +257,8 @@ const Shop = () => {
               min={0}
               value={priceInput.min}
               onChange={(e) => setPriceInput((p) => ({ ...p, min: e.target.value }))}
-              placeholder={facets ? String(facets.minPrice) : 'Min'}
-              aria-label="Minimum price"
+              placeholder={facets ? String(facets.minPrice) : 'সর্বনিম্ন'}
+              aria-label="সর্বনিম্ন দাম"
               className={fieldClass}
             />
             <span className="text-stone-400" aria-hidden="true">–</span>
@@ -250,8 +268,8 @@ const Shop = () => {
               min={0}
               value={priceInput.max}
               onChange={(e) => setPriceInput((p) => ({ ...p, max: e.target.value }))}
-              placeholder={facets ? String(facets.maxPrice) : 'Max'}
-              aria-label="Maximum price"
+              placeholder={facets ? String(facets.maxPrice) : 'সর্বোচ্চ'}
+              aria-label="সর্বোচ্চ দাম"
               className={fieldClass}
             />
           </div>
@@ -259,7 +277,7 @@ const Shop = () => {
             type="submit"
             className="w-full rounded-xl border border-stone-900 px-4 py-2 text-sm font-semibold text-stone-900 transition hover:bg-stone-900 hover:text-white"
           >
-            Apply price
+            দাম সেট করো
           </button>
         </form>
       </FilterGroup>
@@ -275,25 +293,22 @@ const Shop = () => {
         {/* Header */}
         <header className="mb-6 sm:mb-8">
           <h1 className="font-display text-3xl font-bold text-stone-900 sm:text-4xl">
-            {search ? <>Results for “{search}”</> : 'Browse books'}
+            {search ? <>“{search}” খোঁজার ফলাফল</> : category ? `${categoryLabel(category)} বই` : 'সব বই'}
           </h1>
           <p className="mt-1 text-sm text-stone-500">
-            {isLoading ? 'Loading…' : `${meta?.total ?? 0} ${meta?.total === 1 ? 'listing' : 'listings'} available`}
+            {isLoading ? 'লোড হচ্ছে…' : `${bnNumber(meta?.total ?? 0)}টি বই পাওয়া যাচ্ছে`}
           </p>
         </header>
 
         {/* Search + sort */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
-            <input
-              type="search"
+            <SearchBox
+              id="shop-search"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && update({ search: searchInput.trim() || null })}
-              placeholder="Search by title, author, ISBN or category"
-              aria-label="Search books"
-              className={`${fieldClass} h-12 pl-11 text-base sm:text-sm`}
+              onValueChange={setSearchInput}
+              onSearch={(term) => update({ search: term || null })}
+              placeholder="বইয়ের নাম, লেখক, বিষয় বা ISBN লেখো"
             />
           </div>
           <div className="flex gap-3">
@@ -303,15 +318,15 @@ const Shop = () => {
               className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 transition hover:border-stone-300 lg:hidden"
             >
               <SlidersHorizontal size={16} aria-hidden="true" />
-              Filters
+              ফিল্টার
               {activeFilters.length > 0 && (
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[11px] font-bold text-stone-950">
-                  {activeFilters.length}
+                  {bnNumber(activeFilters.length)}
                 </span>
               )}
             </button>
             <label className="relative flex-1 sm:w-56 sm:flex-none">
-              <span className="sr-only">Sort by</span>
+              <span className="sr-only">সাজাও</span>
               <select
                 value={activeSort.value}
                 onChange={(e) => update({ sort: e.target.value === 'newest' ? null : e.target.value })}
@@ -329,13 +344,13 @@ const Shop = () => {
 
         <div className="flex gap-8">
           {/* Desktop filters */}
-          <aside className="hidden w-64 flex-shrink-0 lg:block" aria-label="Filters">
+          <aside className="hidden w-64 flex-shrink-0 lg:block" aria-label="ফিল্টার">
             <div className="sticky top-24 rounded-2xl border border-stone-200 bg-white p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-display text-lg font-bold text-stone-900">Filters</h2>
+                <h2 className="font-display text-lg font-bold text-stone-900">ফিল্টার</h2>
                 {hasAnyFilter && (
                   <button type="button" onClick={clearAll} className="text-sm font-semibold text-amber-700 hover:underline">
-                    Clear all
+                    সব মুছে ফেলো
                   </button>
                 )}
               </div>
@@ -343,7 +358,7 @@ const Shop = () => {
             </div>
           </aside>
 
-          <section className="min-w-0 flex-1" aria-label="Results">
+          <section className="min-w-0 flex-1" aria-label="ফলাফল">
             <div ref={gridTop} className="scroll-mt-24" />
 
             {/* Active filters */}
@@ -355,14 +370,14 @@ const Shop = () => {
                     type="button"
                     onClick={() => update({ [key]: null })}
                     className="inline-flex items-center gap-1.5 rounded-full bg-stone-900 py-1.5 pl-3.5 pr-2.5 text-sm font-medium text-white transition hover:bg-stone-700"
-                    aria-label={`Remove filter ${chipLabel[key]}`}
+                    aria-label={`${chipLabel[key]} ফিল্টার সরাও`}
                   >
                     {chipLabel[key]}
                     <X size={14} aria-hidden="true" />
                   </button>
                 ))}
                 <button type="button" onClick={clearAll} className="px-2 text-sm font-semibold text-stone-500 hover:text-stone-900">
-                  Clear all
+                  সব মুছে ফেলো
                 </button>
               </div>
             )}
@@ -375,33 +390,40 @@ const Shop = () => {
               </div>
             ) : isError ? (
               <div className="rounded-2xl border border-stone-200 bg-white px-6 py-16 text-center">
-                <p className="mb-4 text-stone-600">We could not load books right now.</p>
+                <p className="mb-4 text-stone-600">এই মুহূর্তে বই লোড করা গেল না।</p>
                 <button
                   type="button"
                   onClick={() => refetch()}
                   className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-800"
                 >
-                  Try again
+                  আবার চেষ্টা করো
                 </button>
               </div>
             ) : products.length === 0 ? (
-              <div className="rounded-2xl border border-stone-200 bg-white px-6 py-16 text-center">
-                <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
-                  <PackageSearch size={26} aria-hidden="true" />
-                </span>
-                <p className="font-display text-lg font-bold text-stone-900">No books match</p>
-                <p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">
-                  {search ? `Nothing found for “${search}”. Check the spelling or try fewer filters.` : 'Try removing a filter or two.'}
-                </p>
-                {hasAnyFilter && (
-                  <button
-                    type="button"
-                    onClick={clearAll}
-                    className="mt-5 rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-800"
-                  >
-                    Clear search and filters
-                  </button>
-                )}
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-stone-200 bg-white px-6 py-12 text-center">
+                  <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
+                    <PackageSearch size={26} aria-hidden="true" />
+                  </span>
+                  <p className="font-display text-lg font-bold text-stone-900">কোনো বই মেলেনি</p>
+                  <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-stone-500">
+                    {search
+                      ? activeFilters.length
+                        ? `“${search}” এই ফিল্টারে পাওয়া যায়নি। ফিল্টার কমিয়ে দেখো।`
+                        : `“${search}” এখন কারও কাছে নেই। বানানটা একবার দেখে নাও, বা ছোট করে লেখো (যেমন শুধু বিষয়ের নাম)।`
+                      : 'একটা-দুটো ফিল্টার সরিয়ে দেখো।'}
+                  </p>
+                  {hasAnyFilter && (
+                    <button
+                      type="button"
+                      onClick={clearAll}
+                      className="mt-5 rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-800"
+                    >
+                      খোঁজ ও ফিল্টার মুছে ফেলো
+                    </button>
+                  )}
+                </div>
+                {search && !activeFilters.length && <NotifyMe query={search} />}
               </div>
             ) : (
               <>
@@ -420,7 +442,7 @@ const Shop = () => {
                   <div className="mt-12 space-y-4">
                     <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={goToPage} />
                     <p className="text-center text-sm text-stone-500">
-                      Showing {from}–{to} of {meta.total}
+                      মোট {bnNumber(meta.total)}টির মধ্যে {bnNumber(from)}–{bnNumber(to)} দেখানো হচ্ছে
                     </p>
                   </div>
                 )}
@@ -437,15 +459,15 @@ const Shop = () => {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Filters"
+            aria-label="ফিল্টার"
             className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-3xl bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
-              <h2 className="font-display text-lg font-bold text-stone-900">Filters</h2>
+              <h2 className="font-display text-lg font-bold text-stone-900">ফিল্টার</h2>
               <button
                 type="button"
                 onClick={() => setFiltersOpen(false)}
-                aria-label="Close filters"
+                aria-label="ফিল্টার বন্ধ করো"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100"
               >
                 <X size={20} aria-hidden="true" />
@@ -458,14 +480,14 @@ const Shop = () => {
                 onClick={clearAll}
                 className="flex-1 rounded-xl border border-stone-200 py-3 text-sm font-semibold text-stone-700"
               >
-                Clear all
+                সব মুছে ফেলো
               </button>
               <button
                 type="button"
                 onClick={() => setFiltersOpen(false)}
                 className="flex-1 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-white"
               >
-                {isFetching ? 'Updating…' : `Show ${meta?.total ?? 0} results`}
+                {isFetching ? 'আপডেট হচ্ছে…' : `${bnNumber(meta?.total ?? 0)}টি বই দেখো`}
               </button>
             </div>
           </div>

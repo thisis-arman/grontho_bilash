@@ -5,12 +5,15 @@ import Markdown from "../../components/content/Markdown";
 import { formatBytes } from "../../components/content/useUpload";
 import {
   Attachment,
+  ContentKind,
   useGetSuggestionQuery,
   useRecordSuggestionDownloadMutation,
 } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
 import { articleJsonLd } from "../../utils/structuredData";
-import { SuggestionCard } from "./SuggestionList";
+import { KIND_TEXT, SuggestionCard } from "./SuggestionList";
+import { bnNumber, examLevelLabel } from "../../i18n/labels";
+import WhatsAppButton from "../../components/WhatsAppButton";
 
 // Cloudinary's fl_attachment makes the browser save the file instead of
 // opening it.
@@ -20,20 +23,21 @@ const downloadUrl = (url: string) =>
 const actionClass =
   "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400";
 
-const SuggestionDetail = () => {
+const SuggestionDetail = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
+  const text = KIND_TEXT[kind];
   const { slug = "" } = useParams();
-  const { data, isLoading, isError, error } = useGetSuggestionQuery(slug);
+  const { data, isLoading, isError, error } = useGetSuggestionQuery({ slug, kind });
   const [recordDownload] = useRecordSuggestionDownloadMutation();
   const [lightbox, setLightbox] = useState<Attachment | null>(null);
 
   const item = data?.data.suggestion;
   const related = data?.data.related ?? [];
-  usePageMeta(item?.title, item?.summary, undefined, {
+  usePageMeta(item ? `${item.title}${kind === "question" ? " – বিগত সালের প্রশ্ন" : " – সাজেশন"}` : undefined, item?.summary || (item ? `${item.subject} ${text.noun}, ফ্রি PDF ডাউনলোড।` : undefined), undefined, {
     type: "article",
     jsonLd: item
       ? articleJsonLd({
           title: item.title,
-          path: `/suggestions/${item.slug}`,
+          path: `${text.path}/${item.slug}`,
           description: item.summary,
           authorName: item.preparedBy,
           publishedAt: item.publishedAt,
@@ -56,12 +60,12 @@ const SuggestionDetail = () => {
     const notFound = (error as { status?: number })?.status === 404;
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <h1 className="font-display text-3xl font-bold text-stone-900">{notFound ? "Suggestion not found" : "Something went wrong"}</h1>
+        <h1 className="font-display text-3xl font-bold text-stone-900">{notFound ? `${text.noun}টি পাওয়া যায়নি` : "কিছু একটা সমস্যা হয়েছে"}</h1>
         <p className="mt-2 text-stone-600">
-          {notFound ? "It may have been moved or unpublished." : "We could not load this suggestion. Please try again."}
+          {notFound ? "এটি সরিয়ে নেওয়া হয়েছে বা লিংকটি ভুল।" : "লোড করা গেল না। একটু পরে আবার চেষ্টা করো।"}
         </p>
-        <Link to="/suggestions" className="mt-6 inline-flex rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white">
-          All suggestions
+        <Link to={text.path} className="mt-6 inline-flex rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white">
+          সব {text.noun} দেখো
         </Link>
       </div>
     );
@@ -71,32 +75,32 @@ const SuggestionDetail = () => {
   const images = item.attachments.filter((a) => a.kind === "image");
 
   const facts = [
-    ["Level", item.level],
-    ["Subject", item.subjectCode ? `${item.subject} (${item.subjectCode})` : item.subject],
-    ["Program", item.program],
-    ["Department", item.department],
-    ["Year", item.academicYear],
-    ["Exam", item.examYear],
-    ["Institution", item.institution],
-    ["Prepared by", item.preparedBy],
+    ["পরীক্ষা", examLevelLabel(item.level)],
+    ["বিষয়", item.subjectCode ? `${item.subject} (${item.subjectCode})` : item.subject],
+    ["প্রোগ্রাম", item.program],
+    ["বিভাগ", item.department],
+    ["বর্ষ", item.academicYear],
+    [kind === "question" ? "সাল" : "পরীক্ষার সাল", item.examYear],
+    [kind === "question" ? "বোর্ড / প্রতিষ্ঠান" : "প্রতিষ্ঠান", item.institution],
+    ["তৈরি করেছেন", item.preparedBy],
   ].filter(([, value]) => value);
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans">
       <div className="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6 lg:pt-14">
-        <Link to="/suggestions" className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900">
-          <ArrowLeft size={16} aria-hidden="true" /> All suggestions
+        <Link to={text.path} className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900">
+          <ArrowLeft size={16} aria-hidden="true" /> সব {text.noun}
         </Link>
 
         <header className="mt-6">
           <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-800">{item.level}</span>
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-800">{examLevelLabel(item.level)}</span>
             <span className="flex items-center gap-1 text-stone-500">
-              <Eye size={14} aria-hidden="true" /> {item.views.toLocaleString()} views
+              <Eye size={14} aria-hidden="true" /> {bnNumber(item.views)} বার দেখা
             </span>
             {item.downloads > 0 && (
               <span className="flex items-center gap-1 text-stone-500">
-                <Download size={14} aria-hidden="true" /> {item.downloads.toLocaleString()} downloads
+                <Download size={14} aria-hidden="true" /> {bnNumber(item.downloads)} বার ডাউনলোড
               </span>
             )}
           </p>
@@ -116,7 +120,7 @@ const SuggestionDetail = () => {
         {pdfs.length > 0 && (
           <section className="mt-10" aria-labelledby="files-heading">
             <h2 id="files-heading" className="mb-4 font-display text-xl font-bold text-stone-900">
-              Files
+              ফাইল
             </h2>
             <ul className="space-y-3">
               {pdfs.map((file) => (
@@ -140,14 +144,14 @@ const SuggestionDetail = () => {
                       rel="noopener noreferrer"
                       className={`${actionClass} flex-1 border border-stone-200 bg-white text-stone-700 hover:border-stone-400 sm:flex-none`}
                     >
-                      <ExternalLink size={15} aria-hidden="true" /> Open
+                      <ExternalLink size={15} aria-hidden="true" /> খুলে দেখো
                     </a>
                     <a
                       href={downloadUrl(file.url)}
                       onClick={() => recordDownload(item.slug)}
                       className={`${actionClass} flex-1 bg-stone-900 text-white hover:bg-stone-800 sm:flex-none`}
                     >
-                      <Download size={15} aria-hidden="true" /> Download
+                      <Download size={15} aria-hidden="true" /> ডাউনলোড
                     </a>
                   </div>
                 </li>
@@ -159,7 +163,7 @@ const SuggestionDetail = () => {
         {images.length > 0 && (
           <section className="mt-10" aria-labelledby="images-heading">
             <h2 id="images-heading" className="mb-4 font-display text-xl font-bold text-stone-900">
-              Images
+              ছবি
             </h2>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {images.map((image) => (
@@ -189,18 +193,23 @@ const SuggestionDetail = () => {
         )}
 
         <p className="mt-8 text-xs leading-relaxed text-stone-500">
-          Suggestions are a study aid prepared from past papers and teachers' guidance. They are not a guarantee of what
-          will appear in the exam, so cover the full syllabus too.
+          {kind === "question"
+            ? "প্রশ্নগুলো আগের পরীক্ষা থেকে সংগ্রহ করা, শুধু অনুশীলনের জন্য। কোনো ভুল চোখে পড়লে আমাদের জানাও।"
+            : "সাজেশন হলো আগের প্রশ্ন আর শিক্ষকদের পরামর্শ থেকে তৈরি পড়ার সহায়িকা। পরীক্ষায় ঠিক এগুলোই আসবে এমন নিশ্চয়তা নেই, তাই পুরো সিলেবাসও পড়ো।"}
         </p>
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-relaxed text-stone-600">অন্য কোনো বিষয় বা সালের {text.noun} দরকার? জানাও, আমরা যোগ করার চেষ্টা করবো।</p>
+          <WhatsAppButton className="flex-shrink-0" message={`${text.request}`}>WhatsApp-এ চাও</WhatsAppButton>
+        </div>
       </div>
 
       {related.length > 0 && (
         <section className="border-t border-stone-200 bg-white">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-            <h2 className="mb-6 font-display text-2xl font-bold text-stone-900">Related suggestions</h2>
+            <h2 className="mb-6 font-display text-2xl font-bold text-stone-900">একই রকম আরও {text.noun}</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((r) => (
-                <SuggestionCard key={r._id} item={r} />
+                <SuggestionCard key={r._id} item={{ ...r, kind: r.kind ?? kind }} />
               ))}
             </div>
           </div>
@@ -220,7 +229,7 @@ const SuggestionDetail = () => {
             type="button"
             onClick={() => setLightbox(null)}
             autoFocus
-            aria-label="Close"
+            aria-label="বন্ধ করো"
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           >
             <X size={22} aria-hidden="true" />
@@ -239,7 +248,7 @@ const SuggestionDetail = () => {
             }}
             className={`${actionClass} absolute bottom-6 bg-white text-stone-900`}
           >
-            <Download size={15} aria-hidden="true" /> Download
+            <Download size={15} aria-hidden="true" /> ডাউনলোড
           </a>
         </div>
       )}

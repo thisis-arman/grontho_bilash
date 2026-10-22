@@ -13,6 +13,12 @@ export const EXAM_LEVELS = [
 
 export type TExamLevel = (typeof EXAM_LEVELS)[number];
 
+// The same module holds two kinds of exam material: suggestions, and past
+// question papers (the "question bank"). Records saved before `kind` existed
+// are suggestions.
+export const CONTENT_KINDS = ["suggestion", "question"] as const;
+export type TContentKind = (typeof CONTENT_KINDS)[number];
+
 export interface TAttachment {
   url: string;
   name: string;
@@ -22,6 +28,7 @@ export interface TAttachment {
 }
 
 export interface TSuggestion {
+  kind: TContentKind;
   title: string;
   slug: string;
   summary: string;
@@ -60,6 +67,7 @@ const attachmentSchema = new Schema<TAttachment>(
 
 const suggestionSchema = new Schema<TSuggestion>(
   {
+    kind: { type: String, enum: CONTENT_KINDS, default: "suggestion" },
     title: { type: String, required: true, trim: true, maxlength: 160 },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
     summary: { type: String, trim: true, maxlength: 300, default: "" },
@@ -89,5 +97,6 @@ const suggestionSchema = new Schema<TSuggestion>(
 
 suggestionSchema.index({ status: 1, isDeleted: 1, publishedAt: -1 });
 suggestionSchema.index({ level: 1, subject: 1 });
+suggestionSchema.index({ kind: 1, status: 1, isDeleted: 1, publishedAt: -1 });
 
 export const SuggestionModel = model<TSuggestion>("Suggestion", suggestionSchema);

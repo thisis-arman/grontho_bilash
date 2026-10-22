@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X, type LucideIcon } from "lucide-react";
+import { bnNumber, orderStatusLabel, paymentStatusLabel } from "../../i18n/labels";
 
 /* ── Formatting ─────────────────────────────────────────────────────────── */
 
@@ -10,6 +11,12 @@ export const money = (amount: number | undefined | null) => `৳${MONEY.format(a
 export const formatDate = (value?: string | Date) =>
   value
     ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    : "—";
+
+// Same as formatDate, in Bangla: ১২ অক্টো, ২০২৬
+export const formatDateBn = (value?: string | Date) =>
+  value
+    ? new Date(value).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })
     : "—";
 
 // RTK Query error → message the API sent, or a fallback.
@@ -140,11 +147,11 @@ const PAYMENT_TONE: Record<string, Tone> = {
 };
 
 export const OrderStatusBadge = ({ status }: { status: string }) => (
-  <Badge tone={ORDER_TONE[status] ?? "stone"}>{status}</Badge>
+  <Badge tone={ORDER_TONE[status] ?? "stone"}>{orderStatusLabel(status)}</Badge>
 );
 
 export const PaymentStatusBadge = ({ status }: { status: string }) => (
-  <Badge tone={PAYMENT_TONE[status] ?? "stone"}>{status.replace("-", " ")}</Badge>
+  <Badge tone={PAYMENT_TONE[status] ?? "stone"}>{paymentStatusLabel(status)}</Badge>
 );
 
 /* ── States ─────────────────────────────────────────────────────────────── */
@@ -171,7 +178,7 @@ export const EmptyState = ({
 );
 
 export const LoadingRows = ({ rows = 5 }: { rows?: number }) => (
-  <div className="divide-y divide-stone-100" aria-busy="true" aria-label="Loading">
+  <div className="divide-y divide-stone-100" aria-busy="true" aria-label="লোড হচ্ছে">
     {Array.from({ length: rows }).map((_, i) => (
       <div key={i} className="flex items-center gap-4 px-4 py-4 sm:px-5">
         <div className="h-10 w-10 flex-shrink-0 animate-pulse rounded-lg bg-stone-100" />
@@ -187,9 +194,9 @@ export const LoadingRows = ({ rows = 5 }: { rows?: number }) => (
 
 export const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
   <div className="px-4 py-12 text-center">
-    <p className="mb-4 text-sm text-stone-600">We could not load this right now.</p>
+    <p className="mb-4 text-sm text-stone-600">এই মুহূর্তে লোড করা যাচ্ছে না।</p>
     <button type="button" onClick={onRetry} className={btn.secondary}>
-      Try again
+      আবার চেষ্টা করো
     </button>
   </div>
 );
@@ -347,18 +354,18 @@ export const Pagination = ({
   if (pageCount <= 1) return null;
   return (
     <nav
-      aria-label="Pagination"
+      aria-label="পেজ বদলাও"
       className="flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-3 sm:px-5"
     >
       <p className="text-sm text-stone-500">
-        Page <span className="font-semibold text-stone-900">{page}</span> of {pageCount}
+        পেজ <span className="font-semibold text-stone-900">{bnNumber(page)}</span> / {bnNumber(pageCount)}
       </p>
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => onChange(page - 1)}
           disabled={page <= 1}
-          aria-label="Previous page"
+          aria-label="আগের পেজ"
           className={`${btn.secondary} px-3`}
         >
           <ChevronLeft size={16} aria-hidden="true" />
@@ -367,7 +374,7 @@ export const Pagination = ({
           type="button"
           onClick={() => onChange(page + 1)}
           disabled={page >= pageCount}
-          aria-label="Next page"
+          aria-label="পরের পেজ"
           className={`${btn.secondary} px-3`}
         >
           <ChevronRight size={16} aria-hidden="true" />
@@ -440,7 +447,7 @@ export const Modal = ({
       >
         <div className="flex items-center justify-between gap-3 border-b border-stone-100 px-5 py-4">
           <h2 className="font-display text-lg font-bold text-stone-900">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close" className={btn.icon}>
+          <button type="button" onClick={onClose} aria-label="বন্ধ করো" className={btn.icon}>
             <X size={18} aria-hidden="true" />
           </button>
         </div>
@@ -479,10 +486,10 @@ export const ConfirmDialog = ({
     footer={
       <>
         <button type="button" onClick={onClose} className={btn.secondary}>
-          Go back
+          ফিরে যাও
         </button>
         <button type="button" onClick={onConfirm} disabled={loading} className={btn.danger}>
-          {loading ? "Working..." : confirmLabel}
+          {loading ? "একটু দাঁড়াও..." : confirmLabel}
         </button>
       </>
     }

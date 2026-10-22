@@ -7,7 +7,7 @@ import sendResponse from "../../utils/sendResponse";
 import { User } from "../user/user.model";
 import { otpServices } from "./otp.services";
 
-const emailSchema = z.string().trim().toLowerCase().email("Please enter a valid email address");
+const emailSchema = z.string({ required_error: "ইমেইল দিতে হবে" }).trim().toLowerCase().email("অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দাও");
 
 // Controller for creating OTP (sign-up email verification)
 const createOtp = catchAsync(async (req, res) => {
@@ -16,7 +16,7 @@ const createOtp = catchAsync(async (req, res) => {
   if (await User.isUserExistsByEmail(email)) {
     throw new AppError(
       httpStatus.CONFLICT,
-      "An account with this email already exists. Please log in."
+      "এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। অনুগ্রহ করে লগইন করো।"
     );
   }
 
@@ -25,7 +25,7 @@ const createOtp = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "OTP sent Successful ",
+    message: "OTP পাঠানো হয়েছে",
     data: result,
   });
 });
@@ -36,13 +36,13 @@ const verifyOtp = catchAsync(async (req, res) => {
   const result = await otpServices.verifyOtp(email, req.body?.otp);
 
   if (!result?.verified) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired OTP");
+    throw new AppError(httpStatus.BAD_REQUEST, "OTP ভুল, অথবা এর মেয়াদ শেষ হয়ে গেছে");
   }
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "OTP Verified Successfully ",
+    message: "OTP সফলভাবে যাচাই হয়েছে",
     data: result,
   });
 });

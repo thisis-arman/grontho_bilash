@@ -4,9 +4,10 @@ import { Clock, Newspaper, Search } from "lucide-react";
 import { BlogPost, useGetBlogCategoriesQuery, useGetBlogPostsQuery } from "../../redux/features/content/contentApi";
 import Pagination from "../../utils/Pagination";
 import { usePageMeta } from "../../utils/usePageMeta";
+import { bnNumber } from "../../i18n/labels";
 
 export const formatPostDate = (value?: string) =>
-  value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+  value ? new Date(value).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" }) : "";
 
 export const authorName = (post: BlogPost) => (typeof post.author === "object" ? post.author?.name : undefined);
 
@@ -37,7 +38,7 @@ export const PostCard = ({ post, featured = false }: { post: BlogPost; featured?
         <span className="text-amber-700">{post.category}</span>
         <span>{formatPostDate(post.publishedAt)}</span>
         <span className="flex items-center gap-1">
-          <Clock size={12} aria-hidden="true" /> {post.readingTime} min read
+          <Clock size={12} aria-hidden="true" /> {bnNumber(post.readingTime)} মিনিটে পড়া
         </span>
       </p>
       <h2
@@ -54,7 +55,7 @@ export const PostCard = ({ post, featured = false }: { post: BlogPost; featured?
           {post.excerpt}
         </p>
       )}
-      {authorName(post) && <p className="mt-3 text-sm font-medium text-stone-500">By {authorName(post)}</p>}
+      {authorName(post) && <p className="mt-3 text-sm font-medium text-stone-500">লিখেছেন {authorName(post)}</p>}
     </div>
   </article>
 );
@@ -66,7 +67,7 @@ const BlogList = () => {
   const page = Math.max(1, Number(params.get("page")) || 1);
   const [searchInput, setSearchInput] = useState(search);
 
-  usePageMeta("Blog", "Book reviews, study tips and exam guides for students in Bangladesh.");
+  usePageMeta("ব্লগ", "বাংলাদেশের শিক্ষার্থীদের জন্য বই রিভিউ, পড়াশোনার টিপস আর পরীক্ষার গাইড।");
 
   const { data, isLoading, isFetching, isError, refetch } = useGetBlogPostsQuery({ page, limit: 9, search, category });
   const { data: categoriesData } = useGetBlogCategoriesQuery();
@@ -101,9 +102,9 @@ const BlogList = () => {
       <div className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 lg:px-8 lg:pt-14">
         <header className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold text-amber-700">Grontho Bilash Blog</p>
-            <h1 className="mt-1 font-display text-4xl font-bold text-stone-900 sm:text-5xl">Read, learn, review</h1>
-            <p className="mt-2 max-w-xl text-stone-600">Book reviews, study tips and exam guides written for students.</p>
+            <p className="text-sm font-semibold text-amber-700">গ্রন্থবিলাস ব্লগ</p>
+            <h1 className="mt-1 font-display text-4xl font-bold text-stone-900 sm:text-5xl">পড়ো, শেখো, রিভিউ করো</h1>
+            <p className="mt-2 max-w-xl text-stone-600">শিক্ষার্থীদের জন্য লেখা বই রিভিউ, পড়াশোনার টিপস আর পরীক্ষার গাইড।</p>
           </div>
           <div className="relative w-full lg:w-80">
             <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -111,16 +112,16 @@ const BlogList = () => {
               type="search"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search posts"
-              aria-label="Search posts"
+              placeholder="পোস্ট খুঁজো"
+              aria-label="পোস্ট খুঁজো"
               className="block h-12 w-full rounded-xl border border-stone-200 bg-white pl-11 pr-4 text-base text-stone-900 placeholder:text-stone-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 sm:text-sm"
             />
           </div>
         </header>
 
-        <nav aria-label="Categories" className="-mx-4 mb-10 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+        <nav aria-label="ক্যাটাগরি" className="-mx-4 mb-10 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
           <button type="button" onClick={() => update({ category: null })} aria-pressed={!category} className={chip(!category)}>
-            All posts
+            সব পোস্ট
           </button>
           {(categoriesData?.data ?? []).map((name) => (
             <button
@@ -147,9 +148,9 @@ const BlogList = () => {
           </div>
         ) : isError ? (
           <div className="rounded-2xl border border-stone-200 bg-white px-6 py-16 text-center">
-            <p className="mb-4 text-stone-600">We could not load posts right now.</p>
+            <p className="mb-4 text-stone-600">এখন পোস্টগুলো লোড করা যাচ্ছে না।</p>
             <button type="button" onClick={() => refetch()} className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white">
-              Try again
+              আবার চেষ্টা করো
             </button>
           </div>
         ) : posts.length === 0 ? (
@@ -158,10 +159,10 @@ const BlogList = () => {
               <Newspaper size={26} aria-hidden="true" />
             </span>
             <p className="font-display text-lg font-bold text-stone-900">
-              {search || category ? "No posts match" : "No posts yet"}
+              {search || category ? "মিলে যায় এমন কোনো পোস্ট নেই" : "এখনো কোনো পোস্ট নেই"}
             </p>
             <p className="mt-1 text-sm text-stone-500">
-              {search || category ? "Try another search or category." : "New posts will appear here soon."}
+              {search || category ? "অন্য কিছু লিখে খুঁজো বা অন্য ক্যাটাগরি বেছে নাও।" : "শিগগিরই এখানে নতুন পোস্ট আসবে।"}
             </p>
           </div>
         ) : (

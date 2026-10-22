@@ -42,7 +42,7 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "Product listed successfully!",
+    message: "বইটি সফলভাবে লিস্ট করা হয়েছে!",
     data: result,
   });
 });
@@ -52,7 +52,7 @@ const listABook = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.listABookIntoDb(req.body);
   sendResponse(res, {
     statusCode: 200,
-    message: "Book added successfully",
+    message: "বইটি সফলভাবে যোগ করা হয়েছে",
     success: true,
     data: result,
   });
@@ -63,7 +63,7 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Products fetched successfully",
+    message: "বইগুলোর তথ্য পাওয়া গেছে",
     data: result
   });
 });
@@ -73,7 +73,7 @@ const getShopFacets = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Shop filters fetched successfully",
+    message: "শপের ফিল্টারগুলো পাওয়া গেছে",
     data: result
   });
 });
@@ -83,7 +83,7 @@ const getProductsForAdmin = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Products fetched successfully",
+    message: "বইগুলোর তথ্য পাওয়া গেছে",
     data: result
   });
 });
@@ -93,13 +93,13 @@ const getBooksByEmail = catchAsync(async (req, res) => {
   if (email !== req.user.email && !isAdminRole(req.user.role)) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      "You can only view your own listings"
+      "তুমি শুধু নিজের লিস্টিংগুলো দেখতে পারবে"
     );
   }
   const result = await bookServices.getBooksByEmailFromDB(email);
   sendResponse(res, {
     statusCode: 200,
-    message: "Book fetched successfully",
+    message: "বইয়ের তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -109,14 +109,14 @@ const getBooksByEmail = catchAsync(async (req, res) => {
 
 const getProductBySlug = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.getProductBySlugFromDb(req.params.slug);
-  sendResponse(res, { statusCode: 200, success: true, message: "Product fetched successfully", data: result });
+  sendResponse(res, { statusCode: 200, success: true, message: "বইয়ের তথ্য পাওয়া গেছে", data: result });
 });
 
 const getProductsByCategories = catchAsync(async (req, res) => {
   const result = await bookServices.getProductsByCategoriesFromDB();
   sendResponse(res, {
     statusCode: 200,
-    message: "Book fetched successfully",
+    message: "বইয়ের তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -130,7 +130,7 @@ const getBook = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.getBookFromDb(bookId);
   sendResponse(res, {
     statusCode: 200,
-    message: "Book fetched successfully",
+    message: "বইয়ের তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -141,7 +141,7 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.getBooksFromDb();
   sendResponse(res, {
     statusCode: 200,
-    message: "Books fetched successfully",
+    message: "বইগুলোর তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -153,7 +153,7 @@ const searchBooks = catchAsync(async (req: Request, res: Response) => {
   );
   sendResponse(res, {
     statusCode: 200,
-    message: "Books searched successfully",
+    message: "খোঁজার ফলাফল পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -165,7 +165,7 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
   const result = await bookServices.deleteBookFromDb(bookId, req.user);
   sendResponse(res, {
     statusCode: 200,
-    message: "Book deleted successfully",
+    message: "বইটি মুছে ফেলা হয়েছে",
     success: true,
     data: result,
   });
@@ -182,7 +182,7 @@ const updateBook = catchAsync(async (req: Request, res: Response) => {
   );
   sendResponse(res, {
     statusCode: 200,
-    message: "Book updated successfully",
+    message: "বইটি আপডেট হয়েছে",
     success: true,
     data: result,
   });

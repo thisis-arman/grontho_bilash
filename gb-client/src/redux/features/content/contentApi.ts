@@ -34,8 +34,11 @@ export interface Attachment {
   size?: number;
 }
 
+export type ContentKind = "suggestion" | "question";
+
 export interface Suggestion {
   _id: string;
+  kind?: ContentKind;
   title: string;
   slug: string;
   summary: string;
@@ -108,14 +111,25 @@ export const contentApi = baseApi.injectEndpoints({
       providesTags: ["Suggestions"],
     }),
     getSuggestionFilters: builder.query<
-      Envelope<{ levels: FacetValue[]; subjects: FacetValue[]; departments: FacetValue[]; academicYears: FacetValue[]; allLevels: string[] }>,
-      void
+      Envelope<{
+        levels: FacetValue[];
+        subjects: FacetValue[];
+        departments: FacetValue[];
+        academicYears: FacetValue[];
+        institutions: FacetValue[];
+        examYears: FacetValue[];
+        allLevels: string[];
+      }>,
+      ContentKind | void
     >({
-      query: () => "/suggestions/filters",
+      query: (kind) => ({ url: "/suggestions/filters", params: clean({ kind: kind ?? undefined }) }),
       providesTags: ["Suggestions"],
     }),
-    getSuggestion: builder.query<Envelope<{ suggestion: Suggestion; related: Suggestion[] }>, string>({
-      query: (slug) => `/suggestions/slug/${encodeURIComponent(slug)}`,
+    getSuggestion: builder.query<
+      Envelope<{ suggestion: Suggestion; related: Suggestion[] }>,
+      { slug: string; kind?: ContentKind }
+    >({
+      query: ({ slug, kind }) => ({ url: `/suggestions/slug/${encodeURIComponent(slug)}`, params: clean({ kind }) }),
       providesTags: ["Suggestions"],
     }),
     recordSuggestionDownload: builder.mutation<Envelope<null>, string>({

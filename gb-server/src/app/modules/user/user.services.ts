@@ -12,7 +12,7 @@ const createUserIntoDB = async (userInfo: TUser) => {
   if (isUserExists) {
     throw new AppError(
       httpStatus.CONFLICT,
-      `User ${userInfo.email} already exists`
+      `${userInfo.email} ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে`
     );
   }
 
@@ -36,7 +36,7 @@ const getLoggedInUserFromDB = async (
   if (email !== loggedInUserEmail && !isAdminRole(loggedInUserRole)) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      "You are not authorized to view this profile"
+      "এই প্রোফাইল দেখার অনুমতি তোমার নেই"
     );
   }
   const user = await User.findOne({ email });
@@ -55,13 +55,13 @@ const updateUserInfo = async (
 ) => {
   const userToUpdate = await User.findById(id);
   if (!userToUpdate || userToUpdate.isDeleted) {
-    throw new Error("User not found or deleted");
+    throw new Error("অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি, অথবা মুছে ফেলা হয়েছে");
   }
   // Security check: if role is 'user', they can only update their own profile
   if (!isAdminRole(loggedInUserRole) && userToUpdate.email !== loggedInUserEmail) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      "You are not authorized to update this profile"
+      "এই প্রোফাইল আপডেট করার অনুমতি তোমার নেই"
     );
   }
 
@@ -73,7 +73,7 @@ const updateUserInfo = async (
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      "You cannot change your own role or block your own account"
+      "তুমি নিজের রোল পরিবর্তন বা নিজের অ্যাকাউন্ট ব্লক করতে পারবে না"
     );
   }
 
@@ -82,7 +82,7 @@ const updateUserInfo = async (
   //console.log({ dataToUpdate })
 
   if (Object.keys(dataToUpdate).length === 0) {
-    throw new Error("No valid fields to update");
+    throw new Error("আপডেট করার মতো কোনো সঠিক তথ্য দেওয়া হয়নি");
   }
 
   const updatedUser = await User.findOneAndUpdate(
@@ -92,7 +92,7 @@ const updateUserInfo = async (
   );
   //console.log({ updatedUser })
   if (!updatedUser) {
-    throw new Error("User not found or deleted");
+    throw new Error("অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি, অথবা মুছে ফেলা হয়েছে");
   }
 
   return updatedUser;
@@ -101,14 +101,14 @@ const updateUserInfo = async (
 const deleteUser = async (id: string, loggedInUserEmail: string, loggedInUserRole: string) => {
   const userToDelete = await User.findById(id);
   if (!userToDelete || userToDelete.isDeleted) {
-    throw new Error("User not found or already deleted");
+    throw new Error("অ্যাকাউন্টটি খুঁজে পাওয়া যায়নি, অথবা আগেই মুছে ফেলা হয়েছে");
   }
 
   // Security check: if role is 'user', they can only delete their own profile
   if (!isAdminRole(loggedInUserRole) && userToDelete.email !== loggedInUserEmail) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      "You are not authorized to deactivate this account"
+      "এই অ্যাকাউন্ট নিষ্ক্রিয় করার অনুমতি তোমার নেই"
     );
   }
 

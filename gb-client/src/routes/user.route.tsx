@@ -4,7 +4,8 @@ import {
   BookOpen,
   ShoppingBag,
   HandCoins,
-  UserCircle
+  UserCircle,
+  BellRing
 } from "lucide-react";
 import { lazy } from "react";
 import type { DashboardPath } from "./admin.route";
@@ -17,44 +18,53 @@ const MySales = lazy(() => import("../pages/dashboard/userDashboard/MySales"));
 const UserDashboard = lazy(() => import("../pages/dashboard/userDashboard/UserDashboard"));
 const ProfilePage = lazy(() => import("../pages/dashboard/ProfilePage"));
 const ListProduct = lazy(() => import("../pages/books/ListProduct"));
+const MyAlerts = lazy(() => import("../pages/dashboard/userDashboard/MyAlerts"));
 
 // The first four entries are the ones shown in the phone tab bar.
 export const userPaths: DashboardPath[] = [
     {
-        name: "Overview",
+        name: "ওভারভিউ",
         path: "dashboard",
         icon: <LayoutDashboard size={18} />,
         element: <UserDashboard />,
     },
     {
-        name: "My Listings",
-        shortName: "Listings",
+        name: "আমার লিস্টিং",
+        shortName: "লিস্টিং",
         path: "my-products",
         icon: <BookOpen size={18} />,
         element: <MyProducts />,
     },
     {
-        name: "My Orders",
-        shortName: "Orders",
+        name: "আমার অর্ডার",
+        shortName: "অর্ডার",
         path: "my-orders",
         icon: <ShoppingBag size={18} />,
         element: <MyOrders />,
     },
     {
-        name: "Sell a Book",
-        shortName: "Sell",
+        name: "বই বিক্রি করো",
+        shortName: "বিক্রি করো",
         path: "add-product",
         icon: <PlusSquare size={18} />,
         element: <ListProduct />,
     },
     {
-        name: "Sales",
+        name: "আমার বিক্রি",
+        shortName: "বিক্রি",
         path: "sales",
         icon: <HandCoins size={18} />,
         element: <MySales />,
     },
     {
-        name: "Profile",
+        name: "আমার খোঁজ",
+        shortName: "খোঁজ",
+        path: "my-alerts",
+        icon: <BellRing size={18} />,
+        element: <MyAlerts />,
+    },
+    {
+        name: "প্রোফাইল",
         path: "user-profile",
         icon: <UserCircle size={18} />,
         element: <ProfilePage />,

@@ -27,7 +27,7 @@ const createAndSendOtp = async (email: string) => {
   if (recentCount >= MAX_OTP_REQUESTS_PER_HOUR) {
     throw new AppError(
       httpStatus.TOO_MANY_REQUESTS,
-      "You have reached the maximum OTP request limit. Please try again later."
+      "তুমি সর্বোচ্চ সংখ্যকবার OTP চেয়ে ফেলেছো। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করো।"
     );
   }
 
@@ -64,7 +64,7 @@ const verifyOtp = async (email: string, otp: number | string) => {
   if (otpEntry.attempts >= MAX_VERIFY_ATTEMPTS) {
     throw new AppError(
       httpStatus.TOO_MANY_REQUESTS,
-      "Too many wrong attempts. Please request a new code."
+      "অনেকবার ভুল কোড দেওয়া হয়েছে। অনুগ্রহ করে নতুন কোড চাও।"
     );
   }
 
@@ -94,7 +94,7 @@ const consumeVerifiedEmail = async (email: string) => {
   if (!entry) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      "Please verify your email with the code we sent before continuing."
+      "এগোনোর আগে আমাদের পাঠানো কোড দিয়ে তোমার ইমেইল যাচাই করো।"
     );
   }
 };

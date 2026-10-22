@@ -13,6 +13,9 @@ import {
   Calculator,
   LayoutDashboard,
   User,
+  ListChecks,
+  FileQuestion,
+  GraduationCap,
 } from "lucide-react";
 
 import {
@@ -20,7 +23,6 @@ import {
   NavBody,
   NavItems,
   MobileNav,
-  NavbarLogo,
   NavbarButton,
   MobileNavHeader,
   MobileNavToggle,
@@ -39,8 +41,18 @@ const toggleClass = "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300
 const publicNav = [
   { name: "হোম", link: "/", icon: <Home size={18} /> },
   { name: "বই", link: "/books", icon: <BookOpen size={18} /> },
-  { name: "সাজেশন", link: "/suggestions", icon: <Lightbulb size={18} /> },
-  { name: "ব্লগ", link: "/blogs", icon: <Newspaper size={18} /> },
+  {
+    name: "পড়াশোনা",
+    link: "/booklists",
+    icon: <Lightbulb size={18} />,
+    children: [
+      { name: "সিলেবাস ও কোর্স", link: "/courses", icon: <GraduationCap size={16} /> },
+      { name: "কোন বই লাগবে?", link: "/booklists", icon: <ListChecks size={16} /> },
+      { name: "প্রশ্ন ব্যাংক", link: "/questions", icon: <FileQuestion size={16} /> },
+      { name: "পরীক্ষার সাজেশন", link: "/suggestions", icon: <Lightbulb size={16} /> },
+      { name: "ব্লগ ও বই রিভিউ", link: "/blogs", icon: <Newspaper size={16} /> },
+    ],
+  },
   {
     name: "টুলস",
     link: "/tools",
@@ -281,7 +293,7 @@ function AccountMenu({ links, onLogout }: { links: { to: string; label: string }
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Account menu"
+        aria-label="অ্যাকাউন্ট মেনু"
         className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-200 text-neutral-600 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:bg-neutral-700 dark:text-neutral-200"
       >
         <User size={16} aria-hidden="true" />

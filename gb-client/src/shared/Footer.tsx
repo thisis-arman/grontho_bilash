@@ -2,41 +2,42 @@ import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { whatsappLink } from "../components/WhatsAppButton";
+import { bnNumber } from "../i18n/labels";
 
 
 const footerNavs = [
   {
-    label: "Marketplace",
+    label: "মার্কেটপ্লেস",
     items: [
-      { to: "/books", name: "Browse Books" },
-      { to: "/books?type=Digital", name: "Digital Products" },
-      { to: "/books?category=Academic", name: "Academic Books" },
-      { to: "/user/add-product", name: "Sell a Book" },
+      { to: "/books", name: "বই দেখো" },
+      { to: "/books?type=Digital", name: "ডিজিটাল প্রোডাক্ট" },
+      { to: "/books?category=Academic", name: "একাডেমিক বই" },
+      { to: "/user/add-product", name: "বই বিক্রি করো" },
     ],
   },
   {
-    label: "Company",
+    label: "আমাদের সম্পর্কে",
     items: [
-      { to: "/about", name: "About Us" },
-      { to: "/blogs", name: "Blog" },
-      { to: "/careers", name: "Careers" },
-      { to: "/contact", name: "Contact" },
+      { to: "/about", name: "আমরা কারা" },
+      { to: "/blogs", name: "ব্লগ" },
+      { to: "/careers", name: "ক্যারিয়ার" },
+      { to: "/contact", name: "যোগাযোগ" },
     ],
   },
   {
-    label: "Legal",
+    label: "আইনি তথ্য",
     items: [
-      { to: "/terms", name: "Terms of Use" },
-      { to: "/privacy", name: "Privacy Policy" },
-      { to: "/license", name: "License" },
-      { to: "/faq", name: "FAQ" },
+      { to: "/terms", name: "ব্যবহারের শর্তাবলি" },
+      { to: "/privacy", name: "গোপনীয়তা নীতি" },
+      { to: "/license", name: "লাইসেন্স" },
+      { to: "/faq", name: "সাধারণ প্রশ্ন" },
     ],
   },
 ];
 
 const socials = [
   {
-    label: "Facebook",
+    label: "ফেসবুক",
     href: "#",
     icon: (
       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 48 48">
@@ -45,7 +46,7 @@ const socials = [
     ),
   },
   {
-    label: "Twitter / X",
+    label: "টুইটার / এক্স",
     href: "#",
     icon: (
       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 48 48">
@@ -54,7 +55,7 @@ const socials = [
     ),
   },
   {
-    label: "Instagram",
+    label: "ইনস্টাগ্রাম",
     href: "#",
     icon: (
       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 48 48">
@@ -63,7 +64,7 @@ const socials = [
     ),
   },
   {
-    label: "GitHub",
+    label: "গিটহাব",
     href: "#",
     icon: (
       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 48 48">
@@ -92,14 +93,14 @@ const Footer = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
-              <p className="text-xs font-semibold tracking-widest uppercase text-amber-500 mb-1">Stay in the loop</p>
-              <h3 className="text-lg font-bold text-white">Get new listings straight to your inbox.</h3>
+              <p className="text-xs font-semibold tracking-widest uppercase text-amber-500 mb-1">খবর পেতে থাকো</p>
+              <h3 className="text-lg font-bold text-white">নতুন লিস্টিংয়ের খবর সরাসরি তোমার ইমেইলে পাও।</h3>
             </div>
 
             {subscribed ? (
               <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
                 <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">✓</span>
-                You're subscribed!
+                সাবস্ক্রাইব হয়ে গেছে!
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex items-center gap-2 w-full sm:w-auto">
@@ -110,7 +111,8 @@ const Footer = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
+                    placeholder="তোমার ইমেইল ঠিকানা"
+                    aria-label="তোমার ইমেইল ঠিকানা"
                     className="w-full pl-9 pr-3 py-2.5 bg-stone-800 border border-stone-700 text-stone-200 placeholder:text-stone-600 rounded-xl text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
                   />
                 </div>
@@ -118,7 +120,7 @@ const Footer = () => {
                   type="submit"
                   className="flex items-center gap-1.5 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
                 >
-                  Subscribe
+                  সাবস্ক্রাইব করো
                   <ArrowRight size={14} />
                 </button>
               </form>
@@ -135,21 +137,21 @@ const Footer = () => {
             <Link to="/" className="inline-flex items-center gap-2.5 mb-5">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
                 {/* <BookOpen size={16} className="text-stone-900" /> */}
-                <img src="/logo-96.png" alt="Grontho Bilash" width={48} height={48} loading="lazy" />
+                <img src="/logo-96.png" alt="গ্রন্থবিলাস" width={48} height={48} loading="lazy" />
               </div>
-              <span className="text-lg font-extrabold text-white tracking-tight">Grontho Bilash</span>
+              <span className="text-lg font-extrabold text-white tracking-tight">গ্রন্থবিলাস</span>
             </Link>
 
             <p className="text-sm leading-relaxed text-stone-500 mb-6 max-w-xs">
-              Bangladesh's trusted marketplace to buy and sell used books, textbooks,
-              study resources, and digital products. Affordable learning starts here.
+              পুরনো বই, পাঠ্যবই, পড়াশোনার রিসোর্স আর ডিজিটাল প্রোডাক্ট কেনাবেচার জন্য
+              বাংলাদেশের ভরসার মার্কেটপ্লেস। কম খরচে পড়াশোনা শুরু হোক এখান থেকেই।
             </p>
 
             {/* Contact info */}
             <ul className="space-y-2.5 text-sm">
               <li className="flex items-center gap-2.5 text-stone-500">
                 <MapPin size={14} className="text-amber-500 flex-shrink-0" />
-                Dhaka, Bangladesh
+                ঢাকা, বাংলাদেশ
               </li>
               <li className="flex items-center gap-2.5 text-stone-500">
                 <Mail size={14} className="text-amber-500 flex-shrink-0" />
@@ -199,7 +201,7 @@ const Footer = () => {
       <div className="border-t border-stone-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-600 text-center sm:text-left">
-            © {new Date().getFullYear()} Grontho Bilash. All rights reserved. Made with ❤️ in Bangladesh.
+            © {bnNumber(new Date().getFullYear())} গ্রন্থবিলাস। সর্বস্বত্ব সংরক্ষিত। বাংলাদেশে ❤️ দিয়ে তৈরি।
           </p>
 
           {/* Socials */}

@@ -11,7 +11,7 @@ const handleDuplicateError = (err: any): TGenericErrorResponse => {
   const errorSources: TErrorSources = [
     {
       path: '',
-      message: `${extractedMessage} is already exists`,
+      message: `${extractedMessage} আগে থেকেই আছে`,
     },
   ];
 
@@ -19,7 +19,7 @@ const handleDuplicateError = (err: any): TGenericErrorResponse => {
 
   return {
     statusCode,
-    message: `${extractedMessage} already exists`,
+    message: `${extractedMessage} আগে থেকেই আছে`,
     errorSources,
   };
 };

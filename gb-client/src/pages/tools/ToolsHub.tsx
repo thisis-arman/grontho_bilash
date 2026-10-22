@@ -4,7 +4,7 @@ import { TOOLS } from "./toolsList";
 import { usePageMeta } from "../../utils/usePageMeta";
 
 const ToolsHub = () => {
-  usePageMeta("Free student tools", "CGPA calculator, target CGPA planner, attendance calculator and focus timer. Free, no account needed.");
+  usePageMeta("ফ্রি স্টুডেন্ট টুলস – CGPA, GPA ও বয়স ক্যালকুলেটর", "CGPA ক্যালকুলেটর, SSC/HSC GPA ক্যালকুলেটর, নম্বর থেকে গ্রেড, চাকরির বয়স হিসাব, অ্যাটেনডেন্স ও ফোকাস টাইমার। সম্পূর্ণ ফ্রি, অ্যাকাউন্ট লাগে না।");
   return (
   <>
     <header className="mb-10">

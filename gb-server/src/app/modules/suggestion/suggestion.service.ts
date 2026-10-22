@@ -9,6 +9,10 @@ type SuggestionInput = Partial<
 >;
 
 const PUBLIC_FILTER = { status: "published", isDeleted: false };
+
+// Old records have no `kind`; they are suggestions.
+export const kindFilter = (kind: unknown) =>
+  kind === "question" ? { kind: "question" } : { kind: { $ne: "question" } };
 const LIST_FIELDS = "-body";
 
 const assertPublishable = (item: Partial<TSuggestion>) => {
@@ -38,7 +42,10 @@ const createSuggestion = async (payload: SuggestionInput, authorId: string) => {
     status,
     slug: await uniqueSlug(
       SuggestionModel,
-      payload.slug || [payload.subjectCode, payload.title].filter(Boolean).join(" ")
+      payload.slug ||
+        [payload.kind === "question" ? payload.level : "", payload.examYear, payload.subjectCode, payload.title]
+          .filter(Boolean)
+          .join(" ")
     ),
     publishedAt: status === "published" ? new Date() : undefined,
     author: authorId,
@@ -71,9 +78,9 @@ const deleteSuggestion = async (id: string) => {
 
 const listPublished = async (query: Record<string, unknown>) => {
   const { page, limit, skip } = pageParams(query, 12, 48);
-  const filter: Record<string, unknown> = { ...PUBLIC_FILTER };
+  const filter: Record<string, unknown> = { ...PUBLIC_FILTER, ...kindFilter(query.kind) };
 
-  for (const key of ["level", "subject", "program", "department", "academicYear"] as const) {
+  for (const key of ["level", "subject", "program", "department", "academicYear", "institution", "examYear"] as const) {
     if (query[key]) filter[key] = String(query[key]);
   }
   if (query.hasFiles === "true") filter["attachments.0"] = { $exists: true };
@@ -97,27 +104,29 @@ const listPublished = async (query: Record<string, unknown>) => {
 };
 
 // Values the filters can offer, from what is actually published.
-const getFilters = async () => {
+const getFilters = async (kind?: unknown) => {
   const count = (field: string) =>
     SuggestionModel.aggregate([
-      { $match: { ...PUBLIC_FILTER, [field]: { $nin: [null, ""] } } },
+      { $match: { ...PUBLIC_FILTER, ...kindFilter(kind), [field]: { $nin: [null, ""] } } },
       { $group: { _id: `$${field}`, count: { $sum: 1 } } },
       { $sort: { count: -1, _id: 1 } },
       { $limit: 60 },
     ]).then((rows) => rows.map((row) => ({ name: row._id as string, count: row.count as number })));
 
-  const [levels, subjects, departments, academicYears] = await Promise.all([
+  const [levels, subjects, departments, academicYears, institutions, examYears] = await Promise.all([
     count("level"),
     count("subject"),
     count("department"),
     count("academicYear"),
+    count("institution"),
+    count("examYear"),
   ]);
-  return { levels, subjects, departments, academicYears };
+  return { levels, subjects, departments, academicYears, institutions, examYears };
 };
 
-const getPublishedBySlug = async (slug: string) => {
+const getPublishedBySlug = async (slug: string, kind?: unknown) => {
   const item = await SuggestionModel.findOneAndUpdate(
-    { ...PUBLIC_FILTER, slug },
+    { ...PUBLIC_FILTER, ...kindFilter(kind), slug },
     { $inc: { views: 1 } },
     { new: true }
   );
@@ -125,6 +134,7 @@ const getPublishedBySlug = async (slug: string) => {
 
   const related = await SuggestionModel.find({
     ...PUBLIC_FILTER,
+    ...kindFilter(item.kind),
     _id: { $ne: item._id },
     level: item.level,
     ...(item.department ? { department: item.department } : { subject: item.subject }),
@@ -145,7 +155,7 @@ const recordDownload = async (slug: string) => {
 
 const listForAdmin = async (query: Record<string, unknown>) => {
   const { page, limit, skip } = pageParams(query, 20, 50);
-  const filter: Record<string, unknown> = { isDeleted: false };
+  const filter: Record<string, unknown> = { isDeleted: false, ...kindFilter(query.kind) };
   if (query.status === "draft" || query.status === "published") filter.status = query.status;
   const search = String(query.search ?? "").trim().slice(0, 100);
   if (search) {

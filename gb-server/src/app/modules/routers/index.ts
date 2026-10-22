@@ -10,6 +10,10 @@ import { blogRoutes } from "../blogs/blog.route";
 import { suggestionRoutes } from "../suggestion/suggestion.route";
 import { uploadRoutes } from "../upload/upload.route";
 import { seoRoutes } from "../seo/seo.route";
+import { searchRoutes } from "../search/search.route";
+import { alertRoutes } from "../alerts/alert.route";
+import { bookListRoutes } from "../booklist/booklist.route";
+import { curriculumRoutes } from "../curriculum/curriculum.route";
 
 const router = Router();
 
@@ -57,6 +61,22 @@ const moduleRouter = [
   {
     path: "/seo",
     route: seoRoutes,
+  },
+  {
+    path: "/search",
+    route: searchRoutes,
+  },
+  {
+    path: "/alerts",
+    route: alertRoutes,
+  },
+  {
+    path: "/booklists",
+    route: bookListRoutes,
+  },
+  {
+    path: "/curriculum",
+    route: curriculumRoutes,
   },
 
 ];

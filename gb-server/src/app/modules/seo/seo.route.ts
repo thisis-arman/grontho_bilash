@@ -3,6 +3,8 @@ import catchAsync from "../../utils/catchAsync";
 import { ProductModel } from "../book/product.model";
 import { BlogModel } from "../blogs/blog.model";
 import { SuggestionModel } from "../suggestion/suggestion.model";
+import { BookListModel } from "../booklist/booklist.model";
+import { CurriculumModel } from "../curriculum/curriculum.model";
 
 const router = Router();
 
@@ -13,12 +15,18 @@ const STATIC_PAGES: [string, string][] = [
   ["/", "1.0"],
   ["/books", "0.9"],
   ["/suggestions", "0.8"],
+  ["/questions", "0.8"],
+  ["/booklists", "0.8"],
+  ["/courses", "0.8"],
   ["/blogs", "0.7"],
   ["/tools", "0.6"],
   ["/tools/cgpa-calculator", "0.6"],
   ["/tools/target-cgpa", "0.5"],
   ["/tools/attendance", "0.5"],
   ["/tools/focus-timer", "0.5"],
+  ["/tools/gpa-calculator", "0.6"],
+  ["/tools/grade-converter", "0.5"],
+  ["/tools/age-calculator", "0.5"],
   ["/about", "0.4"],
   ["/faq", "0.4"],
   ["/contact", "0.3"],
@@ -41,18 +49,24 @@ const entry = (path: string, lastmod?: Date, priority?: string) =>
 router.get(
   "/sitemap.xml",
   catchAsync(async (_req, res) => {
-    const [products, posts, suggestions] = await Promise.all([
+    const [products, posts, suggestions, bookLists, departments] = await Promise.all([
       ProductModel.find({ isDeleted: false, isPublished: true }, { slug: 1, updatedAt: 1 }).lean(),
       BlogModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
-      SuggestionModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
+      SuggestionModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1, kind: 1 }).lean(),
+      BookListModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
+      CurriculumModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
     ]);
 
-    type Row = { slug: string; updatedAt?: Date };
+    type Row = { slug: string; updatedAt?: Date; kind?: string };
     const lines = [
       ...STATIC_PAGES.map(([path, priority]) => entry(path, undefined, priority)),
       ...(products as Row[]).map((p) => entry(`/products/${p.slug}`, p.updatedAt, "0.8")),
       ...(posts as Row[]).map((p) => entry(`/blogs/${p.slug}`, p.updatedAt, "0.6")),
-      ...(suggestions as Row[]).map((s) => entry(`/suggestions/${s.slug}`, s.updatedAt, "0.7")),
+      ...(suggestions as Row[]).map((s) =>
+        entry(`/${s.kind === "question" ? "questions" : "suggestions"}/${s.slug}`, s.updatedAt, "0.7")
+      ),
+      ...(bookLists as Row[]).map((l) => entry(`/booklists/${l.slug}`, l.updatedAt, "0.7")),
+      ...(departments as Row[]).map((d) => entry(`/courses/${d.slug}`, d.updatedAt, "0.7")),
     ];
 
     res

@@ -6,9 +6,9 @@ import ThemeToggle from "../../theme/ThemeToggle";
 const LOGO = "/logo-96.png";
 
 const points = [
-  { icon: BookOpen, text: "Buy used books and notes for less" },
-  { icon: Truck, text: "Delivery and payment handled for you" },
-  { icon: ShieldCheck, text: "Listing is free, no hidden fees" },
+  { icon: BookOpen, text: "কম দামে পুরনো বই আর নোট কেনো" },
+  { icon: Truck, text: "ডেলিভারি আর পেমেন্টের ঝামেলা আমাদের" },
+  { icon: ShieldCheck, text: "লিস্টিং ফ্রি, কোনো লুকানো খরচ নেই" },
 ];
 
 export const authInput =
@@ -56,9 +56,9 @@ const AuthLayout = ({
 
       <div className="relative">
         <p className="font-display text-4xl font-extrabold leading-tight">
-          Books change hands.
+          বই হাত বদলায়।
           <br />
-          <span className="text-amber-400">Knowledge stays.</span>
+          <span className="text-amber-400">জ্ঞান থেকে যায়।</span>
         </p>
         <ul className="mt-10 space-y-4">
           {points.map(({ icon: Icon, text }) => (
@@ -86,7 +86,7 @@ const AuthLayout = ({
         <div className="flex items-center gap-2">
           <ThemeToggle className="text-stone-500 hover:bg-stone-200 hover:text-stone-900" />
           <Link to="/" className="text-sm font-medium text-stone-500 hover:text-stone-900">
-            ← Back to site
+            ← সাইটে ফিরে যাও
           </Link>
         </div>
       </div>

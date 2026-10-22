@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Check, MapPin, Plus } from 'lucide-react';
 import { useAddToCart } from '../cart/useAddToCart';
 import { IProduct } from '../../types/interface';
+import { conditionLabel } from '../../i18n/labels';
 
 const PRICE = new Intl.NumberFormat('en-BD');
 const formatPrice = (price: number) => `৳${PRICE.format(price)}`;
@@ -56,14 +57,14 @@ const ProductCard = ({ product }: { product: ShopProduct }) => {
         </Link>
 
         <span className="pointer-events-none absolute left-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-stone-700 shadow-sm backdrop-blur">
-          {isOut ? 'Sold out' : isDigital ? 'Digital' : product.condition}
+          {isOut ? 'স্টক শেষ' : isDigital ? 'ডিজিটাল' : conditionLabel(product.condition)}
         </span>
 
         {!isOut && (
           <button
             type="button"
             onClick={handleAdd}
-            aria-label={inCart ? `${product.title} is in your bag` : `Add ${product.title} to bag`}
+            aria-label={inCart ? `${product.title} তোমার ব্যাগে আছে` : `${product.title} ব্যাগে যোগ করো`}
             className={`absolute bottom-2.5 right-2.5 flex h-10 w-10 items-center justify-center rounded-full shadow-md transition duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 ${
               inCart ? 'bg-emerald-500 text-white' : 'bg-white text-stone-900 hover:bg-amber-400'
             }`}
@@ -89,7 +90,7 @@ const ProductCard = ({ product }: { product: ShopProduct }) => {
             {original && <span className="text-xs text-stone-400 line-through">{formatPrice(original)}</span>}
           </p>
           {product.price.isNegotiable && (
-            <span className="flex-shrink-0 text-[11px] font-medium text-emerald-700">Negotiable</span>
+            <span className="flex-shrink-0 text-[11px] font-medium text-emerald-700">দরদাম চলবে</span>
           )}
         </div>
         {product.location && !isDigital && (

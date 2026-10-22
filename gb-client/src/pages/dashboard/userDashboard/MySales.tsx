@@ -7,9 +7,8 @@ import {
     DataList,
     EmptyState,
     ErrorState,
-    formatDate,
+    formatDateBn,
     LoadingRows,
-    money,
     OrderStatusBadge,
     PageHeader,
     Pagination,
@@ -20,6 +19,7 @@ import {
     Toolbar,
     usePaged,
 } from "../../../components/dashboard/ui";
+import { bnNumber, orderStatusLabel, taka } from "../../../i18n/labels";
 
 interface Sale {
     _id: string;
@@ -32,12 +32,11 @@ interface Sale {
 }
 
 const STATUS_OPTIONS = [
-    { value: "all", label: "All statuses" },
-    { value: "pending", label: "Pending" },
-    { value: "confirmed", label: "Confirmed" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
+    { value: "all", label: "সব অবস্থা" },
+    ...["pending", "confirmed", "shipped", "delivered", "cancelled"].map((value) => ({
+        value,
+        label: orderStatusLabel(value),
+    })),
 ];
 
 const ItemsCell = ({ sale }: { sale: Sale }) => (
@@ -51,7 +50,7 @@ const ItemsCell = ({ sale }: { sale: Sale }) => (
         <div className="min-w-0">
             {sale.items.map((item) => (
                 <p key={item.book} className="truncate text-sm font-semibold text-stone-900">
-                    {item.bookTitle} <span className="font-normal text-stone-500">× {item.quantity}</span>
+                    {item.bookTitle} <span className="font-normal text-stone-500">× {bnNumber(item.quantity)}</span>
                 </p>
             ))}
         </div>
@@ -81,13 +80,13 @@ const MySales = () => {
     return (
         <>
             <PageHeader
-                title="Sales"
-                desc="Orders that include your listings. Delivery and payment are handled by Grontho Bilash."
+                title="আমার বিক্রি"
+                desc="যেসব অর্ডারে তোমার লিস্টিং আছে। ডেলিভারি আর পেমেন্ট গ্রন্থ বিলাস সামলায়।"
             />
 
             <Toolbar>
-                <SearchInput value={search} onChange={setSearch} placeholder="Search by order ID or book title" />
-                <SelectFilter value={status} onChange={setStatus} options={STATUS_OPTIONS} label="Filter by order status" />
+                <SearchInput value={search} onChange={setSearch} placeholder="অর্ডার আইডি বা বইয়ের নাম দিয়ে খুঁজো" />
+                <SelectFilter value={status} onChange={setStatus} options={STATUS_OPTIONS} label="অর্ডারের অবস্থা দিয়ে বাছাই করো" />
             </Toolbar>
 
             <Panel flush>
@@ -98,34 +97,34 @@ const MySales = () => {
                 ) : sales.length === 0 ? (
                     <EmptyState
                         icon={HandCoins}
-                        title="No sales yet"
-                        desc="When someone orders one of your listings, it will appear here."
-                        action={<Link to="/user/add-product" className={btn.primary}>List a book</Link>}
+                        title="এখনো কোনো বিক্রি নেই"
+                        desc="কেউ তোমার লিস্টিং থেকে অর্ডার করলে এখানে দেখাবে।"
+                        action={<Link to="/user/add-product" className={btn.primary}>বই লিস্ট করো</Link>}
                     />
                 ) : filtered.length === 0 ? (
-                    <EmptyState icon={HandCoins} title="No matching sales" desc="Try a different search or status." />
+                    <EmptyState icon={HandCoins} title="মিলে যাওয়া কোনো বিক্রি নেই" desc="অন্য কিছু লিখে খুঁজো বা অন্য অবস্থা বেছে নাও।" />
                 ) : (
                     <>
                         <DataList
                             rows={pageItems}
                             rowKey={(sale) => sale._id}
                             columns={[
-                                { header: "Items", cell: (sale) => <ItemsCell sale={sale} /> },
+                                { header: "বই", cell: (sale) => <ItemsCell sale={sale} /> },
                                 {
-                                    header: "Order",
+                                    header: "অর্ডার",
                                     cell: (sale) => (
                                         <>
                                             <p className="font-mono text-xs text-stone-700">{sale.orderId}</p>
-                                            <p className="text-xs text-stone-500">{formatDate(sale.createdAt)}</p>
+                                            <p className="text-xs text-stone-500">{formatDateBn(sale.createdAt)}</p>
                                         </>
                                     ),
                                 },
-                                { header: "Status", cell: (sale) => <OrderStatusBadge status={sale.orderStatus} /> },
-                                { header: "Payment", cell: (sale) => <PaymentStatusBadge status={sale.paymentStatus} /> },
+                                { header: "অবস্থা", cell: (sale) => <OrderStatusBadge status={sale.orderStatus} /> },
+                                { header: "পেমেন্ট", cell: (sale) => <PaymentStatusBadge status={sale.paymentStatus} /> },
                                 {
-                                    header: "Your items",
+                                    header: "তোমার বইয়ের মোট",
                                     align: "right",
-                                    cell: (sale) => <span className="font-bold text-stone-900">{money(sale.itemsTotal)}</span>,
+                                    cell: (sale) => <span className="font-bold text-stone-900">{taka(sale.itemsTotal)}</span>,
                                 },
                             ]}
                             renderCard={(sale) => (
@@ -136,10 +135,10 @@ const MySales = () => {
                                             <OrderStatusBadge status={sale.orderStatus} />
                                             <PaymentStatusBadge status={sale.paymentStatus} />
                                         </div>
-                                        <span className="font-bold text-stone-900">{money(sale.itemsTotal)}</span>
+                                        <span className="font-bold text-stone-900">{taka(sale.itemsTotal)}</span>
                                     </div>
                                     <p className="text-xs text-stone-500">
-                                        <span className="font-mono">{sale.orderId}</span> · {formatDate(sale.createdAt)}
+                                        <span className="font-mono">{sale.orderId}</span> · {formatDateBn(sale.createdAt)}
                                     </p>
                                 </div>
                             )}

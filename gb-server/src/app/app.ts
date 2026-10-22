@@ -23,7 +23,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many requests from this IP, please try again after 15 minutes",
+    message: "অনেক বেশি অনুরোধ এসেছে। ১৫ মিনিট পরে আবার চেষ্টা করো।",
   },
 });
 app.use(limiter);
@@ -36,7 +36,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many attempts, please try again after 15 minutes",
+    message: "অনেকবার চেষ্টা করা হয়েছে। ১৫ মিনিট পরে আবার চেষ্টা করো।",
   },
 });
 
@@ -49,6 +49,8 @@ const allowedOrigins = [
   "https://gronthobilash.com",
   "https://www.gronthobilash.com",
   "https://gronthobilash.vercel.app",
+  // Optional extra origins for local testing, e.g. "http://localhost:5174".
+  ...(process.env.EXTRA_CORS_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean),
 ];
 
 const corsOptions = {

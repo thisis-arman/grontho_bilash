@@ -1,25 +1,28 @@
-const NotFound = () => {
-    return (
-        <>
-            <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-                <div className="text-center">
-                    <p className="text-base font-semibold text-yellow-600">404</p>
-                    <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Page not found</h1>
-                    <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
-                    <div className="mt-10 flex items-center justify-center gap-x-6">
-                        <a
-                            href="#"
-                            className="rounded-md bg-yellow-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600"
-                        >
-                            Go back home
-                        </a>
-                        <a href="#" className="text-sm font-semibold text-gray-900">
-                            Contact support <span aria-hidden="true">&rarr;</span>
-                        </a>
-                    </div>
-                </div>
-            </main>
-        </>
-    )
-}
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
+import SearchBox from "../../components/search/SearchBox";
+import WhatsAppButton from "../../components/WhatsAppButton";
+
+// A lost visitor gets three easy ways forward: search, home, or ask.
+const NotFound = () => (
+  <main className="grid min-h-screen place-items-center bg-stone-50 px-4 py-20">
+    <div className="w-full max-w-lg text-center">
+      <p className="font-display text-base font-semibold text-amber-600">৪০৪</p>
+      <h1 className="mt-3 font-display text-3xl font-bold text-stone-900 sm:text-4xl">পেজটা পাওয়া যায়নি</h1>
+      <p className="mt-3 leading-relaxed text-stone-600">
+        লিংকটা হয়তো ভুল বা পুরনো। যে বই বা বিষয় খুঁজছিলে, নিচে লিখে খুঁজে দেখো।
+      </p>
+      <div className="mt-8 text-left">
+        <SearchBox id="notfound-search" autoFocus />
+      </div>
+      <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link to="/" className="inline-flex h-12 items-center gap-2 rounded-xl bg-stone-900 px-6 text-sm font-semibold text-white hover:bg-stone-800">
+          <Home size={16} aria-hidden="true" /> হোমে ফিরে যাও
+        </Link>
+        <WhatsAppButton message="আসসালামু আলাইকুম, সাইটে একটা পেজ খুঁজে পাচ্ছি না। সাহায্য দরকার।">সাহায্য চাও</WhatsAppButton>
+      </div>
+    </div>
+  </main>
+);
+
 export default NotFound;

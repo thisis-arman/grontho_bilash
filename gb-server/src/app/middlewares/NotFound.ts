@@ -7,7 +7,7 @@ import httpStatus from "http-status";
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   res.status(httpStatus.NOT_FOUND).json({
     success: false,
-    message: "API Not Found !!",
+    message: "অনুরোধ করা API খুঁজে পাওয়া যায়নি!",
     error: "",
   });
 };

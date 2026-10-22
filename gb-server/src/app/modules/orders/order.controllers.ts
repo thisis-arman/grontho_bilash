@@ -21,7 +21,7 @@ const getQuote = catchAsync(async (req: Request, res: Response) => {
     }
   }
   const result = await orderServices.getQuote(payload, buyerId);
-  sendResponse(res, { statusCode: 200, message: "Quote calculated", success: true, data: result });
+  sendResponse(res, { statusCode: 200, message: "মোট খরচ হিসাব করা হয়েছে", success: true, data: result });
 });
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
@@ -32,8 +32,8 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
     statusCode: 201,
     message:
       result.length > 1
-        ? `${result.length} orders created successfully (split by seller)`
-        : "Order created successfully",
+        ? `${result.length}টি অর্ডার সফলভাবে করা হয়েছে (বিক্রেতা অনুযায়ী ভাগ করা হয়েছে)`
+        : "অর্ডার সফলভাবে করা হয়েছে",
     success: true,
     data: result,
   });
@@ -46,7 +46,7 @@ const getOrder = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.getOrderById(orderId, req.user);
   sendResponse(res, {
     statusCode: 200,
-    message: "Order fetched successfully",
+    message: "অর্ডারের তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -57,7 +57,7 @@ const getOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.getOrdersFromDB();
   sendResponse(res, {
     statusCode: 200,
-    message: "Orders fetched successfully",
+    message: "অর্ডারগুলোর তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -69,7 +69,7 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.deleteOrderById(orderId, req.user);
   sendResponse(res, {
     statusCode: 200,
-    message: "Order cancelled successfully",
+    message: "অর্ডারটি বাতিল করা হয়েছে",
     success: true,
     data: result,
   });
@@ -86,7 +86,7 @@ const updateOrder = catchAsync(async (req: Request, res: Response) => {
   );
   sendResponse(res, {
     statusCode: 200,
-    message: "Order updated successfully",
+    message: "অর্ডারটি আপডেট হয়েছে",
     success: true,
     data: result,
   });
@@ -98,7 +98,7 @@ const getOrdersByUserId = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.getOrdersByUserId(userId, req.user);
   sendResponse(res, {
     statusCode: 200,
-    message: "Orders fetched successfully",
+    message: "অর্ডারগুলোর তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });
@@ -108,7 +108,7 @@ const getMySales = catchAsync(async (req: Request, res: Response) => {
   const result = await orderServices.getSalesBySeller(req.user.id);
   sendResponse(res, {
     statusCode: 200,
-    message: "Sales fetched successfully",
+    message: "বিক্রির তথ্য পাওয়া গেছে",
     success: true,
     data: result,
   });

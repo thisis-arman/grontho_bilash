@@ -6,6 +6,7 @@ import { useGetBlogPostQuery } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
 import { articleJsonLd } from "../../utils/structuredData";
 import { authorName, formatPostDate, PostCard } from "./BlogList";
+import { bnNumber } from "../../i18n/labels";
 
 const shareClass =
   "inline-flex h-10 items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 transition hover:border-stone-400";
@@ -17,10 +18,10 @@ const ShareButtons = ({ title }: { title: string }) => {
   return (
     <div className="flex flex-wrap gap-2">
       <a href={`https://www.facebook.com/sharer/sharer.php?u=${encoded}`} target="_blank" rel="noopener noreferrer" className={shareClass}>
-        Facebook
+        ফেসবুক
       </a>
       <a href={`https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`} target="_blank" rel="noopener noreferrer" className={shareClass}>
-        WhatsApp
+        হোয়াটসঅ্যাপ
       </a>
       <button
         type="button"
@@ -28,11 +29,11 @@ const ShareButtons = ({ title }: { title: string }) => {
         onClick={() =>
           navigator.clipboard
             .writeText(url)
-            .then(() => toast.success("Link copied"))
-            .catch(() => toast.error("Could not copy the link"))
+            .then(() => toast.success("লিংক কপি হয়েছে"))
+            .catch(() => toast.error("লিংক কপি করা যায়নি"))
         }
       >
-        <Link2 size={15} aria-hidden="true" /> Copy link
+        <Link2 size={15} aria-hidden="true" /> লিংক কপি করো
       </button>
     </div>
   );
@@ -74,12 +75,12 @@ const BlogPost = () => {
     const notFound = (error as { status?: number })?.status === 404;
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <h1 className="font-display text-3xl font-bold text-stone-900">{notFound ? "Post not found" : "Something went wrong"}</h1>
+        <h1 className="font-display text-3xl font-bold text-stone-900">{notFound ? "পোস্টটা পাওয়া যায়নি" : "কিছু একটা সমস্যা হয়েছে"}</h1>
         <p className="mt-2 text-stone-600">
-          {notFound ? "It may have been moved or unpublished." : "We could not load this post. Please try again."}
+          {notFound ? "পোস্টটা হয়তো সরানো হয়েছে বা আর প্রকাশিত নেই।" : "পোস্টটা লোড করা যায়নি। আবার চেষ্টা করো।"}
         </p>
         <Link to="/blogs" className="mt-6 inline-flex rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white">
-          Back to the blog
+          ব্লগে ফিরে যাও
         </Link>
       </div>
     );
@@ -92,7 +93,7 @@ const BlogPost = () => {
     <article className="bg-white font-sans">
       <header className="mx-auto max-w-3xl px-4 pt-10 sm:px-6 lg:pt-14">
         <Link to="/blogs" className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900">
-          <ArrowLeft size={16} aria-hidden="true" /> All posts
+          <ArrowLeft size={16} aria-hidden="true" /> সব পোস্ট
         </Link>
         <p className="mt-6 text-sm font-semibold text-amber-700">
           <Link to={`/blogs?category=${encodeURIComponent(post.category)}`} className="hover:underline">
@@ -105,10 +106,10 @@ const BlogPost = () => {
           {authorName(post) && <span className="font-semibold text-stone-900">{authorName(post)}</span>}
           <span>{formatPostDate(post.publishedAt)}</span>
           <span className="flex items-center gap-1">
-            <Clock size={14} aria-hidden="true" /> {post.readingTime} min read
+            <Clock size={14} aria-hidden="true" /> {bnNumber(post.readingTime)} মিনিটে পড়া
           </span>
           <span className="flex items-center gap-1">
-            <Eye size={14} aria-hidden="true" /> {post.views.toLocaleString()}
+            <Eye size={14} aria-hidden="true" /> {bnNumber(post.views.toLocaleString("en-IN"))}
           </span>
         </p>
       </header>
@@ -123,13 +124,13 @@ const BlogPost = () => {
         {review && (review.bookTitle || rating > 0) && (
           <aside className="mt-10 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Book reviewed</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">যে বইয়ের রিভিউ</p>
               {review.bookTitle && <p className="mt-1 font-display text-lg font-bold text-stone-900">{review.bookTitle}</p>}
-              {review.bookAuthor && <p className="text-sm text-stone-600">by {review.bookAuthor}</p>}
+              {review.bookAuthor && <p className="text-sm text-stone-600">লেখক: {review.bookAuthor}</p>}
             </div>
             <div className="flex flex-col items-start gap-2 sm:items-end">
               {rating > 0 && (
-                <p className="flex items-center gap-0.5" role="img" aria-label={`Rated ${rating} out of 5`}>
+                <p className="flex items-center gap-0.5" role="img" aria-label={`৫-এর মধ্যে ${bnNumber(rating)} রেটিং`}>
                   {[1, 2, 3, 4, 5].map((n) => (
                     <Star
                       key={n}
@@ -145,7 +146,7 @@ const BlogPost = () => {
                   to={`/books?search=${encodeURIComponent(review.bookTitle)}`}
                   className="text-sm font-semibold text-amber-800 underline-offset-4 hover:underline"
                 >
-                  Find it on Grontho Bilash →
+                  গ্রন্থবিলাসে বইটা খুঁজো →
                 </Link>
               )}
             </div>
@@ -167,7 +168,7 @@ const BlogPost = () => {
         )}
 
         <div className="mt-10 flex flex-col gap-3 border-t border-stone-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-semibold text-stone-900">Share this post</p>
+          <p className="text-sm font-semibold text-stone-900">পোস্টটা শেয়ার করো</p>
           <ShareButtons title={post.title} />
         </div>
       </div>
@@ -175,7 +176,7 @@ const BlogPost = () => {
       {related.length > 0 && (
         <section className="border-t border-stone-200 bg-stone-50">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-            <h2 className="mb-8 font-display text-2xl font-bold text-stone-900">More in {post.category}</h2>
+            <h2 className="mb-8 font-display text-2xl font-bold text-stone-900">{post.category} থেকে আরও পোস্ট</h2>
             <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
                 <PostCard key={item._id} post={item} />

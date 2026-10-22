@@ -2,13 +2,13 @@ import { z } from "zod";
 import { Types } from "mongoose";
 
 const ObjectIdSchema = z.string().refine((val) => Types.ObjectId.isValid(val), {
-  message: "Invalid ObjectId",
+  message: "আইডিটি সঠিক নয়",
 });
 
 const bookItemSchema = z.object({
   book: ObjectIdSchema,
-  bookTitle: z.string().min(1, "Title required"),
-  productImage: z.string().url("Invalid image URL"),
+  bookTitle: z.string().min(1, "বইয়ের নাম দিতে হবে"),
+  productImage: z.string().url("ছবির লিংকটি সঠিক নয়"),
   seller: ObjectIdSchema,
   price: z.number().nonnegative(), // unit price; line total = price * quantity
   quantity: z.number().int().positive(),
@@ -20,7 +20,7 @@ const bookItemSchema = z.object({
 const checkoutItemSchema = z
   .object({
     book: ObjectIdSchema,
-    quantity: z.number().int().positive().max(100),
+    quantity: z.number({ invalid_type_error: "পরিমাণ একটি সংখ্যা হতে হবে" }).int("পরিমাণ পূর্ণসংখ্যা হতে হবে").positive("পরিমাণ কমপক্ষে ১ হতে হবে").max(100, "একটি বই একবারে সর্বোচ্চ ১০০টি অর্ডার করা যাবে"),
   })
   .passthrough();
 
@@ -38,33 +38,33 @@ const checkoutItemSchema = z
 
 // 01XXXXXXXXX, also accepting +880 / 880 prefixes, spaces and dashes.
 const bdPhone = z
-  .string({ required_error: "Phone number is required" })
+  .string({ required_error: "মোবাইল নম্বর দিতে হবে" })
   .transform((v) => v.replace(/[\s-]/g, "").replace(/^\+?88/, ""))
-  .refine((v) => /^01[3-9]\d{8}$/.test(v), "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)");
+  .refine((v) => /^01[3-9]\d{8}$/.test(v), "সঠিক বাংলাদেশি মোবাইল নম্বর দাও (01XXXXXXXXX)");
 
 // bKash transaction IDs are 10 letters/digits; allow a little slack.
 const bkashTrxId = z
   .string()
   .trim()
   .toUpperCase()
-  .regex(/^[A-Z0-9]{8,12}$/, "Enter the bKash transaction ID exactly as in the confirmation SMS");
+  .regex(/^[A-Z0-9]{8,12}$/, "কনফার্মেশন SMS-এ যেভাবে আছে, ঠিক সেভাবে bKash ট্রানজ্যাকশন আইডি লেখো");
 
 const createOrderSchema = z.object({
-  books: z.array(checkoutItemSchema).min(1, "Cart cannot be empty").max(50),
-  recipientName: z.string().trim().min(2, "Enter the recipient's name").max(80),
+  books: z.array(checkoutItemSchema).min(1, "ব্যাগে অন্তত একটি বই থাকতে হবে").max(50, "একবারে সর্বোচ্চ ৫০টি আইটেম অর্ডার করা যাবে"),
+  recipientName: z.string({ required_error: "প্রাপকের নাম লেখো" }).trim().min(2, "প্রাপকের নাম লেখো").max(80, "নাম সর্বোচ্চ ৮০ অক্ষরের হতে পারে"),
   phoneNumber: bdPhone,
-  email: z.string().trim().toLowerCase().email("Invalid email address"),
-  deliveryAddress: z.string().trim().min(10, "Write the full address: house, road, area, district").max(300),
+  email: z.string({ required_error: "ইমেইল দিতে হবে" }).trim().toLowerCase().email("ইমেইল ঠিকানাটি সঠিক নয়"),
+  deliveryAddress: z.string({ required_error: "ডেলিভারির ঠিকানা দিতে হবে" }).trim().min(10, "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা").max(300, "ঠিকানা সর্বোচ্চ ৩০০ অক্ষরের হতে পারে"),
   shippingArea: z.enum(["inside", "outside"], {
-    errorMap: () => ({ message: "Select either Inside or Outside Chattogram" }),
+    errorMap: () => ({ message: "চট্টগ্রামের ভেতরে অথবা বাইরে, যেকোনো একটি বেছে নাও" }),
   }),
   paymentMethod: z.enum(["cod", "bkash"], {
-    errorMap: () => ({ message: "Select a valid payment method" }),
+    errorMap: () => ({ message: "একটি সঠিক পেমেন্ট পদ্ধতি বেছে নাও" }),
   }),
   // Required for bKash here; for cash on delivery the service decides,
   // because it depends on whether anything ships.
   transactionId: z.preprocess((v) => (v === "" || v === null ? undefined : v), bkashTrxId.optional()),
-  comment: z.string().trim().max(500).optional(),
+  comment: z.string().trim().max(500, "মন্তব্য সর্বোচ্চ ৫০০ অক্ষরের হতে পারে").optional(),
 }).refine((data) => {
   if (data.paymentMethod === "bkash") {
     // Reject missing AND reject the model's own "N/A" placeholder —
@@ -74,7 +74,7 @@ const createOrderSchema = z.object({
   }
   return true;
 }, {
-  message: "A valid Transaction ID is required for bKash payments",
+  message: "bKash পেমেন্টের জন্য সঠিক ট্রানজ্যাকশন আইডি দিতে হবে",
   path: ["transactionId"],
 });
 
@@ -109,13 +109,13 @@ const updateOrderSchema = z.object({
   // missing `phoneNumber`/`deliveryAddress` — they weren't part of
   // the previous (non-optional) version of this schema, which
   // would have made every partial update fail validation.
-  phoneNumber: z.string().min(11, "Valid BD phone number required").optional(),
-  deliveryAddress: z.string().min(5, "Full address is required").optional(),
+  phoneNumber: z.string().min(11, "সঠিক বাংলাদেশি মোবাইল নম্বর দিতে হবে").optional(),
+  deliveryAddress: z.string().min(5, "পুরো ঠিকানা দিতে হবে").optional(),
   comment: z.string().optional(),
   paymentStatus: z.enum(["pending", "paid", "partially-paid", "failed"]).optional(),
   orderStatus: z.enum(["pending", "confirmed", "shipped", "delivered", "cancelled"]).optional(),
 }).refine((data) => Object.keys(data).length > 0, {
-  message: "At least one field must be provided to update",
+  message: "আপডেট করার জন্য অন্তত একটি তথ্য দিতে হবে",
 });
 
 const quoteSchema = z.object({

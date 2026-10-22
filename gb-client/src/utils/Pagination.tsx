@@ -1,3 +1,4 @@
+import { bnNumber } from "../i18n/labels";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
@@ -32,15 +33,15 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
   const pages = getPageList(page, totalPages);
 
   return (
-    <nav className="flex items-center justify-between gap-2 sm:justify-center" aria-label="Pagination">
-      <button type="button" onClick={() => onPageChange(page - 1)} disabled={page <= 1} className={arrow} aria-label="Previous page">
+    <nav className="flex items-center justify-between gap-2 sm:justify-center" aria-label="পাতা বদলাও">
+      <button type="button" onClick={() => onPageChange(page - 1)} disabled={page <= 1} className={arrow} aria-label="আগের পাতা">
         <ChevronLeft size={16} aria-hidden="true" />
         <span className="hidden sm:inline">Previous</span>
       </button>
 
       {/* Phones: a compact counter instead of a row of numbers. */}
       <p className="text-sm text-stone-600 sm:hidden">
-        Page <span className="font-semibold text-stone-900">{page}</span> of {totalPages}
+        পাতা <span className="font-semibold text-stone-900">{bnNumber(page)}</span> / {bnNumber(totalPages)}
       </p>
 
       <ul className="hidden items-center gap-1 sm:flex">
@@ -55,7 +56,7 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
                 type="button"
                 onClick={() => onPageChange(item)}
                 aria-current={item === page ? 'page' : undefined}
-                aria-label={`Page ${item}`}
+                aria-label={`পাতা ${item}`}
                 className={`h-10 min-w-[2.5rem] rounded-xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
                   item === page ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                 }`}
@@ -67,7 +68,7 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
         )}
       </ul>
 
-      <button type="button" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages} className={arrow} aria-label="Next page">
+      <button type="button" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages} className={arrow} aria-label="পরের পাতা">
         <span className="hidden sm:inline">Next</span>
         <ChevronRight size={16} aria-hidden="true" />
       </button>

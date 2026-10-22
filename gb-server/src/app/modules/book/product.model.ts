@@ -55,6 +55,13 @@ import { IProduct } from "./product.interface";
       level: { type: Schema.Types.ObjectId, ref: "EducationCategory" },
       faculty: { type: Schema.Types.ObjectId, ref: "Faculty" },
       department: { type: Schema.Types.ObjectId, ref: "Department" },
+      // Course catalogue (see modules/curriculum): which course the book is for.
+      curriculum: { type: Schema.Types.ObjectId, ref: "Curriculum" },
+      program: { type: String, trim: true, maxlength: 20 },
+      departmentName: { type: String, trim: true, maxlength: 120 },
+      year: { type: Number, min: 1, max: 5 },
+      courseCode: { type: String, trim: true, maxlength: 20 },
+      courseTitle: { type: String, trim: true, maxlength: 200 },
     },
 
     // Pricing

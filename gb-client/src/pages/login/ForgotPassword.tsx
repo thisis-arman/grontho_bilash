@@ -7,6 +7,7 @@ import {
 } from "../../redux/features/auth/authApi";
 import AuthLayout, { authButton, authInput, authLabel, authLink, FormError } from "./AuthLayout";
 import { OtpInput, PasswordField, PasswordStrength, RedirectIfSignedIn } from "./authHelpers";
+import { bnNumber } from "../../i18n/labels";
 
 const RESEND_SECONDS = 30;
 
@@ -41,7 +42,7 @@ const ForgotPassword = () => {
       setCode("");
       setCooldown(RESEND_SECONDS);
     } catch (err) {
-      setError(apiMessage(err, "Could not send the code. Please try again."));
+      setError(apiMessage(err, "কোড পাঠানো যায়নি। আবার চেষ্টা করো।"));
     }
   };
 
@@ -49,42 +50,42 @@ const ForgotPassword = () => {
     event.preventDefault();
     setError("");
     if (code.length !== 6) {
-      setError("Enter the 6-digit code from the email.");
+      setError("ইমেইলে পাওয়া ৬ সংখ্যার কোডটা দাও।");
       return;
     }
     if (password !== confirm) {
-      setError("The two passwords do not match.");
+      setError("দুটো পাসওয়ার্ড মিলছে না।");
       return;
     }
     try {
       await resetPassword({ email: email.trim(), otp: code, newPassword: password }).unwrap();
-      toast.success("Password reset. Log in with your new password.");
+      toast.success("পাসওয়ার্ড বদলানো হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করো।");
       navigate("/login", { replace: true });
     } catch (err) {
       setCode("");
-      setError(apiMessage(err, "Could not reset the password. Please try again."));
+      setError(apiMessage(err, "পাসওয়ার্ড বদলানো যায়নি। আবার চেষ্টা করো।"));
     }
   };
 
   return (
     <RedirectIfSignedIn>
       <AuthLayout
-        title={codeSent ? "Set a new password" : "Reset your password"}
+        title={codeSent ? "নতুন পাসওয়ার্ড দাও" : "পাসওয়ার্ড রিসেট করো"}
         subtitle={
           codeSent ? (
             <>
-              If <strong className="text-stone-900">{email}</strong> has an account, we emailed it a 6-digit code. It
-              expires in 5 minutes.
+              <strong className="text-stone-900">{email}</strong> দিয়ে অ্যাকাউন্ট থাকলে সেখানে একটা ৬ সংখ্যার কোড পাঠিয়েছি।
+              কোডটা ৫ মিনিট কাজ করবে।
             </>
           ) : (
-            "Enter the email you signed up with and we will send you a reset code."
+            "যে ইমেইল দিয়ে সাইন আপ করেছিলে সেটা দাও, আমরা একটা রিসেট কোড পাঠাব।"
           )
         }
         footer={
           <>
-            Remembered it?{" "}
+            মনে পড়েছে?{" "}
             <Link to="/login" className={authLink}>
-              Back to login
+              লগইনে ফিরে যাও
             </Link>
           </>
         }
@@ -94,7 +95,7 @@ const ForgotPassword = () => {
             <FormError message={error} />
             <div>
               <label htmlFor="reset-email" className={authLabel}>
-                Email
+                ইমেইল
               </label>
               <input
                 id="reset-email"
@@ -109,19 +110,19 @@ const ForgotPassword = () => {
               />
             </div>
             <button type="submit" disabled={isSending} className={authButton}>
-              {isSending ? "Sending..." : "Send reset code"}
+              {isSending ? "পাঠানো হচ্ছে..." : "রিসেট কোড পাঠাও"}
             </button>
           </form>
         ) : (
           <form onSubmit={handleReset} className="space-y-5">
             <FormError message={error} />
             <div>
-              <p className={authLabel}>6-digit code</p>
+              <p className={authLabel}>৬ সংখ্যার কোড</p>
               <OtpInput value={code} onChange={setCode} disabled={isResetting} />
             </div>
             <div>
               <label htmlFor="new-password" className={authLabel}>
-                New password
+                নতুন পাসওয়ার্ড
               </label>
               <PasswordField
                 id="new-password"
@@ -130,13 +131,13 @@ const ForgotPassword = () => {
                 minLength={6}
                 value={password}
                 onChange={setPassword}
-                placeholder="At least 6 characters"
+                placeholder="কমপক্ষে ৬ অক্ষর"
               />
               <PasswordStrength password={password} />
             </div>
             <div>
               <label htmlFor="confirm-password" className={authLabel}>
-                Confirm new password
+                নতুন পাসওয়ার্ড আবার দাও
               </label>
               <PasswordField
                 id="confirm-password"
@@ -148,7 +149,7 @@ const ForgotPassword = () => {
               />
             </div>
             <button type="submit" disabled={isResetting} className={authButton}>
-              {isResetting ? "Resetting..." : "Reset password"}
+              {isResetting ? "বদলানো হচ্ছে..." : "পাসওয়ার্ড বদলাও"}
             </button>
             <div className="flex items-center justify-between text-sm">
               <button
@@ -156,7 +157,7 @@ const ForgotPassword = () => {
                 onClick={() => { setCodeSent(false); setError(""); }}
                 className="font-medium text-stone-500 hover:text-stone-900"
               >
-                Change email
+                ইমেইল বদলাও
               </button>
               <button
                 type="button"
@@ -164,7 +165,7 @@ const ForgotPassword = () => {
                 disabled={cooldown > 0 || isSending}
                 className="font-semibold text-amber-700 hover:underline disabled:text-stone-400 disabled:no-underline"
               >
-                {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+                {cooldown > 0 ? `${bnNumber(cooldown)} সেকেন্ড পর আবার পাঠাও` : "আবার কোড পাঠাও"}
               </button>
             </div>
           </form>

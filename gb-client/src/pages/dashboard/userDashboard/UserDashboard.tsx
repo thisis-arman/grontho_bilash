@@ -7,15 +7,15 @@ import { useAppSelector } from "../../../redux/hooks";
 import {
     btn,
     EmptyState,
-    formatDate,
+    formatDateBn,
     LoadingRows,
-    money,
     OrderStatusBadge,
     PageHeader,
     Panel,
     StatCard,
     StatGrid,
 } from "../../../components/dashboard/ui";
+import { bnNumber, taka } from "../../../i18n/labels";
 
 const ACTIVE_ORDER = ["pending", "confirmed", "shipped"];
 
@@ -55,51 +55,51 @@ const UserDashboard = () => {
     return (
         <>
             <PageHeader
-                title={`Hello, ${name?.split(" ")[0] || "there"}`}
-                desc="Your buying and selling at a glance."
+                title={`হ্যালো, ${name?.split(" ")[0] || "বন্ধু"}`}
+                desc="তোমার কেনাবেচার হিসাব এক নজরে।"
                 action={
                     <Link to="/user/add-product" className={btn.primary}>
-                        <Plus size={16} aria-hidden="true" /> Sell a book
+                        <Plus size={16} aria-hidden="true" /> বই বিক্রি করো
                     </Link>
                 }
             />
 
             <StatGrid>
                 <StatCard
-                    label="Orders on the way"
-                    value={ordersLoading ? loadingValue : activeOrders}
+                    label="চলতি অর্ডার"
+                    value={ordersLoading ? loadingValue : bnNumber(activeOrders)}
                     icon={Truck}
-                    hint={`${orders.length} placed in total`}
+                    hint={`মোট ${bnNumber(orders.length)}টি অর্ডার করেছ`}
                 />
-                <StatCard label="Total spent" value={ordersLoading ? loadingValue : money(spent)} icon={Wallet} hint="Excludes cancelled orders" />
+                <StatCard label="মোট খরচ" value={ordersLoading ? loadingValue : taka(spent)} icon={Wallet} hint="বাতিল অর্ডার ধরা হয়নি" />
                 <StatCard
-                    label="Live listings"
-                    value={booksLoading ? loadingValue : liveListings}
+                    label="চালু লিস্টিং"
+                    value={booksLoading ? loadingValue : bnNumber(liveListings)}
                     icon={BookOpen}
-                    hint={`${listings.length} listed in total`}
+                    hint={`মোট ${bnNumber(listings.length)}টি লিস্টিং`}
                 />
                 <StatCard
-                    label="Sales value"
-                    value={salesLoading ? loadingValue : money(earned)}
+                    label="মোট বিক্রি"
+                    value={salesLoading ? loadingValue : taka(earned)}
                     icon={HandCoins}
-                    hint={`${sales.length} order${sales.length === 1 ? "" : "s"} received`}
+                    hint={`${bnNumber(sales.length)}টি অর্ডার পেয়েছ`}
                 />
             </StatGrid>
 
             <div className="grid gap-6 lg:grid-cols-2">
                 <Panel
-                    title="Recent orders"
+                    title="সাম্প্রতিক অর্ডার"
                     flush
-                    action={<Link to="/user/my-orders" className={viewAll}>View all</Link>}
+                    action={<Link to="/user/my-orders" className={viewAll}>সব দেখো</Link>}
                 >
                     {ordersLoading ? (
                         <LoadingRows rows={3} />
                     ) : orders.length === 0 ? (
                         <EmptyState
                             icon={ShoppingBag}
-                            title="No orders yet"
-                            desc="Books you order will show up here."
-                            action={<Link to="/books" className={btn.secondary}>Browse books</Link>}
+                            title="এখনো কোনো অর্ডার নেই"
+                            desc="তুমি যে বই অর্ডার করবে, সেগুলো এখানে দেখাবে।"
+                            action={<Link to="/books" className={btn.secondary}>বই দেখো</Link>}
                         />
                     ) : (
                         <ul className="divide-y divide-stone-100">
@@ -107,15 +107,15 @@ const UserDashboard = () => {
                                 <li key={order._id} className="flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
                                     <div className="min-w-0">
                                         <p className="truncate text-sm font-semibold text-stone-900">
-                                            {order.books?.[0]?.bookTitle || "Order"}
-                                            {order.books?.length > 1 && ` +${order.books.length - 1} more`}
+                                            {order.books?.[0]?.bookTitle || "অর্ডার"}
+                                            {order.books?.length > 1 && ` আরও ${bnNumber(order.books.length - 1)}টি`}
                                         </p>
                                         <p className="mt-0.5 text-xs text-stone-500">
-                                            {order.orderId} · {formatDate(order.createdAt)}
+                                            {order.orderId} · {formatDateBn(order.createdAt)}
                                         </p>
                                     </div>
                                     <div className="flex flex-shrink-0 flex-col items-end gap-1">
-                                        <span className="text-sm font-bold text-stone-900">{money(order.totalAmount)}</span>
+                                        <span className="text-sm font-bold text-stone-900">{taka(order.totalAmount)}</span>
                                         <OrderStatusBadge status={order.orderStatus} />
                                     </div>
                                 </li>
@@ -125,18 +125,18 @@ const UserDashboard = () => {
                 </Panel>
 
                 <Panel
-                    title="Recent sales"
+                    title="সাম্প্রতিক বিক্রি"
                     flush
-                    action={<Link to="/user/sales" className={viewAll}>View all</Link>}
+                    action={<Link to="/user/sales" className={viewAll}>সব দেখো</Link>}
                 >
                     {salesLoading ? (
                         <LoadingRows rows={3} />
                     ) : sales.length === 0 ? (
                         <EmptyState
                             icon={HandCoins}
-                            title="No sales yet"
-                            desc="When someone orders one of your listings, it will appear here."
-                            action={<Link to="/user/add-product" className={btn.secondary}>List a book</Link>}
+                            title="এখনো কোনো বিক্রি নেই"
+                            desc="কেউ তোমার লিস্টিং থেকে অর্ডার করলে এখানে দেখাবে।"
+                            action={<Link to="/user/add-product" className={btn.secondary}>বই লিস্ট করো</Link>}
                         />
                     ) : (
                         <ul className="divide-y divide-stone-100">
@@ -144,15 +144,15 @@ const UserDashboard = () => {
                                 <li key={sale._id} className="flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
                                     <div className="min-w-0">
                                         <p className="truncate text-sm font-semibold text-stone-900">
-                                            {sale.items?.[0]?.bookTitle || "Sale"}
-                                            {sale.items?.length > 1 && ` +${sale.items.length - 1} more`}
+                                            {sale.items?.[0]?.bookTitle || "বিক্রি"}
+                                            {sale.items?.length > 1 && ` আরও ${bnNumber(sale.items.length - 1)}টি`}
                                         </p>
                                         <p className="mt-0.5 text-xs text-stone-500">
-                                            {sale.orderId} · {formatDate(sale.createdAt)}
+                                            {sale.orderId} · {formatDateBn(sale.createdAt)}
                                         </p>
                                     </div>
                                     <div className="flex flex-shrink-0 flex-col items-end gap-1">
-                                        <span className="text-sm font-bold text-stone-900">{money(sale.itemsTotal)}</span>
+                                        <span className="text-sm font-bold text-stone-900">{taka(sale.itemsTotal)}</span>
                                         <OrderStatusBadge status={sale.orderStatus} />
                                     </div>
                                 </li>

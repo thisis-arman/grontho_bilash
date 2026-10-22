@@ -72,13 +72,21 @@ const fromSuggestion = (s: Suggestion): Draft => ({
   attachments: s.attachments.map((a) => ({ ...a, size: a.size ?? 0 })),
 });
 
-const SuggestionEditor = () => {
+// One editor for both exam-material kinds: suggestions and past question
+// papers (the question bank).
+const KIND = {
+  suggestion: { base: "/admin/suggestions", publicBase: "/suggestions", noun: "suggestion", plural: "suggestions" },
+  question: { base: "/admin/questions", publicBase: "/questions", noun: "question paper", plural: "question papers" },
+} as const;
+
+const SuggestionEditor = ({ kind = "suggestion" }: { kind?: "suggestion" | "question" }) => {
+  const k = KIND[kind];
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = !id;
 
   const { data, isLoading, isError, refetch } = useGetAdminSuggestionQuery(id ?? "", { skip: isNew });
-  const { data: filtersData } = useGetSuggestionFiltersQuery();
+  const { data: filtersData } = useGetSuggestionFiltersQuery(kind);
   const [saveSuggestion, { isLoading: isSaving }] = useSaveSuggestionMutation();
 
   const saved = data?.data;
@@ -112,6 +120,7 @@ const SuggestionEditor = () => {
       return;
     }
     const payload: Partial<Suggestion> = {
+      kind,
       title: draft.title,
       summary: draft.summary,
       body: draft.body,
@@ -128,10 +137,10 @@ const SuggestionEditor = () => {
       const next = fromSuggestion(result.data);
       setDraft(next);
       setBaseline(next);
-      toast.success(nextStatus === "published" ? "Suggestion published" : status === "published" ? "Moved back to drafts" : "Draft saved");
-      if (isNew) navigate(`/admin/suggestions/${result.data._id}/edit`, { replace: true });
+      toast.success(nextStatus === "published" ? `${k.noun[0].toUpperCase()}${k.noun.slice(1)} published` : status === "published" ? "Moved back to drafts" : "Draft saved");
+      if (isNew) navigate(`${k.base}/${result.data._id}/edit`, { replace: true });
     } catch (error) {
-      toast.error(errorMessage(error, "Could not save the suggestion"));
+      toast.error(errorMessage(error, `Could not save the ${k.noun}`));
     }
   };
 
@@ -146,14 +155,14 @@ const SuggestionEditor = () => {
   return (
     <form onSubmit={onSubmit}>
       <EditorHeader
-        backTo="/admin/suggestions"
-        backLabel="All suggestions"
-        title={isNew ? "New suggestion" : draft.title || "Untitled suggestion"}
+        backTo={k.base}
+        backLabel={`All ${k.plural}`}
+        title={isNew ? `New ${k.noun}` : draft.title || `Untitled ${k.noun}`}
         status={isNew ? undefined : status}
         actions={
           <>
             {status === "published" && saved && (
-              <a href={`/suggestions/${saved.slug}`} target="_blank" rel="noopener noreferrer" className={btn.secondary}>
+              <a href={`${k.publicBase}/${saved.slug}`} target="_blank" rel="noopener noreferrer" className={btn.secondary}>
                 <ExternalLink size={16} aria-hidden="true" /> View
               </a>
             )}
@@ -251,7 +260,7 @@ const SuggestionEditor = () => {
 
           {!isNew && (
             <SidePanel title="Web address">
-              <Field label="Slug" hint={`gronthobilash.com/suggestions/${draft.slug || "…"}`}>
+              <Field label="Slug" hint={`gronthobilash.com${k.publicBase}/${draft.slug || "…"}`}>
                 <input
                   value={draft.slug}
                   onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}

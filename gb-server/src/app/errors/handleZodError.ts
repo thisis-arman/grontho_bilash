@@ -13,7 +13,7 @@ const handleZodError = (err: ZodError): TGenericErrorResponse => {
 
   return {
     statusCode,
-    message: errorSources[0].message || 'Validation Error',
+    message: errorSources[0].message || 'তথ্যগুলো সঠিকভাবে দেওয়া হয়নি',
     errorSources,
   };
 };

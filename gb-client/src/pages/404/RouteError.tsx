@@ -11,12 +11,12 @@ const RouteError = () => {
   return (
     <main className="flex min-h-screen items-center justify-center bg-stone-50 px-4 font-sans">
       <div className="max-w-md text-center">
-        <p className="font-display text-6xl font-extrabold text-amber-400">{notFound ? "404" : "Oops"}</p>
+        <p className="font-display text-6xl font-extrabold text-amber-400">{notFound ? "৪০৪" : "উফ!"}</p>
         <h1 className="mt-4 font-display text-2xl font-bold text-stone-900">
-          {notFound ? "This page does not exist" : "Something went wrong on this page"}
+          {notFound ? "এই পেজটা নেই" : "এই পেজে কিছু একটা সমস্যা হয়েছে"}
         </h1>
         <p className="mt-2 text-stone-600">
-          {notFound ? "The link may be old or mistyped." : "Please try again. If it keeps happening, let us know."}
+          {notFound ? "লিংকটা হয়তো পুরনো বা ভুল লেখা।" : "আবার চেষ্টা করো। বারবার এমন হলে আমাদের জানাও।"}
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           {!notFound && (
@@ -25,11 +25,11 @@ const RouteError = () => {
               onClick={() => window.location.reload()}
               className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-800"
             >
-              Reload the page
+              পেজটা আবার লোড করো
             </button>
           )}
           <Link to="/" className="rounded-xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700 hover:border-stone-400">
-            Go to the home page
+            হোম পেজে যাও
           </Link>
         </div>
       </div>

@@ -27,7 +27,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  usePageMeta(pathname.startsWith('/admin') ? 'Admin dashboard' : 'My account', undefined, undefined, { noindex: true });
+  usePageMeta(pathname.startsWith('/admin') ? 'অ্যাডমিন ড্যাশবোর্ড' : 'আমার অ্যাকাউন্ট', undefined, undefined, { noindex: true });
 
   // The section comes from the URL, not the role: an admin can also use the
   // seller pages under /user.
@@ -46,9 +46,9 @@ const Dashboard = () => {
   // Shared by the desktop sidebar and the phone drawer.
   const navigation = (
     <>
-      <nav aria-label="Dashboard" className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav aria-label="ড্যাশবোর্ড" className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-stone-500">
-          {isAdminArea ? 'Admin' : 'My account'}
+          {isAdminArea ? 'অ্যাডমিন' : 'আমার অ্যাকাউন্ট'}
         </p>
         {navPaths.map((item) => (
           <NavLink key={item.path} to={`${prefix}/${item.path}`} className={sideLink}>
@@ -62,16 +62,16 @@ const Dashboard = () => {
         {isAdmin && (
           <Link to={isAdminArea ? '/user/dashboard' : '/admin/dashboard'} className={quietLink}>
             <ArrowLeftRight size={18} aria-hidden="true" />
-            {isAdminArea ? 'Seller view' : 'Admin view'}
+            {isAdminArea ? 'বিক্রেতার ড্যাশবোর্ড' : 'অ্যাডমিন প্যানেল'}
           </Link>
         )}
         <Link to="/" className={quietLink}>
           <Home size={18} aria-hidden="true" />
-          Back to site
+          সাইটে ফিরে যাও
         </Link>
         <button type="button" onClick={handleLogout} className={`${quietLink} hover:!bg-red-500/15 hover:!text-red-300`}>
           <LogOut size={18} aria-hidden="true" />
-          Sign out
+          লগআউট
         </button>
 
         <div className="mt-2 flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2.5">
@@ -79,7 +79,7 @@ const Dashboard = () => {
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-white">{user?.name || 'User'}</span>
+            <span className="block truncate text-sm font-semibold text-white">{user?.name || 'ব্যবহারকারী'}</span>
             <span className="block truncate text-xs text-stone-400">{user?.email}</span>
           </span>
         </div>
@@ -115,7 +115,7 @@ const Dashboard = () => {
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          aria-label="Open menu"
+          aria-label="মেনু খোলো"
           aria-expanded={drawerOpen}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
         >
@@ -145,7 +145,7 @@ const Dashboard = () => {
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
-              aria-label="Close menu"
+              aria-label="মেনু বন্ধ করো"
               className="flex h-10 w-10 items-center justify-center rounded-lg text-white transition hover:bg-white/10"
             >
               <X size={22} aria-hidden="true" />
@@ -160,7 +160,7 @@ const Dashboard = () => {
           {/* Pages are lazy-loaded; keep the shell on screen while one arrives. */}
           <Suspense
             fallback={
-              <div className="flex justify-center py-24" role="status" aria-label="Loading">
+              <div className="flex justify-center py-24" role="status" aria-label="লোড হচ্ছে">
                 <span className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-amber-400" />
               </div>
             }
@@ -172,7 +172,7 @@ const Dashboard = () => {
 
       {/* Phone / tablet tab bar */}
       <nav
-        aria-label="Quick navigation"
+        aria-label="দ্রুত যাও"
         className="fixed inset-x-0 bottom-0 z-40 flex border-t border-stone-200 bg-white lg:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
@@ -196,7 +196,7 @@ const Dashboard = () => {
           className="flex min-h-[56px] min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-[11px] font-semibold text-stone-500"
         >
           <Menu size={18} aria-hidden="true" />
-          More
+          আরও
         </button>
       </nav>
     </div>

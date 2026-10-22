@@ -1,41 +1,56 @@
 const faqs = [
     {
         id: 1,
-        question: "What is Grontho Bilash?",
-        answer: "Grontho Bilash is an online platform where you can buy and sell used and new books. It connects book lovers with readers looking for great books at affordable prices."
+        question: "গ্রন্থবিলাস কী?",
+        answer: "গ্রন্থবিলাস একটা অনলাইন মার্কেটপ্লেস, যেখানে তুমি পুরনো ও নতুন বই কেনাবেচা করতে পারো। ডিজিটাল নোট আর পিডিএফও পাবে। প্রতিটা লিস্টিংয়ে বইয়ের অবস্থা, ছবি আর দাম দেওয়া থাকে।"
     },
     {
         id: 2,
-        question: "How do I create an account?",
-        answer: "Creating an account is simple. Just click on the 'Sign Up' button, fill in your details, and you'll be ready to explore books in minutes."
+        question: "অ্যাকাউন্ট খুলব কীভাবে?",
+        answer: "'সাইন আপ' বাটনে চাপ দাও, তোমার তথ্য দাও। তারপর তোমার ইমেইলে একটা ওটিপি কোড যাবে, সেটা দিয়ে ইমেইল ভেরিফাই করলেই অ্যাকাউন্ট রেডি।"
     },
     {
         id: 3,
-        question: "Can I sell my own books on Grontho Bilash?",
-        answer: "Yes! Sellers can easily list their books with details and photos. Once a buyer purchases the book, we handle the payment and guide you through the delivery process."
+        question: "পাসওয়ার্ড ভুলে গেলে কী করব?",
+        answer: "লগইন পেজে 'পাসওয়ার্ড ভুলে গেছো?' অপশনে চাপ দাও। সেখান থেকে নতুন পাসওয়ার্ড সেট করতে পারবে।"
     },
     {
         id: 4,
-        question: "What payment methods do you accept?",
-        answer: "We accept all major payment methods including credit/debit cards, mobile banking, and COD (Cash on Delivery) for eligible orders."
+        question: "আমি কি নিজের বই বিক্রি করতে পারব?",
+        answer: "হ্যাঁ! একটা ফ্রি অ্যাকাউন্ট খোলো, তারপর বইয়ের ছবি, অবস্থা আর দাম দিয়ে লিস্টিং দাও। লিস্টিং দেওয়া পুরোপুরি ফ্রি, কোনো লুকানো চার্জ নেই। কেউ অর্ডার করলে তোমার ড্যাশবোর্ডের বিক্রি পেজে দেখতে পাবে।"
     },
     {
         id: 5,
-        question: "Do you offer refunds or returns?",
-        answer: "Yes, we have a 7-day return policy for books that are not as described. Please read our full refund policy for detailed information."
+        question: "কীভাবে টাকা দেওয়া যায়?",
+        answer: "ক্যাশ অন ডেলিভারি অথবা বিকাশে টাকা দিতে পারো। তবে ডেলিভারি চার্জটা অর্ডার করার সময়ই বিকাশে আগে দিতে হয়, ক্যাশ অন ডেলিভারি নিলেও।"
     },
     {
         id: 6,
-        question: "Are the books sold on the platform new or used?",
-        answer: "We offer both new and used books. Each listing specifies whether the book is new or used, along with its condition details."
+        question: "ডেলিভারি চার্জ কত?",
+        answer: "প্রতি পার্সেলে এলাকা অনুযায়ী ৳৭০ অথবা ৳১৩০। শুধু ডিজিটাল জিনিস অর্ডার করলে ডেলিভারি চার্জ লাগে না। প্রত্যেক বিক্রেতা নিজের পার্সেল আলাদা পাঠান, তাই ব্যাগে দুজন বিক্রেতার বই থাকলে ডেলিভারি চার্জ দুবার লাগবে।"
+    },
+    {
+        id: 7,
+        question: "অর্ডার বাতিল করা যায়?",
+        answer: "অর্ডার যতক্ষণ অপেক্ষমাণ আছে আর টাকা দেওয়া হয়নি, ততক্ষণ তুমি নিজেই বাতিল করতে পারবে। এরপর বাতিল করতে চাইলে আমাদের সাপোর্টে যোগাযোগ করো।"
+    },
+    {
+        id: 8,
+        question: "বই ছাড়া আর কী কী পাওয়া যায়?",
+        answer: "ফ্রি পরীক্ষার সাজেশন (/suggestions), আগের বছরের প্রশ্ন (/questions), সিজিপিএ ও জিপিএ ক্যালকুলেটরের মতো স্টুডেন্ট টুলস (/tools), আর আমাদের ব্লগ (/blogs)।"
+    },
+    {
+        id: 9,
+        question: "সাহায্য লাগলে কোথায় যোগাযোগ করব?",
+        answer: "হোয়াটসঅ্যাপ বা ফোনে: 01883-350118। ইমেইল: hello@gronthobilash.com। অথবা আমাদের যোগাযোগ পেজ (/contact) থেকে মেসেজ পাঠাও।"
     }
 ];
 const FAQ = () => {
     return (
         <div className="py-16 md:py-24 px-4 max-w-5xl mx-auto">
             <div className="text-center mb-16">
-                <p className="text-primary text-sm md:text-base font-semibold mb-3 tracking-wide uppercase">Frequently Asked Questions</p>
-                <h1 className="text-3xl md:text-5xl font-bold text-heading">Answers to Your Questions</h1>
+                <p className="text-primary text-sm md:text-base font-semibold mb-3 tracking-wide uppercase">সাধারণ প্রশ্ন</p>
+                <h1 className="text-3xl md:text-5xl font-bold text-heading">তোমার প্রশ্নের উত্তর</h1>
             </div>
 
             <div className="space-y-6">

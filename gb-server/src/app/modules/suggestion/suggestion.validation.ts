@@ -1,6 +1,6 @@
 import { z } from "zod";
 import config from "../../config";
-import { EXAM_LEVELS } from "./suggestion.model";
+import { CONTENT_KINDS, EXAM_LEVELS } from "./suggestion.model";
 
 // Attachments must come from this project's Cloudinary account, uploaded
 // through the signed-upload endpoint. Arbitrary links are not accepted, so
@@ -18,6 +18,7 @@ const ownCloudinaryUrl = z
 const optionalText = (max: number) => z.string().trim().max(max).optional();
 
 const suggestionFields = {
+  kind: z.enum(CONTENT_KINDS).optional(),
   title: z.string().trim().min(3, "Title is too short").max(160),
   slug: z
     .string()

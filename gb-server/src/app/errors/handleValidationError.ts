@@ -17,7 +17,7 @@ const handleValidationError = (
 
   return {
     statusCode,
-    message: err.message || "Validation Error",
+    message: err.message || "তথ্যগুলো সঠিকভাবে দেওয়া হয়নি",
     errorSources,
   };
 };

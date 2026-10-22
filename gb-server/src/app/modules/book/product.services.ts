@@ -9,6 +9,9 @@ import { ObjectId } from "mongodb";
 import { ProductModel } from "./product.model";
 import slugify from "slugify";
 import { IProduct } from "./product.interface";
+import { buildTextFilter } from "../../utils/searchText";
+import { alertService } from "../alerts/alert.service";
+import { PRODUCT_SEARCH_FIELDS } from "../search/search.service";
 
 export interface ProductQuery {
   page?: number | string;
@@ -92,6 +95,9 @@ const createProductIntoDB = async (payload: IProduct) => {
 
   // 5. Create Product
   const result = await ProductModel.create(payload);
+
+  // 6. Tell students who asked to be notified about this book.
+  await alertService.notifyForListing(result);
   return result;
 };
 
@@ -184,16 +190,10 @@ const getAllProductsFromDb = async (query: ProductQuery) => {
 
   // Partial, case-insensitive matching ("acc" finds "Accounting"), which a
   // $text index cannot do. Input is escaped so it is never run as a regex.
-  const term = String(search ?? "").trim().slice(0, 100);
-  if (term) {
-    const pattern = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    filter.$or = [
-      { title: { $regex: pattern, $options: "i" } },
-      { "bookMetadata.author": { $regex: pattern, $options: "i" } },
-      { "bookMetadata.isbn": { $regex: pattern, $options: "i" } },
-      { category: { $regex: pattern, $options: "i" } },
-    ];
-  }
+  // Every word, in any order, with Bangla/English equivalents
+  // (utils/searchText.ts) — the same matching as the search suggestions.
+  const textFilter = buildTextFilter(search, PRODUCT_SEARCH_FIELDS);
+  if (textFilter) Object.assign(filter, textFilter);
 
   const pageNum = Math.max(1, Number(page) || 1);
   const limitNum = Math.min(MAX_LIMIT, Math.max(1, Number(limit) || DEFAULT_LIMIT));
@@ -443,7 +443,7 @@ const UPDATABLE_NESTED_FIELDS: Record<string, string[]> = {
   ],
   inventory: ["quantity"],
   fulfillmentOptions: ["allowPickup", "allowShipping"],
-  academicMetadata: ["level", "faculty", "department"],
+  academicMetadata: ["level", "faculty", "department", "curriculum", "program", "departmentName", "year", "courseCode", "courseTitle"],
   digitalDetails: ["downloadUrl", "fileType", "fileSize"],
 };
 
@@ -452,7 +452,7 @@ const updateProductIntoDb = async (
   payload: Record<string, any>,
   requester: TRequester
 ) => {
-  await getOwnedProduct(bookId, requester);
+  const existing = await getOwnedProduct(bookId, requester);
 
   const modifiedData: Record<string, unknown> = {};
 
@@ -486,6 +486,11 @@ const updateProductIntoDb = async (
       runValidators: true,
     }
   );
+
+  // A listing that just went live may be what someone asked to be told about.
+  if (result && result.isPublished && !existing.isPublished) {
+    await alertService.notifyForListing(result);
+  }
 
   return result;
 };

@@ -58,10 +58,10 @@ const normalisePhone = (v: string) => v.replace(/[\s-]/g, "").replace(/^\+?88/, 
 
 const STATUS_NOTE: Record<QuoteLine["status"], string | null> = {
   ok: null,
-  limited: "Fewer copies are available, so the quantity was lowered.",
-  soldOut: "Sold out. Remove it to continue.",
-  unavailable: "No longer available. Remove it to continue.",
-  own: "This is your own listing. Remove it to continue.",
+  limited: "এত কপি নেই, তাই সংখ্যা কমিয়ে দেওয়া হয়েছে।",
+  soldOut: "স্টকে নেই। এগোতে এটা সরিয়ে দাও।",
+  unavailable: "এটা আর পাওয়া যাচ্ছে না। এগোতে এটা সরিয়ে দাও।",
+  own: "এটা তোমার নিজের লিস্টিং। এগোতে এটা সরিয়ে দাও।",
 };
 
 const field =
@@ -94,7 +94,7 @@ const useDebounced = <T,>(value: T, ms = 300) => {
 };
 
 const Cart = () => {
-  usePageMeta("Your bag", undefined, undefined, { noindex: true });
+  usePageMeta("তোমার ব্যাগ", undefined, undefined, { noindex: true });
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const user = useAppSelector(selectCurrentUser) as TUser | null;
@@ -157,7 +157,7 @@ const Cart = () => {
     if (updates.length) dispatch(syncCartItems(updates));
     if (priceChanged && !announcedPriceChange.current) {
       announcedPriceChange.current = true;
-      toast.info("Some prices changed since you added them. Your bag shows the current prices.");
+      toast.info("তুমি যোগ করার পর কিছু বইয়ের দাম বদলেছে। ব্যাগে এখনকার দাম দেখানো হচ্ছে।");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quote]);
@@ -176,12 +176,12 @@ const Cart = () => {
 
   const validate = () => {
     const next: Record<string, string> = {};
-    if (form.recipientName.trim().length < 2) next.recipientName = "Enter the recipient's name.";
-    if (!PHONE_RE.test(normalisePhone(form.phone))) next.phone = "Enter a valid mobile number, e.g. 01712345678.";
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = "Enter a valid email.";
-    if (form.address.trim().length < 10) next.address = "Write the full address: house, road, area, district.";
+    if (form.recipientName.trim().length < 2) next.recipientName = "যে বই নেবে তার নাম লেখো।";
+    if (!PHONE_RE.test(normalisePhone(form.phone))) next.phone = "সঠিক মোবাইল নম্বর দাও, যেমন 01712345678।";
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = "সঠিক ইমেইল দাও।";
+    if (form.address.trim().length < 10) next.address = "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা।";
     if (needsTrx && !TRX_RE.test(form.trxId.trim().toUpperCase())) {
-      next.trxId = "Enter the transaction ID from your bKash confirmation SMS.";
+      next.trxId = "বিকাশের কনফার্মেশন SMS থেকে ট্রানজেকশন আইডি দাও।";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -192,7 +192,7 @@ const Cart = () => {
     setServerError("");
     if (!quote?.canCheckout || totalsPending) return;
     if (!validate()) {
-      toast.error("Please check the highlighted fields.");
+      toast.error("লাল চিহ্ন দেওয়া ঘরগুলো একবার দেখে নাও।");
       return;
     }
 
@@ -224,7 +224,7 @@ const Cart = () => {
       });
     } catch (err) {
       const message = (err as { data?: { message?: string } })?.data?.message;
-      setServerError(message || "Could not place the order. Please try again.");
+      setServerError(message || "অর্ডার করা যায়নি। আবার চেষ্টা করো।");
       refetch();
     }
   };
@@ -235,10 +235,10 @@ const Cart = () => {
         <span className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-stone-100 text-stone-400">
           <ShoppingBag size={36} aria-hidden="true" />
         </span>
-        <h1 className="font-display text-3xl font-bold text-stone-900">Your bag is empty</h1>
-        <p className="mt-2 text-stone-600">Find a book you need and add it here.</p>
+        <h1 className="font-display text-3xl font-bold text-stone-900">তোমার ব্যাগ খালি</h1>
+        <p className="mt-2 text-stone-600">দরকারি বই খুঁজে এখানে যোগ করো।</p>
         <Link to="/books" className="mt-6 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-stone-950 hover:bg-amber-300">
-          Browse books
+          বই দেখো
         </Link>
       </div>
     );
@@ -246,21 +246,21 @@ const Cart = () => {
 
   const summary = (
     <div className={`${card} space-y-3`}>
-      <h2 className="font-display text-lg font-bold text-stone-900">Order summary</h2>
+      <h2 className="font-display text-lg font-bold text-stone-900">অর্ডারের হিসাব</h2>
       <dl className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <dt className="text-stone-600">Items</dt>
+          <dt className="text-stone-600">বই</dt>
           <dd className="font-semibold text-stone-900">{quote ? taka(quote.subtotal) : "…"}</dd>
         </div>
         <div className="flex justify-between gap-3">
           <dt className="text-stone-600">
-            Delivery
-            {parcels > 1 && <span className="block text-xs text-stone-500">{parcels} sellers ship separately</span>}
+            ডেলিভারি
+            {parcels > 1 && <span className="block text-xs text-stone-500">{parcels} জন বিক্রেতা আলাদা করে পাঠাবে</span>}
           </dt>
-          <dd className="font-semibold text-stone-900">{quote ? (quote.shipping ? taka(quote.shipping) : "Free") : "…"}</dd>
+          <dd className="font-semibold text-stone-900">{quote ? (quote.shipping ? taka(quote.shipping) : "ফ্রি") : "…"}</dd>
         </div>
         <div className="flex justify-between border-t border-stone-200 pt-3 text-base">
-          <dt className="font-bold text-stone-900">Total</dt>
+          <dt className="font-bold text-stone-900">মোট</dt>
           <dd
             className={`font-display text-2xl font-bold text-stone-900 transition-opacity ${totalsPending ? "opacity-40" : ""}`}
             aria-live="polite"
@@ -273,12 +273,12 @@ const Cart = () => {
       {user && quote && (
         <dl className="space-y-1.5 rounded-xl bg-stone-50 p-3 text-sm">
           <div className="flex justify-between">
-            <dt className="text-stone-600">Pay now by bKash</dt>
+            <dt className="text-stone-600">এখন বিকাশে দাও</dt>
             <dd className="font-semibold text-stone-900">{taka(payNow)}</dd>
           </div>
           {payLater > 0 && (
             <div className="flex justify-between">
-              <dt className="text-stone-600">Pay on delivery</dt>
+              <dt className="text-stone-600">ডেলিভারির সময় দাও</dt>
               <dd className="font-semibold text-stone-900">{taka(payLater)}</dd>
             </div>
           )}
@@ -299,7 +299,7 @@ const Cart = () => {
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3.5 text-sm font-bold text-stone-950 transition hover:bg-amber-300 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50"
         >
           <Lock size={16} aria-hidden="true" />
-          {isPlacing ? "Placing order…" : totalsPending || !quote ? "Updating totals…" : `Place order · ${taka(quote.total)}`}
+          {isPlacing ? "অর্ডার হচ্ছে…" : totalsPending || !quote ? "হিসাব আপডেট হচ্ছে…" : `অর্ডার করো · ${taka(quote.total)}`}
         </button>
       ) : (
         <Link
@@ -307,11 +307,11 @@ const Cart = () => {
           state={{ from: "/cart" }}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3.5 text-sm font-bold text-stone-950 hover:bg-amber-300"
         >
-          Log in to check out
+          চেকআউট করতে লগইন করো
         </Link>
       )}
       {quote && !quote.canCheckout && (
-        <p className="text-center text-xs font-medium text-red-600">Fix the items marked in your bag to continue.</p>
+        <p className="text-center text-xs font-medium text-red-600">এগোতে ব্যাগে চিহ্ন দেওয়া বইগুলো ঠিক করো।</p>
       )}
     </div>
   );
@@ -319,12 +319,12 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-stone-50 font-sans">
       <div className="mx-auto max-w-6xl px-4 pb-32 pt-8 sm:px-6 lg:px-8 lg:pb-16 lg:pt-12">
-        <h1 className="font-display text-3xl font-bold text-stone-900 sm:text-4xl">Your bag</h1>
+        <h1 className="font-display text-3xl font-bold text-stone-900 sm:text-4xl">তোমার ব্যাগ</h1>
         <p className="mt-1 text-sm text-stone-500">
-          {items.reduce((s, i) => s + i.quantity, 0)} item{items.length === 1 && items[0].quantity === 1 ? "" : "s"}
+          {items.reduce((s, i) => s + i.quantity, 0)}টি বই
           {isError && (
             <button type="button" onClick={() => refetch()} className="ml-2 font-semibold text-red-600 underline">
-              Prices could not be checked. Retry
+              দাম যাচাই করা যায়নি। আবার চেষ্টা করো
             </button>
           )}
         </p>
@@ -363,14 +363,14 @@ const Cart = () => {
                             {item.bookTitle}
                           </Link>
                           <p className="mt-0.5 text-xs text-stone-500">
-                            {item.productType === "Digital" ? "Digital copy" : "Book"}
-                            {line?.seller?.name ? ` · Sold by ${line.seller.name}` : ""}
+                            {item.productType === "Digital" ? "ডিজিটাল কপি" : "বই"}
+                            {line?.seller?.name ? ` · বিক্রেতা: ${line.seller.name}` : ""}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => dispatch(removeFromCart(item.book))}
-                          aria-label={`Remove ${item.bookTitle}`}
+                          aria-label={`${item.bookTitle} সরিয়ে দাও`}
                           className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-stone-400 transition hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 size={16} aria-hidden="true" />
@@ -386,14 +386,14 @@ const Cart = () => {
 
                       <div className="mt-auto flex items-end justify-between gap-3 pt-3">
                         {item.productType === "Digital" ? (
-                          <span className="text-xs text-stone-500">1 copy</span>
+                          <span className="text-xs text-stone-500">১ কপি</span>
                         ) : (
-                          <div className="flex items-center rounded-xl border border-stone-200" role="group" aria-label="Quantity">
+                          <div className="flex items-center rounded-xl border border-stone-200" role="group" aria-label="সংখ্যা">
                             <button
                               type="button"
                               onClick={() => dispatch(updateQuantity({ productId: item.book, quantity: item.quantity - 1 }))}
                               disabled={item.quantity <= 1 || !!blocked}
-                              aria-label="One fewer"
+                              aria-label="একটা কমাও"
                               className="flex h-9 w-9 items-center justify-center text-stone-600 hover:text-stone-900 disabled:opacity-30"
                             >
                               <Minus size={14} aria-hidden="true" />
@@ -405,7 +405,7 @@ const Cart = () => {
                               type="button"
                               onClick={() => dispatch(updateQuantity({ productId: item.book, quantity: item.quantity + 1 }))}
                               disabled={item.quantity >= max || !!blocked}
-                              aria-label="One more"
+                              aria-label="একটা বাড়াও"
                               className="flex h-9 w-9 items-center justify-center text-stone-600 hover:text-stone-900 disabled:opacity-30"
                             >
                               <Plus size={14} aria-hidden="true" />
@@ -416,7 +416,7 @@ const Cart = () => {
                           <span className="block font-display text-base font-bold text-stone-900">
                             {taka(item.price * item.quantity)}
                           </span>
-                          {item.quantity > 1 && <span className="text-xs text-stone-500">{taka(item.price)} each</span>}
+                          {item.quantity > 1 && <span className="text-xs text-stone-500">প্রতিটা {taka(item.price)}</span>}
                         </p>
                       </div>
                     </div>
@@ -430,12 +430,12 @@ const Cart = () => {
                 {/* Delivery */}
                 <section className={card} aria-labelledby="delivery-heading">
                   <h2 id="delivery-heading" className="mb-5 flex items-center gap-2 font-display text-lg font-bold text-stone-900">
-                    <Truck size={20} aria-hidden="true" className="text-amber-500" /> Delivery details
+                    <Truck size={20} aria-hidden="true" className="text-amber-500" /> ডেলিভারির তথ্য
                   </h2>
 
                   {!digitalOnly && (
                     <fieldset className="mb-5">
-                      <legend className={labelClass}>Delivery area</legend>
+                      <legend className={labelClass}>ডেলিভারি এলাকা</legend>
                       <div className="grid grid-cols-2 gap-3">
                         {(["inside", "outside"] as const).map((value) => (
                           <label
@@ -453,9 +453,9 @@ const Cart = () => {
                               className="sr-only"
                             />
                             <span className="text-sm font-semibold text-stone-900">
-                              {value === "inside" ? "Inside Chattogram" : "Outside Chattogram"}
+                              {value === "inside" ? "চট্টগ্রামের ভেতরে" : "চট্টগ্রামের বাইরে"}
                             </span>
-                            <span className="text-xs text-stone-500">{taka(SHIPPING_RATES[value])} per seller</span>
+                            <span className="text-xs text-stone-500">প্রতি বিক্রেতা {taka(SHIPPING_RATES[value])}</span>
                           </label>
                         ))}
                       </div>
@@ -464,7 +464,7 @@ const Cart = () => {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="recipientName" className={labelClass}>Recipient's name</label>
+                      <label htmlFor="recipientName" className={labelClass}>যে নেবে তার নাম</label>
                       <input
                         id="recipientName"
                         value={form.recipientName}
@@ -477,7 +477,7 @@ const Cart = () => {
                       {errors.recipientName && <p className="mt-1 text-xs text-red-600">{errors.recipientName}</p>}
                     </div>
                     <div>
-                      <label htmlFor="phone" className={labelClass}>Mobile number</label>
+                      <label htmlFor="phone" className={labelClass}>মোবাইল নম্বর</label>
                       <input
                         id="phone"
                         type="tel"
@@ -492,7 +492,7 @@ const Cart = () => {
                       {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
                     </div>
                     <div className="sm:col-span-2">
-                      <label htmlFor="email" className={labelClass}>Email for the receipt</label>
+                      <label htmlFor="email" className={labelClass}>রসিদের জন্য ইমেইল</label>
                       <input
                         id="email"
                         type="email"
@@ -506,7 +506,7 @@ const Cart = () => {
                     </div>
                     <div className="sm:col-span-2">
                       <label htmlFor="address" className={labelClass}>
-                        {digitalOnly ? "Address" : "Full delivery address"}
+                        {digitalOnly ? "ঠিকানা" : "ডেলিভারির পুরো ঠিকানা"}
                       </label>
                       <textarea
                         id="address"
@@ -515,7 +515,7 @@ const Cart = () => {
                         onChange={(e) => set("address", e.target.value)}
                         autoComplete="street-address"
                         maxLength={300}
-                        placeholder="House, road, area, thana, district"
+                        placeholder="বাসা, রোড, এলাকা, থানা, জেলা"
                         aria-invalid={!!errors.address}
                         className={`${field} ${errors.address ? "border-red-400" : ""}`}
                       />
@@ -523,14 +523,14 @@ const Cart = () => {
                     </div>
                     <div className="sm:col-span-2">
                       <label htmlFor="note" className={labelClass}>
-                        Note for us <span className="font-normal text-stone-500">(optional)</span>
+                        আমাদের জন্য নোট <span className="font-normal text-stone-500">(না দিলেও চলবে)</span>
                       </label>
                       <input
                         id="note"
                         value={form.note}
                         onChange={(e) => set("note", e.target.value)}
                         maxLength={500}
-                        placeholder="e.g. call before delivery"
+                        placeholder="যেমন: ডেলিভারির আগে কল দিও"
                         className={field}
                       />
                     </div>
@@ -540,21 +540,21 @@ const Cart = () => {
                 {/* Payment */}
                 <section className={card} aria-labelledby="payment-heading">
                   <h2 id="payment-heading" className="mb-5 flex items-center gap-2 font-display text-lg font-bold text-stone-900">
-                    <Wallet size={20} aria-hidden="true" className="text-amber-500" /> Payment
+                    <Wallet size={20} aria-hidden="true" className="text-amber-500" /> পেমেন্ট
                   </h2>
 
                   <fieldset className="space-y-3">
-                    <legend className="sr-only">Payment method</legend>
+                    <legend className="sr-only">পেমেন্টের ধরন</legend>
                     {(
                       [
                         {
                           value: "cod",
-                          title: "Cash on delivery",
+                          title: "ক্যাশ অন ডেলিভারি",
                           desc: REQUIRE_ADVANCE_DELIVERY_CHARGE
-                            ? "Send the delivery charge by bKash now, pay for the books when they arrive."
-                            : "Pay everything when your order arrives.",
+                            ? "ডেলিভারি চার্জ এখন বিকাশে পাঠাও, বইয়ের দাম দেবে বই হাতে পেলে।"
+                            : "অর্ডার হাতে পেলে পুরো টাকা দাও।",
                         },
-                        { value: "bkash", title: "Pay in full by bKash", desc: "Send the whole amount now." },
+                        { value: "bkash", title: "বিকাশে পুরো টাকা দাও", desc: "পুরো টাকা এখনই পাঠাও।" },
                       ] as const
                     ).map((option) => {
                       const disabled = option.value === "cod" && digitalOnly;
@@ -578,7 +578,7 @@ const Cart = () => {
                           <span>
                             <span className="block text-sm font-semibold text-stone-900">{option.title}</span>
                             <span className="block text-xs text-stone-500">
-                              {disabled ? "Not available for digital items." : option.desc}
+                              {disabled ? "ডিজিটাল বইয়ের জন্য এটা চলবে না।" : option.desc}
                             </span>
                           </span>
                         </label>
@@ -590,20 +590,20 @@ const Cart = () => {
                     <div className="mt-5 rounded-xl border border-pink-200 bg-pink-50 p-4">
                       <ol className="list-decimal space-y-1 pl-5 text-sm text-stone-700">
                         <li>
-                          Open bKash and <strong>Send Money</strong> to <strong className="whitespace-nowrap">{BKASH_NUMBER}</strong>.
+                          বিকাশ অ্যাপ খুলে <strong className="whitespace-nowrap">{BKASH_NUMBER}</strong> নম্বরে <strong>সেন্ড মানি</strong> করো।
                         </li>
                         <li>
-                          Send exactly <strong>{quote ? taka(payNow) : "…"}</strong>
-                          {effectiveMethod === "cod" ? " (the delivery charge)." : " (your order total)."}
+                          ঠিক <strong>{quote ? taka(payNow) : "…"}</strong> পাঠাও
+                          {effectiveMethod === "cod" ? " (ডেলিভারি চার্জ)।" : " (অর্ডারের মোট টাকা)।"}
                         </li>
-                        <li>Enter the transaction ID from the confirmation SMS below.</li>
+                        <li>কনফার্মেশন SMS-এর ট্রানজেকশন আইডি নিচে লেখো।</li>
                       </ol>
-                      <label htmlFor="trxId" className={`${labelClass} mt-4`}>bKash transaction ID</label>
+                      <label htmlFor="trxId" className={`${labelClass} mt-4`}>বিকাশ ট্রানজেকশন আইডি</label>
                       <input
                         id="trxId"
                         value={form.trxId}
                         onChange={(e) => set("trxId", e.target.value.toUpperCase().replace(/\s/g, ""))}
-                        placeholder="e.g. 8N7X654WQA"
+                        placeholder="যেমন: 8N7X654WQA"
                         maxLength={12}
                         autoComplete="off"
                         aria-invalid={!!errors.trxId}
@@ -611,7 +611,7 @@ const Cart = () => {
                       />
                       {errors.trxId && <p className="mt-1 text-xs text-red-600">{errors.trxId}</p>}
                       <p className="mt-2 text-xs text-stone-500">
-                        We check every payment before confirming the order. Each transaction ID can be used once.
+                        অর্ডার নিশ্চিত করার আগে আমরা প্রতিটা পেমেন্ট যাচাই করি। একটা ট্রানজেকশন আইডি একবারই ব্যবহার করা যায়।
                       </p>
                     </div>
                   )}
@@ -619,8 +619,8 @@ const Cart = () => {
               </form>
             ) : (
               <div className={`${card} text-center`}>
-                <p className="font-semibold text-stone-900">Log in to check out</p>
-                <p className="mt-1 text-sm text-stone-600">Your bag is saved on this device and will be here after you log in.</p>
+                <p className="font-semibold text-stone-900">চেকআউট করতে লগইন করো</p>
+                <p className="mt-1 text-sm text-stone-600">তোমার ব্যাগ এই ডিভাইসে সেভ আছে, লগইন করার পরও এখানেই থাকবে।</p>
               </div>
             )}
           </div>

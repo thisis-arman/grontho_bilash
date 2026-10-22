@@ -14,9 +14,15 @@ export const uniqueSlug = async (
   source: string,
   excludeId?: string
 ): Promise<string> => {
-  const base =
-    slugify(source, { lower: true, strict: true, trim: true }).slice(0, 80) ||
-    `post-${Math.random().toString(36).slice(2, 8)}`;
+  // Repeated words ("hsc-2024-hsc") are dropped.
+  const latin = [...new Set(slugify(source, { lower: true, strict: true, trim: true }).split("-"))]
+    .filter(Boolean)
+    .join("-")
+    .slice(0, 80);
+  const token = Math.random().toString(36).slice(2, 8);
+  // Mostly-Bangla titles keep only their few Latin letters ("bba"), which
+  // say little and clash often, so short ones get a random token too.
+  const base = !latin ? `post-${token}` : latin.length < 12 ? `${latin}-${token}` : latin;
 
   let candidate = base;
   for (let n = 2; ; n++) {

@@ -1,30 +1,32 @@
 import { z } from "zod";
 
 const email = z
-  .string({ required_error: "Email is required" })
+  .string({ required_error: "ইমেইল দিতে হবে" })
   .trim()
   .toLowerCase()
-  .email("Please enter a valid email address");
+  .email("অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দাও");
 
 const loginValidationSchema = z.object({
   email,
-  password: z.string({ required_error: "Password is required" }).min(1).max(128),
+  password: z.string({ required_error: "পাসওয়ার্ড দিতে হবে" }).min(1, "পাসওয়ার্ড দিতে হবে").max(128, "পাসওয়ার্ড সর্বোচ্চ ১২৮ অক্ষরের হতে পারে"),
 });
 const forgotPasswordValidationSchema = z.object({
   email,
 });
 const resetPasswordValidationSchema = z.object({
   email,
-  otp: z.union([z.string(), z.number()]),
+  otp: z.union([z.string(), z.number()], {
+    errorMap: () => ({ message: "OTP কোডটি দিতে হবে" }),
+  }),
   newPassword: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+    .string({ required_error: "নতুন পাসওয়ার্ড দিতে হবে" })
+    .min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে" }),
 });
 const changePasswordValidationSchema = z.object({
-  oldPassword: z.string({ required_error: "Old password is required" }),
+  oldPassword: z.string({ required_error: "পুরনো পাসওয়ার্ড দিতে হবে" }),
   newPassword: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+    .string({ required_error: "নতুন পাসওয়ার্ড দিতে হবে" })
+    .min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে" }),
 });
 
 export const authValidationsSchema = {
