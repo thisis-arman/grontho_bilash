@@ -29,6 +29,10 @@ const prerenderHome = (): Plugin => {
 
 export default defineConfig({
   plugins: [react(), prerenderHome()],
+  define: {
+    // True only for Vercel preview builds (see src/config/api.ts).
+    __VERCEL_PREVIEW__: JSON.stringify(process.env.VERCEL_ENV === "preview"),
+  },
   test: {
     globals: true,
     environment: "jsdom",
