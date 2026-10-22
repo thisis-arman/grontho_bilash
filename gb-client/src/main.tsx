@@ -8,6 +8,10 @@ import router from './routes/route';
 import { RouterProvider } from 'react-router-dom';
 import ThemeProvider from './theme/ThemeProvider';
 import { Analytics } from '@vercel/analytics/react';
+import { initInstall } from './pwa/install';
+
+// Service worker + "install app" support (see src/pwa/install.ts).
+initInstall();
 
 const host = document.getElementById('root')!;
 

@@ -6,6 +6,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { selectCurrentUser } from "../../redux/features/auth/authSlice";
 import ScrollToTop from "../../utils/ScrollToTop";
 import { useCanonicalUrl } from "../../utils/usePageMeta";
+import InstallBanner from "../../pwa/InstallBanner";
 
 const MainLayout = () => {
     const user = useAppSelector(selectCurrentUser);
@@ -21,6 +22,7 @@ const MainLayout = () => {
                 </Suspense>
             </div>
             <Footer />
+            <InstallBanner />
         </div>
     );
 };

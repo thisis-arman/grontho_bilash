@@ -1,16 +1,46 @@
 {
-  "name": "Grontho Bilash — Buy & Sell Used Books",
-  "short_name": "Grontho Bilash",
-  "description": "Buy and sell used books, notes and exam suggestions in Bangladesh.",
+  "id": "/",
+  "name": "গ্রন্থবিলাস – পুরনো বই কেনাবেচা",
+  "short_name": "গ্রন্থবিলাস",
+  "description": "কম দামে পুরনো বই কেনো, পড়া শেষের বই বিক্রি করো। ফ্রি পরীক্ষার সাজেশন, নোট ও স্টুডেন্ট টুলস।",
   "lang": "bn",
-  "start_url": "/",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0c0a09",
   "theme_color": "#0c0a09",
+  "categories": ["books", "education", "shopping"],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "বই খুঁজো",
+      "short_name": "বই",
+      "url": "/books?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "পরীক্ষার সাজেশন",
+      "short_name": "সাজেশন",
+      "url": "/suggestions?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "স্টুডেন্ট টুলস",
+      "short_name": "টুলস",
+      "url": "/tools?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "আমার ব্যাগ",
+      "short_name": "ব্যাগ",
+      "url": "/cart?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }
