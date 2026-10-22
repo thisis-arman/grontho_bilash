@@ -26,8 +26,9 @@ const TEXT_FIELDS = [
   { key: "department", label: "Department", placeholder: "Accounting" },
   { key: "academicYear", label: "Year / class", placeholder: "4th Year" },
   { key: "examYear", label: "Exam year", placeholder: "2026" },
-  { key: "institution", label: "Board / institution", placeholder: "National University" },
+  { key: "institution", label: "Board / university / exam", placeholder: "ঢাকা বোর্ড, জাতীয় বিশ্ববিদ্যালয়, ৪৬তম বিসিএস" },
   { key: "preparedBy", label: "Prepared by", placeholder: "Teacher's name" },
+  { key: "source", label: "Source (shown to readers)", placeholder: "ঢাকা শিক্ষা বোর্ডের মূল প্রশ্নপত্র" },
 ] as const;
 
 type TextKey = (typeof TEXT_FIELDS)[number]["key"];
@@ -58,6 +59,7 @@ const EMPTY: Draft = {
   examYear: "",
   institution: "",
   preparedBy: "",
+  source: "",
 };
 
 const fromSuggestion = (s: Suggestion): Draft => ({

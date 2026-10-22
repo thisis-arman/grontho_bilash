@@ -33,6 +33,14 @@ router.get(
 );
 
 router.get(
+  "/hub",
+  catchAsync(async (req, res) => {
+    res.set("Cache-Control", "public, max-age=120, s-maxage=300");
+    ok(res, await suggestionService.getHub(req.query.kind), "Hub");
+  })
+);
+
+router.get(
   "/slug/:slug",
   catchAsync(async (req, res) => ok(res, await suggestionService.getPublishedBySlug(req.params.slug, req.query.kind), "Suggestion fetched"))
 );
@@ -49,6 +57,12 @@ router.get(
   "/admin/all",
   adminOnly,
   catchAsync(async (req, res) => ok(res, await suggestionService.listForAdmin(req.query), "Suggestions fetched"))
+);
+
+router.post(
+  "/admin/import-practice",
+  adminOnly,
+  catchAsync(async (req, res) => ok(res, await suggestionService.importPractice(req.user.id), "Practice sets imported"))
 );
 
 router.get(

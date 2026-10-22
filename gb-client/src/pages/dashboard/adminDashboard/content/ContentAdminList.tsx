@@ -48,6 +48,7 @@ function ContentAdminList<T extends ContentRow>({
   useList,
   useDelete,
   subtitle,
+  extraAction,
 }: {
   title: string;
   description: string;
@@ -64,6 +65,8 @@ function ContentAdminList<T extends ContentRow>({
   };
   useDelete: () => readonly [(id: string) => { unwrap: () => Promise<unknown> }, { isLoading: boolean }];
   subtitle: (row: T) => ReactNode;
+  // Optional extra header button (e.g. an import).
+  extraAction?: ReactNode;
 }) {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -136,9 +139,12 @@ function ContentAdminList<T extends ContentRow>({
         title={title}
         desc={description}
         action={
-          <Link to={`${basePath}/new`} className={btn.primary}>
-            <Plus size={16} aria-hidden="true" /> {newLabel}
-          </Link>
+          <>
+            {extraAction}
+            <Link to={`${basePath}/new`} className={btn.primary}>
+              <Plus size={16} aria-hidden="true" /> {newLabel}
+            </Link>
+          </>
         }
       />
 

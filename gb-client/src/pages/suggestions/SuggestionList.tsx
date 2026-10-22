@@ -11,6 +11,7 @@ import Pagination from "../../utils/Pagination";
 import { usePageMeta } from "../../utils/usePageMeta";
 import { bnNumber, examLevelLabel } from "../../i18n/labels";
 import WhatsAppButton from "../../components/WhatsAppButton";
+import QuestionHub from "./QuestionHub";
 
 // The same list serves two kinds of exam material: suggestions (/suggestions)
 // and past question papers (/questions).
@@ -160,6 +161,9 @@ const SuggestionList = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
   const hasFilters = ["search", "level", "department", "subject", "year", "files", "institution", "examYear"].some((k) =>
     params.get(k)
   );
+  // The question bank opens on a category overview; any search or filter
+  // (or "all=1") switches to the list.
+  const showHub = kind === "question" && !hasFilters && !params.get("all") && !params.get("sort");
 
   // Questions are found by board/university and year; suggestions by
   // department and academic year.
@@ -211,6 +215,15 @@ const SuggestionList = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
           />
         </div>
 
+        {showHub ? (
+          <QuestionHub />
+        ) : (
+        <>
+        {kind === "question" && (
+          <Link to="/questions" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-amber-700 hover:underline">
+            ← সব বিভাগ
+          </Link>
+        )}
         <nav aria-label="পরীক্ষার ধরন" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
           <button type="button" onClick={() => update({ level: null })} aria-pressed={!get("level")} className={chip(!get("level"))}>
             সব
@@ -321,6 +334,8 @@ const SuggestionList = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
               </div>
             )}
           </>
+        )}
+        </>
         )}
       </div>
     </div>

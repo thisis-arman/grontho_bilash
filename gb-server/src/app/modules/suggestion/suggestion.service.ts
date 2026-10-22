@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import AppError from "../../errors/AppError";
 import { escapeRegex, pageMeta, pageParams, uniqueSlug } from "../../utils/content";
 import { SuggestionModel, TSuggestion } from "./suggestion.model";
+import { BCS_PRACTICE_SETS, practiceBody } from "./data/bcsPractice";
 
 type SuggestionInput = Partial<
   Omit<TSuggestion, "author" | "views" | "downloads" | "isDeleted" | "publishedAt">
@@ -37,6 +38,7 @@ const createSuggestion = async (payload: SuggestionInput, authorId: string) => {
   const status = payload.status ?? "draft";
   if (status === "published") assertPublishable(payload);
 
+  clearHub();
   return SuggestionModel.create({
     ...payload,
     status,
@@ -64,6 +66,7 @@ const updateSuggestion = async (id: string, payload: SuggestionInput) => {
   Object.assign(item, payload);
   if (item.status === "published" && !item.publishedAt) item.publishedAt = new Date();
   await item.save();
+  clearHub();
   return item;
 };
 
@@ -71,6 +74,7 @@ const deleteSuggestion = async (id: string) => {
   const item = await getOrThrow(id);
   item.isDeleted = true;
   await item.save();
+  clearHub();
   return null;
 };
 
@@ -151,6 +155,74 @@ const recordDownload = async (slug: string) => {
   return null;
 };
 
+// Overview for the question bank / suggestions landing page: how many items
+// each level has, the most-covered boards/universities/exams per level, the
+// exam years available, and the newest items.
+let hubCache: Record<string, { at: number; data: unknown }> = {};
+const getHub = async (kind?: unknown) => {
+  const key = kind === "question" ? "question" : "suggestion";
+  const hit = hubCache[key];
+  if (hit && Date.now() - hit.at < 5 * 60_000) return hit.data;
+  const match = { ...PUBLIC_FILTER, ...kindFilter(kind) };
+  const [levels, institutions, years, recent, total] = await Promise.all([
+    SuggestionModel.aggregate([{ $match: match }, { $group: { _id: "$level", count: { $sum: 1 } } }]),
+    SuggestionModel.aggregate([
+      { $match: { ...match, institution: { $nin: [null, ""] } } },
+      { $group: { _id: { level: "$level", institution: "$institution" }, count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 60 },
+    ]),
+    SuggestionModel.aggregate([
+      { $match: { ...match, examYear: { $nin: [null, ""] } } },
+      { $group: { _id: "$examYear", count: { $sum: 1 } } },
+      { $sort: { _id: -1 } },
+      { $limit: 20 },
+    ]),
+    SuggestionModel.find(match).select(LIST_FIELDS).sort({ publishedAt: -1 }).limit(6).lean(),
+    SuggestionModel.countDocuments(match),
+  ]);
+  const data = {
+    total,
+    levels: levels.map((l) => ({ name: l._id as string, count: l.count as number })),
+    institutions: institutions.map((i) => ({ level: i._id.level as string, name: i._id.institution as string, count: i.count as number })),
+    years: years.map((y) => ({ name: y._id as string, count: y.count as number })),
+    recent,
+  };
+  hubCache[key] = { at: Date.now(), data };
+  return data;
+};
+const clearHub = () => {
+  hubCache = {};
+};
+
+// Adds the team-written BCS preliminary practice sets (data/bcsPractice.ts)
+// as drafts, so an admin reviews each one before publishing. Sets that
+// already exist (same slug, even if edited or deleted) are left alone.
+const importPractice = async (authorId: string) => {
+  let added = 0;
+  for (const set of BCS_PRACTICE_SETS) {
+    if (await SuggestionModel.exists({ slug: set.slug })) continue;
+    await SuggestionModel.create({
+      kind: "suggestion",
+      slug: set.slug,
+      title: set.title,
+      summary: set.summary,
+      body: practiceBody(set),
+      level: "Job Exam",
+      subject: set.subject,
+      institution: "বিসিএস প্রিলিমিনারি",
+      preparedBy: "গ্রন্থবিলাস টিম",
+      source: "গ্রন্থবিলাস টিমের তৈরি অনুশীলনী (বিগত সালের প্রশ্ন নয়)",
+      tags: set.tags,
+      status: "draft",
+      author: authorId,
+    });
+    added++;
+  }
+  clearHub();
+  return { added, total: BCS_PRACTICE_SETS.length, questions: BCS_PRACTICE_SETS.reduce((n, s) => n + s.questions.length, 0) };
+};
+
 // ── Admin ────────────────────────────────────────────────────────────────
 
 const listForAdmin = async (query: Record<string, unknown>) => {
@@ -180,4 +252,6 @@ export const suggestionService = {
   recordDownload,
   listForAdmin,
   getForAdmin: getOrThrow,
+  getHub,
+  importPractice,
 };
