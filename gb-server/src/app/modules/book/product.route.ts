@@ -17,7 +17,7 @@ router.get("/shop-facets", bookController.getShopFacets);
 router.get(
   "/admin/all-products",
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  bookController.getProductsForAdmin
+  bookController.getProductsForAdmin,
 );
 router.get("/products", bookController.getProductsByCategories);
 router.get("/products/:slug", bookController.getProductBySlug);
@@ -35,13 +35,23 @@ router.post(
   async (req, res): Promise<void> => {
     try {
       const path = req.file?.path;
-
+      console.log(11,
+        config.cloudinary_api_secret,
+        config.cloudinary_api_key,
+        config.cloudinary_cloud_name,
+      );
       if (!path) {
         res.status(400).json({ error: "Image file is required." });
         return;
       }
-      if (!config.cloudinary_cloud_name || !config.cloudinary_api_key || !config.cloudinary_api_secret) {
-        res.status(503).json({ error: "File uploads are not configured on the server" });
+      if (
+        !config.cloudinary_cloud_name ||
+        !config.cloudinary_api_key ||
+        !config.cloudinary_api_secret
+      ) {
+        res
+          .status(503)
+          .json({ error: "File uploads are not configured on the server" });
         return;
       }
 
@@ -53,7 +63,7 @@ router.post(
       console.error("Error uploading image:", error);
       res.status(500).json({ error: "Failed to upload image" });
     }
-  }
+  },
 );
 
 router.post("/create-product", anyUser, bookController.createProduct);

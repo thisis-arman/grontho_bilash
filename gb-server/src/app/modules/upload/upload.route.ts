@@ -28,16 +28,31 @@ router.post(
   Auth(USER_ROLE.admin, USER_ROLE.superAdmin),
   catchAsync(async (req, res) => {
     const folder = FOLDERS[String(req.body?.purpose)];
+    console.log(
+      config.cloudinary_api_secret,
+      config.cloudinary_api_key,
+      config.cloudinary_cloud_name,
+    );
     if (!folder) {
       throw new AppError(httpStatus.BAD_REQUEST, "Unknown upload purpose");
     }
-    if (!config.cloudinary_api_secret || !config.cloudinary_api_key || !config.cloudinary_cloud_name) {
-      throw new AppError(httpStatus.SERVICE_UNAVAILABLE, "File uploads are not configured on the server");
+    if (
+      !config.cloudinary_api_secret ||
+      !config.cloudinary_api_key ||
+      !config.cloudinary_cloud_name
+    ) {
+      throw new AppError(
+        httpStatus.SERVICE_UNAVAILABLE,
+        "File uploads are not configured on the server",
+      );
     }
 
     const timestamp = Math.round(Date.now() / 1000);
     const params = { timestamp, folder, allowed_formats: ALLOWED_FORMATS };
-    const signature = cloudinary.utils.api_sign_request(params, config.cloudinary_api_secret);
+    const signature = cloudinary.utils.api_sign_request(
+      params,
+      config.cloudinary_api_secret,
+    );
 
     sendResponse(res, {
       statusCode: 200,
@@ -50,7 +65,7 @@ router.post(
         cloudName: config.cloudinary_cloud_name,
       },
     });
-  })
+  }),
 );
 
 export const uploadRoutes = router;
