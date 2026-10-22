@@ -49,6 +49,7 @@ const allowedOrigins = [
   "https://gronthobilash.com",
   "https://www.gronthobilash.com",
   "https://gronthobilash.vercel.app",
+  "https://grontho-bilash-hpt4.vercel.app",
   // Optional extra origins for local testing, e.g. "http://localhost:5174".
   ...(process.env.EXTRA_CORS_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean),
 ];
@@ -57,11 +58,13 @@ const corsOptions = {
   origin: (origin: any, callback: any) => {
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+    // Other origins get no CORS headers (so browsers can't read responses)
+    // rather than a 400 error. Requests that reach us through the website's
+    // own /api-proxy rewrite (Vercel previews) carry the preview's Origin but
+    // are same-origin for the browser, so they must not be rejected here.
+    // Logged-in requests stay protected: they need the Authorization header,
+    // which triggers a preflight that only allowed origins pass.
+    callback(null, allowedOrigins.includes(origin));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
