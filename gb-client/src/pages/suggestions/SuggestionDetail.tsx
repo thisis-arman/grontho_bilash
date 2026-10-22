@@ -11,6 +11,7 @@ import {
 } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
 import { articleJsonLd } from "../../utils/structuredData";
+import { SITE_URL } from "../../utils/usePageMeta";
 import { KIND_TEXT, SuggestionCard } from "./SuggestionList";
 import { bnNumber, examLevelLabel } from "../../i18n/labels";
 import WhatsAppButton from "../../components/WhatsAppButton";
@@ -35,14 +36,29 @@ const SuggestionDetail = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
   usePageMeta(item ? `${item.title}${kind === "question" ? " – বিগত সালের প্রশ্ন" : " – সাজেশন"}` : undefined, item?.summary || (item ? `${item.subject} ${text.noun}, ফ্রি PDF ডাউনলোড।` : undefined), undefined, {
     type: "article",
     jsonLd: item
-      ? articleJsonLd({
-          title: item.title,
-          path: `${text.path}/${item.slug}`,
-          description: item.summary,
-          authorName: item.preparedBy,
-          publishedAt: item.publishedAt,
-          updatedAt: item.updatedAt,
-        })
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            (({ "@context": _ctx, ...article }) => article)(
+              articleJsonLd({
+                title: item.title,
+                path: `${text.path}/${item.slug}`,
+                description: item.summary,
+                authorName: item.preparedBy,
+                publishedAt: item.publishedAt,
+                updatedAt: item.updatedAt,
+              })
+            ),
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: text.title, item: `${SITE_URL}${text.path}` },
+                { "@type": "ListItem", position: 2, name: examLevelLabel(item.level), item: `${SITE_URL}${text.path}?level=${encodeURIComponent(item.level)}` },
+                { "@type": "ListItem", position: 3, name: item.title, item: `${SITE_URL}${text.path}/${item.slug}` },
+              ],
+            },
+          ],
+        }
       : null,
   });
 
@@ -80,17 +96,37 @@ const SuggestionDetail = ({ kind = "suggestion" }: { kind?: ContentKind }) => {
     ["প্রোগ্রাম", item.program],
     ["বিভাগ", item.department],
     ["বর্ষ", item.academicYear],
-    [kind === "question" ? "সাল" : "পরীক্ষার সাল", item.examYear],
+    [kind === "question" ? "সাল" : "পরীক্ষার সাল", item.examYear ? bnNumber(item.examYear) : undefined],
     [kind === "question" ? "বোর্ড / প্রতিষ্ঠান" : "প্রতিষ্ঠান", item.institution],
     ["তৈরি করেছেন", item.preparedBy],
+    ["উৎস", item.source],
+    ["সর্বশেষ হালনাগাদ", item.updatedAt ? new Date(item.updatedAt).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" }) : undefined],
   ].filter(([, value]) => value);
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans">
       <div className="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6 lg:pt-14">
-        <Link to={text.path} className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900">
-          <ArrowLeft size={16} aria-hidden="true" /> সব {text.noun}
-        </Link>
+        {/* Breadcrumb: প্রশ্ন ব্যাংক › এইচএসসি › ঢাকা বোর্ড */}
+        <nav aria-label="অবস্থান" className="flex flex-wrap items-center gap-1.5 text-sm text-stone-500">
+          <Link to={text.path} className="inline-flex items-center gap-1.5 font-medium hover:text-stone-900">
+            <ArrowLeft size={16} aria-hidden="true" /> {kind === "question" ? "প্রশ্ন ব্যাংক" : "সাজেশন"}
+          </Link>
+          <span aria-hidden="true">›</span>
+          <Link to={`${text.path}?level=${encodeURIComponent(item.level)}`} className="hover:text-stone-900">
+            {examLevelLabel(item.level)}
+          </Link>
+          {item.institution && (
+            <>
+              <span aria-hidden="true">›</span>
+              <Link
+                to={`${text.path}?level=${encodeURIComponent(item.level)}&institution=${encodeURIComponent(item.institution)}`}
+                className="hover:text-stone-900"
+              >
+                {item.institution}
+              </Link>
+            </>
+          )}
+        </nav>
 
         <header className="mt-6">
           <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">

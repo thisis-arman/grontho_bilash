@@ -53,6 +53,7 @@ export interface Suggestion {
   examYear?: string;
   institution?: string;
   preparedBy?: string;
+  source?: string;
   tags: string[];
   status: ContentStatus;
   publishedAt?: string;
@@ -132,6 +133,23 @@ export const contentApi = baseApi.injectEndpoints({
       query: ({ slug, kind }) => ({ url: `/suggestions/slug/${encodeURIComponent(slug)}`, params: clean({ kind }) }),
       providesTags: ["Suggestions"],
     }),
+    getContentHub: builder.query<
+      Envelope<{
+        total: number;
+        levels: FacetValue[];
+        institutions: { level: string; name: string; count: number }[];
+        years: FacetValue[];
+        recent: Suggestion[];
+      }>,
+      ContentKind
+    >({
+      query: (kind) => ({ url: "/suggestions/hub", params: { kind } }),
+      providesTags: ["Suggestions"],
+    }),
+    importPracticeSets: builder.mutation<Envelope<{ added: number; total: number; questions: number }>, void>({
+      query: () => ({ url: "/suggestions/admin/import-practice", method: "POST" }),
+      invalidatesTags: ["Suggestions"],
+    }),
     recordSuggestionDownload: builder.mutation<Envelope<null>, string>({
       query: (slug) => ({ url: `/suggestions/slug/${encodeURIComponent(slug)}/download`, method: "POST" }),
     }),
@@ -178,6 +196,8 @@ export const {
   useGetSuggestionFiltersQuery,
   useGetSuggestionQuery,
   useRecordSuggestionDownloadMutation,
+  useGetContentHubQuery,
+  useImportPracticeSetsMutation,
   useGetAdminSuggestionsQuery,
   useGetAdminSuggestionQuery,
   useSaveSuggestionMutation,

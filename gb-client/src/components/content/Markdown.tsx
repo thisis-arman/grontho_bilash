@@ -6,6 +6,11 @@ import remarkGfm from "remark-gfm";
 
 const isExternal = (href = "") => /^https?:\/\//.test(href) && !href.includes("gronthobilash.com");
 
+// Plain text of a markdown (hast) node.
+type HastNode = { type?: string; value?: string; children?: HastNode[] };
+const textOf = (node?: HastNode): string =>
+  !node ? "" : node.type === "text" ? node.value ?? "" : (node.children ?? []).map(textOf).join("");
+
 const components: Components = {
   h1: ({ children }) => <h2 className="mb-4 mt-10 font-display text-2xl font-bold text-stone-900 sm:text-3xl">{children}</h2>,
   h2: ({ children }) => <h2 className="mb-4 mt-10 font-display text-2xl font-bold text-stone-900 sm:text-[1.75rem]">{children}</h2>,
@@ -24,9 +29,20 @@ const components: Components = {
   ul: ({ children }) => <ul className="my-5 list-disc space-y-2 pl-6 text-stone-700 marker:text-amber-500">{children}</ul>,
   ol: ({ children }) => <ol className="my-5 list-decimal space-y-2 pl-6 text-stone-700 marker:font-semibold marker:text-stone-500">{children}</ol>,
   li: ({ children }) => <li className="pl-1 leading-relaxed">{children}</li>,
-  blockquote: ({ children }) => (
-    <blockquote className="my-6 border-l-4 border-amber-400 bg-amber-50/60 py-1 pl-5 pr-3 italic text-stone-700">{children}</blockquote>
-  ),
+  // A quote that starts with "উত্তর" is a practice-question answer: hidden
+  // until the reader taps, so they can try the question first.
+  blockquote: ({ node, children }) =>
+    /^\s*উত্তর/.test(textOf(node)) ? (
+      <details className="group my-4 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-2 not-italic">
+        <summary className="cursor-pointer list-none py-1 text-sm font-semibold text-emerald-800 marker:hidden">
+          <span className="group-open:hidden">উত্তর ও ব্যাখ্যা দেখো ▾</span>
+          <span className="hidden group-open:inline">উত্তর ও ব্যাখ্যা ▴</span>
+        </summary>
+        <div className="text-stone-700 [&>p]:my-2">{children}</div>
+      </details>
+    ) : (
+      <blockquote className="my-6 border-l-4 border-amber-400 bg-amber-50/60 py-1 pl-5 pr-3 italic text-stone-700">{children}</blockquote>
+    ),
   hr: () => <hr className="my-10 border-stone-200" />,
   img: ({ src, alt }) => (
     <figure className="my-8">

@@ -67,6 +67,7 @@ export const EXAM_LEVEL_LABELS: Record<string, string> = {
   SSC: "এসএসসি",
   HSC: "এইচএসসি",
   Honours: "অনার্স",
+  Degree: "ডিগ্রি (পাস)",
   Masters: "মাস্টার্স",
   "Admission Test": "ভর্তি পরীক্ষা",
   "Job Exam": "চাকরির পরীক্ষা",

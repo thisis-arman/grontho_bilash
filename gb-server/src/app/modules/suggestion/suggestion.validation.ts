@@ -49,6 +49,7 @@ const suggestionFields = {
   examYear: optionalText(40),
   institution: optionalText(120),
   preparedBy: optionalText(80),
+  source: optionalText(200),
   tags: z
     .array(z.string().trim().toLowerCase().min(1).max(30))
     .max(10)

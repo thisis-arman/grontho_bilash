@@ -5,6 +5,7 @@ export const EXAM_LEVELS = [
   "SSC",
   "HSC",
   "Honours",
+  "Degree",
   "Masters",
   "Admission Test",
   "Job Exam",
@@ -45,6 +46,9 @@ export interface TSuggestion {
   examYear?: string; // e.g. 2026
   institution?: string; // e.g. National University
   preparedBy?: string;
+  // Where the paper or questions come from (e.g. "ঢাকা শিক্ষা বোর্ড",
+  // "শিক্ষার্থীর পাঠানো প্রশ্নপত্র"). Shown to readers.
+  source?: string;
   tags: string[];
 
   author: Types.ObjectId;
@@ -83,6 +87,7 @@ const suggestionSchema = new Schema<TSuggestion>(
     examYear: { type: String, trim: true, maxlength: 40 },
     institution: { type: String, trim: true, maxlength: 120 },
     preparedBy: { type: String, trim: true, maxlength: 80 },
+    source: { type: String, trim: true, maxlength: 200 },
     tags: { type: [String], default: [] },
 
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
