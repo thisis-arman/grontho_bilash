@@ -42,9 +42,10 @@ export const prerender = async () => {
   const startAfterLoad = `<script>(function(){var started=false;function start(){if(started)return;started=true;var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src=${JSON.stringify(entrySrc)};document.body.appendChild(s)}function later(){if(window.requestIdleCallback)requestIdleCallback(start,{timeout:1500});else setTimeout(start,200)}if(document.readyState==="complete")later();else addEventListener("load",later);setTimeout(start,8000)})()</script>`;
 
   // Preload the Bengali body font on the app pages, so their text is drawn
-  // in its real font without a visible swap. The home page preloads nothing:
-  // its hero shows at once in the system Bangla font and switches when Baloo
-  // arrives (font-display: swap), instead of waiting for it.
+  // in its real font without a visible swap. The home page preloads only the
+  // hero heading's font: it is the largest text on the screen, and when it
+  // swapped in late the heading was painted a second time, which counted as
+  // a late Largest Contentful Paint.
   const assets = await readdir(path.join(dist, "assets"));
   const preload = (prefix) => {
     const file = assets.find((f) => f.startsWith(prefix) && f.endsWith(".woff2"));
@@ -52,12 +53,13 @@ export const prerender = async () => {
     return `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin>`;
   };
   const bodyFont = preload("hind-siliguri-bengali-400-normal-");
+  const heroFont = preload("baloo-da-2-bengali-800-normal-");
   const withFonts = (html, links) => html.replace("</title>", `</title>\n  ${links.join("\n  ")}`);
 
   // main.tsx looks for [data-prerendered] and replaces it with the live app.
   // The preconnects are for the API and image requests the app makes later,
   // so on the home page they would only compete with the first paint.
-  const page = shell
+  const page = withFonts(shell, [heroFont])
     .replace(/\s*<link rel="preconnect"[^>]*>/g, "")
     .replace(entryTag, "")
     .replace(marker, `<div id="root"><div data-prerendered>${html}</div></div>`)
