@@ -4,5 +4,24 @@ Disallow: /user/
 Disallow: /admin/
 Disallow: /cart
 Disallow: /checkout
+Disallow: /read/
 
+# AI search and assistant crawlers are welcome to read and cite public pages.
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Bingbot
+Allow: /
+Disallow: /user/
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /read/
+
+# Site summary for AI assistants: https://www.gronthobilash.com/llms.txt
 Sitemap: https://www.gronthobilash.com/sitemap.xml

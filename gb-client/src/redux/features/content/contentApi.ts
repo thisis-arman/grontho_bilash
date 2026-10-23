@@ -146,6 +146,11 @@ export const contentApi = baseApi.injectEndpoints({
       query: (kind) => ({ url: "/suggestions/hub", params: { kind } }),
       providesTags: ["Suggestions"],
     }),
+    // Publishes the team's guides (gb-server blogs/data/guides.ts).
+    importGuides: builder.mutation<Envelope<{ created: number; skipped: number; total: number }>, void>({
+      query: () => ({ url: "/blogs/admin/import-guides", method: "POST" }),
+      invalidatesTags: ["Blogs"],
+    }),
     importPracticeSets: builder.mutation<Envelope<{ added: number; total: number; questions: number }>, void>({
       query: () => ({ url: "/suggestions/admin/import-practice", method: "POST" }),
       invalidatesTags: ["Suggestions"],
@@ -198,6 +203,7 @@ export const {
   useRecordSuggestionDownloadMutation,
   useGetContentHubQuery,
   useImportPracticeSetsMutation,
+  useImportGuidesMutation,
   useGetAdminSuggestionsQuery,
   useGetAdminSuggestionQuery,
   useSaveSuggestionMutation,

@@ -1,10 +1,11 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Clock, Eye, Link2, Star } from "lucide-react";
 import { toast } from "sonner";
 import Markdown from "../../components/content/Markdown";
 import { useGetBlogPostQuery } from "../../redux/features/content/contentApi";
 import { usePageMeta } from "../../utils/usePageMeta";
-import { articleJsonLd } from "../../utils/structuredData";
+import { articleJsonLd, faqFromMarkdown, faqJsonLd } from "../../utils/structuredData";
 import { authorName, formatPostDate, PostCard } from "./BlogList";
 import { bnNumber } from "../../i18n/labels";
 
@@ -39,25 +40,50 @@ const ShareButtons = ({ title }: { title: string }) => {
   );
 };
 
+const CATEGORY_BN: Record<string, string> = {
+  "Book Review": "বই রিভিউ",
+  "Study Tips": "পড়াশোনার টিপস",
+  "Exam Preparation": "পরীক্ষার প্রস্তুতি",
+  Career: "ক্যারিয়ার",
+  "Student Life": "শিক্ষার্থী জীবন",
+  Guides: "গাইড",
+  "Platform News": "গ্রন্থবিলাসের খবর",
+};
+
 const BlogPost = () => {
   const { slug = "" } = useParams();
   const { data, isLoading, isError, error } = useGetBlogPostQuery(slug);
   const post = data?.data.post;
   const related = data?.data.related ?? [];
+  const faq = post ? faqFromMarkdown(post.content) : [];
+
+  // The page may have arrived server-rendered (gb-server blog.page.ts); tell
+  // main.tsx it can swap that copy for this one now that the post is here.
+  useEffect(() => {
+    if (post || isError) window.dispatchEvent(new Event("gb:page-ready"));
+  }, [post, isError]);
 
   usePageMeta(post?.title, post?.excerpt, post?.coverImage, {
     type: "article",
     jsonLd: post
-      ? articleJsonLd({
-          type: "BlogPosting",
-          title: post.title,
-          path: `/blogs/${post.slug}`,
-          description: post.excerpt,
-          image: post.coverImage,
-          authorName: authorName(post),
-          publishedAt: post.publishedAt,
-          updatedAt: post.updatedAt,
-        })
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            (({ "@context": _ctx, ...article }) => article)(
+              articleJsonLd({
+                type: "BlogPosting",
+                title: post.title,
+                path: `/blogs/${post.slug}`,
+                description: post.excerpt,
+                image: post.coverImage,
+                authorName: authorName(post),
+                publishedAt: post.publishedAt,
+                updatedAt: post.updatedAt,
+              })
+            ),
+            ...(faq.length ? [faqJsonLd(faq)] : []),
+          ],
+        }
       : null,
   });
 
@@ -97,7 +123,7 @@ const BlogPost = () => {
         </Link>
         <p className="mt-6 text-sm font-semibold text-amber-700">
           <Link to={`/blogs?category=${encodeURIComponent(post.category)}`} className="hover:underline">
-            {post.category}
+            {CATEGORY_BN[post.category] ?? post.category}
           </Link>
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-stone-900 sm:text-5xl sm:leading-[1.15]">{post.title}</h1>
@@ -105,6 +131,9 @@ const BlogPost = () => {
         <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">
           {authorName(post) && <span className="font-semibold text-stone-900">{authorName(post)}</span>}
           <span>{formatPostDate(post.publishedAt)}</span>
+          {post.updatedAt && formatPostDate(post.updatedAt) !== formatPostDate(post.publishedAt) && (
+            <span>হালনাগাদ: {formatPostDate(post.updatedAt)}</span>
+          )}
           <span className="flex items-center gap-1">
             <Clock size={14} aria-hidden="true" /> {bnNumber(post.readingTime)} মিনিটে পড়া
           </span>

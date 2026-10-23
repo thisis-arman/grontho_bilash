@@ -38,6 +38,10 @@
       "destination": "https://grontho-bilash-server.vercel.app/api/v1/:path*"
     },
     {
+      "source": "/blogs/:slug",
+      "destination": "https://grontho-bilash-server.vercel.app/api/v1/seo/blog-page/:slug"
+    },
+    {
       "source": "/(.*)",
       "destination": "/app.html"
     }

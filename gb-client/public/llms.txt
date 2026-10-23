@@ -1,0 +1,34 @@
+# Grontho Bilash (গ্রন্থবিলাস)
+
+> Grontho Bilash is a Bangladeshi marketplace where students buy and sell used textbooks and books, and buy digital study notes. It also offers free study resources: a question bank, BCS preliminary practice sets with explained answers, National University (NU) honours course and syllabus lists, recommended book lists, and calculators (CGPA, GPA, target CGPA). The site is in Bangla.
+
+Key facts:
+
+- Website: https://www.gronthobilash.com
+- Country and language: Bangladesh; content mainly in Bangla (bn-BD)
+- What can be bought: used and new printed books (delivered), and digital notes/PDFs (read online in the buyer's library, no delivery charge)
+- Delivery charge for printed books: ৳70 inside Chattogram, ৳130 outside, per seller parcel
+- Payment: bKash; cash on delivery is available for printed books after the delivery charge is paid by bKash
+- Digital books open in the buyer's "আমার লাইব্রেরি" (My library) once the bKash payment is confirmed
+- Listing a book for sale: free (no listing fee)
+- Support: WhatsApp +8801883350118, hello@gronthobilash.com
+
+## Guides
+
+- [পুরনো বই কেনার আগে যে ১০টি জিনিস দেখে নেবেন](https://www.gronthobilash.com/blogs/used-book-buying-checklist): checklist for buying used books (edition, pages, condition, fair price)
+- [পুরনো বইয়ের দাম কত রাখবেন?](https://www.gronthobilash.com/blogs/how-to-price-used-books): pricing a used book by condition, as a percentage of the new price
+- [জাতীয় বিশ্ববিদ্যালয়ের সিজিপিএ হিসাব করার নিয়ম](https://www.gronthobilash.com/blogs/national-university-cgpa-calculation): UGC uniform grading table and how GPA/CGPA is calculated
+- [বিসিএস প্রিলিমিনারি: নম্বর বণ্টন ও প্রস্তুতি পরিকল্পনা](https://www.gronthobilash.com/blogs/bcs-preliminary-syllabus-and-study-plan): 200-mark subject distribution, negative marking, 12-week plan
+- [ডিজিটাল নোট নাকি ছাপা বই](https://www.gronthobilash.com/blogs/digital-notes-vs-printed-books): comparison of digital notes and printed books
+
+## Main pages
+
+- [Books (shop)](https://www.gronthobilash.com/books): all listings, searchable in Bangla and English
+- [Question bank](https://www.gronthobilash.com/questions): previous-year questions by exam
+- [Suggestions and practice sets](https://www.gronthobilash.com/suggestions): exam suggestions; BCS preliminary practice with answers and explanations
+- [NU syllabus and courses](https://www.gronthobilash.com/courses): National University honours courses by department and year
+- [Book lists](https://www.gronthobilash.com/booklists): books needed per course or exam
+- [Student tools](https://www.gronthobilash.com/tools): CGPA, GPA, target CGPA, grade converter, attendance, focus timer
+- [Blog](https://www.gronthobilash.com/blogs)
+- [FAQ](https://www.gronthobilash.com/faq)
+- [About](https://www.gronthobilash.com/about)

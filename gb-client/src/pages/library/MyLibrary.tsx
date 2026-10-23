@@ -81,7 +81,7 @@ const MyLibrary = () => {
             title="লাইব্রেরি এখনো খালি"
             desc="PDF নোট, সাজেশন বা ই-বুক কিনলে এখানে পাবে। ডেলিভারি চার্জ লাগে না।"
             action={
-              <Link to="/books?productType=Digital" className={btn.primary}>
+              <Link to="/books?type=Digital" className={btn.primary}>
                 ডিজিটাল বই দেখো
               </Link>
             }

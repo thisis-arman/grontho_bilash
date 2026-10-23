@@ -43,6 +43,12 @@ router.get(
 );
 
 router.post(
+  "/admin/import-guides",
+  adminOnly,
+  catchAsync(async (req, res) => ok(res, await blogService.importGuides(req.user.id), "Guides published", 201))
+);
+
+router.post(
   "/",
   adminOnly,
   validateRequest(blogValidations.createBlogSchema),

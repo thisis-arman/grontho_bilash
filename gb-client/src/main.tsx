@@ -30,10 +30,27 @@ if (snapshot) {
 const ReplaceSnapshot = () => {
   useLayoutEffect(() => {
     if (!snapshot) return;
-    // The hero's entrance animation already played on the snapshot.
-    document.documentElement.classList.add('gb-live');
-    snapshot.remove();
-    container.hidden = false;
+    const swap = () => {
+      // The hero's entrance animation already played on the snapshot.
+      document.documentElement.classList.add('gb-live');
+      snapshot.remove();
+      container.hidden = false;
+    };
+    // Server-rendered pages (blog posts) keep their copy on screen until the
+    // app's page has its data, so the reader never sees a loader in between.
+    if (snapshot.hasAttribute('data-wait-ready')) {
+      const fallback = window.setTimeout(swap, 8000);
+      const onReady = () => {
+        window.clearTimeout(fallback);
+        requestAnimationFrame(swap);
+      };
+      window.addEventListener('gb:page-ready', onReady, { once: true });
+      return () => {
+        window.clearTimeout(fallback);
+        window.removeEventListener('gb:page-ready', onReady);
+      };
+    }
+    swap();
   }, []);
   return null;
 };

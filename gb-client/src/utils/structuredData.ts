@@ -52,6 +52,29 @@ export const productJsonLd = (product: {
   };
 };
 
+// Questions under a "সাধারণ প্রশ্ন" / "FAQ" heading in a post's Markdown
+// ("### Question" + answer), for FAQPage data. Mirrors extractFaq in
+// gb-server/src/app/modules/blogs/blog.page.ts (the server-rendered page).
+export const faqFromMarkdown = (source = "") => {
+  const section = source.split(/\n(?=## )/).find((s) => /^##\s+(সাধারণ প্রশ্ন|প্রশ্নোত্তর|FAQ)/i.test(s.trim()));
+  if (!section) return [];
+  return section
+    .split(/\n(?=### )/)
+    .slice(1)
+    .map((block) => {
+      const [first, ...rest] = block.split("\n");
+      const question = first.replace(/^###\s+/, "").trim();
+      const answer = rest.join(" ").replace(/[*_`>#]|\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\s+/g, " ").trim();
+      return { question, answer };
+    })
+    .filter((f) => f.question && f.answer);
+};
+
+export const faqJsonLd = (items: { question: string; answer: string }[]) => ({
+  "@type": "FAQPage",
+  mainEntity: items.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+});
+
 export const articleJsonLd = (article: {
   type?: "BlogPosting" | "Article";
   title: string;

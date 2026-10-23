@@ -5,6 +5,9 @@ import { BlogModel } from "../blogs/blog.model";
 import { SuggestionModel } from "../suggestion/suggestion.model";
 import { BookListModel } from "../booklist/booklist.model";
 import { CurriculumModel } from "../curriculum/curriculum.model";
+import { blogService } from "../blogs/blog.service";
+import { blogPageHtml, getShell, renderMarkdown } from "../blogs/blog.page";
+import { escapeHtml } from "../../utils/mailer";
 
 const router = Router();
 
@@ -79,6 +82,40 @@ router.get(
           "\n"
         )}\n</urlset>\n`
       );
+  })
+);
+
+// Full HTML for /blogs/:slug (rewritten here by gb-client/vercel.json), so
+// crawlers that do not run JavaScript, AI assistants included, can read and
+// quote the article. See blogs/blog.page.ts.
+router.get(
+  "/blog-page/:slug",
+  catchAsync(async (req, res) => {
+    const slug = String(req.params.slug).toLowerCase().slice(0, 200);
+    const post = await blogService.getPublishedPage(slug);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+
+    let shell: string | null = null;
+    try {
+      shell = await getShell();
+    } catch {
+      shell = null;
+    }
+
+    if (!post) {
+      // Unknown post: the app shows its own "not found" page.
+      res.status(404).send(shell ?? "<!doctype html><title>Not found</title>");
+      return;
+    }
+    if (!shell) {
+      // The site itself could not be reached: still serve the readable article.
+      res.send(
+        `<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(post.title)}</title></head><body><article><h1>${escapeHtml(post.title)}</h1>${renderMarkdown(post.content)}</article></body></html>`
+      );
+      return;
+    }
+    res.send(blogPageHtml(shell, post));
   })
 );
 

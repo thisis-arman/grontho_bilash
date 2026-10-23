@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import AppError from "../../errors/AppError";
 import { escapeRegex, pageMeta, pageParams, readingMinutes, uniqueSlug } from "../../utils/content";
 import { BlogModel, TBlog } from "./blog.model";
+import { GB_GUIDES } from "./data/guides";
 
 type BlogInput = Partial<Omit<TBlog, "author" | "views" | "isDeleted" | "readingTime" | "publishedAt">>;
 
@@ -144,7 +145,35 @@ const listForAdmin = async (query: Record<string, unknown>) => {
 
 const getForAdmin = (id: string) => getOwnedOrThrow(id);
 
+// Publishes the team's guides (data/guides.ts) under the admin's name.
+// Guides whose slug already exists are left alone, so this is safe to run
+// again after new guides are added.
+const importGuides = async (authorId: string) => {
+  const existing = new Set(
+    (await BlogModel.find({ slug: { $in: GB_GUIDES.map((g) => g.slug) } }, { slug: 1 }).lean()).map((b) => b.slug)
+  );
+  const fresh = GB_GUIDES.filter((g) => !existing.has(g.slug));
+  const now = Date.now();
+  await BlogModel.insertMany(
+    fresh.map((g, i) => ({
+      ...g,
+      status: "published",
+      // A minute apart, so the newest-first list keeps the written order.
+      publishedAt: new Date(now - i * 60_000),
+      readingTime: readingMinutes(g.content),
+      author: authorId,
+    }))
+  );
+  return { created: fresh.length, skipped: existing.size, total: GB_GUIDES.length };
+};
+
+// For the server-rendered page: no view count (the app counts the visit).
+const getPublishedPage = (slug: string) =>
+  BlogModel.findOne({ slug, status: "published", isDeleted: false }).populate<{ author: { name?: string } | null }>("author", AUTHOR_FIELDS).lean();
+
 export const blogService = {
+  importGuides,
+  getPublishedPage,
   createBlog,
   updateBlog,
   deleteBlog,
