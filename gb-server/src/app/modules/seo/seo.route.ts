@@ -94,7 +94,13 @@ router.get(
     const slug = String(req.params.slug).toLowerCase().slice(0, 200);
     const post = await blogService.getPublishedPage(slug);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=120");
+    // This response is a page of the website, not an API reply: drop the
+    // API's strict security headers (the website sets none of these), or the
+    // page's own scripts and Cloudinary images are blocked.
+    for (const header of ["Content-Security-Policy", "Cross-Origin-Embedder-Policy", "Cross-Origin-Resource-Policy", "Cross-Origin-Opener-Policy", "Origin-Agent-Cluster"]) {
+      res.removeHeader(header);
+    }
 
     let shell: string | null = null;
     try {

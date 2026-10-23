@@ -9,7 +9,7 @@
 //
 // Called by the prerender-home plugin in vite.config.ts once the SSR bundle
 // of src/prerender/entry.tsx has been built into dist-ssr.
-import { readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import Beasties from "beasties";
@@ -80,6 +80,22 @@ export const prerender = async () => {
 
   await writeFile(path.join(dist, "app.html"), withFonts(shell, [bodyFont]));
   await writeFile(path.join(dist, "index.html"), optimised);
+
+  // The shell the API uses for server-rendered pages (blog posts, see
+  // gb-server blogs/blog.page.ts). The API caches it, and each deploy
+  // renames the hashed files, so this copy points at fixed names that always
+  // exist in the current deployment (served with no-cache, vercel.json).
+  const cssHref = shell.match(/<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/)?.[1];
+  if (!cssHref) throw new Error("prerender: stylesheet <link> not found in dist/index.html");
+  // A one-line module that imports the real entry, so the app code still
+  // loads from its hashed URL and lazy pages share that one copy.
+  await writeFile(path.join(dist, "assets/app-entry.js"), `import "./${path.basename(entrySrc)}";
+`);
+  await copyFile(path.join(dist, cssHref), path.join(dist, "assets/app-entry.css"));
+  await writeFile(
+    path.join(dist, "app-ssr.html"),
+    shell.replace(entrySrc, "/assets/app-entry.js").replace(cssHref, "/assets/app-entry.css")
+  );
   await rm(ssrDir, { recursive: true, force: true });
 
   console.log(`prerender: home page written (${(html.length / 1024).toFixed(1)} KB of markup)`);

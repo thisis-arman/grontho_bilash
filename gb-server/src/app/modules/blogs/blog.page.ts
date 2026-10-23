@@ -12,12 +12,14 @@ import { escapeHtml } from "../../utils/mailer";
 // (gb-client/src/main.tsx swaps [data-prerendered] out once it is ready).
 
 const SITE_URL = "https://www.gronthobilash.com";
-const SHELL_URL = `${SITE_URL}/app.html`;
+// app-ssr.html points at fixed file names (/assets/app-entry.js|css) that
+// exist in every deployment, so a cached copy never goes stale after a deploy.
+const SHELL_URL = `${SITE_URL}/app-ssr.html`;
 const SHELL_TTL_MS = 5 * 60 * 1000;
 
 let shellCache: { html: string; at: number } | null = null;
 
-// The deployed app shell (its asset file names change with every build).
+// The deployed app shell.
 export const getShell = async () => {
   if (shellCache && Date.now() - shellCache.at < SHELL_TTL_MS) return shellCache.html;
   const res = await fetch(SHELL_URL, { headers: { "user-agent": "gronthobilash-ssr" } });
