@@ -42,7 +42,8 @@ const ReplaceSnapshot = () => {
       const fallback = window.setTimeout(swap, 8000);
       const onReady = () => {
         window.clearTimeout(fallback);
-        requestAnimationFrame(swap);
+        // The post has already rendered (the event fires after commit).
+        swap();
       };
       window.addEventListener('gb:page-ready', onReady, { once: true });
       return () => {
