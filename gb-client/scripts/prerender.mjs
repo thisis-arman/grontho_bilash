@@ -33,21 +33,18 @@ export const prerender = async () => {
   }
 
   // The app's entry script. On the pre-rendered page it is only requested
-  // after the first frame has been painted: the page is already readable
-  // from the HTML, and on a slow phone connection the bundle would otherwise
-  // compete with the HTML and fonts for bandwidth before anything shows.
+  // once the page has loaded and the browser is idle: the page is already
+  // readable (and its links work) from the HTML, and on a slow phone
+  // connection the bundle would otherwise compete with the first paint.
   const entry = shell.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
   if (!entry) throw new Error("prerender: entry <script type=module> not found in dist/index.html");
   const [entryTag, entrySrc] = entry;
-  // "After the first paint" is taken from the browser itself (the paint
-  // timing entry): a requestAnimationFrame callback runs *before* the frame is
-  // shown, so starting there let the bundle run ahead of the first paint.
-  const startAfterPaint = `<script>(function(){var started=false;function start(){if(started)return;started=true;var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src=${JSON.stringify(entrySrc)};document.body.appendChild(s)}try{new PerformanceObserver(function(l){if(l.getEntriesByName("first-contentful-paint").length)setTimeout(start,50)}).observe({type:"paint",buffered:true})}catch(e){}addEventListener("load",function(){setTimeout(start,300)});setTimeout(start,4000)})()</script>`;
+  const startAfterLoad = `<script>(function(){var started=false;function start(){if(started)return;started=true;var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src=${JSON.stringify(entrySrc)};document.body.appendChild(s)}function later(){if(window.requestIdleCallback)requestIdleCallback(start,{timeout:1500});else setTimeout(start,200)}if(document.readyState==="complete")later();else addEventListener("load",later);setTimeout(start,8000)})()</script>`;
 
-  // Preload the Bengali fonts the first screen is set in, so the text is
-  // drawn in its real font without a visible swap. The home page only
-  // preloads the hero heading's font (the largest text); other pages also
-  // get the body font.
+  // Preload the Bengali body font on the app pages, so their text is drawn
+  // in its real font without a visible swap. The home page preloads nothing:
+  // its hero shows at once in the system Bangla font and switches when Baloo
+  // arrives (font-display: swap), instead of waiting for it.
   const assets = await readdir(path.join(dist, "assets"));
   const preload = (prefix) => {
     const file = assets.find((f) => f.startsWith(prefix) && f.endsWith(".woff2"));
@@ -55,14 +52,16 @@ export const prerender = async () => {
     return `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin>`;
   };
   const bodyFont = preload("hind-siliguri-bengali-400-normal-");
-  const heroFont = preload("baloo-da-2-bengali-800-normal-");
   const withFonts = (html, links) => html.replace("</title>", `</title>\n  ${links.join("\n  ")}`);
 
   // main.tsx looks for [data-prerendered] and replaces it with the live app.
-  const page = withFonts(shell, [heroFont])
+  // The preconnects are for the API and image requests the app makes later,
+  // so on the home page they would only compete with the first paint.
+  const page = shell
+    .replace(/\s*<link rel="preconnect"[^>]*>/g, "")
     .replace(entryTag, "")
     .replace(marker, `<div id="root"><div data-prerendered>${html}</div></div>`)
-    .replace("</body>", `${startAfterPaint}
+    .replace("</body>", `${startAfterLoad}
 </body>`);
 
   // Inline the CSS the first screen needs and load the full stylesheet
