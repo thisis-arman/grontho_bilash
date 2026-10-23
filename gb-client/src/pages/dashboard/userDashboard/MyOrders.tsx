@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Pencil, Phone, ShoppingBag, XCircle } from "lucide-react";
+import { BookOpenCheck, MapPin, Pencil, Phone, ShoppingBag, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { selectCurrentUser, TUser } from "../../../redux/features/auth/authSlice";
 import {
@@ -36,7 +36,7 @@ interface Order {
     _id: string;
     orderId: string;
     createdAt: string;
-    books: { book: { _id?: string; slug?: string } | string | null; bookTitle: string; productImage: string; price: number; quantity: number }[];
+    books: { book: { _id?: string; slug?: string; productType?: string } | string | null; bookTitle: string; productImage: string; price: number; quantity: number }[];
     totalAmount: number;
     shippingCost: number;
     paymentMethod: "cod" | "bkash";
@@ -159,7 +159,10 @@ const MyOrders = () => {
 
                                 <ul className="divide-y divide-stone-100 px-4 sm:px-5">
                                     {order.books.map((item, i) => {
-                                        const slug = item.book && typeof item.book === "object" ? item.book.slug : undefined;
+                                        const product = item.book && typeof item.book === "object" ? item.book : undefined;
+                                        const slug = product?.slug;
+                                        // A paid digital book opens in the reader.
+                                        const readable = product?.productType === "Digital" && order.paymentStatus === "paid" && order.orderStatus !== "cancelled";
                                         return (
                                             <li key={i} className="flex items-center gap-3 py-3">
                                                 <img
@@ -180,7 +183,13 @@ const MyOrders = () => {
                                                         {taka(item.price)} × {bnNumber(item.quantity)}
                                                     </p>
                                                 </div>
-                                                <span className="text-sm font-semibold text-stone-900">{taka(item.price * item.quantity)}</span>
+                                                {readable ? (
+                                                    <Link to={`/read/${product!._id}`} className={btn.primary}>
+                                                        <BookOpenCheck size={15} aria-hidden="true" /> পড়ো
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-sm font-semibold text-stone-900">{taka(item.price * item.quantity)}</span>
+                                                )}
                                             </li>
                                         );
                                     })}
@@ -199,7 +208,7 @@ const MyOrders = () => {
                                     </div>
                                     <div className="flex-shrink-0 sm:text-right">
                                         <p className="text-xs text-stone-500">
-                                            ডেলিভারি {taka(order.shippingCost)} · {paymentMethodLabel(order.paymentMethod)}
+                                            {order.shippingCost ? `ডেলিভারি ${taka(order.shippingCost)}` : "ডেলিভারি চার্জ নেই"} · {paymentMethodLabel(order.paymentMethod)}
                                         </p>
                                         <p className="font-display text-xl font-bold text-stone-900">{taka(order.totalAmount)}</p>
                                     </div>

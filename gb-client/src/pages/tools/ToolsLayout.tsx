@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Loader from "../../components/ui/Loader";
 import { NavLink, Outlet } from "react-router-dom";
 import { LayoutGrid } from "lucide-react";
 import { TOOLS } from "./toolsList";
@@ -33,7 +34,7 @@ const ToolsLayout = () => (
     </nav>
 
     <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 sm:pt-12">
-      <Suspense fallback={<div className="min-h-[40vh]" aria-busy="true" />}>
+      <Suspense fallback={<Loader size="section" delay={250} />}>
         <Outlet />
       </Suspense>
     </div>

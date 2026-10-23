@@ -176,8 +176,8 @@ export const contentApi = baseApi.injectEndpoints({
 
     // ── Uploads ───────────────────────────────────────────────────────────
     getUploadSignature: builder.mutation<
-      Envelope<{ timestamp: number; folder: string; allowed_formats: string; signature: string; apiKey: string; cloudName: string }>,
-      "blog" | "suggestion"
+      Envelope<{ timestamp: number; folder: string; allowed_formats: string; type?: string; signature: string; apiKey: string; cloudName: string }>,
+      "blog" | "suggestion" | "digital"
     >({
       query: (purpose) => ({ url: "/uploads/signature", method: "POST", body: { purpose } }),
     }),

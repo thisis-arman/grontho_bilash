@@ -15,6 +15,10 @@ import { quoteCart, REQUIRE_ADVANCE_DELIVERY_CHARGE, SHIPPING_RATES } from './or
 import { sendOrderConfirmationToBuyer } from './order.utils';
 import { notifyOrderStatus } from '../../utils/whatsapp';
 import { isAdminRole } from '../../middlewares/auth';
+import { emailLayout, escapeHtml, sendMail } from '../../utils/mailer';
+
+// Saved as the address of orders that only contain digital books.
+const DIGITAL_DELIVERY_ADDRESS = "ডিজিটাল ডেলিভারি (গ্রন্থবিলাস লাইব্রেরি)";
 
 type TRequester = { id?: string; email?: string; role?: string };
 
@@ -248,13 +252,38 @@ const createOrder = async (
   );
   const hasPhysical = products.some((p) => p.productType === "Physical");
   if (payload.paymentMethod === "cod" && !hasPhysical) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Digital items have no delivery, so please pay by bKash.");
+    throw new AppError(httpStatus.BAD_REQUEST, "ডিজিটাল বইয়ের কোনো ডেলিভারি নেই, তাই bKash-এ পেমেন্ট করো।");
   }
   if (payload.paymentMethod === "cod" && REQUIRE_ADVANCE_DELIVERY_CHARGE && !payload.transactionId) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      "Send the delivery charge by bKash first and enter its transaction ID."
+      "আগে bKash-এ ডেলিভারি চার্জ পাঠাও, তারপর ট্রানজেকশন আইডি লেখো।"
     );
+  }
+  if (hasPhysical && (payload.deliveryAddress ?? "").length < 10) {
+    throw new AppError(httpStatus.BAD_REQUEST, "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা");
+  }
+  const deliveryAddress = hasPhysical ? payload.deliveryAddress! : DIGITAL_DELIVERY_ADDRESS;
+
+  // A digital book is bought once: stop a second order for the same copy.
+  const digitalInCart = products.filter((p) => p.productType === "Digital").map((p) => p._id);
+  if (digitalInCart.length) {
+    const previous = await OrderModel.findOne({
+      buyer: buyerId,
+      isDeleted: false,
+      orderStatus: { $ne: "cancelled" },
+      paymentStatus: { $ne: "failed" },
+      "books.book": { $in: digitalInCart },
+    }).select("paymentStatus books.bookTitle books.book");
+    if (previous) {
+      const title = previous.books.find((b) => digitalInCart.some((id) => String(id) === String(b.book)))?.bookTitle;
+      throw new AppError(
+        httpStatus.CONFLICT,
+        previous.paymentStatus === "paid"
+          ? `"${title}" তোমার লাইব্রেরিতে আগে থেকেই আছে। ব্যাগ থেকে সরিয়ে দাও।`
+          : `"${title}" আগেই অর্ডার করা হয়েছে, পেমেন্ট যাচাই হচ্ছে। ব্যাগ থেকে সরিয়ে দাও।`
+      );
+    }
   }
   // One bKash payment can only confirm one checkout.
   if (
@@ -263,7 +292,7 @@ const createOrder = async (
   ) {
     throw new AppError(
       httpStatus.CONFLICT,
-      "This bKash transaction ID has already been used for another order."
+      "এই bKash ট্রানজেকশন আইডি দিয়ে আগেই একটা অর্ডার করা হয়েছে।"
     );
   }
 
@@ -320,7 +349,7 @@ const createOrder = async (
         recipientName: payload.recipientName,
         phoneNumber: payload.phoneNumber,
         email: payload.email,
-        deliveryAddress: payload.deliveryAddress,
+        deliveryAddress,
         shippingArea: payload.shippingArea,
         shippingCost,
         totalAmount,
@@ -446,6 +475,36 @@ const getOrdersFromDB = async () => {
   return orders;
 };
 
+// The order's line items that are digital books.
+const digitalItemsOf = async (order: Pick<TOrder, "books">) => {
+  const digital = await ProductModel.find(
+    { _id: { $in: order.books.map((b) => b.book) }, productType: "Digital" },
+    { _id: 1 }
+  );
+  const ids = new Set(digital.map((d) => String(d._id)));
+  return order.books.filter((b) => ids.has(String(b.book)));
+};
+
+const SITE_URL = "https://www.gronthobilash.com";
+
+// "Your book is ready": sent when the payment for digital books is confirmed.
+const sendLibraryReadyEmail = async (order: TOrder, items: TOrder["books"]) => {
+  const list = items.map((i) => `<li style="margin:4px 0;">${escapeHtml(i.bookTitle)}</li>`).join("");
+  const link = `${SITE_URL}/user/library`;
+  await sendMail({
+    to: order.email,
+    subject: `তোমার ডিজিটাল বই তৈরি (${order.orderId})`,
+    text: `পেমেন্ট নিশ্চিত হয়েছে। এখন বইগুলো পড়তে পারবে: ${link}`,
+    html: emailLayout(
+      "তোমার ডিজিটাল বই পড়ার জন্য তৈরি",
+      `<p style="color:#44403c;line-height:1.7;">অর্ডার <b>${escapeHtml(order.orderId)}</b>-এর পেমেন্ট নিশ্চিত হয়েছে। নিচের বইগুলো এখন তোমার লাইব্রেরিতে:</p>
+<ul style="color:#1c1917;padding-left:18px;">${list}</ul>
+<p style="margin:24px 0;"><a href="${link}" style="background:#f59e0b;color:#1c1917;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:bold;">লাইব্রেরি খোলো</a></p>
+<p style="color:#78716c;font-size:13px;">লগইন করে যেকোনো সময়, যেকোনো ডিভাইস থেকে পড়তে পারবে।</p>`
+    ),
+  });
+};
+
 // Update an order by ID
 const updateOrderById = async (
   orderId: string,
@@ -494,6 +553,19 @@ const updateOrderById = async (
     );
   }
 
+  // Payment confirmed: digital books unlock now. An order with nothing to
+  // ship is complete at that moment, so it moves straight to delivered.
+  const becomesPaid = validatedData.paymentStatus === "paid" && order.paymentStatus !== "paid";
+  const digitalItems = becomesPaid ? await digitalItemsOf(order) : [];
+  if (
+    becomesPaid &&
+    digitalItems.length === order.books.length &&
+    validatedData.orderStatus === undefined &&
+    ACTIVE_ORDER_STATUSES.includes(order.orderStatus)
+  ) {
+    validatedData.orderStatus = "delivered";
+  }
+
   const updatedOrder = await OrderModel.findByIdAndUpdate(
     orderId,
     validatedData,
@@ -505,6 +577,10 @@ const updateOrderById = async (
 
   if (isCancelling) {
     await restockOrderItems(order);
+  }
+
+  if (updatedOrder && digitalItems.length && updatedOrder.orderStatus !== "cancelled") {
+    await sendLibraryReadyEmail(updatedOrder, digitalItems);
   }
 
   // Tell the buyer on WhatsApp when the status actually changed.

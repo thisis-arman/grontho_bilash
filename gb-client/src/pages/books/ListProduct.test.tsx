@@ -25,6 +25,11 @@ vi.mock("../../redux/features/hub/hubApi", () => ({
   useGetCurriculumQuery: vi.fn(() => ({ data: undefined, isFetching: false })),
 }));
 
+// Signed upload for the digital book file.
+vi.mock("../../redux/features/content/contentApi", () => ({
+  useGetUploadSignatureMutation: vi.fn(() => [vi.fn(), { isLoading: false }]),
+}));
+
 vi.mock("../../redux/features/book/bookApi", () => ({
   useCreateProductMutation: vi.fn(() => [
     vi.fn().mockResolvedValue({ data: { _id: "prod_abc" } }),
@@ -128,6 +133,8 @@ describe("AddProduct Multi-step Wizard Component", () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/দাম \(৳\)/)).toBeInTheDocument();
       expect(screen.getByLabelText(/ফাইলের ধরন/)).toBeInTheDocument();
+      // The book file is uploaded (or linked) on this step.
+      expect(screen.getByText(/বইয়ের ফাইল আপলোড করো/)).toBeInTheDocument();
       
       // Should not show physical fields
       expect(screen.queryByLabelText(/বইয়ের অবস্থা/)).not.toBeInTheDocument();

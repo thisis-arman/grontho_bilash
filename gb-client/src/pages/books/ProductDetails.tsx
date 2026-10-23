@@ -1,13 +1,16 @@
 'use client'
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAppSelector } from '../../redux/hooks';
+import { selectCurrentUser } from '../../redux/features/auth/authSlice';
+import { useGetOwnedBooksQuery } from '../../redux/features/library/libraryApi';
 import { useGetProductBySlugQuery } from '../../redux/features/book/bookApi';
 
 import { useAddToCart } from '../cart/useAddToCart';
 import { usePageMeta } from '../../utils/usePageMeta';
 import { productJsonLd } from '../../utils/structuredData';
-import bookLoading from "../../assets/book-loading.gif";
-import { conditionLabel, productTypeLabel } from '../../i18n/labels';
+import Loader from "../../components/ui/Loader";
+import { bnNumber, conditionLabel, productTypeLabel } from '../../i18n/labels';
 
 
 import {
@@ -162,8 +165,13 @@ const ProductDetails = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: response, isLoading } = useGetProductBySlugQuery(slug!);
   const { add } = useAddToCart();
+  const navigate = useNavigate();
+  const user = useAppSelector(selectCurrentUser);
 
   const product = response?.data;
+  // A digital book the user already bought opens in the reader instead.
+  const { data: owned } = useGetOwnedBooksQuery(undefined, { skip: !user || product?.productType !== "Digital" });
+  const ownedStatus = product?._id ? owned?.data?.[product._id] : undefined;
 
   // Called before any early return: hooks must run on every render.
   usePageMeta(
@@ -177,8 +185,8 @@ const ProductDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-screen flex justify-center items-center bg-stone-50">
-        <img className="h-32 w-auto" src={bookLoading} alt="লোড হচ্ছে..." />
+      <div className="bg-stone-50">
+        <Loader label="বইয়ের তথ্য আনা হচ্ছে…" />
       </div>
     );
   }
@@ -197,11 +205,14 @@ const ProductDetails = () => {
 
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
+    if (ownedStatus === "ready") return navigate(`/read/${product._id}`);
+    if (ownedStatus === "awaiting") return navigate("/user/library");
     add(product);
   };
 
-  const ctaLabel = isDigital ? "ডিজিটাল কপি নাও" : "ব্যাগে যোগ করো";
-  const CtaIcon = isDigital ? Zap : ShoppingBag;
+  const ctaLabel =
+    ownedStatus === "ready" ? "এখনই পড়ো" : ownedStatus === "awaiting" ? "পেমেন্ট যাচাই হচ্ছে" : isDigital ? "ডিজিটাল কপি নাও" : "ব্যাগে যোগ করো";
+  const CtaIcon = ownedStatus === "ready" ? BookOpen : isDigital ? Zap : ShoppingBag;
 
   return (
     <div className="min-h-screen bg-stone-50 md:py-10 px-4 sm:px-6 lg:px-8 mt-12 pb-28 md:pb-10">
@@ -298,7 +309,17 @@ const ProductDetails = () => {
                     </>
                   )}
                   {isDigital && (
-                    <MetaItem icon={Download} label="ফাইল সাইজ" value={product?.digitalDetails?.fileSize ? `${product?.digitalDetails?.fileSize} MB` : undefined} />
+                    <>
+                      <MetaItem icon={Truck} label="ডেলিভারি" value="চার্জ নেই · অনলাইনে পড়ো" />
+                      <MetaItem icon={Download} label="ফাইল"
+                        value={[
+                          product?.digitalDetails?.pages ? `${bnNumber(product.digitalDetails.pages)} পৃষ্ঠা` : null,
+                          product?.digitalDetails?.fileSize
+                            ? /[a-z]/i.test(product.digitalDetails.fileSize) ? product.digitalDetails.fileSize : `${product.digitalDetails.fileSize} MB`
+                            : null,
+                        ].filter(Boolean).join(" · ") || undefined}
+                      />
+                    </>
                   )}
                   <MetaItem icon={Calendar} label="প্রকাশকাল" value={product?.bookMetadata?.publicationYear} />
                   <MetaItem icon={BookOpen} label="প্রকাশক" value={product?.bookMetadata?.publisher} />

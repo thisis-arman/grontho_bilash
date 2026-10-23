@@ -5,7 +5,8 @@ import {
   ShoppingBag,
   HandCoins,
   UserCircle,
-  BellRing
+  BellRing,
+  Library
 } from "lucide-react";
 import { lazy } from "react";
 import type { DashboardPath } from "./admin.route";
@@ -19,6 +20,7 @@ const UserDashboard = lazy(() => import("../pages/dashboard/userDashboard/UserDa
 const ProfilePage = lazy(() => import("../pages/dashboard/ProfilePage"));
 const ListProduct = lazy(() => import("../pages/books/ListProduct"));
 const MyAlerts = lazy(() => import("../pages/dashboard/userDashboard/MyAlerts"));
+const MyLibrary = lazy(() => import("../pages/library/MyLibrary"));
 
 // The first four entries are the ones shown in the phone tab bar.
 export const userPaths: DashboardPath[] = [
@@ -48,6 +50,13 @@ export const userPaths: DashboardPath[] = [
         path: "add-product",
         icon: <PlusSquare size={18} />,
         element: <ListProduct />,
+    },
+    {
+        name: "আমার লাইব্রেরি",
+        shortName: "লাইব্রেরি",
+        path: "library",
+        icon: <Library size={18} />,
+        element: <MyLibrary />,
     },
     {
         name: "আমার বিক্রি",

@@ -179,7 +179,8 @@ const Cart = () => {
     if (form.recipientName.trim().length < 2) next.recipientName = "যে বই নেবে তার নাম লেখো।";
     if (!PHONE_RE.test(normalisePhone(form.phone))) next.phone = "সঠিক মোবাইল নম্বর দাও, যেমন 01712345678।";
     if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = "সঠিক ইমেইল দাও।";
-    if (form.address.trim().length < 10) next.address = "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা।";
+    // Digital books are read online, so there is nothing to deliver.
+    if (!digitalOnly && form.address.trim().length < 10) next.address = "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা।";
     if (needsTrx && !TRX_RE.test(form.trxId.trim().toUpperCase())) {
       next.trxId = "বিকাশের কনফার্মেশন SMS থেকে ট্রানজেকশন আইডি দাও।";
     }
@@ -202,7 +203,7 @@ const Cart = () => {
         recipientName: form.recipientName.trim(),
         phoneNumber: normalisePhone(form.phone),
         email: form.email.trim(),
-        deliveryAddress: form.address.trim(),
+        ...(digitalOnly ? {} : { deliveryAddress: form.address.trim() }),
         shippingArea: area,
         paymentMethod: effectiveMethod,
         ...(needsTrx ? { transactionId: form.trxId.trim().toUpperCase() } : {}),
@@ -430,8 +431,14 @@ const Cart = () => {
                 {/* Delivery */}
                 <section className={card} aria-labelledby="delivery-heading">
                   <h2 id="delivery-heading" className="mb-5 flex items-center gap-2 font-display text-lg font-bold text-stone-900">
-                    <Truck size={20} aria-hidden="true" className="text-amber-500" /> ডেলিভারির তথ্য
+                    <Truck size={20} aria-hidden="true" className="text-amber-500" /> {digitalOnly ? "তোমার তথ্য" : "ডেলিভারির তথ্য"}
                   </h2>
+
+                  {digitalOnly && (
+                    <p className="mb-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-emerald-800">
+                      ডিজিটাল বই: ঠিকানা বা ডেলিভারি চার্জ লাগবে না। bKash পেমেন্ট যাচাই হলেই বইটি তোমার “আমার লাইব্রেরি”-তে খুলে যাবে, ইমেইলেও জানিয়ে দেব।
+                    </p>
+                  )}
 
                   {!digitalOnly && (
                     <fieldset className="mb-5">
@@ -504,23 +511,25 @@ const Cart = () => {
                       />
                       {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                     </div>
-                    <div className="sm:col-span-2">
-                      <label htmlFor="address" className={labelClass}>
-                        {digitalOnly ? "ঠিকানা" : "ডেলিভারির পুরো ঠিকানা"}
-                      </label>
-                      <textarea
-                        id="address"
-                        rows={2}
-                        value={form.address}
-                        onChange={(e) => set("address", e.target.value)}
-                        autoComplete="street-address"
-                        maxLength={300}
-                        placeholder="বাসা, রোড, এলাকা, থানা, জেলা"
-                        aria-invalid={!!errors.address}
-                        className={`${field} ${errors.address ? "border-red-400" : ""}`}
-                      />
-                      {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
-                    </div>
+                    {!digitalOnly && (
+                      <div className="sm:col-span-2">
+                        <label htmlFor="address" className={labelClass}>
+                          ডেলিভারির পুরো ঠিকানা
+                        </label>
+                        <textarea
+                          id="address"
+                          rows={2}
+                          value={form.address}
+                          onChange={(e) => set("address", e.target.value)}
+                          autoComplete="street-address"
+                          maxLength={300}
+                          placeholder="বাসা, রোড, এলাকা, থানা, জেলা"
+                          aria-invalid={!!errors.address}
+                          className={`${field} ${errors.address ? "border-red-400" : ""}`}
+                        />
+                        {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
+                      </div>
+                    )}
                     <div className="sm:col-span-2">
                       <label htmlFor="note" className={labelClass}>
                         আমাদের জন্য নোট <span className="font-normal text-stone-500">(না দিলেও চলবে)</span>

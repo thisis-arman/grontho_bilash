@@ -9,6 +9,7 @@ import PrivateRoute from "../components/layouts/PrivateRoute";
 import NotFound from "../pages/404/NotFound";
 import RouteError from "../pages/404/RouteError";
 import { PageMeta } from "../utils/usePageMeta";
+import Loader from "../components/ui/Loader";
 
 // Only the home page and the layout are in the first download; every other
 // page loads when it is first visited, so visitors don't pay for the
@@ -49,9 +50,10 @@ const CurriculumEditor = lazy(() => import("../pages/dashboard/adminDashboard/co
 const GpaCalculator = lazy(() => import("../pages/tools/GpaCalculator"));
 const GradeConverter = lazy(() => import("../pages/tools/GradeConverter"));
 const AgeCalculator = lazy(() => import("../pages/tools/AgeCalculator"));
+const Reader = lazy(() => import("../pages/library/Reader"));
 
 
-const pageFallback = <div className="min-h-[60vh]" aria-busy="true" />;
+const pageFallback = <Loader delay={250} />;
 const lazyPage = (page: JSX.Element) => <Suspense fallback={pageFallback}>{page}</Suspense>;
 
 const router = createBrowserRouter([
@@ -180,6 +182,14 @@ const router = createBrowserRouter([
     {
         path: "*",
         element: <><PageMeta title="পেজটা পাওয়া যায়নি" noindex /><NotFound /></>
+    },
+    // Full-screen reader for a bought digital book (no site header).
+    {
+        path: '/read/:productId',
+        errorElement: <RouteError />,
+        element: <PrivateRoute>
+            {lazyPage(<Reader />)}
+        </PrivateRoute>,
     },
     {
         path: '/user',

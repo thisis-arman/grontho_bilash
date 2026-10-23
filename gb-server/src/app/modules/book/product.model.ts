@@ -120,12 +120,23 @@ import { IProduct } from "./product.interface";
       isDigitalDelivery: { type: Boolean, default: false },
     },
 
+    // downloadUrl and file are what a buyer pays for, so they are never
+    // loaded unless a query asks for them (see the library module).
     digitalDetails: {
-      downloadUrl: {
-        type: String,
-        required: function (this: IProduct) {
-          return this.productType === "Digital";
-        },
+      downloadUrl: { type: String, trim: true, select: false },
+      file: {
+        type: new Schema(
+          {
+            publicId: { type: String, required: true },
+            resourceType: { type: String, enum: ["image", "raw"], required: true },
+            format: String,
+            bytes: Number,
+            pages: Number,
+            originalName: String,
+          },
+          { _id: false }
+        ),
+        select: false,
       },
       fileType: {
         type: String,
@@ -134,6 +145,8 @@ import { IProduct } from "./product.interface";
         },
       },
       fileSize: { type: String },
+      // Shown on the product page ("১২০ পৃষ্ঠা").
+      pages: { type: Number, min: 0 },
     },
 
     // General book attributes
@@ -193,6 +206,10 @@ productSchema.pre("save", async function () {
 // `required` functions (e.g. Digital products shouldn't carry physical-only
 // fulfillment options).
 productSchema.pre("validate", async function () {
+  // A new digital listing must come with something to deliver.
+  if (this.isNew && this.productType === "Digital" && !this.digitalDetails?.file?.publicId && !this.digitalDetails?.downloadUrl) {
+    this.invalidate("digitalDetails.file", "ডিজিটাল বইয়ের ফাইল আপলোড করো অথবা ডাউনলোড লিংক দাও");
+  }
   if (this.productType === "Digital") {
     this.fulfillmentOptions.allowPickup = false;
     this.fulfillmentOptions.allowShipping = false;

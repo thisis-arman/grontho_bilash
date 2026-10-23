@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useState } from 'react';
+import Loader from '../ui/Loader';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftRight, Home, LogOut, Menu, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -159,11 +160,7 @@ const Dashboard = () => {
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {/* Pages are lazy-loaded; keep the shell on screen while one arrives. */}
           <Suspense
-            fallback={
-              <div className="flex justify-center py-24" role="status" aria-label="লোড হচ্ছে">
-                <span className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-amber-400" />
-              </div>
-            }
+            fallback={<Loader size="section" delay={200} />}
           >
             <Outlet />
           </Suspense>

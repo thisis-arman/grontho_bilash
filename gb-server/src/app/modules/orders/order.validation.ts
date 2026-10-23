@@ -54,7 +54,9 @@ const createOrderSchema = z.object({
   recipientName: z.string({ required_error: "প্রাপকের নাম লেখো" }).trim().min(2, "প্রাপকের নাম লেখো").max(80, "নাম সর্বোচ্চ ৮০ অক্ষরের হতে পারে"),
   phoneNumber: bdPhone,
   email: z.string({ required_error: "ইমেইল দিতে হবে" }).trim().toLowerCase().email("ইমেইল ঠিকানাটি সঠিক নয়"),
-  deliveryAddress: z.string({ required_error: "ডেলিভারির ঠিকানা দিতে হবে" }).trim().min(10, "পুরো ঠিকানা লেখো: বাসা, রোড, এলাকা, জেলা").max(300, "ঠিকানা সর্বোচ্চ ৩০০ অক্ষরের হতে পারে"),
+  // Optional here because digital-only orders ship nothing; the service
+  // requires a full address whenever a printed book is in the cart.
+  deliveryAddress: z.string().trim().max(300, "ঠিকানা সর্বোচ্চ ৩০০ অক্ষরের হতে পারে").optional(),
   shippingArea: z.enum(["inside", "outside"], {
     errorMap: () => ({ message: "চট্টগ্রামের ভেতরে অথবা বাইরে, যেকোনো একটি বেছে নাও" }),
   }),

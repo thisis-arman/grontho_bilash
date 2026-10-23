@@ -14,6 +14,7 @@ import { searchRoutes } from "../search/search.route";
 import { alertRoutes } from "../alerts/alert.route";
 import { bookListRoutes } from "../booklist/booklist.route";
 import { curriculumRoutes } from "../curriculum/curriculum.route";
+import { libraryRoutes } from "../library/library.route";
 
 const router = Router();
 
@@ -77,6 +78,10 @@ const moduleRouter = [
   {
     path: "/curriculum",
     route: curriculumRoutes,
+  },
+  {
+    path: "/library",
+    route: libraryRoutes,
   },
 
 ];

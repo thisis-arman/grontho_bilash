@@ -26,10 +26,24 @@ export interface IFulfillmentOptions {
   isDigitalDelivery: boolean;
 }
 
+// The uploaded file, stored privately on Cloudinary ("authenticated"
+// delivery). Only buyers who paid, the seller and admins can open it.
+export interface IDigitalFile {
+  publicId: string;
+  resourceType: "image" | "raw";
+  format?: string;
+  bytes?: number;
+  pages?: number;
+  originalName?: string;
+}
+
 export interface IDigitalDetails {
+  // External link (e.g. Google Drive) for listings made before uploads.
   downloadUrl?: string;
+  file?: IDigitalFile;
   fileType?: string;
   fileSize?: string;
+  pages?: number;
 }
 
 export interface IBookMetadata {

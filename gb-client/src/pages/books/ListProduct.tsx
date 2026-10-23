@@ -12,6 +12,7 @@ import { API_BASE_URL } from '../../config/api';
 import { compressImage } from '../../utils/compressImage';
 import { selectCurrentUser, TUser } from '../../redux/features/auth/authSlice';
 import CoursePicker, { type AcademicChoice } from '../../components/courses/CoursePicker';
+import DigitalFileInput, { type DigitalFile } from '../../components/digital/DigitalFileInput';
 import { useCreateProductMutation } from '../../redux/features/book/bookApi';
 import divisionsData from '../../assets/db/bangladesh-geojson-master/bd-divisions.json';
 import districtsData from '../../assets/db/bangladesh-geojson-master/bd-districts.json';
@@ -86,6 +87,8 @@ const AddProduct = () => {
         const parsed = JSON.parse(saved);
         // Backfill quantity for drafts saved before this field existed
         if (parsed.quantity === undefined) parsed.quantity = "1";
+        if (parsed.digitalFile === undefined) parsed.digitalFile = null;
+        if (parsed.downloadUrl === undefined) parsed.downloadUrl = "";
         return parsed;
       } catch (e) {
         console.error("Failed to parse draft from sessionStorage", e);
@@ -112,7 +115,9 @@ const AddProduct = () => {
       allowShipping: true,
       fileType: "",
       fileSize: "",
-      previewUrl: "",
+      // The uploaded book file, or a link for files over the upload limit.
+      digitalFile: null as DigitalFile | null,
+      downloadUrl: "",
     };
   });
 
@@ -341,8 +346,13 @@ const AddProduct = () => {
           newErrors.fulfillment = "বই হাতে দেওয়ার অন্তত একটা উপায় বেছে নাও";
         }
       } else {
-        // Digital
-        if (!formData.fileType) {
+        // Digital: the book itself must be uploaded, or linked.
+        const link = formData.downloadUrl.trim();
+        if (!formData.digitalFile && !link) {
+          newErrors.digitalFile = "বইয়ের ফাইল আপলোড করো (অথবা নিচে ডাউনলোড লিংক দাও)";
+        } else if (!formData.digitalFile && !/^https?:\/\/\S+$/i.test(link)) {
+          newErrors.downloadUrl = "সঠিক লিংক দাও, https:// দিয়ে শুরু";
+        } else if (!formData.digitalFile && !formData.fileType) {
           newErrors.fileType = "ফাইলের ধরন বেছে নাও";
         }
       }
@@ -408,7 +418,8 @@ const AddProduct = () => {
         allowShipping: true,
         fileType: "",
         fileSize: "",
-        previewUrl: "",
+        digitalFile: null,
+        downloadUrl: "",
       });
       setProductImages([]);
       setSelectedDivision(null);
@@ -471,8 +482,9 @@ const AddProduct = () => {
       }),
       ...(formData.productType === "Digital" && {
         digitalDetails: {
-          fileType: formData.fileType,
-          fileSize: formData.fileSize,
+          fileType: formData.fileType || undefined,
+          fileSize: formData.fileSize || undefined,
+          ...(formData.digitalFile ? { file: formData.digitalFile } : { downloadUrl: formData.downloadUrl.trim() }),
         },
       }),
       ...(formData.category === "Academic" && (academic.program || academic.courseTitle) && {
@@ -1058,51 +1070,66 @@ const AddProduct = () => {
                     ডিজিটাল ফাইলের তথ্য
                   </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <Field label="ফাইলের ধরন" required error={errors.fileType} htmlFor="lp-filetype">
-                      <div className="relative">
-                        <select
-                          id="lp-filetype"
-                          name="fileType"
-                          value={formData.fileType}
-                          onChange={e => updateField("fileType", e.target.value)}
-                          className={selectCls}
-                        >
-                          <option value="" disabled>ফাইলের ধরন বেছে নাও</option>
-                          {DIGITAL_FORMATS.map(f => <option key={f} value={f}>{formatLabel(f)}</option>)}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                  <DigitalFileInput
+                    value={formData.digitalFile}
+                    onChange={(file) => {
+                      updateField("digitalFile", file);
+                      if (errors.digitalFile) setErrors(prev => { const copy = { ...prev }; delete copy.digitalFile; return copy; });
+                    }}
+                    error={errors.digitalFile}
+                  />
+
+                  {!formData.digitalFile && (
+                    <details className="group rounded-xl border border-stone-200 p-4" open={!!formData.downloadUrl || !!errors.downloadUrl || !!errors.fileType}>
+                      <summary className="cursor-pointer list-none text-sm font-semibold text-stone-700 marker:hidden">
+                        ফাইল ১০ এমবির বেশি? ডাউনলোড লিংক দাও <span className="text-stone-400 group-open:hidden">▾</span>
+                      </summary>
+                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <Field label="ডাউনলোড লিংক (Google Drive ইত্যাদি)" span error={errors.downloadUrl} htmlFor="lp-download">
+                          <input
+                            id="lp-download"
+                            name="downloadUrl"
+                            type="url"
+                            value={formData.downloadUrl}
+                            onChange={e => updateField("downloadUrl", e.target.value)}
+                            placeholder="https://drive.google.com/..."
+                            className={inputCls}
+                          />
+                        </Field>
+                        <Field label="ফাইলের ধরন" required error={errors.fileType} htmlFor="lp-filetype">
+                          <div className="relative">
+                            <select
+                              id="lp-filetype"
+                              name="fileType"
+                              value={formData.fileType}
+                              onChange={e => updateField("fileType", e.target.value)}
+                              className={selectCls}
+                            >
+                              <option value="" disabled>ফাইলের ধরন বেছে নাও</option>
+                              {DIGITAL_FORMATS.map(f => <option key={f} value={f}>{formatLabel(f)}</option>)}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                          </div>
+                        </Field>
+                        <Field label="আনুমানিক ফাইল সাইজ (এমবি)" htmlFor="lp-filesize">
+                          <input
+                            id="lp-filesize"
+                            name="fileSize"
+                            type="text"
+                            value={formData.fileSize}
+                            onChange={e => updateField("fileSize", e.target.value)}
+                            placeholder="যেমন: 12.5"
+                            className={inputCls}
+                          />
+                        </Field>
                       </div>
-                    </Field>
-
-                    <Field label="আনুমানিক ফাইল সাইজ (এমবি)" htmlFor="lp-filesize">
-                      <input
-                        id="lp-filesize"
-                        name="fileSize"
-                        type="text"
-                        value={formData.fileSize}
-                        onChange={e => updateField("fileSize", e.target.value)}
-                        placeholder="যেমন: 12.5"
-                        className={inputCls}
-                      />
-                    </Field>
-
-                    <Field label="প্রিভিউ পিডিএফ / ছবির লিংক" span htmlFor="lp-preview">
-                      <input
-                        id="lp-preview"
-                        name="previewUrl"
-                        type="url"
-                        value={formData.previewUrl}
-                        onChange={e => updateField("previewUrl", e.target.value)}
-                        placeholder="https://... (ফ্রি নমুনা বা প্রিভিউর লিংক দাও)"
-                        className={inputCls}
-                      />
-                    </Field>
-                  </div>
+                      <p className="mt-3 text-xs text-stone-500">লিংকটি কাউকে দেখানো হয় না; পেমেন্ট নিশ্চিত হলে শুধু ক্রেতা পায়। Google Drive-এ "Anyone with the link" চালু রাখো।</p>
+                    </details>
+                  )}
 
                   <div className="rounded-xl bg-amber-50 border border-amber-100 p-4">
                     <p className="text-xs text-amber-700 font-medium">
-                      📎 নিরাপদ ডেলিভারি: কেনার পর ক্রেতার ডাউনলোড লিংক প্ল্যাটফর্ম নিজেই নিরাপদে দেয়। এখানে তুমি শুধু দেখার জন্য নমুনা বা প্রিভিউ দাও।
+                      📎 ডেলিভারি চার্জ নেই: ক্রেতা bKash-এ পেমেন্ট করলে আমরা যাচাই করি, তারপর বইটি তার "আমার লাইব্রেরি"-তে খুলে যায়।
                     </p>
                   </div>
                 </div>
@@ -1227,7 +1254,7 @@ const AddProduct = () => {
                         ) : (
                           <div className="text-right">
                             <span className="text-[9px] text-stone-400 block uppercase font-bold">ফরম্যাট</span>
-                            <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md">{formatLabel(formData.fileType) || productTypeLabel("Digital")}</span>
+                            <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md">{formatLabel(formData.fileType || (formData.digitalFile?.format ?? "").toUpperCase()) || productTypeLabel("Digital")}</span>
                           </div>
                         )}
                       </div>
@@ -1304,13 +1331,15 @@ const AddProduct = () => {
                         <div>
                           <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">ফাইলের ধরন ও সাইজ</p>
                           <p className="text-stone-800 mt-0.5 font-semibold">
-                            {formatLabel(formData.fileType)} {formData.fileSize && `(${bnNumber(formData.fileSize)} এমবি)`}
+                            {formData.digitalFile
+                              ? `${(formData.digitalFile.format ?? "").toUpperCase()}${formData.digitalFile.pages ? ` · ${bnNumber(formData.digitalFile.pages)} পৃষ্ঠা` : ""}`
+                              : <>{formatLabel(formData.fileType)} {formData.fileSize && `(${bnNumber(formData.fileSize)} এমবি)`}</>}
                           </p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">প্রিভিউ নমুনার লিংক</p>
-                          <p className="text-stone-800 mt-0.5 font-semibold truncate hover:underline text-amber-600">
-                            {formData.previewUrl || "কোনো প্রিভিউ দেওয়া হয়নি"}
+                          <p className="text-stone-400 font-bold uppercase tracking-wider text-[9px]">বইয়ের ফাইল</p>
+                          <p className="text-stone-800 mt-0.5 font-semibold truncate">
+                            {formData.digitalFile?.originalName || (formData.downloadUrl ? "লিংক দেওয়া হয়েছে" : "দেওয়া হয়নি")}
                           </p>
                         </div>
                       </>

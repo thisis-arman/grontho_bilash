@@ -24,6 +24,7 @@ export interface IDigitalDetails {
     downloadUrl?: string;
     fileType?: string;
     fileSize?: string;
+    pages?: number;
 }
 
 export interface IBookMetadata {

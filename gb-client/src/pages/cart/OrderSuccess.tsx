@@ -1,5 +1,5 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
-import { CheckCircle2, Mail, PackageCheck, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Library, Mail, PackageCheck, ShieldCheck } from "lucide-react";
 import { usePageMeta } from "../../utils/usePageMeta";
 import WhatsAppButton from "../../components/WhatsAppButton";
 
@@ -33,7 +33,15 @@ const OrderSuccess = () => {
   const total = orders.reduce((sum, o) => sum + o.totalAmount, 0);
   const itemCount = orders.reduce((sum, o) => sum + o.books.reduce((s, b) => s + b.quantity, 0), 0);
 
-  const steps = [
+  // Orders with nothing to ship (delivery 0) hold only digital books.
+  const digitalOnly = orders.every((o) => o.shippingCost === 0);
+  const hasDigital = orders.some((o) => o.shippingCost === 0);
+
+  const steps = digitalOnly ? [
+    { icon: ShieldCheck, text: "আমরা তোমার বিকাশ পেমেন্ট যাচাই করব, সাধারণত কয়েক ঘণ্টার মধ্যে।" },
+    { icon: Library, text: "যাচাই হলেই বইটি “আমার লাইব্রেরি”-তে খুলে যাবে। ফোন বা কম্পিউটার, যেকোনো জায়গা থেকে পড়তে পারবে।" },
+    { icon: Mail, text: "বই খুলে গেলে ইমেইলে জানিয়ে দেব। কোনো ডেলিভারি চার্জ নেই।" },
+  ] : [
     { icon: ShieldCheck, text: "আমরা তোমার বিকাশ পেমেন্ট যাচাই করে অর্ডার নিশ্চিত করব, সাধারণত কয়েক ঘণ্টার মধ্যে।" },
     { icon: PackageCheck, text: orders.length > 1 ? "প্রত্যেক বিক্রেতার বই আলাদা পার্সেলে যাবে।" : "তোমার বই প্যাক করে তোমার কাছে পাঠানো হবে।" },
     {
@@ -75,6 +83,9 @@ const OrderSuccess = () => {
           <p className="mt-2 text-xs text-stone-500">
             {paymentMethod === "bkash" ? "বিকাশে দেওয়া হয়েছে (যাচাই বাকি)।" : "ক্যাশ অন ডেলিভারি, ডেলিভারি চার্জ বিকাশে দেওয়া হয়েছে।"}
           </p>
+          {hasDigital && !digitalOnly && (
+            <p className="mt-2 text-xs text-emerald-700">ডিজিটাল বইগুলো পেমেন্ট যাচাই হলেই “আমার লাইব্রেরি”-তে পাবে।</p>
+          )}
         </section>
 
         <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
@@ -93,10 +104,10 @@ const OrderSuccess = () => {
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            to="/user/my-orders"
+            to={hasDigital ? "/user/library" : "/user/my-orders"}
             className="flex-1 rounded-xl bg-amber-400 px-5 py-3 text-center text-sm font-bold text-stone-950 hover:bg-amber-300"
           >
-            আমার অর্ডার দেখো
+            {hasDigital ? "আমার লাইব্রেরি" : "আমার অর্ডার দেখো"}
           </Link>
           <Link
             to="/books"

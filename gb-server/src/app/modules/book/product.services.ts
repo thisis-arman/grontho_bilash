@@ -12,6 +12,7 @@ import { IProduct } from "./product.interface";
 import { buildTextFilter } from "../../utils/searchText";
 import { alertService } from "../alerts/alert.service";
 import { PRODUCT_SEARCH_FIELDS } from "../search/search.service";
+import { prepareDigitalDetails } from "../../utils/digitalFile";
 
 export interface ProductQuery {
   page?: number | string;
@@ -91,6 +92,9 @@ const createProductIntoDB = async (payload: IProduct) => {
       isDigitalDelivery: true,
     };
     payload.condition = "Digital Content";
+    payload.digitalDetails = await prepareDigitalDetails(payload.digitalDetails, String(payload.seller));
+  } else {
+    delete payload.digitalDetails;
   }
 
   // 5. Create Product
@@ -444,7 +448,8 @@ const UPDATABLE_NESTED_FIELDS: Record<string, string[]> = {
   inventory: ["quantity"],
   fulfillmentOptions: ["allowPickup", "allowShipping"],
   academicMetadata: ["level", "faculty", "department", "curriculum", "program", "departmentName", "year", "courseCode", "courseTitle"],
-  digitalDetails: ["downloadUrl", "fileType", "fileSize"],
+  // The file and link go through prepareDigitalDetails (see below).
+  digitalDetails: ["fileType", "fileSize"],
 };
 
 const updateProductIntoDb = async (
@@ -464,6 +469,15 @@ const updateProductIntoDb = async (
       // Accept both { price: { basePrice } } and { "price.basePrice": ... }.
       const value = payload[parent]?.[child] ?? payload[`${parent}.${child}`];
       if (value !== undefined) modifiedData[`${parent}.${child}`] = value;
+    }
+  }
+
+  // A new file or link for a digital listing is checked like on create.
+  const digital = payload.digitalDetails;
+  if (existing.productType === "Digital" && (digital?.file?.publicId || digital?.downloadUrl)) {
+    const prepared = await prepareDigitalDetails(digital, String(existing.seller));
+    for (const [key, value] of Object.entries(prepared)) {
+      if (value !== undefined) modifiedData[`digitalDetails.${key}`] = value;
     }
   }
 

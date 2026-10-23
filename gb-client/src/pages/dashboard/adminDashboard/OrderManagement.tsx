@@ -325,7 +325,9 @@ const OrderManagement = () => {
                                     </Field>
                                 </div>
                                 <p className="mt-3 text-xs text-stone-500">
-                                    Setting the order to cancelled returns its books to stock.
+                                    Setting the order to cancelled returns its books to stock. Marking the payment
+                                    as paid (after checking the bKash transaction ID) unlocks any digital books in
+                                    the buyer&apos;s library and emails them; a digital-only order is then marked delivered.
                                 </p>
                                 <div className="mt-4 flex justify-end">
                                     <button type="submit" disabled={isUpdating} className={`${btn.primary} w-full sm:w-auto`}>
