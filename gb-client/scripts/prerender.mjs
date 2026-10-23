@@ -12,6 +12,7 @@
 import { readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
+import Beasties from "beasties";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
@@ -31,18 +32,22 @@ export const prerender = async () => {
     throw new Error("prerender: the rendered home page has no <h1>; refusing to publish it");
   }
 
-  // The app's entry script. On the pre-rendered page it is downloaded right
-  // away (modulepreload) but only started after the first frame has been
-  // painted; otherwise the browser can run the whole bundle before showing
-  // the HTML it already has, and the pre-rendering gains nothing.
+  // The app's entry script. On the pre-rendered page it is only requested
+  // after the first frame has been painted: the page is already readable
+  // from the HTML, and on a slow phone connection the bundle would otherwise
+  // compete with the HTML and fonts for bandwidth before anything shows.
   const entry = shell.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
   if (!entry) throw new Error("prerender: entry <script type=module> not found in dist/index.html");
   const [entryTag, entrySrc] = entry;
-  const startAfterPaint = `<script>(function(){var started=false;function start(){if(started)return;started=true;var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src=${JSON.stringify(entrySrc)};document.body.appendChild(s)}requestAnimationFrame(function(){setTimeout(start,0)});setTimeout(start,1500)})()</script>`;
+  // "After the first paint" is taken from the browser itself (the paint
+  // timing entry): a requestAnimationFrame callback runs *before* the frame is
+  // shown, so starting there let the bundle run ahead of the first paint.
+  const startAfterPaint = `<script>(function(){var started=false;function start(){if(started)return;started=true;var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src=${JSON.stringify(entrySrc)};document.body.appendChild(s)}try{new PerformanceObserver(function(l){if(l.getEntriesByName("first-contentful-paint").length)setTimeout(start,50)}).observe({type:"paint",buffered:true})}catch(e){}addEventListener("load",function(){setTimeout(start,300)});setTimeout(start,4000)})()</script>`;
 
   // Preload the Bengali fonts the first screen is set in, so the text is
-  // drawn in its real font straight away instead of reflowing (layout shift)
-  // when it arrives. Body text everywhere; the hero heading on the home page.
+  // drawn in its real font without a visible swap. The home page only
+  // preloads the hero heading's font (the largest text); other pages also
+  // get the body font.
   const assets = await readdir(path.join(dist, "assets"));
   const preload = (prefix) => {
     const file = assets.find((f) => f.startsWith(prefix) && f.endsWith(".woff2"));
@@ -54,14 +59,27 @@ export const prerender = async () => {
   const withFonts = (html, links) => html.replace("</title>", `</title>\n  ${links.join("\n  ")}`);
 
   // main.tsx looks for [data-prerendered] and replaces it with the live app.
-  const page = withFonts(shell, [bodyFont, heroFont])
-    .replace(entryTag, `<link rel="modulepreload" crossorigin href="${entrySrc}">`)
+  const page = withFonts(shell, [heroFont])
+    .replace(entryTag, "")
     .replace(marker, `<div id="root"><div data-prerendered>${html}</div></div>`)
     .replace("</body>", `${startAfterPaint}
 </body>`);
 
+  // Inline the CSS the first screen needs and load the full stylesheet
+  // without blocking, so the HTML is the only thing the first paint waits for.
+  const beasties = new Beasties({
+    path: dist,
+    publicPath: "/",
+    preload: "media",
+    pruneSource: false,
+    inlineFonts: false,
+    preloadFonts: false,
+    logLevel: "warn",
+  });
+  const optimised = await beasties.process(page);
+
   await writeFile(path.join(dist, "app.html"), withFonts(shell, [bodyFont]));
-  await writeFile(path.join(dist, "index.html"), page);
+  await writeFile(path.join(dist, "index.html"), optimised);
   await rm(ssrDir, { recursive: true, force: true });
 
   console.log(`prerender: home page written (${(html.length / 1024).toFixed(1)} KB of markup)`);

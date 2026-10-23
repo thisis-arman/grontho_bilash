@@ -87,7 +87,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="scheme-fixed bg-stone-900 text-stone-400">
+    <footer className="gb-cv scheme-fixed bg-stone-900 text-stone-400">
 
       <div className="border-b border-stone-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

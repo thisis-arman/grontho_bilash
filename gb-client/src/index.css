@@ -2,12 +2,10 @@
 /* Self-hosted Bengali + Latin fonts (were loaded from Google Fonts, which
    blocked the first paint). Each file only downloads when a character in its
    unicode-range is on the page. */
+/* Two weights per family keep the font downloads small: medium text uses
+   400, bold uses 600, and display semibold uses 700. */
 @import "@fontsource/hind-siliguri/400.css";
-@import "@fontsource/hind-siliguri/500.css";
 @import "@fontsource/hind-siliguri/600.css";
-@import "@fontsource/hind-siliguri/700.css";
-@import "@fontsource/baloo-da-2/500.css";
-@import "@fontsource/baloo-da-2/600.css";
 @import "@fontsource/baloo-da-2/700.css";
 @import "@fontsource/baloo-da-2/800.css";
 
@@ -201,6 +199,49 @@
 
 .gb-live .gb-hero-in {
   animation: none;
+}
+
+/* Sections fade and rise as they scroll into view (Home's <Reveal>). Pure
+   CSS on a scroll timeline: nothing is hidden before JavaScript runs, and
+   browsers without support just show the content. */
+/* Sections below the first screen are laid out only when scrolled near,
+   which saves a lot of work on the first paint (Bangla text is costly to
+   shape). The intrinsic size keeps the scrollbar stable. */
+.gb-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
+
+/* Mobile menu opening. */
+@keyframes gb-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.gb-fade-in {
+  animation: gb-fade-in 200ms ease-out;
+}
+
+@keyframes gb-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gb-reveal {
+      animation: gb-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(0% + var(--gb-reveal-shift, 0px)) entry calc(35% + var(--gb-reveal-shift, 0px));
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

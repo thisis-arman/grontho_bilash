@@ -3,10 +3,10 @@ import {
     useEffect,
     useRef,
     useState,
+    type CSSProperties,
     type ReactNode,
 } from "react";
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Calculator, FileQuestion, GraduationCap, Lightbulb, ListChecks } from "lucide-react";
 
 import { useGetProductsQuery } from "../../redux/features/book/bookApi";
@@ -165,10 +165,10 @@ const useNearViewport = <T extends HTMLElement>(rootMargin = "700px") => {
 
 const container = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-// Fade-and-rise on scroll. Renders plain markup when the visitor prefers
-// reduced motion.
+// Fade-and-rise on scroll, done in CSS (.gb-reveal in index.css) so the
+// sections are visible in the pre-rendered HTML before any JavaScript runs
+// and the animation library stays out of the first download. Browsers
+// without scroll-driven animations simply show the content.
 const Reveal = ({
     children,
     delay = 0,
@@ -177,25 +177,11 @@ const Reveal = ({
     children: ReactNode;
     delay?: number;
     className?: string;
-}) => {
-    const reduceMotion = useReducedMotion();
-
-    if (reduceMotion) {
-        return <div className={className}>{children}</div>;
-    }
-
-    return (
-        <motion.div
-            className={className}
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-            transition={{ duration: 0.7, ease: EASE, delay }}
-        >
-            {children}
-        </motion.div>
-    );
-};
+}) => (
+    <div className={`gb-reveal ${className ?? ""}`} style={delay ? ({ "--gb-reveal-shift": `${Math.round(delay * 100)}px` } as CSSProperties) : undefined}>
+        {children}
+    </div>
+);
 
 // The hero is the largest thing on the first screen, so it must be visible
 // in the very first paint: it only slides up a little with CSS (no fade, no
@@ -357,7 +343,7 @@ const hubLinks = [
 ];
 
 const StudentHubSection = () => (
-    <section aria-labelledby="hub-heading" className="border-t border-white/10">
+    <section aria-labelledby="hub-heading" className="gb-cv border-t border-white/10">
         <div className={`${container} py-14 sm:py-20`}>
             <h2 id="hub-heading" className="mb-6 font-display text-2xl font-bold text-stone-50 sm:mb-8 sm:text-3xl">
                 তুমি কী খুঁজছ?
@@ -506,7 +492,7 @@ const RecentListingsSection = () => {
         !shouldLoad || isLoading || (isFetching && recentProducts.length === 0);
 
     return (
-        <section ref={ref} className={`${container} py-20 sm:py-28`}>
+        <section ref={ref} className={`gb-cv ${container} py-20 sm:py-28`}>
             <SectionHeader
                 index={3}
                 eyebrow="নতুন সংযোজন"
@@ -572,7 +558,7 @@ const RecentListingsSection = () => {
    ========================================================================== */
 
 const BenefitsSection = () => (
-    <section className={`${container} py-20 sm:py-28`}>
+    <section className={`gb-cv ${container} py-20 sm:py-28`}>
         <SectionHeader
             index={1}
             eyebrow="কেন গ্রন্থবিলাস"
@@ -613,7 +599,7 @@ const BenefitsSection = () => (
    ========================================================================== */
 
 const HowItWorksSection = () => (
-    <section className="border-y border-white/10 bg-stone-900/40">
+    <section className="gb-cv border-y border-white/10 bg-stone-900/40">
         <div className={`${container} py-20 sm:py-28`}>
             <SectionHeader
                 index={2}
@@ -670,7 +656,7 @@ const HowItWorksSection = () => (
    ========================================================================== */
 
 const CategoriesSection = () => (
-    <section className="border-t border-white/10">
+    <section className="gb-cv border-t border-white/10">
         <div className={`${container} py-20 sm:py-28`}>
             <SectionHeader
                 index={4}
@@ -709,7 +695,7 @@ const CategoriesSection = () => (
    ========================================================================== */
 
 const ToolsSection = () => (
-    <section className="border-t border-white/10 bg-stone-900/40">
+    <section className="gb-cv border-t border-white/10 bg-stone-900/40">
         <div className={`${container} py-20 sm:py-28`}>
             <SectionHeader
                 index={5}
@@ -754,7 +740,7 @@ const ToolsSection = () => (
    ========================================================================== */
 
 const ClosingSection = () => (
-    <section className="relative overflow-hidden border-t border-white/10">
+    <section className="gb-cv relative overflow-hidden border-t border-white/10">
         <div
             aria-hidden="true"
             className="pointer-events-none absolute -bottom-48 left-1/2 h-[30rem] w-[50rem] max-w-none -translate-x-1/2 rounded-full bg-amber-500/10 blur-3xl"
