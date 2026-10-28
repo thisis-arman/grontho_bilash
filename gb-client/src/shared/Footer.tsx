@@ -201,7 +201,7 @@ const Footer = () => {
       <div className="border-t border-stone-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-600 text-center sm:text-left">
-            © {bnNumber(new Date().getFullYear())} Grontho Bilash। All Rights Reserved। Developed by <a target="_blank" href="http://https://meetarman.vercel.app/">Arman</a>.
+            © {bnNumber(new Date().getFullYear())} Grontho Bilash। All Rights Reserved। Developed by <a target="_blank" href="https://meetarman.vercel.app/">Arman</a>.
           </p>
 
           {/* Socials */}
