@@ -17,6 +17,7 @@ export const sendEmail = async (email: string, otp: number) => {
   // Send OTP via email
   const mailOptions = {
     from: `"Grontho Bilash" <${config.email}>`,
+    replyTo: config.support_email,
     to: email,
     subject: "তোমার OTP যাচাই কোড | Grontho Bilash",
     text: `তোমার OTP কোড: ${otp}`, // Fallback for email clients that don't support HTML

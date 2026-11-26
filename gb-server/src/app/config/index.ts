@@ -9,6 +9,9 @@ export default {
   salt_rounds: process.env.SALT_ROUNDS,
   email: process.env.EMAIL,
   password: process.env.PASSWORD,
+  // The official inbox: gets every order notification, and replies to any
+  // email the site sends land here.
+  support_email: process.env.SUPPORT_EMAIL || "gronthobilashbd@gmail.com",
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
   jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
   jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,

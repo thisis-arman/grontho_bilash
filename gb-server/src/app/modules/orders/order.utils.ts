@@ -30,6 +30,7 @@ export const sendEmailAboutOrderDetailtoSystemAdmin = async (
 
   const mailOptions = {
     from: `"Grontho Bilash" <${config.email}>`,
+    replyTo: config.support_email,
     to: adminEmails,
     subject: `🛒 New Order Received | ${order.orderId}`,
 
@@ -251,6 +252,7 @@ export const sendOrderConfirmationToBuyer = async (email: string, orders: TOrder
   try {
     await transporter.sendMail({
       from: `"Grontho Bilash" <${config.email}>`,
+      replyTo: config.support_email,
       to: email,
       subject: `তোমার অর্ডার পেয়েছি | ${ids}`,
       text: `অর্ডার করার জন্য ধন্যবাদ (${ids})। মোট: ৳${total}। আমরা শিগগিরই অর্ডারটি কনফার্ম করব। 'আমার অর্ডার' পাতায় যেকোনো সময় অর্ডারের অবস্থা দেখতে পারবে।`,

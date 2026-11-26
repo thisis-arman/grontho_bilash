@@ -16,7 +16,7 @@ import {
 import WhatsAppButton, { SUPPORT_PHONE_DISPLAY, SUPPORT_PHONE_TEL, whatsappLink } from "../../components/WhatsAppButton";
 import { SITE_URL, usePageMeta } from "../../utils/usePageMeta";
 
-const EMAIL = "hello@gronthobilash.com";
+const EMAIL = "gronthobilashbd@gmail.com";
 
 // Each topic opens WhatsApp with a message already started, so support
 // knows straight away what the chat is about.

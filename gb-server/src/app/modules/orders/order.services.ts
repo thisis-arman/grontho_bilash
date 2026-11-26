@@ -16,6 +16,7 @@ import { sendOrderConfirmationToBuyer } from './order.utils';
 import { notifyOrderStatus } from '../../utils/whatsapp';
 import { isAdminRole } from '../../middlewares/auth';
 import { emailLayout, escapeHtml, sendMail } from '../../utils/mailer';
+import config from '../../config';
 
 // Saved as the address of orders that only contain digital books.
 const DIGITAL_DELIVERY_ADDRESS = "ডিজিটাল ডেলিভারি (গ্রন্থবিলাস লাইব্রেরি)";
@@ -391,7 +392,7 @@ const createOrder = async (
         role: { $in: [USER_ROLE.admin, USER_ROLE.superAdmin] },
         isDeleted: false,
       });
-      const adminEmails = allAdmins.map((admin) => admin.email);
+      const adminEmails = [...new Set([config.support_email, ...allAdmins.map((admin) => admin.email)])];
 
       if (adminEmails.length) {
         for (const order of createdOrders) {

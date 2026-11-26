@@ -18,7 +18,7 @@ export const escapeHtml = (value: string) =>
 export const sendMail = async (mail: { to: string; subject: string; text: string; html: string }) => {
   if (!config.email || !config.password) return false;
   try {
-    await getTransporter().sendMail({ from: `"Grontho Bilash" <${config.email}>`, ...mail });
+    await getTransporter().sendMail({ from: `"Grontho Bilash" <${config.email}>`, replyTo: config.support_email, ...mail });
     return true;
   } catch (error) {
     console.error("Email failed:", (error as Error).message);
