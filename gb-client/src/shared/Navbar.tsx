@@ -16,6 +16,7 @@ import {
   ListChecks,
   FileQuestion,
   GraduationCap,
+  Languages,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const publicNav = [
       { name: "কোন বই লাগবে?", link: "/booklists", icon: <ListChecks size={16} /> },
       { name: "প্রশ্ন ব্যাংক", link: "/questions", icon: <FileQuestion size={16} /> },
       { name: "পরীক্ষার সাজেশন", link: "/suggestions", icon: <Lightbulb size={16} /> },
+      { name: "IELTS প্রস্তুতি", link: "/blogs?category=IELTS", icon: <Languages size={16} /> },
       { name: "ব্লগ ও বই রিভিউ", link: "/blogs", icon: <Newspaper size={16} /> },
     ],
   },

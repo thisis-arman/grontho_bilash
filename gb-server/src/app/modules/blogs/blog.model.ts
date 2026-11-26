@@ -8,6 +8,7 @@ export const BLOG_CATEGORIES = [
   "Student Life",
   "Guides",
   "Platform News",
+  "IELTS",
 ] as const;
 
 export type TBlogCategory = (typeof BLOG_CATEGORIES)[number];

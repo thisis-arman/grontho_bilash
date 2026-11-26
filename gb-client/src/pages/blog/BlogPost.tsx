@@ -48,6 +48,7 @@ const CATEGORY_BN: Record<string, string> = {
   "Student Life": "শিক্ষার্থী জীবন",
   Guides: "গাইড",
   "Platform News": "গ্রন্থবিলাসের খবর",
+  IELTS: "IELTS",
 };
 
 const BlogPost = () => {
