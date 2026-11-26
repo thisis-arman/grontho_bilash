@@ -57,7 +57,7 @@ router.get(
       BlogModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
       SuggestionModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1, kind: 1 }).lean(),
       BookListModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
-      CurriculumModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1 }).lean(),
+      CurriculumModel.find({ isDeleted: false, status: "published" }, { slug: 1, updatedAt: 1, "years.courses.code": 1 }).lean(),
     ]);
 
     type Row = { slug: string; updatedAt?: Date; kind?: string };
@@ -70,6 +70,9 @@ router.get(
       ),
       ...(bookLists as Row[]).map((l) => entry(`/booklists/${l.slug}`, l.updatedAt, "0.7")),
       ...(departments as Row[]).map((d) => entry(`/courses/${d.slug}`, d.updatedAt, "0.7")),
+      ...(departments as (Row & { years?: { courses?: { code?: string }[] }[] })[]).flatMap((d) =>
+        (d.years ?? []).flatMap((y) => y.courses ?? []).filter((c) => c.code).map((c) => entry(`/courses/${d.slug}/${c.code}`, d.updatedAt, "0.6"))
+      ),
     ];
 
     res

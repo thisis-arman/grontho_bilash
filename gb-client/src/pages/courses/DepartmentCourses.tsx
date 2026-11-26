@@ -18,12 +18,18 @@ const groupLabel = (group?: string) =>
 
 const action = "inline-flex h-8 items-center gap-1 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-stone-700 transition hover:border-amber-400 hover:text-amber-800";
 
-const CourseRow = ({ course }: { course: Course }) => {
+const CourseRow = ({ course, slug }: { course: Course; slug: string }) => {
   const q = encodeURIComponent(course.title.replace(/\s*\((Theory|Practical)\)$/i, ""));
   return (
     <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
       <div className="min-w-0 flex-1">
-        <p className="font-semibold leading-snug text-stone-900">{course.title}</p>
+        {course.code ? (
+          <Link to={`/courses/${slug}/${course.code}`} className="font-semibold leading-snug text-stone-900 hover:text-amber-700 hover:underline">
+            {course.title}
+          </Link>
+        ) : (
+          <p className="font-semibold leading-snug text-stone-900">{course.title}</p>
+        )}
         <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-stone-500">
           {course.code && <span className="font-mono">কোড {course.code}</span>}
           {course.credits != null && <span>{bnNumber(course.credits)} ক্রেডিট</span>}
@@ -184,7 +190,7 @@ const DepartmentCourses = () => {
                 )}
                 <ul className="divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200 bg-white">
                   {g.courses.map((c) => (
-                    <CourseRow key={`${c.code}-${c.title}`} course={c} />
+                    <CourseRow key={`${c.code}-${c.title}`} course={c} slug={dept.slug} />
                   ))}
                 </ul>
               </section>

@@ -46,6 +46,7 @@ const BookListFinder = lazy(() => import("../pages/booklists/BookListFinder"));
 const BookListDetail = lazy(() => import("../pages/booklists/BookListDetail"));
 const CourseCatalog = lazy(() => import("../pages/courses/CourseCatalog"));
 const DepartmentCourses = lazy(() => import("../pages/courses/DepartmentCourses"));
+const CourseDetail = lazy(() => import("../pages/courses/CourseDetail"));
 const CurriculumEditor = lazy(() => import("../pages/dashboard/adminDashboard/content/CurriculumEditor"));
 const GpaCalculator = lazy(() => import("../pages/tools/GpaCalculator"));
 const GradeConverter = lazy(() => import("../pages/tools/GradeConverter"));
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
             {
                 path: '/courses/:slug',
                 element: <DepartmentCourses />
+            },
+            {
+                path: '/courses/:slug/:code',
+                element: <CourseDetail />
             },
             {
                 path: '/careers',

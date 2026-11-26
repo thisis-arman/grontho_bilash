@@ -6,6 +6,7 @@ import { escapeRegex } from "../../utils/content";
 import { normalizeQuery } from "../../utils/searchText";
 import { CurriculumModel, TCurriculum, TCurriculumYear } from "./curriculum.model";
 import nuHonours2024 from "./data/nuHonours2024";
+import { NU_HONOURS_4TH_YEAR_2013 } from "./data/nuHonours4thYear2013";
 
 type CurriculumInput = Partial<Omit<TCurriculum, "slug" | "isDeleted">>;
 
@@ -142,7 +143,11 @@ const importNuHonours = async () => {
   const seed = nuHonours2024;
   let departmentsAdded = 0;
   let yearsAdded = 0;
-  for (const d of seed.departments) {
+  for (const seedDept of seed.departments) {
+    // The new curriculum has no 4th year yet; current 4th-year students
+    // follow the 2013-2014 one.
+    const old4th = NU_HONOURS_4TH_YEAR_2013[`${seedDept.program}/${seedDept.department}`];
+    const d = old4th && !seedDept.years.some((y) => y.year === 4) ? { ...seedDept, years: [...seedDept.years, old4th] } : seedDept;
     const program = seed.programs[d.program];
     const base = { institution: seed.institution, level: seed.level, program: d.program, department: d.department };
     const slug = makeSlug(base);
